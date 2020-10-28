@@ -18,7 +18,6 @@ public class OptionsMenu : MonoBehaviour
     public AudioMixer theMixer;
 
     public Slider masterSlider, musicSlider, sfxSlider;
-    public Text masterLabel, musicLabel, sfxLabel;
 
     public AudioSource sfxLoop;
 
@@ -55,27 +54,20 @@ public class OptionsMenu : MonoBehaviour
             resolutionLabel.text = Screen.width.ToString() + " x " + Screen.height.ToString();
         }
 
-        if(PlayerPrefs.HasKey("MasterVol"))
+        if (PlayerPrefs.HasKey("MasterVol"))
         {
-            theMixer.SetFloat("MasterVol", PlayerPrefs.GetFloat("MasterVol"));
-            masterSlider.value = PlayerPrefs.GetFloat("MasterVol");
+            masterSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);
         }
 
         if (PlayerPrefs.HasKey("MusicVol"))
         {
-            theMixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("MusicVol"));
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVol");
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
         }
 
         if (PlayerPrefs.HasKey("SFXVol"))
         {
-            theMixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("SFXVol"));
-            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol");
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
         }
-
-        masterLabel.text = (masterSlider.value + 100).ToString();
-        musicLabel.text = (musicSlider.value + 100).ToString();
-        sfxLabel.text = (sfxSlider.value + 100).ToString();
 
     }
 
@@ -134,29 +126,30 @@ public class OptionsMenu : MonoBehaviour
 
     public void SetMasterVol()
     {
-        masterLabel.text = (masterSlider.value + 100).ToString();
+        float mastersliderValue = masterSlider.value;
 
-        theMixer.SetFloat("MasterVol", masterSlider.value);
+        theMixer.SetFloat("MasterVol", Mathf.Log10(mastersliderValue) * 20);
 
-        PlayerPrefs.SetFloat("MasterVol", masterSlider.value);
+        PlayerPrefs.SetFloat("MasterVolume", mastersliderValue);
+
     }
 
     public void SetMusicVol()
     {
-        musicLabel.text = (musicSlider.value + 100).ToString();
+        float musicVolumeSlider = musicSlider.value;
 
-        theMixer.SetFloat("MusicVol", musicSlider.value);
+        theMixer.SetFloat("MusicVol", Mathf.Log10(musicVolumeSlider) * 20);
 
-        PlayerPrefs.SetFloat("MusicVol", musicSlider.value);
+        PlayerPrefs.SetFloat("MusicVolume", musicVolumeSlider);
     }
 
     public void SetSFXVol()
     {
-        sfxLabel.text = (sfxSlider.value + 100).ToString();
+        float sfxVolumeSlider = sfxSlider.value;
 
-        theMixer.SetFloat("SFXVol", sfxSlider.value);
+        theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 20);
 
-        PlayerPrefs.SetFloat("SFXVol", sfxSlider.value);
+        PlayerPrefs.SetFloat("SFXVolume", sfxVolumeSlider);
     }
 
     public void PlaySFXLoop()

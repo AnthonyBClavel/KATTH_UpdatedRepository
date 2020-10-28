@@ -229,10 +229,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 8233263429340338377}
   m_HandleRect: {fileID: 8233263430788232468}
   m_Direction: 0
-  m_MinValue: -80
-  m_MaxValue: 0
-  m_WholeNumbers: 1
-  m_Value: 0
+  m_MinValue: 0.0001
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -240,6 +240,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: SetMasterVol
         m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1701940852}
+        m_TargetAssemblyTypeName: ShowVolumeValue, Assembly-CSharp
+        m_MethodName: textUpdate
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -330,10 +342,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 8233263430024924971}
   m_HandleRect: {fileID: 8233263429113416211}
   m_Direction: 0
-  m_MinValue: -80
-  m_MaxValue: 0
-  m_WholeNumbers: 1
-  m_Value: 0
+  m_MinValue: 0.0001
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -341,6 +353,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: SetMusicVol
         m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 264035635}
+        m_TargetAssemblyTypeName: ShowVolumeValue, Assembly-CSharp
+        m_MethodName: textUpdate
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -562,6 +586,7 @@ GameObject:
   - component: {fileID: 8233263429100277466}
   - component: {fileID: 8233263429100277464}
   - component: {fileID: 8233263429100277467}
+  - component: {fileID: 264035635}
   m_Layer: 5
   m_Name: Music Vol Label
   m_TagString: Untagged
@@ -630,6 +655,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 100
+--- !u!114 &264035635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8233263429100277469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ad8ce3764cb2c46accab911059277f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliderValueText: {fileID: 8233263429100277467}
 --- !u!1 &8233263429113416210
 GameObject:
   m_ObjectHideFlags: 0
@@ -1918,6 +1956,7 @@ GameObject:
   - component: {fileID: 8233263430271604867}
   - component: {fileID: 8233263430271604865}
   - component: {fileID: 8233263430271604864}
+  - component: {fileID: 1701940852}
   m_Layer: 5
   m_Name: Master Vol Label
   m_TagString: Untagged
@@ -1986,6 +2025,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 100
+--- !u!114 &1701940852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8233263430271604866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ad8ce3764cb2c46accab911059277f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliderValueText: {fileID: 8233263430271604864}
 --- !u!1 &8233263430320940522
 GameObject:
   m_ObjectHideFlags: 0
@@ -2246,9 +2298,6 @@ MonoBehaviour:
   masterSlider: {fileID: 8233263428880973407}
   musicSlider: {fileID: 8233263428977955175}
   sfxSlider: {fileID: 8233263430681715206}
-  masterLabel: {fileID: 8233263430271604864}
-  musicLabel: {fileID: 8233263429100277467}
-  sfxLabel: {fileID: 8233263430411160506}
   sfxLoop: {fileID: 8233263429054657875}
 --- !u!1 &8233263430411160508
 GameObject:
@@ -2261,6 +2310,7 @@ GameObject:
   - component: {fileID: 8233263430411160509}
   - component: {fileID: 8233263430411160507}
   - component: {fileID: 8233263430411160506}
+  - component: {fileID: 1372047294}
   m_Layer: 5
   m_Name: SFX Vol Label
   m_TagString: Untagged
@@ -2329,6 +2379,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 100
+--- !u!114 &1372047294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8233263430411160508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ad8ce3764cb2c46accab911059277f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sliderValueText: {fileID: 8233263430411160506}
 --- !u!1 &8233263430557052984
 GameObject:
   m_ObjectHideFlags: 0
@@ -2644,10 +2707,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 8233263430336580922}
   m_HandleRect: {fileID: 8233263430576583086}
   m_Direction: 0
-  m_MinValue: -80
-  m_MaxValue: 0
-  m_WholeNumbers: 1
-  m_Value: 0
+  m_MinValue: 0.0001
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -2655,6 +2718,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: SetSFXVol
         m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1372047294}
+        m_TargetAssemblyTypeName: ShowVolumeValue, Assembly-CSharp
+        m_MethodName: textUpdate
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3660,7 +3735,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6702054401347728766, guid: b6af4a0a767a51c4089fd170889886ba, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MainMenu, Assembly-CSharp
+      value: PauseMenu01, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6702054401347728766, guid: b6af4a0a767a51c4089fd170889886ba, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName

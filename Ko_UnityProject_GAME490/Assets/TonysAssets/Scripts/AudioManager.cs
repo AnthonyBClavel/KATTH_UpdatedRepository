@@ -2,28 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
     public AudioMixer theMixer;                                                     //variable for the AudioMixer
 
+    public Slider masterSlider, musicSlider, sfxSlider;
+
     // Start is called before the first frame update
     void Start()
     {
-
-        if (PlayerPrefs.HasKey("MasterVol"))                                        //if the master volume is stored...
+        if (PlayerPrefs.HasKey("MusicVol"))                                         //if the music volume is stored...
         {
-            theMixer.SetFloat("MasterVol", PlayerPrefs.GetFloat("MasterVol"));      //set it to the AudioMixer
+            masterSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);          //set float value
         }
 
         if (PlayerPrefs.HasKey("MusicVol"))                                         //if the music volume is stored...
         {
-            theMixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("MusicVol"));        //set it to the AudioMixer
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);            //set float value
         }
 
         if (PlayerPrefs.HasKey("SFXVol"))                                           //if the sfx volume is stored...
         {
-            theMixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("SFXVol"));            //set it to the AudioMixer
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);                //set float value
         }
 
     }
