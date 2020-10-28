@@ -71,7 +71,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
 
             flameIcon.color = Color.Lerp(lowFlameColor, fullFlameColor, fillAmount);
 
-            audioSource.volume = Mathf.Lerp(0f, 0.8f, fillAmount);
+            audioSource.volume = Mathf.Lerp(0f, 0.9f, fillAmount);
         }
     }
 
