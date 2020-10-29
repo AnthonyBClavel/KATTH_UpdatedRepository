@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     public float height = 0.5f; // ?
     public float heightPadding = 0.05f; // ?
 
-    float angle;
+    public float angle;
     bool grounded;
     float groundAngle;
 

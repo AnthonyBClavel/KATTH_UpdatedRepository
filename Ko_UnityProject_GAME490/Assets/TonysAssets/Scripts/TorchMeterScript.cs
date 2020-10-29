@@ -8,29 +8,21 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
 {
     private float fillAmount;
 
-    [SerializeField]
-    private float lerpSpeed;
+    public float lerpSpeed;
 
-    [SerializeField]
-    private Image content;
+    public Image content;
 
-    [SerializeField]
-    private Image flameIcon;
+    public Image flameIcon;
 
-    [SerializeField]
-    private Text valueText;
+    public Text valueText;
 
-    [SerializeField]
-    private Color fullColor;
+    public Color fullColor;
 
-    [SerializeField]
-    private Color lowColor;
+    public Color lowColor;
 
-    [SerializeField]
-    private Color fullFlameColor;
+    public Color fullFlameColor;
 
-    [SerializeField]
-    private Color lowFlameColor;
+    public Color lowFlameColor;
 
     private AudioSource audioSource;
 

@@ -128,7 +128,7 @@ public class OptionsMenu : MonoBehaviour
     {
         float mastersliderValue = masterSlider.value;
 
-        theMixer.SetFloat("MasterVol", Mathf.Log10(mastersliderValue) * 20);
+        theMixer.SetFloat("MasterVol", Mathf.Log10(mastersliderValue) * 22);
 
         PlayerPrefs.SetFloat("MasterVolume", mastersliderValue);
 
@@ -138,7 +138,7 @@ public class OptionsMenu : MonoBehaviour
     {
         float musicVolumeSlider = musicSlider.value;
 
-        theMixer.SetFloat("MusicVol", Mathf.Log10(musicVolumeSlider) * 20);
+        theMixer.SetFloat("MusicVol", Mathf.Log10(musicVolumeSlider) * 22);
 
         PlayerPrefs.SetFloat("MusicVolume", musicVolumeSlider);
     }
@@ -147,7 +147,7 @@ public class OptionsMenu : MonoBehaviour
     {
         float sfxVolumeSlider = sfxSlider.value;
 
-        theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 20);
+        theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 22);
 
         PlayerPrefs.SetFloat("SFXVolume", sfxVolumeSlider);
     }
