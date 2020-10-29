@@ -5,13 +5,8 @@ using UnityEngine;
 
 public class TileMovementV2 : MonoBehaviour
 {
-    [SerializeField]                                            //allows you to see and manipulate the variable within the Unity inspector if it's private (the variable below this line)
-    public AudioClip[] clips;                                   //creates an array of audio clips 
     public GameObject torchFireIgniteSFX;                       //variable for a gameobject (either within the Unity hierarchy, or a prefab)
     public GameObject torchFireExtinguishSFX;                   //variable for a gameobject (either within the Unity hierarchy, or a prefab)
-
-    private AudioSource audioSource;                            //establishes a variable for an audio source component
-    public AudioClip pushCrateSFX;                              //variable for an audio clip
 
     Vector3 up = Vector3.zero,                                  //to make the object look up (north)
     right = new Vector3(0, 90, 0),                              //to make the object look right (east)
@@ -54,7 +49,6 @@ public class TileMovementV2 : MonoBehaviour
         currentDirection = up;                                  //the direction the object faces when you start the game
         nextPos = Vector3.forward;                              //the next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position;                       //the point where the object is currenlty at 
-        audioSource = GetComponent<AudioSource>();              //sets the audio source variable to the object's audio source component (sets instance)
     }
 
     void Update()
@@ -151,7 +145,7 @@ public class TileMovementV2 : MonoBehaviour
             {               
                 if (Valid() && EdgeCheck())                                                              //if the bool functions below are returned as true
                 {
-                    Footstep();
+                    PlayerSounds.instance.TileCheck();
                     destination = transform.position + nextPos;                                          //updates the destination by adding the next position to the object's current position
                     direction = nextPos;
                     torchMeterMoves.CurrentVal -= 1;
@@ -271,12 +265,12 @@ public class TileMovementV2 : MonoBehaviour
             if (hit.collider.tag == "Obstacle" && canPush)                                                                                      //if the ray hits an object tagged "Obstacle" and etc... (hold down correct WASD key and then press left shift to push block)
             {   
                 bool move = hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();
-                if (Input.GetKeyDown(KeyCode.LeftShift) && move)                                                                                         //...and if the specified key is pressed... **this needs to be refined** 
+                if (Input.GetKeyDown(KeyCode.LeftShift) && move)                                                                                //...and if the specified key is pressed... **this needs to be refined** 
                 {
                     torchMeterMoves.CurrentVal -= 1;                                                                                            //subract one from the torch meter's current value
                 }
 
-                //hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();                                                              //calls the function from the hit object's script 
+                //hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();                                                            //calls the function from the hit object's script 
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
             }
@@ -337,18 +331,6 @@ public class TileMovementV2 : MonoBehaviour
         return false;                                                                                                                            //the bool function is returned as false for any other possible if statement
     }                                                                                           
 
-
-    private void Footstep()                                                                                                                      //the function that plays the random audio clip
-    {
-        AudioClip clips = GetRandomClip();                                                                                                       //calls the random audio clip function below
-        audioSource.PlayOneShot(clips);                                                                                                          //plays the audio clip (from start to end - without intturuption) through the object's audio source component
-    }
-
-    private AudioClip GetRandomClip()                                                                                                            //the function for getting a random audio clip within the array
-    {
-        return clips[UnityEngine.Random.Range(0, clips.Length)];                                                                                 //selects a random audio clip based on the size of the array (its length)
-    }
-
     /**
      * Sets the destination of the player to the new destination.
      * @param newDestination - The new destination to set to
@@ -360,7 +342,7 @@ public class TileMovementV2 : MonoBehaviour
 
     private void checkIfOnCheckpoint()
     {
-        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);                                                   //shoots a ray into the direction that the object is looking towards
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);                                                        //shoots a ray into the direction that the object is looking towards
         RaycastHit hit;
 
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                                                //shows a debug line of the raycast that was called previously (just for debugging purposes)
