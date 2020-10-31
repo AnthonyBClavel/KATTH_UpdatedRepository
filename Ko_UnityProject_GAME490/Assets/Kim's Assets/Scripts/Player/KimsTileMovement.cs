@@ -38,8 +38,7 @@ public class KimsTileMovement : MonoBehaviour
 
     public GameObject destroyedBlockParticle;                   //the particle effect that spawns when you break a block
 
-    [SerializeField]                                            //allows you to see and manipulate the variable within the Unity inspector if it's private (the variable below this line)
-    private TorchMeterStat torchMeterMoves;                     //variable for the specified script
+    public TorchMeterStat torchMeterMoves;                     //variable for the specified script
 
     public GameObject checkpoint;
     public GameObject puzzle;

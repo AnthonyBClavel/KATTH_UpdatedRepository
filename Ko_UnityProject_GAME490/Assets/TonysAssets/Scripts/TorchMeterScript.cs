@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class TorchMeterScript : MonoBehaviour //Dont worry about this script, use the TileMovement Script and its component (in the Unity inspector) to manipulate the torch meter   
 {
     private float fillAmount;
-
+    
     public float lerpSpeed;
 
     public Image content;

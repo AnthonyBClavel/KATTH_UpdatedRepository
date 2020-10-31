@@ -25,7 +25,7 @@ public class TileMovementV2 : MonoBehaviour
     public GameObject edgeCheck;
 
     private bool isWalking;                                     //the bool is used to determine when to play an object's animation
-    private bool isPushing;                                     //the bool is used to determine when the object can move 
+    public bool isPushing;                                     //the bool is used to determine when the object can move 
     private bool canPush;                                       //the bool is used to determine when the object can be pushed 
     private bool alreadyPlayedSFX;
 
@@ -33,7 +33,7 @@ public class TileMovementV2 : MonoBehaviour
 
     public GameObject destroyedBlockParticle;                   //the particle effect that spawns when you break a block
 
-    public TorchMeterStat torchMeterMoves;                     //variable for the specified script
+    public TorchMeterStat torchMeterMoves;                      //variable for the specified script
 
     public GameObject checkpoint;
     public GameObject puzzle;
@@ -48,7 +48,7 @@ public class TileMovementV2 : MonoBehaviour
     {
         currentDirection = up;                                  //the direction the object faces when you start the game
         nextPos = Vector3.forward;                              //the next block postion is equal to the object's forward axis (it will move along the direction it is facing)
-        destination = transform.position;                       //the point where the object is currenlty at 
+        destination = transform.position;                       //the point where the object is currenlty at
     }
 
     void Update()
@@ -149,7 +149,7 @@ public class TileMovementV2 : MonoBehaviour
                     destination = transform.position + nextPos;                                          //updates the destination by adding the next position to the object's current position
                     direction = nextPos;
                     torchMeterMoves.CurrentVal -= 1;
-                    canMove = false;                                                                     //prevents the object from constantly moving towards the object's current direction     
+                    canMove = false;                                                                     //prevents the object from constantly moving towards the object's current direction  
                 }           
             }    
         }

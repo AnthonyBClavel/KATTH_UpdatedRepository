@@ -47,29 +47,34 @@ public class PlayerSounds : MonoBehaviour
 
         if (Physics.Raycast(myRay, out hit, rayLength))
         {
-            if (hit.collider.tag == "SnowTiles" || hit.collider.gameObject.name == "SnowCheckpoint")
+            if (hit.collider.tag == "SnowTiles" || hit.collider.gameObject.name == "SnowCheckpoint" || hit.collider.gameObject.name == "Checkpoint_SnowTiles")
             {
                 audioSource.volume = 0.7f;
+                audioSource.pitch = 1.0f;
                 SnowFootsteps();
             }
-            else if (hit.collider.tag == "GrassTiles" || hit.collider.gameObject.name == "GrassCheckpoint")
+            else if (hit.collider.tag == "GrassTiles" || hit.collider.gameObject.name == "GrassCheckpoint" || hit.collider.gameObject.name == "Checkpoint_GrassTiles")
             {
                 audioSource.volume = 0.7f;
+                audioSource.pitch = 1.0f;
                 GrassFootsteps();
             }
-            else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "StoneCheckpoint")
+            else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "StoneCheckpoint" || hit.collider.gameObject.name == "Checkpoint_StoneTiles")
             {
                 audioSource.volume = 0.8f;
+                audioSource.pitch = 1.0f;
                 StoneFootsteps();
             }
-            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint")
+            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles")
             {
                 audioSource.volume = 1.0f;
+                audioSource.pitch = 1.0f;
                 MetalFootsteps();
             }
-            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock")
+            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.tag == "Obstacle")
             {
                 audioSource.volume = 0.75f;
+                audioSource.pitch = 0.9f;
                 WoodFootsteps();
             }
         }

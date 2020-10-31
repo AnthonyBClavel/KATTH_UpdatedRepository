@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class BlockMovement : MonoBehaviour
 {
@@ -15,9 +17,10 @@ public class BlockMovement : MonoBehaviour
 
     bool canMoveBlock;                                          //the bool is used to determine when the object can move
 
-    float speed = 5f;                                           //the speed at which the object will move from its current position to the destination               
-    float rayLength = 1f;                                       //the ray length for the tile movement
+    float speed = 10f;                                           //the speed at which the object will move from its current position to the destination    
+    float rayLength = 1f;                                       //the ray length for the tile movement and fall check
     float rayLengthEdgeCheck = 1f;                              //the ray length for the edge check
+    float rayFalleCheck = 1f;
 
     public GameObject crateEdgeCheck;                           //variable for an object - this will be used for the edge check bool function (gameobject determined in Unity inspector)
 
@@ -36,14 +39,16 @@ public class BlockMovement : MonoBehaviour
 
     void Update()
     {
-        //MoveBlock();                                          //calls the MoveBlock function stated below - dont use this line, it's just for reference
+        //MoveBlock();                                                                                          //calls the MoveBlock function stated below - dont use this line, it's just for reference
+        FallCheck();                                                                                            
+        transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);      //the object will move towards the destination (destination is updated via functions/bools below)
     }
 
     public bool MoveBlock()
     {
-        transform.position = Vector3.MoveTowards(transform.position, destination, speed /* * Time.deltaTime*/); //when the object starts moving, the object moves from its current position to the destination, **this needs to be refined** , uncheck Time.deltaTime to see what I mean...
         bool valid = false;
         bool edgeCheck = false;
+
         if (Input.GetKey(KeyCode.W) && Input.GetKeyDown(KeyCode.LeftShift))                                     //when the specified keys are pressed... (GetKey = hold key down, GetKeyDown = press key)
         {
             Debug.Log("Pushed Block Up");                                                                       //sends a debug message saying in the console (just for debugging purposes)
@@ -89,12 +94,13 @@ public class BlockMovement : MonoBehaviour
                     destination = transform.position + nextBlockPos;                                                            //updates the destination by adding the next position to the object's current position
                     direction = nextBlockPos;
                     audioSource.PlayOneShot(pushCrateSFX);                                                                      //plays an audio clip - the clip cannot be canceled if another is played
+                    
                     canMoveBlock = false;                                                                                       //prevents the object from constantly moving towards the object's current direction
                 }
             }
         }
-        return (valid && edgeCheck);
 
+        return (valid && edgeCheck);
     }
 
     bool Valid()                                                                                                                //the bool function that checks to see if the next position is valid or not
@@ -133,7 +139,28 @@ public class BlockMovement : MonoBehaviour
         {
             audioSource.PlayOneShot(cantPushCrateSFX);                                                                          //plays an audio clip - the clip cannot be canceled if another is played
         }
+       
         return false;                                                                                                           //if the ray doesnt hit anything, the bool is returned as false
+    }
+
+    //checks to see if the object can "fall" or not 
+    void FallCheck()                                                                                                            
+    {
+        Ray myFallCheckRay = new Ray(transform.position, -transform.up);                                                        
+        RaycastHit hit;
+
+        Debug.DrawRay(myFallCheckRay.origin, myFallCheckRay.direction, Color.red);                                             
+
+        if (Physics.Raycast(myFallCheckRay, out hit, rayFalleCheck))                                                               
+        {
+            if (hit.collider.tag == "EmptyBlock")
+            {
+                Debug.Log("Block has fallen");
+                destination = hit.collider.gameObject.transform.position;
+                //transform.position = Vector3.MoveTowards(transform.position, hit.collider.gameObject.transform.position, fallSpeed * Time.deltaTime);
+            }                                                                                           
+        }
+                                                                                                          
     }
 
     // Resets the block to where it originally was placed
@@ -143,5 +170,4 @@ public class BlockMovement : MonoBehaviour
         transform.position = startingPosition;
         Start();
     }
-
 }
