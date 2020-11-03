@@ -25,7 +25,8 @@ public class TileMovementV2 : MonoBehaviour
     public GameObject edgeCheck;
 
     private bool isWalking;                                     //the bool is used to determine when to play an object's animation
-    public bool isPushing;                                     //the bool is used to determine when the object can move 
+    private bool isPushing;                                     //the bool is used to determine when the object can move 
+    private bool isInteracting;
     private bool canPush;                                       //the bool is used to determine when the object can be pushed 
     private bool alreadyPlayedSFX;
 
@@ -57,8 +58,9 @@ public class TileMovementV2 : MonoBehaviour
         Push();                                                                                           //calls the Move function stated below
         Anim.SetBool("isWalking", isWalking);                                                             //sets the bool stated in this script to the corresponding bool stated within the object's animator
         Anim.SetBool("isPushing", isPushing);                                                             //sets the bool stated in this script to the corresponding bool stated within the object's animator
+        Anim.SetBool("isInteracting", isInteracting);
 
-        if(Input.GetKeyDown(KeyCode.LeftArrow))                                                           //if the left arrow key is pressed... (this is just for debugging purposes)
+        if (Input.GetKeyDown(KeyCode.LeftArrow))                                                           //if the left arrow key is pressed... (this is just for debugging purposes)
         {
             torchMeterMoves.CurrentVal -= 1;                                                              //subract one from the torch meter's current value
         }
@@ -255,7 +257,7 @@ public class TileMovementV2 : MonoBehaviour
                 {
                     torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                        //set the torch meter to it max value (fill up the bar)
                     Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);                                                    //spwans the particle effect on the object's position and rotation
-
+                    isInteracting = true;
                 }
                 hit.collider.gameObject.GetComponentInChildren<Light>().enabled = false;
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
@@ -286,7 +288,7 @@ public class TileMovementV2 : MonoBehaviour
             if (hit.collider.tag == "DestroyableBlock" && canPush && Input.GetKeyDown(KeyCode.LeftShift))                                       //if the ray hits an object tagged "DestroyableBlock" and etc... (hold down correct WASD key and then press left shift to try and push destroyable block)
             {
                 Debug.Log("Cannot Push Breakable Block");                                                                                       //sends a debug message to the console (just for debugging purposes)
-                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.1f, 0.25f);                                //calls the function from the script of the hit object's child                                 
+                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);                                //calls the function from the script of the hit object's child                                 
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
             }
@@ -302,6 +304,7 @@ public class TileMovementV2 : MonoBehaviour
             }
             else
             {
+                isInteracting = false;
                 isWalking = false;                                                                                                               //the object cannot play its walking animation for any other possible if statements
                 return false;                                                                                                                    //the bool function will return as false for any other possible if statements
             }
@@ -323,6 +326,11 @@ public class TileMovementV2 : MonoBehaviour
                 torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                             //set the torch meter to it max value (fill up the bar)
                 CameraController.instance.NextPuzzleView();                                                                                      //calls a function within the specified/external script
                 return true;                                                                                                                     //the bool is returned as true
+            }
+            if(hit.collider.tag == "EmptyBlock")
+            {
+                isWalking = false;
+                return false;
             }
             return true;                                                                                                                         //the bool function is returned as true
         }
