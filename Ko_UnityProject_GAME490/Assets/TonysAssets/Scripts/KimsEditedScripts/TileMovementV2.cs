@@ -31,6 +31,7 @@ public class TileMovementV2 : MonoBehaviour
     private bool alreadyPlayedSFX;
 
     public Animator Anim;                                       //establishes a variable for an animator component
+    private string currentState;
 
     public GameObject destroyedBlockParticle;                   //the particle effect that spawns when you break a block
 
@@ -38,7 +39,6 @@ public class TileMovementV2 : MonoBehaviour
 
     public GameObject checkpoint;
     public GameObject puzzle;
-
 
     private void Awake()
     {
@@ -80,7 +80,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);                  //play the audio clip (spawns an object prefab with an audio clip that plays on awake)
             alreadyPlayedSFX = true;                                                                      //the audio clip cannot be played again
-            resetPuzzle();
+            resetPuzzleWithDelay();
         }
 
         if(torchMeterMoves.CurrentVal > 0)                                                                //when the torch meter's current value is greater than zero
@@ -106,8 +106,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             nextPos = Vector3.forward;                                                                   
             currentDirection = up;                                                                       
-            canMove = true;                                                                             
-            isWalking = true;                                                                       
+            canMove = true;         
         }
 
         // Down
@@ -115,9 +114,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             nextPos = Vector3.back;
             currentDirection = down;
-            canMove = true;
-            isWalking = true;
-          
+            canMove = true;          
         }
         
         // Right
@@ -125,9 +122,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             nextPos = Vector3.right;
             currentDirection = right;
-            canMove = true;
-            isWalking = true;
-         
+            canMove = true;      
         }
 
         // Left
@@ -136,17 +131,17 @@ public class TileMovementV2 : MonoBehaviour
             nextPos = Vector3.left;
             currentDirection = left;
             canMove = true;
-            isWalking = true;
-            
         }
 
         if(Vector3.Distance(destination, transform.position) <= 0.00001f)                                //checks to see how big the distance is between the object's current position and the destination
         {
             transform.localEulerAngles = currentDirection;                                               //rotates the actual object to the current direction - the raycast will roatate with it, along the axis its facing
             if (canMove)
-            {               
+            {
+                isWalking = true;
+
                 if (Valid() && EdgeCheck())                                                              //if the bool functions below are returned as true
-                {
+                {      
                     PlayerSounds.instance.TileCheck();
                     destination = transform.position + nextPos;                                          //updates the destination by adding the next position to the object's current position
                     direction = nextPos;
@@ -167,16 +162,8 @@ public class TileMovementV2 : MonoBehaviour
             if (!Valid())                                                                                //if the bool function below is returned as false, then the object cannot move
             {
                 canMove = false;
-                if (Input.GetKeyDown(KeyCode.LeftShift))                                                 //when the bool function is returned as false, and you press a certain key...
-                {
-                    isPushing = true;                                                                    //the object can play its pushing animation
-                }
-                else
-                {
-                    isPushing = false;                                                                   //the object cannot play its pushing animation for any other possible statements
-                }
-            }
-            
+                CheckToPlayAnims();
+            }          
         }
 
         else if (Input.GetKey(KeyCode.A))
@@ -187,14 +174,7 @@ public class TileMovementV2 : MonoBehaviour
             if (!Valid())
             {
                 canMove = false;
-                if (Input.GetKeyDown(KeyCode.LeftShift))                                                                    
-                {
-                    isPushing = true;
-                }
-                else
-                {
-                    isPushing = false;
-                }
+                CheckToPlayAnims();
             }
         }
 
@@ -206,14 +186,7 @@ public class TileMovementV2 : MonoBehaviour
             if (!Valid())
             {
                 canMove = false;
-                if (Input.GetKeyDown(KeyCode.LeftShift))                                                                 
-                {
-                    isPushing = true;
-                }
-                else
-                {
-                    isPushing = false;
-                }
+                CheckToPlayAnims();
             }
         }
 
@@ -225,14 +198,7 @@ public class TileMovementV2 : MonoBehaviour
             if (!Valid())
             {
                 canMove = false;
-                if (Input.GetKeyDown(KeyCode.LeftShift))                                                                    
-                {
-                    isPushing = true;
-                }
-                else
-                {
-                    isPushing = false;
-                }
+                CheckToPlayAnims();
             }
         }
     }
@@ -257,7 +223,6 @@ public class TileMovementV2 : MonoBehaviour
                 {
                     torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                        //set the torch meter to it max value (fill up the bar)
                     Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);                                                    //spwans the particle effect on the object's position and rotation
-                    isInteracting = true;
                 }
                 hit.collider.gameObject.GetComponentInChildren<Light>().enabled = false;
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
@@ -304,7 +269,6 @@ public class TileMovementV2 : MonoBehaviour
             }
             else
             {
-                isInteracting = false;
                 isWalking = false;                                                                                                               //the object cannot play its walking animation for any other possible if statements
                 return false;                                                                                                                    //the bool function will return as false for any other possible if statements
             }
@@ -348,6 +312,11 @@ public class TileMovementV2 : MonoBehaviour
         destination = newDestination;
     }
 
+    public void ResetTorchMeter()
+    {
+        torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+    }
+
     private void checkIfOnCheckpoint()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);                                                        //shoots a ray into the direction that the object is looking towards
@@ -364,11 +333,10 @@ public class TileMovementV2 : MonoBehaviour
         }
 
     }
-
     private void resetPuzzle()
     {
         checkpoint.GetComponent<CheckpointV2>().resetPlayerPosition();
-        torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+        ResetTorchMeter();
 
         Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -376,19 +344,69 @@ public class TileMovementV2 : MonoBehaviour
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
             {
-                child.GetComponent<KimsPushableBlocks>().resetBlocks();
+                child.GetComponent<ResetPushableBlocks>().resetBlocks();
             }
 
             else if (child.name == "Breakable Blocks")
             {
-                child.GetComponent<KimsBreakableBlocks>().resetBlocks();
+                child.GetComponent<ResetBreakableBlocks>().resetBlocks();
             }
 
             else if (child.name == "Fire Stones")
             {
-                child.GetComponent<ResetFireStone>().resetFireStone();
+                child.GetComponent<ResetFireStone>().resetFirestone();
+            }
+        }
+
+    }
+
+    private void resetPuzzleWithDelay()
+    {
+
+        checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
+
+        Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
+        for (int i = 0; i < puzzle.transform.childCount; i++)
+        {
+            GameObject child = puzzle.transform.GetChild(i).gameObject;
+            if (child.name == "Pushable Blocks")
+            {
+                child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f); 
             }
 
+            else if (child.name == "Breakable Blocks")
+            {
+                child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
+            }
+
+            else if (child.name == "Fire Stones")
+            {
+                child.GetComponent<ResetFireStone>().StartCoroutine("resetFirestoneWithDelay", 1.5f);
+            }
+        }
+
+    }
+
+    private void ChangeAnimationState (string newState)
+    {
+        Anim.Play(newState);
+        currentState = newState;
+    }
+
+    private void CheckToPlayAnims()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            ChangeAnimationState("Pushing");
+        }
+        else if (Input.GetKeyDown(KeyCode.Return))
+        {
+            ChangeAnimationState("Interacting");
+        }
+        else
+        {
+            isPushing = false;
+            isInteracting = false;
         }
     }
 

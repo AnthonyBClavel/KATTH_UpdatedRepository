@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ResetFireStone : MonoBehaviour
+public class ResetBreakableBlocks : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -16,21 +16,21 @@ public class ResetFireStone : MonoBehaviour
         
     }
 
-    public void resetFirestone()
+    public void resetBlocks()
     {
-        Debug.Log("FireStone light enabled");
+        Debug.Log("Num of breakable blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<Light>().enabled = true;
+            transform.GetChild(i).gameObject.SetActive(true);
         }
     }
-    public IEnumerator resetFirestoneWithDelay(float seconds)
+    public IEnumerator resetBlocksWithDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        Debug.Log("FireStone light enabled");
+        Debug.Log("Num of breakable blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<Light>().enabled = true;
+            transform.GetChild(i).gameObject.SetActive(true);
         }
     }
 }
