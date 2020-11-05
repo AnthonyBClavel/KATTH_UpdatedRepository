@@ -16450,6 +16450,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38194abd391faf54ebb60822a273e4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1763956046 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8893811602064672366, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+  m_PrefabInstance: {fileID: 8893811600671139373}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1763956048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763956046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d14539c657026045b1ccfbd439e7984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iceMaterial: {fileID: 2100000, guid: 086cbcb2816b05248881f62fb9c37428, type: 2}
 --- !u!1001 &1766231580
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24979,7 +24997,6 @@ MonoBehaviour:
     currentValue: 10
   checkpoint: {fileID: 1475801148}
   puzzle: {fileID: 2013649265}
-  iceMaterial: {fileID: 0}
 --- !u!82 &9141499421701246099
 AudioSource:
   m_ObjectHideFlags: 0
