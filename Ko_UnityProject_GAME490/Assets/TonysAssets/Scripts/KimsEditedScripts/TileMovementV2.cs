@@ -7,6 +7,7 @@ public class TileMovementV2 : MonoBehaviour
 {
     public GameObject torchFireIgniteSFX;                       //variable for a gameobject (either within the Unity hierarchy, or a prefab)
     public GameObject torchFireExtinguishSFX;                   //variable for a gameobject (either within the Unity hierarchy, or a prefab)
+    public GameObject freezingSFX;
 
     Vector3 up = Vector3.zero,                                  //to make the object look up (north)
     right = new Vector3(0, 90, 0),                              //to make the object look right (east)
@@ -79,6 +80,7 @@ public class TileMovementV2 : MonoBehaviour
         if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
         {
             Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);                  //play the audio clip (spawns an object prefab with an audio clip that plays on awake)
+            Instantiate(freezingSFX, transform.position, transform.rotation);
             alreadyPlayedSFX = true;                                                                      //the audio clip cannot be played again
             resetPuzzleWithDelay();
         }

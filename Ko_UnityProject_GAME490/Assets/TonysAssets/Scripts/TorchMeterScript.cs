@@ -24,6 +24,8 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
 
     public Color lowFlameColor;
 
+    public ParticleSystem fireParticle;
+
     private AudioSource audioSource;
 
     public float MaxValue { get; set; }
@@ -44,7 +46,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();   
+        audioSource = GetComponent<AudioSource>(); 
     }
 
     // Update is called once per frame
@@ -64,6 +66,8 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
             flameIcon.color = Color.Lerp(lowFlameColor, fullFlameColor, fillAmount);
 
             audioSource.volume = Mathf.Lerp(0f, 0.9f, fillAmount);
+
+            fireParticle.startLifetime = Mathf.Lerp(0f, 0.72f, fillAmount);
         }
     }
 
