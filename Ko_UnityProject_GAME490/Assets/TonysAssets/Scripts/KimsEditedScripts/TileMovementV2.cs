@@ -269,6 +269,16 @@ public class TileMovementV2 : MonoBehaviour
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
             }
+
+            if (hit.collider.tag == "Generator" && Input.GetKeyDown(KeyCode.Return) && canPush)                                           
+            {
+                Debug.Log("Turned On Generator");                                                                                                   
+                torchMeterMoves.CurrentVal -= 1;
+                hit.collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
+                isWalking = false;                                                                                                              
+                return false;                                                                                                                  
+            }
+
             else
             {
                 isWalking = false;                                                                                                               //the object cannot play its walking animation for any other possible if statements
@@ -358,13 +368,17 @@ public class TileMovementV2 : MonoBehaviour
             {
                 child.GetComponent<ResetFireStone>().resetFirestone();
             }
+
+            else if (child.name == "Generator Blocks")
+            {
+                child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
+            }
         }
 
     }
 
     private void resetPuzzleWithDelay()
     {
-
         checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
 
         Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
@@ -384,6 +398,11 @@ public class TileMovementV2 : MonoBehaviour
             else if (child.name == "Fire Stones")
             {
                 child.GetComponent<ResetFireStone>().StartCoroutine("resetFirestoneWithDelay", 1.5f);
+            }
+
+            else if (child.name == "Generator Blocks")
+            {
+                child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
             }
         }
 

@@ -25,6 +25,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     public Color lowFlameColor;
 
     public ParticleSystem fireParticle;
+    private ParticleSystem.MainModule main;
 
     private AudioSource audioSource;
 
@@ -46,7 +47,8 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>(); 
+        audioSource = GetComponent<AudioSource>();
+        main = fireParticle.main;
     }
 
     // Update is called once per frame
@@ -67,7 +69,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
 
             audioSource.volume = Mathf.Lerp(0f, 0.9f, fillAmount);
 
-            fireParticle.startLifetime = Mathf.Lerp(0f, 0.72f, fillAmount);
+            main.startLifetime = Mathf.Lerp(0f, 0.72f, fillAmount);
         }
     }
 
