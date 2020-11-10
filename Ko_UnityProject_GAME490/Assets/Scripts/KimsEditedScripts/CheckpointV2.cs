@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class CheckpointV2 : MonoBehaviour
 {
+    public int numMovements;
     private GameObject player; // Player object
     Vector3 p; // Player position for debugging
     Vector3 blockPosition; // Block position
+    private bool hit; // True if we hit it before, false otherwise
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         blockPosition = transform.position;
+        hit = false;
     }
 
     // Update is called once per frame
@@ -24,6 +27,9 @@ public class CheckpointV2 : MonoBehaviour
             Debug.Log("Player Position: " + p);
         }
     }
+
+    // Returns the number of movements for the checkpoint
+    public int getNumMovements() { return numMovements; }
 
     /**
      * Resets the player's position back to the checkpoint
@@ -46,6 +52,16 @@ public class CheckpointV2 : MonoBehaviour
         player.transform.position = blockPosition;
         player.GetComponent<TileMovementV2>().setDestination(blockPosition);
         player.GetComponent<TileMovementV2>().ResetTorchMeter();
+    }
+
+    public void setCheckpoint()
+    {
+        hit = true;
+    }
+
+    public bool hitCheckpoint()
+    {
+        return hit;
     }
 
 

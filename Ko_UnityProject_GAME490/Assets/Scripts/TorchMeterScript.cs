@@ -39,7 +39,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
             //valueText.text = tmp[0] + ": " + value;
 
             valueText.text = value.ToString();
-            fillAmount = Map(value, 0, MaxValue, 0, 1);
+            fillAmount = Map(value, MaxValue);
         }
     }
 
@@ -71,9 +71,14 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
         }
     }
 
-    private float Map(float value, float inMin, float inMax, float outMin, float outMax)
+    private float Map(float value, float max)
     {
-        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        return value / max;
+    }
+
+    public void setMaxValue(float value)
+    {
+        MaxValue = value;
     }
 
 }

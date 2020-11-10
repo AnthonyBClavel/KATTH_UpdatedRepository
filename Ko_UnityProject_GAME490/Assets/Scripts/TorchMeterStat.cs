@@ -48,4 +48,15 @@ public class TorchMeterStat //Dont worry about this script, use the TileMovement
         this.CurrentVal = currentValue;
     }
 
+    public void setMaxValue(int newMax)
+    {
+        maxValue = (float)newMax;
+        bar.setMaxValue(maxValue);
+    }
+
+    public void setCurrentVal(int newCurrentVal)
+    {
+        CurrentVal = (float)newCurrentVal;
+    }
+
 }
