@@ -106,9 +106,6 @@ public class OptionsMenu : MonoBehaviour
 
     public void ApplyGraphics()
     {
-        //Apply Full Screen
-        //Screen.fullScreen = fullScreenTog.isOn;
-
         if (vsyncTog.isOn)
         {
             QualitySettings.vSyncCount = 1;

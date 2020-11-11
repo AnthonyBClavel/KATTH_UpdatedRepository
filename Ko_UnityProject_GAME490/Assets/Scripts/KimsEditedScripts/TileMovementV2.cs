@@ -5,362 +5,312 @@ using UnityEngine;
 
 public class TileMovementV2 : MonoBehaviour
 {
-    public GameObject torchFireIgniteSFX;                
-    public GameObject torchFireExtinguishSFX;               
+    public GameObject torchFireIgniteSFX;
+    public GameObject torchFireExtinguishSFX;
     public GameObject freezingSFX;
 
     Vector3 up = Vector3.zero,                                  // Object look North
     right = new Vector3(0, 90, 0),                              // Object look East
     down = new Vector3(0, 180, 0),                              // Object look South
-    left = new Vector3(0,270,0),                                // Object look West
+    left = new Vector3(0, 270, 0),                                // Object look West
     currentDirection = Vector3.zero;                            // Default state
 
     Vector3 nextPos, destination, direction;
 
-    private bool canMove;                         
-
-    float speed = 5f;                                           // The speed at which the object will move from its current position to the destination    
+    float speed = 5f;                                           // The speed at which the object will move from its current position to the destination
     float rayLength = 1f;                                       // The ray length for the tile movement
     float rayLengthEdgeCheck = 1f;                              // The ray length for the edge check
 
     public GameObject edgeCheck;
 
     private bool isWalking;                                     // Used to determine when to play an object's animation
-    private bool isPushing;                                     // Used to determine when the object can move 
+    private bool isPushing;                                     // Used to determine when the object can move
     private bool isInteracting;
-    private bool canPush;                                       // The bool is used to determine when the object can be pushed 
     private bool alreadyPlayedSFX;
 
-    public Animator Anim;                                      
+    public Animator Anim;
     private string currentState;
 
     public GameObject destroyedBlockParticle;
 
     public Camera main_camera;
 
-    public TorchMeterStat torchMeterMoves;           
+    public TorchMeterStat torchMeterMoves;
 
     public GameObject checkpoint;
     public GameObject puzzle;
 
     private void Awake()
     {
-        torchMeterMoves.Initialize();               
+        torchMeterMoves.Initialize();
     }
 
     void Start()
     {
-        currentDirection = up; // The direction the object faces when you start the game
+        currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position; // The point where the object is currently at
     }
 
     void Update()
     {
-        Move();                                                                      
-        Push();                                                                                        
-        Anim.SetBool("isWalking", isWalking);                                                        
-        Anim.SetBool("isPushing", isPushing);                                                             
+        Move();
+        Anim.SetBool("isWalking", isWalking);
+        Anim.SetBool("isPushing", isPushing);
         Anim.SetBool("isInteracting", isInteracting);
 
-        /** For Debugging purposes **/
-        if (Input.GetKeyDown(KeyCode.LeftArrow))                                               
+        /*** For Debugging purposes ***/
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            torchMeterMoves.CurrentVal -= 1;                                         
+            torchMeterMoves.CurrentVal--;
         }
-        if (Input.GetKeyDown(KeyCode.RightArrow))                                                
+        if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            torchMeterMoves.CurrentVal += 1;                                                
+            torchMeterMoves.CurrentVal++;
         }
-        /** End Debugging **/
-
-        // If player wants to reset puzzle
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            resetPuzzle();
-        }
-
-        if(torchMeterMoves.CurrentVal > 0)                                                         
-        {
-            alreadyPlayedSFX = false;                                                    
-        }
+        /*** End Debugging ***/
+        if (torchMeterMoves.CurrentVal > 0) alreadyPlayedSFX = false;
     }
 
-    /**
+    /***
      * The main movement function for the object.
      * When a specific button is pressed, the object is set to move along the stated axis.
      * The object can move and perform the walking animation while the button stays pressed.
-     **/
-    void Move()                                                                                           
+     ***/
+    void Move()
     {
         // Moving the character to the destination
         transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
-        isWalking = false;
 
         // Checks if we're on a checkpoint AFTER moving
-        if (Vector3.Distance(destination, transform.position) <= 0.00001f) {
+        if (Vector3.Distance(destination, transform.position) <= 0.00001f)
+        {
+            isWalking = false;
             checkIfOnCheckpoint();
             // If player runs out of the meter
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
             {
-                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);                  // Play audio clip
+                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation); // Play audio clip
                 Instantiate(freezingSFX, transform.position, transform.rotation);
-                alreadyPlayedSFX = true;                                                                      // The audio clip cannot be played again
+                alreadyPlayedSFX = true; // The audio clip cannot be played again
                 resetPuzzleWithDelay();
             }
         }
-
-
-        // Up
-        if (Input.GetKeyDown(KeyCode.W))                                                                  
+        else
         {
-            nextPos = Vector3.forward;                                                                   
-            currentDirection = up;                                                                       
-            canMove = true;         
+            isWalking = true;
+            return;
         }
 
-        // Down
+        if (!updateKeyboardInput()) return; // Returns if we have no movement keyboard input
+
+        transform.localEulerAngles = currentDirection;
+
+        // Checking for colliders
+        if (Valid())
+        {
+            if (EdgeCheck()) // If no colliders, but we hit an edge
+            {
+                isWalking = true;
+                PlayerSounds.instance.TileCheck();
+                destination = transform.position + nextPos;
+                direction = nextPos;
+                if (!onBridge()) torchMeterMoves.CurrentVal -= 1;
+                else ResetTorchMeter();
+            }
+        }
+        CheckToPlayAnims();
+    }
+
+    /***
+     * Updates the keyboard input
+     * Returns true if there's a movement input, false otherwise
+     ***/
+    private bool updateKeyboardInput()
+    {
+        /*** Movement inputs ***/
+        // W key (North)
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            nextPos = Vector3.forward;
+            currentDirection = up;
+            return true;
+        }
+
+        // S key (South)
         else if (Input.GetKeyDown(KeyCode.S))
         {
             nextPos = Vector3.back;
             currentDirection = down;
-            canMove = true;          
+            return true;
         }
-        
-        // Right
+
+        // D key (East)
         else if (Input.GetKeyDown(KeyCode.D))
         {
             nextPos = Vector3.right;
             currentDirection = right;
-            canMove = true;      
+            return true;
         }
 
-        // Left
+        // A key (West)
         else if (Input.GetKeyDown(KeyCode.A))
         {
             nextPos = Vector3.left;
             currentDirection = left;
-            canMove = true;
+            return true;
         }
 
-        // Checks to see how big the distance is between the object's current position and the destination
-        if (Vector3.Distance(destination, transform.position) <= 0.00001f)                                
+        /*** Non-Movement Inputs ***/
+
+        // Hit R (Reset puzzle)
+        else if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
+
+        // Hit Return (Break block)
+        else if (Input.GetKeyDown(KeyCode.Return))
         {
-            /**
-            * Rotates the actual object to the current direction 
-            * (the raycast will roatate with it, along the axis its facing)
-            **/
-            transform.localEulerAngles = currentDirection;                                              
-            if (canMove)
-            {
-                isWalking = true;
-
-                if (Valid() && EdgeCheck())                                                       
-                {      
-                    PlayerSounds.instance.TileCheck();
-                    destination = transform.position + nextPos;                                          
-                    direction = nextPos;
-                    if (!onBridge())
-                        torchMeterMoves.CurrentVal -= 1;
-                    else
-                        ResetTorchMeter();
-                    canMove = false;  // Prevents the object from constantly moving towards the object's current direction  
-                }           
-            }    
+            Collider collider = getCollider();
+            if (collider.tag != "DestroyableBlock") return false;
+            Debug.Log("Destroyed Block");
+            torchMeterMoves.CurrentVal--;
+            Instantiate(destroyedBlockParticle, collider.gameObject.transform.position, collider.gameObject.transform.rotation);
+            collider.gameObject.SetActive(false);
+            isWalking = false;
         }
+        return false;
     }
 
-    void Push()                                                                                  
+    /***
+     * Draws a ray forward and returns the collider if it hits, or null otherwise
+     ***/
+    Collider getCollider()
     {
-        if(Input.GetKey(KeyCode.W))                                                   
-        {
-            nextPos = Vector3.forward;                                                       
-            currentDirection = up;                                                                
-            canPush = true;  // The object can push another object while the statement above is true
-            if (!Valid()) // If the object cannot move
-            {
-                canMove = false;
-                CheckToPlayAnims();
-            }
-        }
-
-        else if (Input.GetKey(KeyCode.A))
-        {
-            nextPos = Vector3.left;
-            currentDirection = left;
-            canPush = true;
-            if (!Valid())
-            {
-                canMove = false;
-                CheckToPlayAnims();
-            }
-        }
-
-        else if (Input.GetKey(KeyCode.S))
-        {
-            nextPos = Vector3.back;
-            currentDirection = down;
-            canPush = true;
-            if (!Valid())
-            {
-                canMove = false;
-                CheckToPlayAnims();
-            }
-        }
-
-        else if (Input.GetKey(KeyCode.D))
-        {
-            nextPos = Vector3.right;
-            currentDirection = right;
-            canPush = true;
-            if (!Valid())
-            {
-                canMove = false;
-                CheckToPlayAnims();
-            }
-        }
-    }
-
-    /**
-     * The bool function that checks to see if the next position is valid or not
-     **/
-    bool Valid()                                                                                                                                
-    {
-        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);                                                 
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);
         RaycastHit hit;
 
-        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                                               
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
-        if (Physics.Raycast(myRay, out hit, rayLength))                        
+        if (Physics.Raycast(myRay, out hit, rayLength)) return hit.collider;
+        return null;
+    }
+
+    /***
+     * The bool function that checks to see if the next position is valid or not
+     ***/
+    bool Valid()
+    {
+        isPushing = false;
+        Collider collider = getCollider();
+        if (collider == null) return true; // If there's no collider (no obstacles)
+
+        isPushing = true;
+        switch (collider.tag)
         {
-            //if (hit.collider.tag == "Obstacle" || hit.collider.tag == "StaticBlock" || hit.collider.tag == "DestroyableBlock")                
+            case ("StaticBlock"):
+                collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
 
-            if (hit.collider.tag == "FireStone" && Input.GetKeyDown(KeyCode.Return) && canPush)                              
-            {
-                if(hit.collider.gameObject.GetComponentInChildren<Light>().enabled == true)
+            case ("Obstacle"):
+                if (collider.gameObject.GetComponent<BlockMovement>().MoveBlock(currentDirection))
+                    torchMeterMoves.CurrentVal--;
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
+
+            case ("DestroyableBlock"):
+                collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
+
+            case ("FireStone"):
+                if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
                 {
-                    torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                    
+                    torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
                     Instantiate(torchFireIgniteSFX, transform.position, transform.rotation); // Spwans the particle effect on the object's position and rotation
                 }
-                hit.collider.gameObject.GetComponentInChildren<Light>().enabled = false;
-                isWalking = false;                                                                                                              
-                return false;                                                                                                                 
-            }
+                collider.gameObject.GetComponentInChildren<Light>().enabled = false;
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
 
-            if (hit.collider.tag == "Obstacle" && canPush)                                                                                     
-            {
-                bool move = hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();
-                if (Input.GetKeyDown(KeyCode.LeftShift) && move)                                                                      
-                {
-                    torchMeterMoves.CurrentVal -= 1;      
-                }
+            case ("Generator"):
+                Debug.Log("Turned On Generator");
+                torchMeterMoves.CurrentVal--;
+                collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
 
-                //hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();                                                       
-                isWalking = false;  // Cannot play its walking animation while the statement above is true
-                return false; //the bool function will return as false if the statement above is true
-            }
-
-            if (hit.collider.tag == "StaticBlock" && canPush && Input.GetKeyDown(KeyCode.LeftShift))                                  
-            {
-                Debug.Log("Cannot Push Static Block");                                                                                   
-                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);                                                        
-                isWalking = false;                                                                                                            
-                return false;                                                                                                           
-            }
-
-            if (hit.collider.tag == "DestroyableBlock" && canPush && Input.GetKeyDown(KeyCode.LeftShift))                                     
-            {
-                Debug.Log("Cannot Push Breakable Block");                                                                                     
-                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);                                                             
-                isWalking = false;                                                                                                             
-                return false;                                                                                                                  
-            }
-
-            if (hit.collider.tag == "DestroyableBlock" && Input.GetKeyDown(KeyCode.Return) && canPush)                                          
-            {
-                Debug.Log("Destroyed Block");                                                                                                  
-                torchMeterMoves.CurrentVal -= 1;                                                                                                
-                Instantiate(destroyedBlockParticle, hit.collider.gameObject.transform.position, hit.collider.gameObject.transform.rotation);    
-                hit.collider.gameObject.SetActive(false);
-                isWalking = false;                                                                                                             
-                return false;                                                                                                                   
-            }
-
-            if (hit.collider.tag == "Generator" && Input.GetKeyDown(KeyCode.Return) && canPush)                                           
-            {
-                Debug.Log("Turned On Generator");                                                                                                   
-                torchMeterMoves.CurrentVal -= 1;
-                hit.collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
-                isWalking = false;                                                                                                              
-                return false;                                                                                                                  
-            }
-
-            else
-            {
-                isWalking = false;                                                                                                              
-                return false;                                                                                                                    
-            }
+            default:
+                Debug.Log("Unrecognizable Tag");
+                isWalking = false;
+                CheckToPlayAnims();
+                break;
         }
-        return true;                                                                                                                           
-
+        return false;
     }
 
-    /** Checks if there's an edge **/
-    bool EdgeCheck()                                                                                                                           
+    /*** Checks if there's an edge ***/
+    bool EdgeCheck()
     {
-        Ray myEdgeRay = new Ray(edgeCheck.transform.position, -transform.up);                                                                  
+        Ray myEdgeRay = new Ray(edgeCheck.transform.position, -transform.up);
         RaycastHit hit;
+        Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);
 
-        Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);                                                                        
-
-        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))                                                                            
+        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
         {
-            if(hit.collider.tag == "MoveCameraBlock")                                                                             
+            string tag = hit.collider.tag;
+            if (tag == "MoveCameraBlock")
             {
-                torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                     
-                // CameraController.instance.NextPuzzleView();                                                                               
-                return true;                                                                                                    
+                torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+                return true;
             }
-            if(hit.collider.tag == "EmptyBlock")
+            else if (tag == "EmptyBlock")
             {
                 isWalking = false;
                 return false;
             }
-            return true;                                                                                                                      
+            return true;
         }
+        isWalking = false;
+        return false;
+    }
 
-        isWalking = false;                                                                                                                 
-        return false;                                                                                                                          
-    }                                                                                           
-
-    /**
+    /***
      * Sets the destination of the player to the new destination.
      * @param newDestination - The new destination to set to
-     **/
+     ***/
     public void setDestination(Vector3 newDestination)
     {
         destination = newDestination;
     }
 
+    /***
+     * Resets the current value of the torch meter to the maximum value
+     ***/
     public void ResetTorchMeter()
     {
         torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
     }
 
+    /***
+     * Draws a ray below the character and returns true if player is standing on a checkpoint, returns false otherwise
+     ***/
     private bool checkIfOnCheckpoint()
     {
-        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);                                          
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
-
-        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                              
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         Physics.Raycast(myRay, out hit, rayLength);
         if (hit.collider.tag != "Checkpoint") return false; // If we did not hit a checkpoint
 
-        //Debug.Log("On checkpoint");
         checkpoint = hit.collider.gameObject;
         puzzle = hit.collider.transform.parent.parent.gameObject;
-      
+
         // Setting new puzzle view
         GameObject view = puzzle.transform.Find("View").gameObject;
         main_camera.GetComponent<CameraController>().NextPuzzleView(view.transform);
@@ -379,21 +329,23 @@ public class TileMovementV2 : MonoBehaviour
         return true;
     }
 
+    /***
+     * Draws a ray below the character - Returns true of the player is standing on a bridge, false otherwise
+     ***/
     private bool onBridge()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
-
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         Physics.Raycast(myRay, out hit, rayLength);
-        if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock")
-        {
-            return true;
-        }
+        if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock") return true;
         return false;
     }
 
+    /***
+     * Resets the current puzzle the player is at (from last checkpoint)
+     ***/
     private void resetPuzzle()
     {
         checkpoint.GetComponent<CheckpointV2>().resetPlayerPosition();
@@ -404,28 +356,22 @@ public class TileMovementV2 : MonoBehaviour
         {
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
-            {
                 child.GetComponent<ResetPushableBlocks>().resetBlocks();
-            }
 
             else if (child.name == "Breakable Blocks")
-            {
                 child.GetComponent<ResetBreakableBlocks>().resetBlocks();
-            }
 
             else if (child.name == "Fire Stones")
-            {
                 child.GetComponent<ResetFireStone>().resetFirestone();
-            }
 
             else if (child.name == "Generator Blocks")
-            {
                 child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
-            }
         }
-
     }
 
+    /***
+     * Resets the puzzle the player is currently at (from the last checkpoint) (with delay)
+     ***/
     private void resetPuzzleWithDelay()
     {
         checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
@@ -435,29 +381,21 @@ public class TileMovementV2 : MonoBehaviour
         {
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
-            {
-                child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f); 
-            }
-
+                child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
+            
             else if (child.name == "Breakable Blocks")
-            {
                 child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
-            }
 
             else if (child.name == "Fire Stones")
-            {
                 child.GetComponent<ResetFireStone>().StartCoroutine("resetFirestoneWithDelay", 1.5f);
-            }
 
             else if (child.name == "Generator Blocks")
-            {
                 child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
-            }
         }
 
     }
 
-    private void ChangeAnimationState (string newState)
+    private void ChangeAnimationState(string newState)
     {
         Anim.Play(newState);
         currentState = newState;
@@ -465,19 +403,9 @@ public class TileMovementV2 : MonoBehaviour
 
     private void CheckToPlayAnims()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            ChangeAnimationState("Pushing");
-        }
-        else if (Input.GetKeyDown(KeyCode.Return))
-        {
-            ChangeAnimationState("Interacting");
-        }
-        else
-        {
-            isPushing = false;
-            isInteracting = false;
-        }
+        if (isPushing) ChangeAnimationState("Pushing");
+        else if (isInteracting) ChangeAnimationState("Interacting");
+        isPushing = false;
+        isInteracting = false;
     }
-
 }
