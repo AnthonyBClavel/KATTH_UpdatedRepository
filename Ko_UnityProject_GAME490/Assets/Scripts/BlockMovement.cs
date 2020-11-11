@@ -46,7 +46,6 @@ public class BlockMovement : MonoBehaviour
         setDirection(direction);
         if (Vector3.Distance(destination, transform.position) <= 0.00001f)
         {
-            transform.localEulerAngles = currentDirection;
             if (Valid() && EdgeCheck())
             {
                 destination = transform.position + nextBlockPos;
@@ -60,46 +59,46 @@ public class BlockMovement : MonoBehaviour
 
     void setDirection(Vector3 direction)
     {
+        
         if (direction == up)
         {
-            Debug.Log("Pushed Block Up");
             nextBlockPos = Vector3.forward;
             currentDirection = up;
+            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
         }
 
         else if (direction == down)
         {
-            Debug.Log("Pushed Block Down");
             nextBlockPos = Vector3.back;
             currentDirection = down;
+            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
         }
 
         else if (direction == right)
         {
-            Debug.Log("Pushed Block Right");
             nextBlockPos = Vector3.right;
             currentDirection = right;
+            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
         }
 
         else if (direction == left)
         {
-            Debug.Log("Pushed Block Left");
             nextBlockPos = Vector3.left;
             currentDirection = left;
+            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
         }
-
     }
 
     bool Valid()                                                                                                                
     {
-        Ray myRay = new Ray(transform.position, transform.forward);                                                             
+        Ray myRay = new Ray(transform.position, nextBlockPos);                                                             
         RaycastHit hit;
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                               
 
         if (Physics.Raycast(myRay, out hit, rayLength))                                                                         
         {
             string tag = hit.collider.tag;
-            if (tag == "Obstacle" || tag == "StaticBlock" || tag == "DestroyableBlock" || tag == "FireStone") 
+            if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone") 
             {
                 audioSource.PlayOneShot(cantPushCrateSFX);                                                                 
                 return false;                                                                                                  
@@ -112,9 +111,10 @@ public class BlockMovement : MonoBehaviour
     {
         Ray myEdgeRay = new Ray(crateEdgeCheck.transform.position, -transform.up);                                              
         RaycastHit hit;
-        Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);                                                        
+        Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);
 
-        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck)) return true;                                                                                        
+        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck)) return true;
+
         audioSource.PlayOneShot(cantPushCrateSFX);                                                                               
         return false;                                                                                                      
     }
@@ -127,16 +127,12 @@ public class BlockMovement : MonoBehaviour
         Debug.DrawRay(myFallCheckRay.origin, myFallCheckRay.direction, Color.red);                                             
 
         if (Physics.Raycast(myFallCheckRay, out hit, rayFalleCheck) && hit.collider.tag == "EmptyBlock")
-        {
-                Debug.Log("Block has fallen");
-                destination = hit.collider.gameObject.transform.position;                                                                                        
-        }                                                                                                   
+             destination = hit.collider.gameObject.transform.position;                                                                                                                                                                                        
     }
 
     // Resets the block to where it originally was placed
     public void resetPosition()
     {
-        Debug.Log("Resetting block position");
         transform.position = startingPosition;
         Start();
     }

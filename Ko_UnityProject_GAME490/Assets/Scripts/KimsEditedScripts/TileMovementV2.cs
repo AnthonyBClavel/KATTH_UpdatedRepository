@@ -376,7 +376,7 @@ public class TileMovementV2 : MonoBehaviour
     {
         checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
 
-        Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
+        //Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
         {
             GameObject child = puzzle.transform.GetChild(i).gameObject;

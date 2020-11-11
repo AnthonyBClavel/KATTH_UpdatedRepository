@@ -15,7 +15,7 @@ public class PauseMenu01 : MonoBehaviour
 
     public GameObject loadingScreen, loadingIcon;
     public Text loadingText;
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -40,6 +40,7 @@ public class PauseMenu01 : MonoBehaviour
 
     public void Resume()
     {
+        optionsScreen.SetActive(false);
         pauseMenu.SetActive(false);
         isPaused = false;
         player.GetComponent<TileMovementV2>().enabled = true;
@@ -66,9 +67,6 @@ public class PauseMenu01 : MonoBehaviour
 
     public void QuitToMain()
     {
-        //SceneManager.LoadScene(mainMenuScene);
-        //Time.timeScale = 1f;
-
         StartCoroutine(LoadMainAsync());
         Time.timeScale = 1f;
     }
@@ -76,9 +74,7 @@ public class PauseMenu01 : MonoBehaviour
     private IEnumerator LoadMainAsync()
     {
         loadingScreen.SetActive(true);
-
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(mainMenuScene);
-
         while (!asyncLoad.isDone)
         {
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
@@ -94,7 +90,6 @@ public class PauseMenu01 : MonoBehaviour
                     asyncLoad.allowSceneActivation = true;
                 }
             }
-
             yield return null;
         }
     }

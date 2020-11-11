@@ -42,33 +42,22 @@ public class OptionsMenu : MonoBehaviour
             if(Screen.width == resolutions[i].horizontal && Screen.height == resolutions[i].vertical)
             {
                 foundRes = true;
-
                 selectedResolution = i;
-
                 UpdateResLabel();
             }
         }
 
         if(!foundRes)
-        {
             resolutionLabel.text = Screen.width.ToString() + " x " + Screen.height.ToString();
-        }
 
         if (PlayerPrefs.HasKey("MasterVol"))
-        {
             masterSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);
-        }
 
         if (PlayerPrefs.HasKey("MusicVol"))
-        {
             musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
-        }
 
         if (PlayerPrefs.HasKey("SFXVol"))
-        {
             sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
-        }
-
     }
 
     // Update is called once per frame
@@ -81,9 +70,7 @@ public class OptionsMenu : MonoBehaviour
     {
         selectedResolution--;
         if(selectedResolution < 0)
-        {
             selectedResolution = 0;
-        }
 
         UpdateResLabel();
     }
@@ -92,9 +79,7 @@ public class OptionsMenu : MonoBehaviour
     {
         selectedResolution++;
         if (selectedResolution > resolutions.Length - 1) 
-        {
             selectedResolution = resolutions.Length - 1;
-        }
 
         UpdateResLabel();
     }
