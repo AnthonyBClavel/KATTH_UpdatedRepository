@@ -61,13 +61,9 @@ public class TileMovementV2 : MonoBehaviour
 
         /*** For Debugging purposes ***/
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
             torchMeterMoves.CurrentVal--;
-        }
         if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
             torchMeterMoves.CurrentVal++;
-        }
         /*** End Debugging ***/
         if (torchMeterMoves.CurrentVal > 0) alreadyPlayedSFX = false;
     }
@@ -166,18 +162,39 @@ public class TileMovementV2 : MonoBehaviour
         // Hit R (Reset puzzle)
         else if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
 
-        // Hit Return (Break block)
+        // Hit Return (Interact / Break Block)
         else if (Input.GetKeyDown(KeyCode.Return))
         {
             Collider collider = getCollider();
-            if (collider.tag != "DestroyableBlock") return false;
-            Debug.Log("Destroyed Block");
-            torchMeterMoves.CurrentVal--;
-            Instantiate(destroyedBlockParticle, collider.gameObject.transform.position, collider.gameObject.transform.rotation);
-            collider.gameObject.SetActive(false);
-            isWalking = false;
+            if (collider == null) return false;
+            if (collider.tag == "DestroyableBlock") destroyBlock(collider);
+            else if (collider.tag == "NPC") interactWithNPC(collider);
         }
         return false;
+    }
+
+    /*** 
+     * Function for destroying a breakable block
+     * When given a collider object, destroys the GameObject of that collider
+     ***/
+    public void destroyBlock(Collider collider)
+    {
+        Debug.Log("Destroyed Block");
+        torchMeterMoves.CurrentVal--;
+        Instantiate(destroyedBlockParticle, collider.gameObject.transform.position, collider.gameObject.transform.rotation);
+        collider.gameObject.SetActive(false);
+        isWalking = false;
+    }
+
+    /***
+     * Function for interacting with an NPC (with dialogue)
+     * Given a collider (whose GameObject is an NPC)
+     * Calls the dialogue manager to play the NPC's dialogue
+     ***/
+    public void interactWithNPC(Collider collider)
+    {
+        GameObject npc = collider.gameObject;
+        npc.GetComponent<Interactable>().Interact();
     }
 
     /***

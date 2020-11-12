@@ -19,7 +19,7 @@ public class PauseMenu01 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        isPaused = false;
     }
 
     // Update is called once per frame
@@ -27,14 +27,8 @@ public class PauseMenu01 : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isPaused)
-            {
-                Resume();
-            }
-            else
-            {
-                Pause();
-            }
+            if (isPaused) Resume();
+            else Pause();
         }
     }
 
@@ -49,9 +43,9 @@ public class PauseMenu01 : MonoBehaviour
 
     public void Pause()
     {
+        player.GetComponent<TileMovementV2>().enabled = false;
         pauseMenu.SetActive(true);
         isPaused = true;
-        player.GetComponent<TileMovementV2>().enabled = false;
         Time.timeScale = 0f;
     }
 
@@ -86,7 +80,6 @@ public class PauseMenu01 : MonoBehaviour
                 {
                     loadingText.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
-
                     asyncLoad.allowSceneActivation = true;
                 }
             }
