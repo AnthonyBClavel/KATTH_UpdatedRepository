@@ -42,6 +42,8 @@ public class CheckpointV2 : MonoBehaviour
 
     public IEnumerator resetPlayerPositionWithDelay(float seconds)
     {
+        player.GetComponent<IceMaterialScript>().StartCoroutine("IncreaseAlpha");
+        player.GetComponent<IceMaterialScript>().StartCoroutine("ResetAlpha");
         player.GetComponent<IceMaterialScript>().StartCoroutine("FadeMaterialToFullAlpha");
         player.GetComponent<IceMaterialScript>().StartCoroutine("ResetPlayerMaterial");
         player.GetComponentInChildren<Animator>().enabled = false;

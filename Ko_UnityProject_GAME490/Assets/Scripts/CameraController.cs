@@ -38,7 +38,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        /** For Debugging purposes
+        // For Debugging purposes
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Switch Puzzle View");                  
@@ -55,7 +55,7 @@ public class CameraController : MonoBehaviour
 
             WindGush();                                                                                               
             currentView = levelViews[currentIndex++];                                                               
-        }**/
+        }
     }
 
 
