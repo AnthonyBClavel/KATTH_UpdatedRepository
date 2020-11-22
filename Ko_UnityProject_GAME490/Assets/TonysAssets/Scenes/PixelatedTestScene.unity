@@ -472,10 +472,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1866171480}
     m_Modifications:
-    - target: {fileID: 9114648220324432873, guid: ff53f18b64711e1439802b7ff913f029, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: cf73c0ff3ef7b4d44a0a805a89fd85bc, type: 2}
     - target: {fileID: 9114648221040790844, guid: ff53f18b64711e1439802b7ff913f029, type: 3}
       propertyPath: m_Name
       value: PatchyGrassBlock
@@ -11314,6 +11310,7 @@ MonoBehaviour:
   optionsScreen: {fileID: 919803389}
   pauseMenu: {fileID: 269318805}
   player: {fileID: 543118118}
+  pauseScreenAnim: {fileID: 0}
   isOptionsMenu: 0
   pauseFirstButton: {fileID: 1025299895}
   optionsFirstButton: {fileID: 1783705843}
@@ -13983,7 +13980,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 286, y: -20}
+  m_AnchoredPosition: {x: 284.4, y: -20}
   m_SizeDelta: {x: 140.16623, y: 140.16623}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1882503951
@@ -24338,10 +24335,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint_GrassTiles
       objectReference: {fileID: 0}
-    - target: {fileID: 8407551694068031938, guid: 98d70a18bc8bbfb409c44b281b76fd84, type: 3}
-      propertyPath: numMovements
-      value: 8
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98d70a18bc8bbfb409c44b281b76fd84, type: 3}
 --- !u!4 &8427622917595949973
@@ -26897,6 +26890,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 10238556}
     m_Modifications:
+    - target: {fileID: 543118121, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b15a31309bfc6844e9d30b73e36946f0, type: 2}
     - target: {fileID: 1763956048, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: coldUI
       value: 
