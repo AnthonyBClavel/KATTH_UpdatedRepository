@@ -13,6 +13,8 @@ public class GeneratorScript : MonoBehaviour
     public GameObject initialGeneratorLoopSFX;
     public GameObject generatorLoopSFX;
 
+    public bool canInteract;
+
     private float duration;
 
     private Animator anim;
@@ -21,6 +23,7 @@ public class GeneratorScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        canInteract = true;
         duration = initialGeneratorLoopSFX.GetComponent<AudioSource>().clip.length;
 
         heaterDoorMat.DisableKeyword("_EMISSION");
@@ -47,6 +50,7 @@ public class GeneratorScript : MonoBehaviour
     //turns on the generator
     public void TurnOnGenerator()
     {
+        canInteract = false;
         turnOnGeneratorSFX.SetActive(true);
         initialGeneratorLoopSFX.SetActive(true);
 
@@ -60,6 +64,7 @@ public class GeneratorScript : MonoBehaviour
     //turns off the generator
     public void TurnOffGenerator()
     {
+        canInteract = true;
         StopCoroutine("DelayGeneratorParticles");
         StopCoroutine("PlayGeneratorLoopAfterInitialSFX");
 
@@ -84,9 +89,9 @@ public class GeneratorScript : MonoBehaviour
     //delays the generator's particles from starting after generator is turned on
     private IEnumerator DelayGeneratorParticles()
     {
-            yield return new WaitForSeconds(0.7f);
+            yield return new WaitForSecondsRealtime(0.7f);
             heaterDoorMat.EnableKeyword("_EMISSION");
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSecondsRealtime(0.2f);
             steamParticle01.SetActive(true);
             steamParticle02.SetActive(true);
     }
@@ -94,7 +99,7 @@ public class GeneratorScript : MonoBehaviour
     //plays the clean looping sfx after the intitial looping sfx (the initial one's volume fades in; woudln't be ideal to loop that)
     private IEnumerator PlayGeneratorLoopAfterInitialSFX()
     {
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSecondsRealtime(duration);
             initialGeneratorLoopSFX.SetActive(false);
             generatorLoopSFX.SetActive(true);
     }

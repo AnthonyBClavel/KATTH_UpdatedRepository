@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
@@ -12,11 +13,14 @@ public class MainMenu : MonoBehaviour
     [Header("Game Objects")]
     public GameObject optionsScreen;
     public GameObject mainMenuButtons;
-    public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton;
+    public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton, newGameButton, creditsButton, quitGameButton;
     public GameObject loadingScreen, loadingIcon, pressEnterText, gameLogo;
 
+    private GameObject lastSelectedObject;
+    private EventSystem eventSystem;
+
     [Header("Loading Screen Elements")]
-    public Text loadingText;
+    public TextMeshProUGUI loadingText;
     public Slider loadingBar;
 
     [Header("Animators")]
@@ -33,6 +37,8 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         StartCoroutine("setActiveDelay");
+
+        eventSystem = FindObjectOfType<EventSystem>();
     }
 
     // Update is called once per frame
@@ -81,6 +87,59 @@ public class MainMenu : MonoBehaviour
     {
         Debug.Log("Credits have been played");
     }
+
+
+    //On Pointer Enter functions start here
+    public void SelectContinueButton()
+    {
+        if (lastSelectedObject != continueFirstButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(continueFirstButton);
+        }
+
+    }
+
+    public void SelectNewGameButton()
+    {
+        if (lastSelectedObject != newGameButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(newGameButton);
+        }
+
+    }
+ 
+    public void SelectOptionsButton()
+    {
+        if (lastSelectedObject != optionsClosedButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(optionsClosedButton);
+        }
+
+    }
+
+    public void SelectCreditsButton()
+    {
+        if (lastSelectedObject != creditsButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(creditsButton);
+        }
+
+    }
+    public void SelectQuitGameButton()
+    {
+        if (lastSelectedObject != quitGameButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(quitGameButton);
+        }
+
+    }
+    //On Pointer Enter functions start here
+
 
     //loads the next level in the background while the loading screen plays
     public IEnumerator LoadLevelAsync()
@@ -176,10 +235,5 @@ public class MainMenu : MonoBehaviour
         Debug.Log("Quit Successful");
     }
 
-    /*private IEnumerator PlayCleanLoopBGM()
-    {
-        yield return new WaitForSeconds(duration);
-        initialLoopBGM.SetActive(false);
-        cleanLoopBGM.SetActive(true);
-    }*/
+
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class TorchMeterScript : MonoBehaviour //Dont worry about this script, use the TileMovement Script and its component (in the Unity inspector) to manipulate the torch meter   
 {
@@ -14,7 +15,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
 
     public Image flameIcon;
 
-    public Text valueText;
+    public TextMeshProUGUI valueText;
 
     public Color fullColor;
 
@@ -28,6 +29,8 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     private ParticleSystem.MainModule main;
 
     private AudioSource audioSource;
+
+    private Animator torchAnim;
 
     public float MaxValue { get; set; }
 
@@ -49,12 +52,23 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     {
         audioSource = GetComponent<AudioSource>();
         main = fireParticle.main;
+
+        torchAnim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
         RadialBar();
+
+        /*if(Input.GetKeyDown(KeyCode.P))
+        {
+            TorchMeterPopIn();
+        }
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            TorchMeterPopOut();
+        }*/
     }
 
     private void RadialBar()
@@ -81,6 +95,15 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     public void setMaxValue(float value)
     {
         MaxValue = value;
+    }
+
+    public void TorchMeterPopIn()
+    {
+        torchAnim.SetTrigger("PopIn");
+    }
+    public void TorchMeterPopOut()
+    {
+        torchAnim.SetTrigger("PopOut");
     }
 
 }

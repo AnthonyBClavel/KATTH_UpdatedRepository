@@ -12,7 +12,7 @@ public class TileMovementV2 : MonoBehaviour
     Vector3 up = Vector3.zero,                                  // Object look North
     right = new Vector3(0, 90, 0),                              // Object look East
     down = new Vector3(0, 180, 0),                              // Object look South
-    left = new Vector3(0, 270, 0),                                // Object look West
+    left = new Vector3(0, 270, 0),                              // Object look West
     currentDirection = Vector3.zero;                            // Default state
 
     Vector3 nextPos, destination, direction;
@@ -27,11 +27,17 @@ public class TileMovementV2 : MonoBehaviour
     private bool isPushing;                                     // Used to determine when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
+    private bool hasAlreadyPopedOut;                            // To determine when the torch meter can scale in/out
+    private bool hasMovedPuzzleView;                            // To determine when the camera can switch puzzle views
+    private bool canRestartPuzzle;                              // To determine when the the areas where the player can press "R" (restart puzzle)
+    private LevelManager levelManagerScript;
+    private TorchMeterScript torchMeterScript;
 
     public Animator Anim;
     private string currentState;
 
     public GameObject destroyedBlockParticle;
+    public GameObject invisibleBlock;
 
     public Camera main_camera;
 
@@ -50,6 +56,9 @@ public class TileMovementV2 : MonoBehaviour
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position; // The point where the object is currently at
+
+        levelManagerScript = FindObjectOfType<LevelManager>();
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
     }
 
     void Update()
@@ -83,6 +92,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             isWalking = false;
             checkIfOnCheckpoint();
+            levelManagerScript.checkIfCompletedLevel();
             // If player runs out of the meter
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
             {
@@ -111,8 +121,14 @@ public class TileMovementV2 : MonoBehaviour
                 PlayerSounds.instance.TileCheck();
                 destination = transform.position + nextPos;
                 direction = nextPos;
-                if (!onBridge()) torchMeterMoves.CurrentVal -= 1;
-                else ResetTorchMeter();
+                if (!onBridge())
+                {
+                    torchMeterMoves.CurrentVal -= 1;
+                }
+                else
+                {
+                    ResetTorchMeter();
+                }
             }
         }
         CheckToPlayAnims();
@@ -168,6 +184,8 @@ public class TileMovementV2 : MonoBehaviour
             Collider collider = getCollider();
             if (collider == null) return false;
             if (collider.tag == "DestroyableBlock") destroyBlock(collider);
+            if (collider.tag == "Generator") turnOnGenerator(collider);
+            if (collider.tag == "FireStone") getFirestone(collider);
             else if (collider.tag == "NPC") interactWithNPC(collider);
         }
         return false;
@@ -183,7 +201,35 @@ public class TileMovementV2 : MonoBehaviour
         torchMeterMoves.CurrentVal--;
         Instantiate(destroyedBlockParticle, collider.gameObject.transform.position, collider.gameObject.transform.rotation);
         collider.gameObject.SetActive(false);
+        isInteracting = true;
         isWalking = false;
+        CheckToPlayAnims();
+    }
+
+    // Function for turning on the generator
+    public void turnOnGenerator(Collider collider)
+    {
+        Debug.Log("Turned On Generator");
+        if (collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
+        collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
+        isInteracting = true;
+        isWalking = false;
+        CheckToPlayAnims();
+    }
+
+    // Function for interacting with the firestone
+    public void getFirestone(Collider collider)
+    {
+        Debug.Log("Firestone has been used");
+        if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
+        {
+            torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+            Instantiate(torchFireIgniteSFX, transform.position, transform.rotation); // Spawns the particle effect on the object's position and rotation
+        }
+        collider.gameObject.GetComponentInChildren<Light>().enabled = false;
+        isInteracting = true;
+        isWalking = false;
+        CheckToPlayAnims();
     }
 
     /***
@@ -242,7 +288,12 @@ public class TileMovementV2 : MonoBehaviour
                 CheckToPlayAnims();
                 break;
 
-            case ("FireStone"):
+            case ("InvisibleBlock"):
+                isWalking = false;
+                isPushing = false;
+                break;
+
+            /*case ("FireStone"):
                 if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
                 {
                     torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
@@ -251,15 +302,16 @@ public class TileMovementV2 : MonoBehaviour
                 collider.gameObject.GetComponentInChildren<Light>().enabled = false;
                 isWalking = false;
                 CheckToPlayAnims();
-                break;
+                break;*/
 
-            case ("Generator"):
+            /*case ("Generator"):
                 Debug.Log("Turned On Generator");
-                torchMeterMoves.CurrentVal--;
+                if(collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
                 collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
                 isWalking = false;
+                isInteracting = true;
                 CheckToPlayAnims();
-                break;
+                break;*/
 
             default:
                 Debug.Log("Unrecognizable Tag");
@@ -280,15 +332,33 @@ public class TileMovementV2 : MonoBehaviour
         if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
         {
             string tag = hit.collider.tag;
-            if (tag == "MoveCameraBlock")
+            if (hit.collider.name == "BridgeBlock" || tag == "EndOfLevel")
             {
+                if (!hasAlreadyPopedOut)
+                {
+                    // Make the torch meter pop out
+                    torchMeterScript.TorchMeterPopOut();
+                    hasAlreadyPopedOut = true;
+                }
                 torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+                canRestartPuzzle = false;
                 return true;
-            }
+            } 
             else if (tag == "EmptyBlock")
             {
+                // Player cannot walk over ditches - the areas where blocks can fall in
                 isWalking = false;
                 return false;
+            }
+            else
+            {
+                if (hasAlreadyPopedOut)
+                {
+                    // Make the torch meter pop in
+                    torchMeterScript.TorchMeterPopIn();
+                    hasAlreadyPopedOut = false;
+                }
+                canRestartPuzzle = true;
             }
             return true;
         }
@@ -329,8 +399,8 @@ public class TileMovementV2 : MonoBehaviour
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
         // Setting new puzzle view
-        GameObject view = puzzle.transform.Find("View").gameObject;
-        main_camera.GetComponent<CameraController>().NextPuzzleView(view.transform);
+        //GameObject view = puzzle.transform.Find("View").gameObject;
+        //main_camera.GetComponent<CameraController>().NextPuzzleView(view.transform);
 
         // Setting new torch meter value
         int newNumMovements = checkpoint.GetComponent<CheckpointV2>().getNumMovements();
@@ -341,7 +411,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             checkpoint.GetComponent<CheckpointV2>().setCheckpoint();
             ResetTorchMeter();
-            main_camera.GetComponent<CameraController>().WindGush();
+            //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
     }
@@ -356,7 +426,30 @@ public class TileMovementV2 : MonoBehaviour
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         Physics.Raycast(myRay, out hit, rayLength);
-        if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock") return true;
+        if (hit.collider.tag == "WoodTiles" || hit.collider.name == "BridgeBlock")
+        {
+            string tag = hit.collider.tag;
+            // For the functions below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
+            if (tag == "MoveCameraBlock" && !hasMovedPuzzleView && hasAlreadyPopedOut)
+            {
+                Debug.Log("Switched To Next Puzzle View");
+                main_camera.GetComponent<CameraController>().NextPuzzleView02();
+                main_camera.GetComponent<CameraController>().WindGush();
+                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3 (0, 1, 0), hit.collider.transform.rotation);
+                hasMovedPuzzleView = true;
+            }
+            if (tag == "InstantiateBlock" || tag == "ResetCameraBool" && hasAlreadyPopedOut)
+            {
+                // Spawns an invisible block that prevents the player from traveling to previous puzzles (we'll remove this in the future)
+                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
+            }
+            if (tag == "ResetCameraBool" && hasMovedPuzzleView && hasAlreadyPopedOut)
+            {
+                hasMovedPuzzleView = false;
+            }
+            return true;
+        }
+
         return false;
     }
 
@@ -365,24 +458,28 @@ public class TileMovementV2 : MonoBehaviour
      ***/
     private void resetPuzzle()
     {
-        checkpoint.GetComponent<CheckpointV2>().resetPlayerPosition();
-        ResetTorchMeter();
-
-        Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
-        for (int i = 0; i < puzzle.transform.childCount; i++)
+        // You can only resart the puzzle when you're not on a bridge block (determined in EdgeCheck)
+        if (canRestartPuzzle)
         {
-            GameObject child = puzzle.transform.GetChild(i).gameObject;
-            if (child.name == "Pushable Blocks")
-                child.GetComponent<ResetPushableBlocks>().resetBlocks();
+            checkpoint.GetComponent<CheckpointV2>().resetPlayerPosition();
+            ResetTorchMeter();
 
-            else if (child.name == "Breakable Blocks")
-                child.GetComponent<ResetBreakableBlocks>().resetBlocks();
+            Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
+            for (int i = 0; i < puzzle.transform.childCount; i++)
+            {
+                GameObject child = puzzle.transform.GetChild(i).gameObject;
+                if (child.name == "Pushable Blocks")
+                    child.GetComponent<ResetPushableBlocks>().resetBlocks();
 
-            else if (child.name == "Fire Stones")
-                child.GetComponent<ResetFireStone>().resetFirestone();
+                else if (child.name == "Breakable Blocks")
+                    child.GetComponent<ResetBreakableBlocks>().resetBlocks();
 
-            else if (child.name == "Generator Blocks")
-                child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
+                else if (child.name == "Fire Stones")
+                    child.GetComponent<ResetFireStone>().resetFirestone();
+
+                else if (child.name == "Generator Blocks")
+                    child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
+            }
         }
     }
 
@@ -393,7 +490,7 @@ public class TileMovementV2 : MonoBehaviour
     {
         checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
 
-        //Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
+        // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
         {
             GameObject child = puzzle.transform.GetChild(i).gameObject;
@@ -425,4 +522,6 @@ public class TileMovementV2 : MonoBehaviour
         isPushing = false;
         isInteracting = false;
     }
+
+
 }

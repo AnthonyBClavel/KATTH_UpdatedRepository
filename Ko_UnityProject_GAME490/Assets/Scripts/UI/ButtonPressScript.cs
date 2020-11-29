@@ -8,8 +8,6 @@ public class ButtonPressScript : MonoBehaviour
 {
     private Button myButton;
     public Animator anim;
-    
-    private string currentState;
 
     // Start is called before the first frame update
     void Awake()
@@ -25,4 +23,5 @@ public class ButtonPressScript : MonoBehaviour
             anim.SetTrigger("Pressed");
         }
     }
+
 }

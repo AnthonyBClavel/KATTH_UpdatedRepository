@@ -47,13 +47,13 @@ public class PlayerSounds : MonoBehaviour
 
         if (Physics.Raycast(myRay, out hit, rayLength))
         {
-            if (hit.collider.tag == "SnowTiles" || hit.collider.gameObject.name == "SnowCheckpoint" || hit.collider.gameObject.name == "Checkpoint_SnowTiles")
+            if (hit.collider.tag == "SnowTiles" || hit.collider.gameObject.name == "SnowCheckpoint" || hit.collider.gameObject.name == "Checkpoint_SnowTiles" || hit.collider.name == "SnowTileBlock")
             {
                 audioSource.volume = 0.7f;
                 audioSource.pitch = 1.0f;
                 SnowFootsteps();
             }
-            else if (hit.collider.tag == "GrassTiles" || hit.collider.gameObject.name == "GrassCheckpoint" || hit.collider.gameObject.name == "Checkpoint_GrassTiles")
+            else if (hit.collider.tag == "GrassTiles" || hit.collider.gameObject.name == "GrassCheckpoint" || hit.collider.gameObject.name == "Checkpoint_GrassTiles" || hit.collider.name == "PatchyGrassBlock")
             {
                 audioSource.volume = 0.7f;
                 audioSource.pitch = 1.0f;
@@ -65,13 +65,13 @@ public class PlayerSounds : MonoBehaviour
                 audioSource.pitch = 1.0f;
                 StoneFootsteps();
             }
-            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles")
+            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles" || hit.collider.name == "PowerStationBlock")
             {
                 audioSource.volume = 1.0f;
                 audioSource.pitch = 1.0f;
                 MetalFootsteps();
             }
-            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.tag == "Obstacle")
+            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.tag == "Obstacle" || hit.collider.name == "BridgeBlock")
             {
                 audioSource.volume = 0.75f;
                 audioSource.pitch = 0.9f;

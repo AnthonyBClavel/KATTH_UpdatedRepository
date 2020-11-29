@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
     [SerializeField]                                                        
     public AudioClip[] clips;
 
-    [SerializeField]                                                            //allows you to see and manipulate the variable within the Unity inspector if it's private (the variable below this line)
+    [SerializeField]
     public AudioClip[] loopingClips;                                       
 
     private AudioSource audioSource;          
@@ -38,7 +38,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        // For Debugging purposes
+        /*** For Debugging purposes ***/
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Switch Puzzle View");                  
@@ -56,6 +56,8 @@ public class CameraController : MonoBehaviour
             WindGush();                                                                                               
             currentView = levelViews[currentIndex++];                                                               
         }
+        /*** End Debugging ***/
+
     }
 
 
@@ -74,20 +76,44 @@ public class CameraController : MonoBehaviour
     public void NextPuzzleView(Transform newView)                                                                              
     {
         //Debug.Log("Switch Puzzle View");
-        currentView = newView;                                                                                                                                                   
+        currentView = newView;
+    }
+
+    public void NextPuzzleView02()
+    {
+        //Debug.Log("Switch Puzzle View");
+        currentView = levelViews[currentIndex++];
+
+        if (currentIndex >= levelViews.Length)
+        {
+            Debug.Log("Reset to Frist Puzzle View");
+            currentIndex = 0;
+        }
+    }
+    
+    // We'll use this function below in the future when we want to travel between puzzles
+    public void PreviousPuzzleView02()
+    {
+        //Debug.Log("Switch Puzzle View");
+        currentView = levelViews[currentIndex--];
     }
 
     // Plays the wind gush audio clip
     public void WindGush()                                                                                            
     {
+        if (loopingClips != null)
+        {
+            // Play a new looping ambient sfx that isn't equal to the one playing right now
+            theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);
+        }
+
         AudioClip clips = GetRandomClip();                                                                
         audioSource.PlayOneShot(clips);                                                                          
     }
 
     private AudioClip GetRandomClip()                                                                                
     {
-        return clips[UnityEngine.Random.Range(0, clips.Length)];                                                      
-
+        return clips[UnityEngine.Random.Range(0, clips.Length)];
     }
 
 }

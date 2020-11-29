@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using System.Xml.Serialization;
+using TMPro;
 
 public class OptionsMenu : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class OptionsMenu : MonoBehaviour
 
     public int selectedResolution;
 
-    public Text resolutionLabel;
+    public TextMeshProUGUI resolutionLabel;
 
     public AudioMixer theMixer;
 

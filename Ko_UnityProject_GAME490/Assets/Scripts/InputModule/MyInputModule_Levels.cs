@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 namespace UnityEngine.EventSystems
 {
-    [AddComponentMenu("Event/My Input Module")]
+    [AddComponentMenu("Event/Standalone Input Module")]
     /// <summary>
     /// A BaseInputModule designed for mouse / keyboard / controller input.
     /// </summary>
@@ -278,11 +278,8 @@ namespace UnityEngine.EventSystems
             // they change the current selected gameobject and the submit button is a touch / mouse button.
 
             // touch needs to take precedence because of the mouse emulation layer
-            if (!ProcessTouchEvents() && input.mousePresent && FindObjectOfType<PauseMenu01>().isOptionsMenu == true)
-            {
+            if (!ProcessTouchEvents() && input.mousePresent)
                 ProcessMouseEvent();
-            }
-                
 
             if (eventSystem.sendNavigationEvents)
             {

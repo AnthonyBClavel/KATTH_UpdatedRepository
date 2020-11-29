@@ -6,44 +6,57 @@ using UnityEngine.SceneManagement;
 
 public class LevelFade : MonoBehaviour
 { 
-    public Animator animator;                                   //variable for the animator component
+    public Animator animator;                                
 
-    private MainMenu mainMenu;                                  //variable for the specified script
-
-    private PauseMenu01 pauseMenu;                              //variable for the specified script
+    private MainMenu mainMenu;                                  
+    private PauseMenu01 pauseMenu;
+    private LevelManager levelManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        mainMenu = FindObjectOfType<MainMenu>();                //sets the variable to the object with the specified script
+        mainMenu = FindObjectOfType<MainMenu>();               
 
-        pauseMenu = FindObjectOfType<PauseMenu01>();            //sets the variable to the object with the specified script
+        pauseMenu = FindObjectOfType<PauseMenu01>();
+
+        levelManager = FindObjectOfType<LevelManager>();
     }
 
-    // Update is called once per frame
-    void Update()
+    //function that triggers the "FadeOutMain" animation (fade)
+    public void FadeOutOfMainMenu()                             
     {
-
+        animator.SetTrigger("FadeOutMain");                     
     }
 
-    public void FadeOutOfMainMenu()                             //the function for fading out of the main menu
+    //function that triggers the "FadeOutOfLevel" animation (fade)
+    public void FadeOutOfLevel()
     {
-        animator.SetTrigger("FadeOutMain");                     //trigger the "FadeOutMain" trigger within the animator window
+        Time.timeScale = 1f;
+        animator.SetTrigger("FadeOutLevel");
     }
 
-    public void FadeOutOfLevel()                                //the function for fading out of the pause menu (out of the level)
+    //function that triggers the "FadeOutToNextLevel" animation (fade)
+    public void FadeOutToNextLevel()
     {
-        Time.timeScale = 1f;                                    //sets the time scale back to normal (1f = realtime)
-        animator.SetTrigger("FadeOutLevel");                    //trigger the "FadeOutLevel" trigger within the animator window
+        animator.SetTrigger("FadeOutNextLevel");
     }
 
-    public void OnFadeCompleteForMain()                         //the function that calls another script's function (for fading out of main menu)
+    //calls the "NewGame" function in the main menu script
+    public void OnFadeCompleteForMain()                         
     {
-        mainMenu.NewGame();                                     //call the function with the specified/external script
+        mainMenu.NewGame();                                     
     }
 
-    public void OnFadeCompleteForPause()                        //the function that calls another script's function (for fading out of pause menu)
+    //calls the "QuitToMain" function in the pause menu
+    public void OnFadeCompleteForPause()                       
     {
-        pauseMenu.QuitToMain();                                 //call the function with the specified/external script
+        pauseMenu.QuitToMain();                                
     }
+
+    //calls the "LoadNextLevel" coroutine in the pause menu
+    public void OnFadeCompleteForLevel()
+    {
+        levelManager.StartCoroutine("LoadNextLevelAsync");
+    }
+
 }

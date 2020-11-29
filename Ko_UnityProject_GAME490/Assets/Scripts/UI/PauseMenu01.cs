@@ -4,37 +4,43 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class PauseMenu01 : MonoBehaviour
 {
+    public string mainMenuScene;
+
+    [Header("Pause Menu Elements")]
     public GameObject optionsScreen;
     public GameObject pauseMenu;
     public GameObject player;
-
+    public GameObject pauseFirstButton, optionsFirstButton, optionsClosedButton, mainMenuButton;
     public Animator pauseScreenAnim;
 
+    private GameObject lastSelectedObject;
+    private EventSystem eventSystem;
+
+    [Header("Bools")]
     public bool isOptionsMenu;
-
-    public GameObject pauseFirstButton, optionsFirstButton, optionsClosedButton;
-
-    public string mainMenuScene;
-
     private bool isPaused;
 
+    [Header("Loading Screen Elements")]
     public GameObject loadingScreen, loadingIcon;
-    public Text loadingText;
-    
+    public TextMeshProUGUI loadingText;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        eventSystem = FindObjectOfType<EventSystem>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        lastSelectedObject = eventSystem.currentSelectedGameObject;
+
         //open or close the pause menu with ESC
-        if(Input.GetKeyDown(KeyCode.Escape) && !isOptionsMenu)
+        if (Input.GetKeyDown(KeyCode.Escape) && !isOptionsMenu)
         {
             if (isPaused)
             {
@@ -71,12 +77,12 @@ public class PauseMenu01 : MonoBehaviour
         Time.timeScale = 0f;
         pauseMenu.SetActive(true);
         isPaused = true;
-        player.GetComponent<TileMovementV2>().enabled = false; 
+        player.GetComponent<TileMovementV2>().enabled = false;
 
-        //clear selected object
-        EventSystem.current.SetSelectedGameObject(null);
-        //set new selected object
-        EventSystem.current.SetSelectedGameObject(pauseFirstButton);
+        //clear selected object first cuz Unity UI is wierd...
+        eventSystem.SetSelectedGameObject(null);
+        //then set new selected object
+        eventSystem.SetSelectedGameObject(pauseFirstButton);
     }
 
     public void OpenOptions()
@@ -93,6 +99,40 @@ public class PauseMenu01 : MonoBehaviour
     {
         StartCoroutine("LoadMainAsync");
     }
+
+
+    //On Pointer Enter functions start here
+    public void SelectResumeButton()
+    {
+        if (lastSelectedObject != pauseFirstButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(pauseFirstButton);
+        }
+
+    }
+
+    public void SelectOptionsButton()
+    {
+        if (lastSelectedObject != optionsClosedButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(optionsClosedButton);
+        }
+
+    }
+
+    public void SelectMainMenuButton()
+    {
+        if (lastSelectedObject != mainMenuButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(mainMenuButton);
+        }
+
+    }
+    //On Pointer Enter functions end here
+
 
     //loads the next scene in the background while the loading screen plays
     private IEnumerator LoadMainAsync()
@@ -141,8 +181,8 @@ public class PauseMenu01 : MonoBehaviour
         isOptionsMenu = true;
         optionsScreen.SetActive(true);
 
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(optionsFirstButton);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(optionsFirstButton);
     }
 
     private IEnumerator CloseOptionsDelay()
@@ -151,8 +191,8 @@ public class PauseMenu01 : MonoBehaviour
         isOptionsMenu = false;
         optionsScreen.SetActive(false);
 
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(optionsClosedButton);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(optionsClosedButton);
     }
 
     /*private IEnumerator QuitToMainDelay()
@@ -161,4 +201,6 @@ public class PauseMenu01 : MonoBehaviour
         Time.timeScale = 1f;
         StartCoroutine("LoadMainAsync");
     }*/
+
+
 }

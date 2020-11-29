@@ -10,7 +10,7 @@ public class MainMenuMusicScript : MonoBehaviour
     private float duration;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         //sets the duration to the length of the audio clip
         duration = initialLoopBGM.GetComponent<AudioSource>().clip.length;

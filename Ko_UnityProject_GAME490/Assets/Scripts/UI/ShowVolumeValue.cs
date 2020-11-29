@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ShowVolumeValue : MonoBehaviour
 {
-    public Text sliderValueText;
+    public TextMeshProUGUI sliderValueText;
 
     void Start()
     {
-        sliderValueText = GetComponent<Text>();
+        sliderValueText = GetComponent<TextMeshProUGUI>();
     }
 
     public void textUpdate (float value)

@@ -6,6 +6,9 @@ public class CheckpointV2 : MonoBehaviour
 {
     public int numMovements;
     private GameObject player; // Player object
+    private IceMaterialScript iceMaterialScript;
+    private TileMovementV2 tileMovementScript;
+    private Animator playerAnimator;
     Vector3 p; // Player position for debugging
     Vector3 blockPosition; // Block position
     private bool hit; // True if we hit it before, false otherwise
@@ -16,6 +19,10 @@ public class CheckpointV2 : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         blockPosition = transform.position;
         hit = false;
+
+        iceMaterialScript = player.GetComponent<IceMaterialScript>();
+        tileMovementScript = player.GetComponent<TileMovementV2>();
+        playerAnimator = player.GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -37,23 +44,23 @@ public class CheckpointV2 : MonoBehaviour
     public void resetPlayerPosition()
     {
         player.transform.position = blockPosition;
-        player.GetComponent<TileMovementV2>().setDestination(blockPosition);
+        tileMovementScript.setDestination(blockPosition);
     }
 
     public IEnumerator resetPlayerPositionWithDelay(float seconds)
     {
-        player.GetComponent<IceMaterialScript>().StartCoroutine("IncreaseAlpha");
-        player.GetComponent<IceMaterialScript>().StartCoroutine("ResetAlpha");
-        player.GetComponent<IceMaterialScript>().StartCoroutine("FadeMaterialToFullAlpha");
-        player.GetComponent<IceMaterialScript>().StartCoroutine("ResetPlayerMaterial");
-        player.GetComponentInChildren<Animator>().enabled = false;
-        player.GetComponentInChildren<TileMovementV2>().enabled = false;
+        iceMaterialScript.StartCoroutine("IncreaseAlpha_ColdUI");
+        iceMaterialScript.StartCoroutine("ResetUIAlpha_ColdUI");
+        iceMaterialScript.StartCoroutine("FadeMaterialToFullAlpha");
+        iceMaterialScript.StartCoroutine("ResetPlayerMaterial");
+        playerAnimator.enabled = false;
+        tileMovementScript.enabled = false;
         yield return new WaitForSeconds(seconds);
-        player.GetComponentInChildren<Animator>().enabled = true;
-        player.GetComponentInChildren<TileMovementV2>().enabled = true;
+        playerAnimator.enabled = true;
+        tileMovementScript.enabled = true;
         player.transform.position = blockPosition;
-        player.GetComponent<TileMovementV2>().setDestination(blockPosition);
-        player.GetComponent<TileMovementV2>().ResetTorchMeter();
+        tileMovementScript.setDestination(blockPosition);
+        tileMovementScript.ResetTorchMeter();
     }
 
     public void setCheckpoint()
@@ -65,9 +72,6 @@ public class CheckpointV2 : MonoBehaviour
     {
         return hit;
     }
-
-
-
 
 
 }
