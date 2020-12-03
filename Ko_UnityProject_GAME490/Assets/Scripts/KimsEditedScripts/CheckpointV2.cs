@@ -57,10 +57,10 @@ public class CheckpointV2 : MonoBehaviour
         tileMovementScript.enabled = false;
         yield return new WaitForSeconds(seconds);
         playerAnimator.enabled = true;
-        tileMovementScript.enabled = true;
         player.transform.position = blockPosition;
         tileMovementScript.setDestination(blockPosition);
         tileMovementScript.ResetTorchMeter();
+        tileMovementScript.enabled = true;
     }
 
     public void setCheckpoint()

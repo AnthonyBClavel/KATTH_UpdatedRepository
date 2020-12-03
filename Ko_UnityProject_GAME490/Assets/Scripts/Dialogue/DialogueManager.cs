@@ -6,8 +6,9 @@ using TMPro;
 public class DialogueManager : MonoBehaviour
 {
     public GameObject player;
+    public GameObject dialogue;
     public GameObject continueTrigger;
-    public Canvas dialogueCanvas;
+    public GameObject blackOverlay;
     public Canvas pauseMenuCanvas;
 
     public TextMeshProUGUI textDisplay;
@@ -18,9 +19,13 @@ public class DialogueManager : MonoBehaviour
     private float OGtypingSpeed;
     public AudioSource charNoise;
 
+    public bool hasStarted = false;
+    public bool inDialogue = false;
+
     void Start()
     {
         OGtypingSpeed = typingSpeed;
+        hasStarted = true;
     }
 
     void Update()
@@ -37,13 +42,15 @@ public class DialogueManager : MonoBehaviour
      ***/
     public void startDialogue()
     {
+        inDialogue = true;
         pauseMenuCanvas.GetComponent<PauseMenu01>().enabled = false;
         player.GetComponent<TileMovementV2>().enabled = false; // Disabling player movement script
         typingSpeed = OGtypingSpeed;
         textDisplay.text = "";
         index = 0;
         continueTrigger.SetActive(false);
-        dialogueCanvas.enabled = true;
+        blackOverlay.SetActive(true);
+        dialogue.SetActive(true);
         StartCoroutine(Type());
     }
 
@@ -83,15 +90,25 @@ public class DialogueManager : MonoBehaviour
      ***/
     public void endDialogue()
     {
+        dialogue.SetActive(false);
         continueTrigger.SetActive(false);
-        dialogueCanvas.enabled = false;
-        player.GetComponent<TileMovementV2>().enabled = true;
+        blackOverlay.SetActive(false);
         pauseMenuCanvas.GetComponent<PauseMenu01>().enabled = true;
+        player.GetComponent<TileMovementV2>().enabled = true;
+        player.GetComponent<TileMovementV2>().hasDied = false;
+        inDialogue = false;
     }
 
     // Sets the dialogue
     public void setDialogue(string[] dialogue)
     {
         sentences = dialogue;
+    }
+
+
+
+    public string[] readTextFile(TextAsset textFile)
+    {
+        return textFile.text.Split("\n"[0]);
     }
 }

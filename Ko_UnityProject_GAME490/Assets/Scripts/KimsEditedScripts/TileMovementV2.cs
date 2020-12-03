@@ -23,7 +23,7 @@ public class TileMovementV2 : MonoBehaviour
 
     public GameObject edgeCheck;
 
-    private bool isWalking;                                     // Used to determine when to play an object's animation
+    public bool isWalking;                                     // Used to determine when to play an object's animation
     private bool isPushing;                                     // Used to determine when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
@@ -45,6 +45,8 @@ public class TileMovementV2 : MonoBehaviour
 
     public GameObject checkpoint;
     public GameObject puzzle;
+
+    public bool hasDied = false;
 
     private void Awake()
     {
@@ -246,7 +248,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray forward and returns the collider if it hits, or null otherwise
      ***/
-    Collider getCollider()
+    public Collider getCollider()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);
         RaycastHit hit;
@@ -386,7 +388,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray below the character and returns true if player is standing on a checkpoint, returns false otherwise
      ***/
-    private bool checkIfOnCheckpoint()
+    public bool checkIfOnCheckpoint()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
@@ -411,6 +413,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             checkpoint.GetComponent<CheckpointV2>().setCheckpoint();
             ResetTorchMeter();
+
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
@@ -419,7 +422,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray below the character - Returns true of the player is standing on a bridge, false otherwise
      ***/
-    private bool onBridge()
+    public bool onBridge()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
@@ -496,7 +499,7 @@ public class TileMovementV2 : MonoBehaviour
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
                 child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
-            
+
             else if (child.name == "Breakable Blocks")
                 child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
 
@@ -507,6 +510,8 @@ public class TileMovementV2 : MonoBehaviour
                 child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
         }
 
+        ResetTorchMeter();
+        hasDied = true;
     }
 
     private void ChangeAnimationState(string newState)

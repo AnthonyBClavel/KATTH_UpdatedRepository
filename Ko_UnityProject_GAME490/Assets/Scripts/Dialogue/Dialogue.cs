@@ -13,4 +13,9 @@ public class Dialogue : MonoBehaviour
     {
         return textFile.text.Split("\n"[0]);
     }
+
+    public string[] readTextFile(TextAsset textFile)
+    {
+        return textFile.text.Split("\n"[0]);
+    }
 }
