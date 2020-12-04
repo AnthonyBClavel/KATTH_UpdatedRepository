@@ -100,6 +100,23 @@ public class PauseMenu01 : MonoBehaviour
         StartCoroutine("LoadMainAsync");
     }
 
+    private SaveSlot makeSaveSlot()
+    {
+        string sceneName = player.GetComponent<TileMovementV2>().sceneName;
+
+        Vector3 position = player.GetComponent<TileMovementV2>().checkpoint.transform.position;
+        float x = position.x;
+        float y = position.y;
+        float z = position.z;
+        float[] playerPosition = { x, y, z };
+
+        string puzzleName = player.GetComponent<TileMovementV2>().puzzle.name;
+
+        int currCameraIndex = player.GetComponent<TileMovementV2>().main_camera.GetComponent<CameraController>().currentIndex;
+
+        return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
+    }
+
 
     //On Pointer Enter functions start here
     public void SelectResumeButton()

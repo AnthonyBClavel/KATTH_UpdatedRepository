@@ -1689,7 +1689,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 47306469}
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 2, y: 7, z: 44}
+  m_LocalPosition: {x: 0, y: 7, z: -2.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1850761680}
@@ -1821,6 +1821,7 @@ MonoBehaviour:
   - {fileID: 1905147064}
   - {fileID: 2053088603}
   transitonSpeed: 3
+  currentIndex: 0
 --- !u!114 &47306475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5322,7 +5323,7 @@ GameObject:
   m_Component:
   - component: {fileID: 265792241}
   m_Layer: 0
-  m_Name: Puzzle6
+  m_Name: Puzzle06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8200,7 +8201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 470864983}
   m_Layer: 0
-  m_Name: Puzzle3
+  m_Name: Puzzle03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11388,7 +11389,7 @@ GameObject:
   m_Component:
   - component: {fileID: 678786051}
   m_Layer: 0
-  m_Name: Puzzle1
+  m_Name: Puzzle01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12571,7 +12572,7 @@ GameObject:
   m_Component:
   - component: {fileID: 790877009}
   m_Layer: 0
-  m_Name: Puzzle5
+  m_Name: Puzzle05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17831,7 +17832,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1171827405}
   m_Layer: 0
-  m_Name: Puzzle4
+  m_Name: Puzzle04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19716,7 +19717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1282276822}
   m_Layer: 0
-  m_Name: Puzzle7
+  m_Name: Puzzle07
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22378,7 +22379,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1428929132}
   m_Layer: 0
-  m_Name: Puzzle2
+  m_Name: Puzzle01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37916,7 +37917,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6cf37adae6f3b499aee96a2eaa7541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuScene: MainMenuWIP
+  mainMenuScene: MainMenu02
   optionsScreen: {fileID: 1171572495}
   pauseMenu: {fileID: 2795593143741341831}
   player: {fileID: 1387889221}

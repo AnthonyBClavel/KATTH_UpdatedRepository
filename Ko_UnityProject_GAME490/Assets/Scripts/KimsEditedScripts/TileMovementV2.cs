@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TileMovementV2 : MonoBehaviour
 {
@@ -43,8 +44,10 @@ public class TileMovementV2 : MonoBehaviour
 
     public TorchMeterStat torchMeterMoves;
 
+    // For save state
     public GameObject checkpoint;
     public GameObject puzzle;
+    public string sceneName;
 
     public bool hasDied = false;
 
@@ -55,6 +58,20 @@ public class TileMovementV2 : MonoBehaviour
 
     void Start()
     {
+        SaveSlot save = SaveManager.LoadGame();
+        if (save != null)
+        {
+            transform.position = new Vector3(save.getPosition()[0], save.getPosition()[1], save.getPosition()[2]);
+            puzzle = GameObject.Find(save.getPuzzleName());
+            main_camera.GetComponent<CameraController>().currentIndex = save.getCameraIndex();
+        }
+        else
+        {
+            //transform.position = new Vector3(0, 0, 0);
+            main_camera.GetComponent<CameraController>().currentIndex = 0;
+            puzzle = GameObject.Find("Puzzle01");
+        }
+
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position; // The point where the object is currently at
@@ -65,6 +82,7 @@ public class TileMovementV2 : MonoBehaviour
 
     void Update()
     {
+        sceneName = SceneManager.GetActiveScene().name;
         Move();
         Anim.SetBool("isWalking", isWalking);
         Anim.SetBool("isPushing", isPushing);
@@ -397,6 +415,7 @@ public class TileMovementV2 : MonoBehaviour
         Physics.Raycast(myRay, out hit, rayLength);
         if (hit.collider.tag != "Checkpoint") return false; // If we did not hit a checkpoint
 
+        SaveManager.SaveGame(makeSaveSlot());
         checkpoint = hit.collider.gameObject;
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
@@ -528,5 +547,19 @@ public class TileMovementV2 : MonoBehaviour
         isInteracting = false;
     }
 
+    private SaveSlot makeSaveSlot()
+    {
+        Vector3 position = transform.position;
+        float x = position.x;
+        float y = position.y;
+        float z = position.z;
+        float[] playerPosition = { x, y, z };
+
+        string puzzleName = puzzle.name;
+
+        int currCameraIndex = main_camera.GetComponent<CameraController>().currentIndex;
+
+        return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
+    }
 
 }

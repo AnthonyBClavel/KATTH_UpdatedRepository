@@ -103,7 +103,7 @@ public class Tutorial : MonoBehaviour
                 hasPassedBridge = true;
             }
 
-            else if (player.GetComponent<TileMovementV2>().checkIfOnCheckpoint() && player.GetComponent<TileMovementV2>().puzzle.name == "Puzzle3" && !hasPlayedHole)
+            else if (player.GetComponent<TileMovementV2>().checkIfOnCheckpoint() && player.GetComponent<TileMovementV2>().puzzle.name == "Puzzle03" && !hasPlayedHole)
             {
                 setDialogue(holeDialogue);
                 currentDialogue = holeDialogue;

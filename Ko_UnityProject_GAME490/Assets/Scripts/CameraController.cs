@@ -22,12 +22,12 @@ public class CameraController : MonoBehaviour
 
     Transform currentView; // The variable that is used to determine which view the camera is currenlty at
 
-    int currentIndex = 0; 
+    public int currentIndex = 0; 
 
     // Start is called before the first frame update
     void Start()
     {       
-        currentView = levelViews[currentIndex++]; 
+        currentView = levelViews[currentIndex]; 
 
         instance = this;
 
@@ -38,6 +38,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        currentView = levelViews[currentIndex];
         /*** For Debugging purposes ***/
         if (Input.GetKeyDown(KeyCode.Space))
         {
