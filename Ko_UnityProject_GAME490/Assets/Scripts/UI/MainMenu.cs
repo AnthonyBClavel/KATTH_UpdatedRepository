@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
@@ -39,16 +40,26 @@ public class MainMenu : MonoBehaviour
         StartCoroutine("setActiveDelay");
 
         eventSystem = FindObjectOfType<EventSystem>();
+        if (!SaveManager.hasSaveFile())
+        {
+            continueFirstButton.SetActive(false);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         //if enter is already pressed once, you cannot call this function again
-        if(Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
+        if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
         {
             OpenMainMenu();
             hasPressedEnter = true;
+        }
+
+        // Debugging..
+        if (Input.GetKeyDown(KeyCode.Delete))
+        {
+            SaveManager.DeleteGame();
         }
     }
 
@@ -60,11 +71,24 @@ public class MainMenu : MonoBehaviour
 
     public void ContinueGame()
     {
+        SaveSlot save = SaveManager.LoadGame();
+        if(save == null)
+        {
+            Debug.Log("No save to load");
+            return;
+        }
+        if (save.getSceneName() != null && !string.IsNullOrEmpty(save.getSceneName()))
+            levelToLoad = save.getSceneName();
+        else
+            SaveManager.DeleteGame();
+
+        StartCoroutine("LoadLevelAsync");
         Debug.Log("Continue Successful");
     }
 
     public void NewGame()
     {
+        SaveManager.DeleteGame();
         StartCoroutine("LoadLevelAsync");
     }
 

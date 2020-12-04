@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TileMovementV2 : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class TileMovementV2 : MonoBehaviour
 
     public GameObject edgeCheck;
 
-    private bool isWalking;                                     // Used to determine when to play an object's animation
+    public bool isWalking;                                     // Used to determine when to play an object's animation
     private bool isPushing;                                     // Used to determine when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
@@ -43,8 +44,12 @@ public class TileMovementV2 : MonoBehaviour
 
     public TorchMeterStat torchMeterMoves;
 
+    // For save state
     public GameObject checkpoint;
     public GameObject puzzle;
+    public string sceneName;
+
+    public bool hasDied = false;
 
     private void Awake()
     {
@@ -53,6 +58,20 @@ public class TileMovementV2 : MonoBehaviour
 
     void Start()
     {
+        SaveSlot save = SaveManager.LoadGame();
+        if (save != null)
+        {
+            transform.position = new Vector3(save.getPosition()[0], save.getPosition()[1], save.getPosition()[2]);
+            puzzle = GameObject.Find(save.getPuzzleName());
+            main_camera.GetComponent<CameraController>().currentIndex = save.getCameraIndex();
+        }
+        else
+        {
+            //transform.position = new Vector3(0, 0, 0);
+            main_camera.GetComponent<CameraController>().currentIndex = 0;
+            puzzle = GameObject.Find("Puzzle01");
+        }
+
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position; // The point where the object is currently at
@@ -63,6 +82,7 @@ public class TileMovementV2 : MonoBehaviour
 
     void Update()
     {
+        sceneName = SceneManager.GetActiveScene().name;
         Move();
         Anim.SetBool("isWalking", isWalking);
         Anim.SetBool("isPushing", isPushing);
@@ -246,7 +266,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray forward and returns the collider if it hits, or null otherwise
      ***/
-    Collider getCollider()
+    public Collider getCollider()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);
         RaycastHit hit;
@@ -386,7 +406,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray below the character and returns true if player is standing on a checkpoint, returns false otherwise
      ***/
-    private bool checkIfOnCheckpoint()
+    public bool checkIfOnCheckpoint()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
@@ -395,6 +415,7 @@ public class TileMovementV2 : MonoBehaviour
         Physics.Raycast(myRay, out hit, rayLength);
         if (hit.collider.tag != "Checkpoint") return false; // If we did not hit a checkpoint
 
+        SaveManager.SaveGame(makeSaveSlot());
         checkpoint = hit.collider.gameObject;
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
@@ -411,6 +432,7 @@ public class TileMovementV2 : MonoBehaviour
         {
             checkpoint.GetComponent<CheckpointV2>().setCheckpoint();
             ResetTorchMeter();
+
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
@@ -419,7 +441,7 @@ public class TileMovementV2 : MonoBehaviour
     /***
      * Draws a ray below the character - Returns true of the player is standing on a bridge, false otherwise
      ***/
-    private bool onBridge()
+    public bool onBridge()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
         RaycastHit hit;
@@ -496,7 +518,7 @@ public class TileMovementV2 : MonoBehaviour
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
                 child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
-            
+
             else if (child.name == "Breakable Blocks")
                 child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
 
@@ -507,6 +529,8 @@ public class TileMovementV2 : MonoBehaviour
                 child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
         }
 
+        ResetTorchMeter();
+        hasDied = true;
     }
 
     private void ChangeAnimationState(string newState)
@@ -523,5 +547,19 @@ public class TileMovementV2 : MonoBehaviour
         isInteracting = false;
     }
 
+    private SaveSlot makeSaveSlot()
+    {
+        Vector3 position = transform.position;
+        float x = position.x;
+        float y = position.y;
+        float z = position.z;
+        float[] playerPosition = { x, y, z };
+
+        string puzzleName = puzzle.name;
+
+        int currCameraIndex = main_camera.GetComponent<CameraController>().currentIndex;
+
+        return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
+    }
 
 }
