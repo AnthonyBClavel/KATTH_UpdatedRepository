@@ -59,7 +59,7 @@ public class PlayerSounds : MonoBehaviour
                 audioSource.pitch = 1.0f;
                 GrassFootsteps();
             }
-            else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "StoneCheckpoint" || hit.collider.gameObject.name == "Checkpoint_StoneTiles")
+            else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "CaveCheckpoint" || hit.collider.gameObject.name == "Checkpoint_CaveTiles" || hit.collider.name == "CaveBlock")
             {
                 audioSource.volume = 0.8f;
                 audioSource.pitch = 1.0f;
