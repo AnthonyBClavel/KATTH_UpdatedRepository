@@ -23,6 +23,18 @@ public class LevelFade : MonoBehaviour
     }
 
     //function that triggers the "FadeOutMain" animation (fade)
+    public void FadeOutOfGame()
+    {
+        animator.SetTrigger("FadeOutGame");
+    }
+
+    //function that triggers the "FadeOutContinue" animation (fade)
+    public void FadeOutContinueGame()
+    {
+        animator.SetTrigger("FadeOutContinue");
+    }
+
+    //function that triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfMainMenu()                             
     {
         animator.SetTrigger("FadeOutMain");                     
@@ -39,6 +51,18 @@ public class LevelFade : MonoBehaviour
     public void FadeOutToNextLevel()
     {
         animator.SetTrigger("FadeOutNextLevel");
+    }
+
+    //calls the "QuitGame" function in the main menu script
+    public void OnFadeCompleteForGame()
+    {
+        mainMenu.QuitGame();
+    }
+
+    //calls the "ContinueGame" function in the main menu script
+    public void OnFadeCompleteContinueButton()
+    {
+        mainMenu.ContinueGame();
     }
 
     //calls the "NewGame" function in the main menu script

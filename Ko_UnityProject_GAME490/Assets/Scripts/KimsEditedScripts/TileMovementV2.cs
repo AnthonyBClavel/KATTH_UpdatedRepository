@@ -89,7 +89,7 @@ public class TileMovementV2 : MonoBehaviour
         Anim.SetBool("isInteracting", isInteracting);
 
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        /*if (Input.GetKeyDown(KeyCode.LeftArrow))
             torchMeterMoves.CurrentVal--;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             torchMeterMoves.CurrentVal++;
@@ -529,7 +529,7 @@ public class TileMovementV2 : MonoBehaviour
                 child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
         }
 
-        ResetTorchMeter();
+        //ResetTorchMeter();
         hasDied = true;
     }
 

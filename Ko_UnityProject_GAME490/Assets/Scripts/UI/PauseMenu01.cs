@@ -160,6 +160,7 @@ public class PauseMenu01 : MonoBehaviour
         loadingScreen.SetActive(true);
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(mainMenuScene);
+        //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("MainMenu02");
         while (!asyncLoad.isDone)
         {
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)

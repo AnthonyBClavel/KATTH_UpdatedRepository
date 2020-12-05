@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 9005a335e73083b4f9a7231abd9f4ab6, type: 2}
+  m_LightingDataAsset: {fileID: 112000000, guid: cc922a52328571b4dbfc67d6de1c2fb5, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: b7a9adc0c8c3872498c07b7f666ccef1, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -869,6 +869,7 @@ MonoBehaviour:
   - {fileID: 717912677}
   - {fileID: 2103035274}
   transitonSpeed: 3
+  currentIndex: 0
 --- !u!114 &47306475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7772,10 +7773,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1723422381086323058, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1723422381587447066, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
       propertyPath: m_LocalPosition.x
       value: 333.52216
@@ -7823,14 +7820,6 @@ PrefabInstance:
     - target: {fileID: 1723422381587447068, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
       propertyPath: m_Name
       value: FadeToLevel
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723422381651518792, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1723422381651518795, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
@@ -9921,7 +9910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6cf37adae6f3b499aee96a2eaa7541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuScene: MainMenuWIP
+  mainMenuScene: MainMenu02
   optionsScreen: {fileID: 8233263429757897561}
   pauseMenu: {fileID: 269318805}
   player: {fileID: 543118118}
@@ -19753,7 +19742,7 @@ PrefabInstance:
     - target: {fileID: 543118121, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: b15a31309bfc6844e9d30b73e36946f0, type: 2}
+      objectReference: {fileID: 2100000, guid: d194c5b3b10109d4ab8da59e5db4163d, type: 2}
     - target: {fileID: 1763956048, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: coldUI
       value: 
@@ -20190,6 +20179,7 @@ MonoBehaviour:
   torchFireExtinguishSFX: {fileID: 1950995079059036893, guid: 04c6088dcc58f3b4b94e5d2a233c8515, type: 3}
   freezingSFX: {fileID: 0}
   edgeCheck: {fileID: 210665660}
+  isWalking: 0
   Anim: {fileID: 9141499421701246096}
   destroyedBlockParticle: {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
   invisibleBlock: {fileID: 0}
@@ -20200,6 +20190,8 @@ MonoBehaviour:
     currentValue: 10
   checkpoint: {fileID: 1475801148}
   puzzle: {fileID: 2013649265}
+  sceneName: 
+  hasDied: 0
 --- !u!82 &9141499421701246099
 AudioSource:
   m_ObjectHideFlags: 0

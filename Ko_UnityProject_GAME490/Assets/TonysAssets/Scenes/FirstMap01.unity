@@ -831,6 +831,7 @@ MonoBehaviour:
   - {fileID: 1132103207}
   - {fileID: 192343061}
   transitonSpeed: 3
+  currentIndex: 0
 --- !u!114 &47306475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20678,10 +20679,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Checkpoint_GrassTiles
       objectReference: {fileID: 0}
-    - target: {fileID: 8407551694068031938, guid: 98d70a18bc8bbfb409c44b281b76fd84, type: 3}
-      propertyPath: numMovements
-      value: 7
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98d70a18bc8bbfb409c44b281b76fd84, type: 3}
 --- !u!4 &1366660046 stripped
@@ -24105,7 +24102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6cf37adae6f3b499aee96a2eaa7541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuScene: MainMenuWIP
+  mainMenuScene: MainMenu02
   optionsScreen: {fileID: 8233263429757897561}
   pauseMenu: {fileID: 269318805}
   player: {fileID: 543118118}
@@ -32611,7 +32608,7 @@ PrefabInstance:
     - target: {fileID: 543118121, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: b15a31309bfc6844e9d30b73e36946f0, type: 2}
+      objectReference: {fileID: 2100000, guid: d194c5b3b10109d4ab8da59e5db4163d, type: 2}
     - target: {fileID: 1763956048, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: coldUI
       value: 
