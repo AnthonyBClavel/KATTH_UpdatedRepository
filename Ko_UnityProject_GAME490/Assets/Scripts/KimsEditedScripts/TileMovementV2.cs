@@ -58,7 +58,7 @@ public class TileMovementV2 : MonoBehaviour
 
     void Start()
     {
-        SaveSlot save = SaveManager.LoadGame();
+        /*SaveSlot save = SaveManager.LoadGame();
         if (save != null)
         {
             transform.position = new Vector3(save.getPosition()[0], save.getPosition()[1], save.getPosition()[2]);
@@ -70,7 +70,9 @@ public class TileMovementV2 : MonoBehaviour
             //transform.position = new Vector3(0, 0, 0);
             main_camera.GetComponent<CameraController>().currentIndex = 0;
             puzzle = GameObject.Find("Puzzle01");
-        }
+        }*/
+
+
 
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
@@ -415,7 +417,7 @@ public class TileMovementV2 : MonoBehaviour
         Physics.Raycast(myRay, out hit, rayLength);
         if (hit.collider.tag != "Checkpoint") return false; // If we did not hit a checkpoint
 
-        SaveManager.SaveGame(makeSaveSlot());
+        //SaveManager.SaveGame(makeSaveSlot());
         checkpoint = hit.collider.gameObject;
         puzzle = hit.collider.transform.parent.parent.gameObject;
 

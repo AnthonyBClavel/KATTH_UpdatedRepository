@@ -82,7 +82,7 @@ public class LevelManager : MonoBehaviour
             {
                 playerScript.ResetTorchMeter();
                 DisablePlayer();
-                SaveManager.DeleteGame();
+                //SaveManager.DeleteGame();
                 return true;
             }
             else return false;

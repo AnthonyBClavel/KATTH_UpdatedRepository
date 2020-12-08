@@ -40,10 +40,11 @@ public class MainMenu : MonoBehaviour
         StartCoroutine("setActiveDelay");
 
         eventSystem = FindObjectOfType<EventSystem>();
-        if (!SaveManager.hasSaveFile())
+
+        /*if (!SaveManager.hasSaveFile())
         {
             continueFirstButton.SetActive(false);
-        }
+        }*/
     }
 
     // Update is called once per frame
@@ -57,10 +58,10 @@ public class MainMenu : MonoBehaviour
         }
 
         // Debugging..
-        if (Input.GetKeyDown(KeyCode.Delete))
+        /*if (Input.GetKeyDown(KeyCode.Delete))
         {
             SaveManager.DeleteGame();
-        }
+        }*/
     }
 
     //opens the main menu canvas
@@ -71,7 +72,7 @@ public class MainMenu : MonoBehaviour
 
     public void ContinueGame()
     {
-        SaveSlot save = SaveManager.LoadGame();
+        /*SaveSlot save = SaveManager.LoadGame();
         if(save == null)
         {
             Debug.Log("No save to load");
@@ -80,7 +81,7 @@ public class MainMenu : MonoBehaviour
         if (save.getSceneName() != null && !string.IsNullOrEmpty(save.getSceneName()))
             levelToLoad = save.getSceneName();
         else
-            SaveManager.DeleteGame();
+            SaveManager.DeleteGame();*/
 
         StartCoroutine("LoadLevelAsync");
         Debug.Log("Continue Successful");
@@ -88,7 +89,8 @@ public class MainMenu : MonoBehaviour
 
     public void NewGame()
     {
-        SaveManager.DeleteGame();
+        //SaveManager.DeleteGame();
+
         StartCoroutine("LoadLevelAsync");
     }
 

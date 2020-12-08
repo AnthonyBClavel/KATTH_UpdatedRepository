@@ -100,7 +100,7 @@ public class PauseMenu01 : MonoBehaviour
         StartCoroutine("LoadMainAsync");
     }
 
-    private SaveSlot makeSaveSlot()
+    /*private SaveSlot makeSaveSlot()
     {
         string sceneName = player.GetComponent<TileMovementV2>().sceneName;
 
@@ -115,7 +115,7 @@ public class PauseMenu01 : MonoBehaviour
         int currCameraIndex = player.GetComponent<TileMovementV2>().main_camera.GetComponent<CameraController>().currentIndex;
 
         return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
-    }
+    }*/
 
 
     //On Pointer Enter functions start here
