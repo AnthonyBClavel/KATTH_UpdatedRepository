@@ -98,7 +98,7 @@ public class BlockMovement : MonoBehaviour
         if (Physics.Raycast(myRay, out hit, rayLength))                                                                         
         {
             string tag = hit.collider.tag;
-            if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone") 
+            if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone" | tag == "Generator" | tag == "InvisibleBlock") 
             {
                 audioSource.PlayOneShot(cantPushCrateSFX);                                                                 
                 return false;                                                                                                  
@@ -113,8 +113,18 @@ public class BlockMovement : MonoBehaviour
         RaycastHit hit;
         Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);
 
-        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck)) return true;
-
+        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
+        {
+            string tag = hit.collider.tag;
+            //Prevents block from moving onto bridge
+            if (tag == "ResetCameraBool")
+            {
+                audioSource.PlayOneShot(cantPushCrateSFX);
+                return false;
+            }
+            return true;
+        }
+        
         audioSource.PlayOneShot(cantPushCrateSFX);                                                                               
         return false;                                                                                                      
     }
