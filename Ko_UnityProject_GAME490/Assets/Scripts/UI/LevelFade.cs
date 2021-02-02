@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class LevelFade : MonoBehaviour
 { 
-    public Animator animator;                                
+    public Animator animator;
+    public GameObject gameCanvas;
 
     private MainMenu mainMenu;                                  
     private PauseMenu01 pauseMenu;
@@ -22,65 +24,84 @@ public class LevelFade : MonoBehaviour
         levelManager = FindObjectOfType<LevelManager>();
     }
 
-    //function that triggers the "FadeOutMain" animation (fade)
+    // Function that triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfGame()
     {
+        disableMenuInputs();
         animator.SetTrigger("FadeOutGame");
     }
 
-    //function that triggers the "FadeOutContinue" animation (fade)
+    // Function that triggers the "FadeOutContinue" animation (fade)
     public void FadeOutContinueGame()
     {
+        disableMenuInputs();
         animator.SetTrigger("FadeOutContinue");
     }
 
-    //function that triggers the "FadeOutMain" animation (fade)
+    // Function that triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfMainMenu()                             
     {
+        disableMenuInputs();
         animator.SetTrigger("FadeOutMain");                     
     }
 
-    //function that triggers the "FadeOutOfLevel" animation (fade)
+    // Function that triggers the "FadeOutOfLevel" animation (fade)
     public void FadeOutOfLevel()
     {
+        pauseMenu.isChangingScenes = true;
+        disableMenuInputs();
         Time.timeScale = 1f;
         animator.SetTrigger("FadeOutLevel");
     }
 
-    //function that triggers the "FadeOutToNextLevel" animation (fade)
+    // Function that triggers the "FadeOutToNextLevel" animation (fade)
     public void FadeOutToNextLevel()
     {
+        pauseMenu.isChangingScenes = true;
         animator.SetTrigger("FadeOutNextLevel");
     }
 
-    //calls the "QuitGame" function in the main menu script
+    // Calls the "QuitGame" function in the main menu script
     public void OnFadeCompleteForGame()
     {
         mainMenu.QuitGame();
     }
 
-    //calls the "ContinueGame" function in the main menu script
+    // Calls the "ContinueGame" function in the main menu script
     public void OnFadeCompleteContinueButton()
     {
         mainMenu.ContinueGame();
     }
 
-    //calls the "NewGame" function in the main menu script
+    // Calls the "NewGame" function in the main menu script
     public void OnFadeCompleteForMain()                         
     {
         mainMenu.NewGame();                                     
     }
 
-    //calls the "QuitToMain" function in the pause menu
+    // Calls the "QuitToMain" function in the pause menu
     public void OnFadeCompleteForPause()                       
     {
         pauseMenu.QuitToMain();                                
     }
 
-    //calls the "LoadNextLevel" coroutine in the pause menu
+    // Calls the "LoadNextLevel" coroutine in the pause menu
     public void OnFadeCompleteForLevel()
     {
         levelManager.StartCoroutine("LoadNextLevelAsync");
     }
+
+    public void enableMenuInputs()
+    {
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
+        gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+    }
+
+    public void disableMenuInputs()
+    {
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
+        gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+    }
+
 
 }

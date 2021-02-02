@@ -895,7 +895,7 @@ GameObject:
   - component: {fileID: 35474662}
   - component: {fileID: 35474661}
   m_Layer: 0
-  m_Name: BridgeBlock (3)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2288,7 +2288,7 @@ GameObject:
   - component: {fileID: 111415852}
   - component: {fileID: 111415851}
   m_Layer: 0
-  m_Name: BridgeBlock (2)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2675,7 +2675,7 @@ GameObject:
   - component: {fileID: 131298945}
   - component: {fileID: 131298944}
   m_Layer: 0
-  m_Name: BridgeBlock (7)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4515,7 +4515,7 @@ GameObject:
   - component: {fileID: 303021219}
   - component: {fileID: 303021218}
   m_Layer: 0
-  m_Name: BridgeBlock (1)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6011,7 +6011,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8796842614977203018, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
   m_PrefabInstance: {fileID: 2025880561}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2025880563}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db6cf37adae6f3b499aee96a2eaa7541, type: 3}
@@ -6456,7 +6456,7 @@ GameObject:
   - component: {fileID: 474186863}
   - component: {fileID: 474186862}
   m_Layer: 0
-  m_Name: BridgeBlock (6)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7929,7 +7929,7 @@ GameObject:
   - component: {fileID: 615099864}
   - component: {fileID: 615099863}
   m_Layer: 0
-  m_Name: BridgeBlock (8)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16151,6 +16151,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1723422381587447067, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
+      propertyPath: gameCanvas
+      value: 
+      objectReference: {fileID: 2025880563}
     - target: {fileID: 1723422381587447068, guid: 19fe510ce8221894a934ae6f27cf19da, type: 3}
       propertyPath: m_Name
       value: FadeToLevel
@@ -17762,6 +17766,102 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8893811602064672366, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
   m_PrefabInstance: {fileID: 8893811600671139373}
   m_PrefabAsset: {fileID: 0}
+--- !u!82 &1387889226
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387889221}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -895295930677450239, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.34
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1389521248 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9114648221040790846, guid: ff53f18b64711e1439802b7ff913f029, type: 3}
@@ -22496,7 +22596,7 @@ GameObject:
   - component: {fileID: 1720012877}
   - component: {fileID: 1720012876}
   m_Layer: 0
-  m_Name: BridgeBlock (5)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25241,7 +25341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1918551814}
   m_Layer: 0
-  m_Name: Bridge6_View (1)
+  m_Name: Bridge6_View
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26430,6 +26530,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: LevelFade, Assembly-CSharp
       objectReference: {fileID: 0}
+    - target: {fileID: 5686464117606897944, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5686464117606897946, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 683cc92da35e1cb4281b686c79ac82f0, type: 3}
     - target: {fileID: 6148748641238288321, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -26542,12 +26650,46 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1499605664}
+    - target: {fileID: 8796842616157131439, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8796842616379270779, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8796842616379620987, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8796842616379620987, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+--- !u!1 &2025880562 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8796842614812164546, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+  m_PrefabInstance: {fileID: 2025880561}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2025880563 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8796842614977203019, guid: 4f34d31a5cce5754cad52f38a3412c22, type: 3}
+  m_PrefabInstance: {fileID: 2025880561}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &2025880564
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025880562}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2027092179
 GameObject:
   m_ObjectHideFlags: 0
@@ -26723,7 +26865,7 @@ GameObject:
   - component: {fileID: 2035759736}
   - component: {fileID: 2035759735}
   m_Layer: 0
-  m_Name: BridgeBlock (4)
+  m_Name: BridgeBlock
   m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29687,6 +29829,9 @@ MonoBehaviour:
   loadingBar: {fileID: 642672610}
   loadingScreen: {fileID: 1467510898}
   loadingIcon: {fileID: 364322563}
+  loadingScreenSprites:
+  - {fileID: 21300000, guid: d3771add891c398478d62ea932b551ea, type: 3}
+  - {fileID: 21300000, guid: d3771add891c398478d62ea932b551ea, type: 3}
 --- !u!4 &5317506019127787037
 Transform:
   m_ObjectHideFlags: 0
@@ -30211,6 +30356,58 @@ PrefabInstance:
       propertyPath: coldUI
       value: 
       objectReference: {fileID: 1224375042}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 9b8fb7f7897f3104e8eeccfbfa6cbd0e, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 58505397d5a92fe47bb0a90a36c29265, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: a3e13e2dfdf68d146a99e125bcb4d338, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: f3dc8733096a33e4284551240c2c56f6, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[4]
+      value: 
+      objectReference: {fileID: 8300000, guid: 60db7202b46438f42b6f1625b6328587, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: woodenCrateFootstepClips.Array.data[5]
+      value: 
+      objectReference: {fileID: 8300000, guid: 308e8b29e21e9f540a23130432c04c23, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: ac4bc04e05c350a4fa023b3e1302f851, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: af5aeaeebfce5c1429fdc662fb49c0d2, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 13a7d9512c2840c4295ad2ba574ef9f9, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 01627f14e4c24ba4d8f65813ed25875d, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[4]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8ba3357d68fd194418fe05297a2ae679, type: 3}
+    - target: {fileID: 2107868211, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: stoneFootstepClips.Array.data[5]
+      value: 
+      objectReference: {fileID: 8300000, guid: be7d184a72999dd48bd3382b93d688b8, type: 3}
     - target: {fileID: 8893811602064672361, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -30256,6 +30453,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: swooshClips.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: torchMeterMoves.bar
       value: 
       objectReference: {fileID: 1911732514}
@@ -30291,6 +30492,22 @@ PrefabInstance:
       propertyPath: invisibleBlock
       value: 
       objectReference: {fileID: 185568587762948515, guid: 1143981b83336b942996f9f8d9ff03e3, type: 3}
+    - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: swooshClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 7771b40b5a934c644bd672b980864fe6, type: 3}
+    - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: swooshClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 01d60e3e47df58742bf44bb82d6429e4, type: 3}
+    - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: swooshClips.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: e66041e20879ed5428a8530a8f59eba0, type: 3}
+    - target: {fileID: 8893811602064672363, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
+      propertyPath: swooshClips.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 10ce609321f415749af228abb54b4270, type: 3}
     - target: {fileID: 8893811602064672366, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: m_Name
       value: Player

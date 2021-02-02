@@ -19,6 +19,8 @@ public class PlayerSounds : MonoBehaviour
 
     public AudioClip[] woodFootstepClips;
 
+    public AudioClip[] woodenCrateFootstepClips;
+
 
     float rayLength = 1f;
 
@@ -61,8 +63,8 @@ public class PlayerSounds : MonoBehaviour
             }
             else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "CaveCheckpoint" || hit.collider.gameObject.name == "Checkpoint_CaveTiles" || hit.collider.name == "CaveBlock")
             {
-                audioSource.volume = 0.8f;
-                audioSource.pitch = 1.0f;
+                audioSource.volume = 0.5f;
+                audioSource.pitch = 1.2f;
                 StoneFootsteps();
             }
             else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles" || hit.collider.name == "PowerStationBlock")
@@ -71,11 +73,17 @@ public class PlayerSounds : MonoBehaviour
                 audioSource.pitch = 1.0f;
                 MetalFootsteps();
             }
-            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.tag == "Obstacle" || hit.collider.name == "BridgeBlock")
+            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.name == "BridgeBlock")
             {
                 audioSource.volume = 0.75f;
                 audioSource.pitch = 0.9f;
                 WoodFootsteps();
+            }
+            else if (hit.collider.tag == "Obstacle")
+            {
+                audioSource.volume = 0.34f;
+                audioSource.pitch = 1.0f;
+                WoodenCrateFootsteps();
             }
         }
     }
@@ -136,6 +144,17 @@ public class PlayerSounds : MonoBehaviour
     private AudioClip GetRandomClipWF()
     {
         return woodFootstepClips[UnityEngine.Random.Range(0, woodFootstepClips.Length)];
+    }
+
+
+    private void WoodenCrateFootsteps()
+    {
+        AudioClip woodenCrateFootstepClips = GetRandomClipWCF();
+        audioSource.PlayOneShot(woodenCrateFootstepClips);
+    }
+    private AudioClip GetRandomClipWCF()
+    {
+        return woodenCrateFootstepClips[UnityEngine.Random.Range(0, woodenCrateFootstepClips.Length)];
     }
 
 }

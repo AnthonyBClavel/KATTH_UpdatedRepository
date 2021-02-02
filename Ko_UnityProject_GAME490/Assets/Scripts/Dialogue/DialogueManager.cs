@@ -105,10 +105,10 @@ public class DialogueManager : MonoBehaviour
         sentences = dialogue;
     }
 
-
-
     public string[] readTextFile(TextAsset textFile)
     {
         return textFile.text.Split("\n"[0]);
     }
+
+
 }

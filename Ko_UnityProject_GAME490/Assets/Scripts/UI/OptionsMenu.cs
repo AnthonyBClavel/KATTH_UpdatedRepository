@@ -52,13 +52,23 @@ public class OptionsMenu : MonoBehaviour
             resolutionLabel.text = Screen.width.ToString() + " x " + Screen.height.ToString();
 
         if (PlayerPrefs.HasKey("MasterVol"))
-            masterSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);
-
+        {
+            //theMixer.SetFloat("MasterVol", PlayerPrefs.GetFloat("MasterVol"));
+            masterSlider.value = PlayerPrefs.GetFloat("MasterVol");
+        }
+            
         if (PlayerPrefs.HasKey("MusicVol"))
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        {
+            //theMixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("MusicVol"));
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVol");
+        }          
 
         if (PlayerPrefs.HasKey("SFXVol"))
-            sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        {
+            //theMixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("SFXVol"));
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol");
+        }
+            
     }
 
     // Update is called once per frame
@@ -113,7 +123,7 @@ public class OptionsMenu : MonoBehaviour
 
         theMixer.SetFloat("MasterVol", Mathf.Log10(mastersliderValue) * 22);
 
-        PlayerPrefs.SetFloat("MasterVolume", mastersliderValue);
+        PlayerPrefs.SetFloat("MasterVol", mastersliderValue);
 
     }
 
@@ -123,7 +133,7 @@ public class OptionsMenu : MonoBehaviour
 
         theMixer.SetFloat("MusicVol", Mathf.Log10(musicVolumeSlider) * 22);
 
-        PlayerPrefs.SetFloat("MusicVolume", musicVolumeSlider);
+        PlayerPrefs.SetFloat("MusicVol", musicVolumeSlider);
     }
 
     public void SetSFXVol()
@@ -132,7 +142,7 @@ public class OptionsMenu : MonoBehaviour
 
         theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 22);
 
-        PlayerPrefs.SetFloat("SFXVolume", sfxVolumeSlider);
+        PlayerPrefs.SetFloat("SFXVol", sfxVolumeSlider);
     }
 
     public void PlaySFXLoop()

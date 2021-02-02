@@ -15,10 +15,12 @@ public class LevelManager : MonoBehaviour
     public TextMeshProUGUI loadingText;
     public Slider loadingBar;
     public GameObject loadingScreen, loadingIcon;
+    public Sprite[] loadingScreenSprites;
 
     private Animator playerAnimator;
     private TileMovementV2 playerScript;
     private LevelFade levelFadeScript;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +43,7 @@ public class LevelManager : MonoBehaviour
     public IEnumerator LoadNextLevelAsync()
     {
         loadingScreen.SetActive(true);
+        ChangeLoadingScreenImg();
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(nextLevelToLoad);
 
@@ -95,6 +98,20 @@ public class LevelManager : MonoBehaviour
         levelFadeScript.FadeOutToNextLevel();
         //playerAnimator.SetTrigger("Idle");
         playerScript.enabled = false;
+    }
+
+    private void ChangeLoadingScreenImg()
+    {
+        if (loadingScreenSprites != null)
+            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+    }
+
+    private void SetRandomSprite(Sprite newLoadingScreenImg)
+    {
+        if (loadingScreen.GetComponent<Image>().sprite.name == newLoadingScreenImg.name)
+            return;
+        else
+            loadingScreen.GetComponent<Image>().sprite = newLoadingScreenImg;
     }
 
 

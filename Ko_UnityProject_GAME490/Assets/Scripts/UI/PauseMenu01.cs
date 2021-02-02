@@ -18,11 +18,14 @@ public class PauseMenu01 : MonoBehaviour
     public Animator pauseScreenAnim;
 
     private GameObject lastSelectedObject;
+    private LevelFade levelFade;
     private EventSystem eventSystem;
 
     [Header("Bools")]
     public bool isOptionsMenu;
+    public bool isChangingScenes;
     private bool isPaused;
+    public bool canPause;
 
     [Header("Loading Screen Elements")]
     public GameObject loadingScreen, loadingIcon;
@@ -32,26 +35,29 @@ public class PauseMenu01 : MonoBehaviour
     void Start()
     {
         eventSystem = FindObjectOfType<EventSystem>();
+        levelFade = FindObjectOfType<LevelFade>();
+        isChangingScenes = false;
+        canPause = true;
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {     
         lastSelectedObject = eventSystem.currentSelectedGameObject;
 
-        //open or close the pause menu with ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && !isOptionsMenu)
+        // Open or close the pause menu with ESC
+        if (Input.GetKeyDown(KeyCode.Escape) && !isOptionsMenu && !isChangingScenes)
         {
             if (isPaused)
             {
                 Resume();
             }
-            else
+            else if (!isPaused && canPause)
             {
                 Pause();
             }
         }
-        //pressing escape in options menu just closes the option tab
+        // You can close the options menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu)
         {
             StartCoroutine("CloseOptionsDelay");
@@ -73,15 +79,16 @@ public class PauseMenu01 : MonoBehaviour
 
     public void Pause()
     {
-        StopCoroutine("ResumeDelay");
+        StopCoroutine("ResumeDelay");      
         Time.timeScale = 0f;
         pauseMenu.SetActive(true);
         isPaused = true;
         player.GetComponent<TileMovementV2>().enabled = false;
-
-        //clear selected object first cuz Unity UI is wierd...
+        
+        levelFade.enableMenuInputs();
+        // Clear selected object
         eventSystem.SetSelectedGameObject(null);
-        //then set new selected object
+        // Set new selected object
         eventSystem.SetSelectedGameObject(pauseFirstButton);
     }
 
@@ -118,7 +125,7 @@ public class PauseMenu01 : MonoBehaviour
     }*/
 
 
-    //On Pointer Enter functions start here
+    // On Pointer Enter functions start here
     public void SelectResumeButton()
     {
         if (lastSelectedObject != pauseFirstButton)
@@ -148,10 +155,10 @@ public class PauseMenu01 : MonoBehaviour
         }
 
     }
-    //On Pointer Enter functions end here
+    // On Pointer Enter functions end here
 
 
-    //loads the next scene in the background while the loading screen plays
+    // Loads the next scene in the background while the loading screen plays
     private IEnumerator LoadMainAsync()
     {
         //yield return new WaitForSecondsRealtime(0.15f);
@@ -160,7 +167,7 @@ public class PauseMenu01 : MonoBehaviour
         loadingScreen.SetActive(true);
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(mainMenuScene);
-        //AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("MainMenu02");
+
         while (!asyncLoad.isDone)
         {
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
@@ -180,9 +187,11 @@ public class PauseMenu01 : MonoBehaviour
         }
     }
 
-    //functions below delay the button input so that you can actually see the button press animation
+    // The Functions below delay the button input so that you can actually see the button press animations
     private IEnumerator ResumeDelay()
     {
+        canPause = false;
+        levelFade.disableMenuInputs();
         yield return new WaitForSecondsRealtime(0.15f);
         pauseScreenAnim.SetTrigger("PS_PopOut");
         Time.timeScale = 1f;
@@ -191,10 +200,12 @@ public class PauseMenu01 : MonoBehaviour
         player.GetComponent<TileMovementV2>().enabled = true;
         yield return new WaitForSecondsRealtime(0.15f);
         pauseMenu.SetActive(false);
+        canPause = true;
     }
 
     private IEnumerator OpenOptionsDelay()
     {
+        levelFade.disableMenuInputs();
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
         optionsScreen.SetActive(true);
@@ -205,6 +216,7 @@ public class PauseMenu01 : MonoBehaviour
 
     private IEnumerator CloseOptionsDelay()
     {
+        levelFade.enableMenuInputs();
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = false;
         optionsScreen.SetActive(false);

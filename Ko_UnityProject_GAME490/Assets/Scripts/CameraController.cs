@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
@@ -10,19 +11,15 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     public AudioClip[] loopingClips;                                       
 
-    private AudioSource audioSource;          
+    public Transform[] levelViews;
 
-    public static CameraController instance;               
-
-    private AmbientLoopingSFXManager theALSM; 
-
-    public Transform[] levelViews;                            
-                                                                                 
-    public float transitonSpeed; // Camera transition speed
+    public static CameraController instance;
+    public float transitonSpeed; // The camera's transition speed
+    public int currentIndex = 0;
 
     Transform currentView; // The variable that is used to determine which view the camera is currenlty at
-
-    public int currentIndex = 0; 
+    private AudioSource audioSource;
+    private AmbientLoopingSFXManager theALSM;
 
     // Start is called before the first frame update
     void Start()
@@ -85,6 +82,11 @@ public class CameraController : MonoBehaviour
         //Debug.Log("Switch Puzzle View");
         currentView = levelViews[currentIndex++];
 
+        if(SceneManager.GetActiveScene().name == "FourthMap")
+        {
+            FindObjectOfType<GeneratorScript>().resetEmissiveTextures();
+        }
+       
         if (currentIndex >= levelViews.Length)
         {
             Debug.Log("Reset to Frist Puzzle View");
@@ -104,7 +106,7 @@ public class CameraController : MonoBehaviour
     {
         if (loopingClips != null)
         {
-            // Play a new looping ambient sfx that isn't equal to the one playing right now
+            // Play a new looping ambient sfx whose index is not equal to the one playing right now
             theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);
         }
 
@@ -116,5 +118,6 @@ public class CameraController : MonoBehaviour
     {
         return clips[UnityEngine.Random.Range(0, clips.Length)];
     }
+
 
 }

@@ -16,13 +16,16 @@ public class MainMenu : MonoBehaviour
     public GameObject mainMenuButtons;
     public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton, newGameButton, creditsButton, quitGameButton;
     public GameObject loadingScreen, loadingIcon, pressEnterText, gameLogo;
+    public GameObject PressEnterSFX;
 
     private GameObject lastSelectedObject;
+    private LevelFade levelFade;
     private EventSystem eventSystem;
 
     [Header("Loading Screen Elements")]
     public TextMeshProUGUI loadingText;
     public Slider loadingBar;
+    public Sprite[] loadingScreenSprites;
 
     [Header("Animators")]
     public Animator titleScreenLogoAnim;
@@ -36,10 +39,11 @@ public class MainMenu : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
+    {    
         StartCoroutine("setActiveDelay");
 
         eventSystem = FindObjectOfType<EventSystem>();
+        levelFade = FindObjectOfType<LevelFade>();
 
         /*if (!SaveManager.hasSaveFile())
         {
@@ -50,11 +54,18 @@ public class MainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if enter is already pressed once, you cannot call this function again
+        // If enter is already pressed once, you cannot call this function again
         if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
         {
             OpenMainMenu();
+            Instantiate(PressEnterSFX, transform.position, transform.rotation);
             hasPressedEnter = true;
+        }
+
+        // You can close the options menu by pressing ESC
+        if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu)
+        {
+            StartCoroutine("CloseOptionsDelay");
         }
 
         // Debugging..
@@ -90,7 +101,6 @@ public class MainMenu : MonoBehaviour
     public void NewGame()
     {
         //SaveManager.DeleteGame();
-
         StartCoroutine("LoadLevelAsync");
     }
 
@@ -115,7 +125,7 @@ public class MainMenu : MonoBehaviour
     }
 
 
-    //On Pointer Enter functions start here
+    // On Pointer Enter functions start here
     public void SelectContinueButton()
     {
         if (lastSelectedObject != continueFirstButton)
@@ -164,13 +174,14 @@ public class MainMenu : MonoBehaviour
         }
 
     }
-    //On Pointer Enter functions start here
+    // On Pointer Enter functions end here
 
 
-    //loads the next level in the background while the loading screen plays
+    // Loads the next level in the background while the loading screen plays
     public IEnumerator LoadLevelAsync()
     {
         loadingScreen.SetActive(true);
+        ChangeLoadingScreenImg();
 
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelToLoad);
 
@@ -200,8 +211,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    //functions below delay the button input so that you can actually see the button press animation
-
+    // The functions below delay the button input so that you can actually see the button press animations
     private IEnumerator setActiveDelay()
     {
         gameLogo.SetActive(true);
@@ -223,9 +233,9 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSeconds(2.4f);
         mainMenuButtons.SetActive(true);
 
-        //clear selected object
+        // Clear selected object
         EventSystem.current.SetSelectedGameObject(null);
-        //set new selected object
+        // Set new selected object
         EventSystem.current.SetSelectedGameObject(continueFirstButton);
     }
 
@@ -237,6 +247,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator OpenOptionsDelay()
     {
+        levelFade.disableMenuInputs();
         yield return new WaitForSeconds(0.15f);
         optionsScreen.SetActive(true);
         isOptionsMenu = true;
@@ -247,6 +258,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator CloseOptionsDelay()
     {
+        levelFade.enableMenuInputs();
         yield return new WaitForSeconds(0.15f);
         optionsScreen.SetActive(false);
         isOptionsMenu = false;
@@ -259,6 +271,20 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSeconds(0.15f);
         Application.Quit();
         Debug.Log("Quit Successful");
+    }
+
+    private void ChangeLoadingScreenImg()
+    {
+        if (loadingScreenSprites != null)
+            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+    }
+
+    private void SetRandomSprite(Sprite newLoadingScreenImg)
+    {
+        if (loadingScreen.GetComponent<Image>().sprite.name == newLoadingScreenImg.name)    
+            return;
+        else
+            loadingScreen.GetComponent<Image>().sprite = newLoadingScreenImg;
     }
 
 

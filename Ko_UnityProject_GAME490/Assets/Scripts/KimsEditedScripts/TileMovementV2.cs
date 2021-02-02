@@ -6,9 +6,11 @@ using UnityEngine.SceneManagement;
 
 public class TileMovementV2 : MonoBehaviour
 {
-    public GameObject torchFireIgniteSFX;
-    public GameObject torchFireExtinguishSFX;
-    public GameObject freezingSFX;
+    public Camera main_camera;
+    public Animator Anim;
+    public GameObject edgeCheck;
+    private AudioSource audioSource;
+    private string currentState;
 
     Vector3 up = Vector3.zero,                                  // Object look North
     right = new Vector3(0, 90, 0),                              // Object look East
@@ -22,34 +24,35 @@ public class TileMovementV2 : MonoBehaviour
     float rayLength = 1f;                                       // The ray length for the tile movement
     float rayLengthEdgeCheck = 1f;                              // The ray length for the edge check
 
-    public GameObject edgeCheck;
+    [Header("Sounds")]
+    public GameObject torchFireIgniteSFX;
+    public GameObject torchFireExtinguishSFX;
+    public GameObject freezingSFX;
+    public AudioClip[] swooshClips;
 
-    public bool isWalking;                                     // Used to determine when to play an object's animation
+    [Header("Prefabs")]
+    public GameObject destroyedBlockParticle;
+    public GameObject invisibleBlock; 
+
+    [Header("Scripts")]
+    public TorchMeterStat torchMeterMoves;
+    private LevelManager levelManagerScript;
+    private TorchMeterScript torchMeterScript;
+
+    [Header("Save Slot Elements")]
+    public GameObject checkpoint;
+    public GameObject puzzle;
+    public string sceneName;
+
+    [Header("Bools")]
+    public bool isWalking;                                      // Used to determine when to play an object's animation
+    public bool hasDied = false;
     private bool isPushing;                                     // Used to determine when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // To determine when the torch meter can scale in/out
     private bool hasMovedPuzzleView;                            // To determine when the camera can switch puzzle views
     private bool canRestartPuzzle;                              // To determine when the the areas where the player can press "R" (restart puzzle)
-    private LevelManager levelManagerScript;
-    private TorchMeterScript torchMeterScript;
-
-    public Animator Anim;
-    private string currentState;
-
-    public GameObject destroyedBlockParticle;
-    public GameObject invisibleBlock;
-
-    public Camera main_camera;
-
-    public TorchMeterStat torchMeterMoves;
-
-    // For save state
-    public GameObject checkpoint;
-    public GameObject puzzle;
-    public string sceneName;
-
-    public bool hasDied = false;
 
     private void Awake()
     {
@@ -72,7 +75,7 @@ public class TileMovementV2 : MonoBehaviour
             puzzle = GameObject.Find("Puzzle01");
         }*/
 
-
+        audioSource = GetComponent<AudioSource>();
 
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
@@ -338,6 +341,7 @@ public class TileMovementV2 : MonoBehaviour
             default:
                 Debug.Log("Unrecognizable Tag");
                 isWalking = false;
+                isPushing = false;
                 CheckToPlayAnims();
                 break;
         }
@@ -450,7 +454,7 @@ public class TileMovementV2 : MonoBehaviour
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         Physics.Raycast(myRay, out hit, rayLength);
-        if (hit.collider.tag == "WoodTiles" || hit.collider.name == "BridgeBlock")
+        if (hit.collider.name == "BridgeBlock")
         {
             string tag = hit.collider.tag;
             // For the functions below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
@@ -459,10 +463,15 @@ public class TileMovementV2 : MonoBehaviour
                 Debug.Log("Switched To Next Puzzle View");
                 main_camera.GetComponent<CameraController>().NextPuzzleView02();
                 main_camera.GetComponent<CameraController>().WindGush();
-                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3 (0, 1, 0), hit.collider.transform.rotation);
+                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
                 hasMovedPuzzleView = true;
             }
-            if (tag == "InstantiateBlock" || tag == "ResetCameraBool" && hasAlreadyPopedOut)
+            if (tag == "InstantiateBlock" && isWalking)
+            {
+                // Spawns an invisible block that prevents the player from traveling to previous puzzles (we'll remove this in the future)
+                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
+            }
+            if (tag == "ResetCameraBool" && hasAlreadyPopedOut && isWalking)
             {
                 // Spawns an invisible block that prevents the player from traveling to previous puzzles (we'll remove this in the future)
                 Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
@@ -544,7 +553,11 @@ public class TileMovementV2 : MonoBehaviour
     private void CheckToPlayAnims()
     {
         if (isPushing) ChangeAnimationState("Pushing");
-        else if (isInteracting) ChangeAnimationState("Interacting");
+        else if (isInteracting)
+        {
+            ChangeAnimationState("Interacting");
+            SwooshSFX();
+        }
         isPushing = false;
         isInteracting = false;
     }
@@ -562,6 +575,16 @@ public class TileMovementV2 : MonoBehaviour
         int currCameraIndex = main_camera.GetComponent<CameraController>().currentIndex;
 
         return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
+    }
+    private void SwooshSFX()
+    {
+        AudioClip swooshClips = GetRandomSwooshSFX();
+        audioSource.volume = 0.36f;
+        audioSource.PlayOneShot(swooshClips);
+    }
+    private AudioClip GetRandomSwooshSFX()
+    {
+        return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
     }
 
 }

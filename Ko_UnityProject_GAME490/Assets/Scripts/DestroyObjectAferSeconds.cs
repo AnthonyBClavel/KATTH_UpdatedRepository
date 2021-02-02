@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class DestroyObjectAferSeconds : MonoBehaviour
 {
+    public float destroyAfterSeconds;
+
     // Start is called before the first frame update
     void Start()
     {
-        Destroy(gameObject, 1.5f);              //destroy this object within the specified time (one and a half seconds)
+        Destroy(gameObject, destroyAfterSeconds);              // Destroy this object within the specified time
+        //Destroy(gameObject, 1.5f);            // Original 
     }
 
 }

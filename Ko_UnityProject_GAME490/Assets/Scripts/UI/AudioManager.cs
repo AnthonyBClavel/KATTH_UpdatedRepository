@@ -6,26 +6,29 @@ using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
-    public AudioMixer theMixer;                                                     //variable for the AudioMixer
+    public AudioMixer theMixer;
 
     public Slider masterSlider, musicSlider, sfxSlider;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (PlayerPrefs.HasKey("MusicVol"))                                         //if the music volume is stored...
+        if (PlayerPrefs.HasKey("MasterVol"))                                                    //if the music volume is stored...
         {
-            masterSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);          //set float value
+            //theMixer.SetFloat("MasterVol", PlayerPrefs.GetFloat("MasterVol"));
+            masterSlider.value = PlayerPrefs.GetFloat("MasterVol", masterSlider.value);         //set float value
         }
 
-        if (PlayerPrefs.HasKey("MusicVol"))                                         //if the music volume is stored...
+        if (PlayerPrefs.HasKey("MusicVol"))                                                     //if the music volume is stored...
         {
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);            //set float value
+            //theMixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("MusicVol"));
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVol", musicSlider.value);            //set float value
         }
 
-        if (PlayerPrefs.HasKey("SFXVol"))                                           //if the sfx volume is stored...
+        if (PlayerPrefs.HasKey("SFXVol"))                                                       //if the sfx volume is stored...
         {
-            sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);                //set float value
+            //theMixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("SFXVol"));
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol", sfxSlider.value);                  //set float value
         }
 
     }
@@ -35,4 +38,6 @@ public class AudioManager : MonoBehaviour
     {
         
     }
+
+
 }

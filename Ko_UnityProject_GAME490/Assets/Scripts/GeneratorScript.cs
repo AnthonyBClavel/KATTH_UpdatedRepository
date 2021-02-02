@@ -10,21 +10,21 @@ public class GeneratorScript : MonoBehaviour
     public GameObject steamParticle01;
     public GameObject steamParticle02;
     public GameObject turnOnGeneratorSFX;
-    public GameObject initialGeneratorLoopSFX;
-    public GameObject generatorLoopSFX;
+    public GameObject generatorSFX;
 
     public bool canInteract;
 
     private float duration;
+    private float loopingGeneratorSFX;
 
     private Animator anim;
     private string currentState;
+
 
     // Start is called before the first frame update
     void Start()
     {
         canInteract = true;
-        duration = initialGeneratorLoopSFX.GetComponent<AudioSource>().clip.length;
 
         heaterDoorMat.DisableKeyword("_EMISSION");
         generatorLightMat.DisableKeyword("_EMISSION");
@@ -34,43 +34,44 @@ public class GeneratorScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //use lines below for generator debugging
-        /*
-        if (Input.GetKeyDown(KeyCode.L))
+        generatorSFX.GetComponent<AudioSource>().volume = loopingGeneratorSFX;
+
+        /*** For Debugging purposes ***/
+        /*if (Input.GetKeyDown(KeyCode.L))
         {
             TurnOnGenerator();
         }
         if (Input.GetKeyDown(KeyCode.K))
         {
             TurnOffGenerator();
-        } */
+        }*/
+        /*** End Debugging ***/
 
     }
 
-    //turns on the generator
+    // Turns on the generator
     public void TurnOnGenerator()
     {
         canInteract = false;
         turnOnGeneratorSFX.SetActive(true);
-        initialGeneratorLoopSFX.SetActive(true);
-
+        generatorSFX.SetActive(true);
+        loopingGeneratorSFX = 0.0f;
+        StartCoroutine("FadeInGeneratorVolume");
         StartCoroutine("DelayGeneratorParticles");
-        StartCoroutine("PlayGeneratorLoopAfterInitialSFX");
 
         generatorLightMat.EnableKeyword("_EMISSION");
         ChangeAnimationState("GeneratorGears");
     }
 
-    //turns off the generator
+    // Turns off the generator
     public void TurnOffGenerator()
     {
         canInteract = true;
         StopCoroutine("DelayGeneratorParticles");
-        StopCoroutine("PlayGeneratorLoopAfterInitialSFX");
+        StopCoroutine("FadeInGeneratorVolume");
 
         turnOnGeneratorSFX.SetActive(false);
-        initialGeneratorLoopSFX.SetActive(false);
-        generatorLoopSFX.SetActive(false);
+        generatorSFX.SetActive(false);
         steamParticle01.SetActive(false);
         steamParticle02.SetActive(false);
 
@@ -79,28 +80,38 @@ public class GeneratorScript : MonoBehaviour
         ChangeAnimationState("GeneratorIdle");
     }
 
-    //function that changes the animation state of the generator
+    // Function that changes the animation state of the generator
     private void ChangeAnimationState(string newState)
     {
         anim.Play(newState);
         currentState = newState;
     }
 
-    //delays the generator's particles from starting after generator is turned on
+    // Delays the generator's particles from starting after generator is turned on
     private IEnumerator DelayGeneratorParticles()
     {
-            yield return new WaitForSecondsRealtime(0.7f);
-            heaterDoorMat.EnableKeyword("_EMISSION");
-            yield return new WaitForSecondsRealtime(0.2f);
-            steamParticle01.SetActive(true);
-            steamParticle02.SetActive(true);
+        yield return new WaitForSecondsRealtime(0.7f);
+        heaterDoorMat.EnableKeyword("_EMISSION");
+        yield return new WaitForSecondsRealtime(0.2f);
+        steamParticle01.SetActive(true);
+        steamParticle02.SetActive(true);
     }
 
-    //plays the clean looping sfx after the intitial looping sfx (the initial one's volume fades in; woudln't be ideal to loop that)
-    private IEnumerator PlayGeneratorLoopAfterInitialSFX()
+    public IEnumerator FadeInGeneratorVolume()
     {
-            yield return new WaitForSecondsRealtime(duration);
-            initialGeneratorLoopSFX.SetActive(false);
-            generatorLoopSFX.SetActive(true);
+        for (float i = 0f; i <= 1; i += 0.02f)
+        {
+            i = loopingGeneratorSFX;
+            loopingGeneratorSFX += 0.02f;
+            yield return new WaitForSeconds(0.025f);
+        }
     }
+
+    // Reset the emmisive textures to default setting
+    public void resetEmissiveTextures()
+    {
+        heaterDoorMat.DisableKeyword("_EMISSION");
+        generatorLightMat.DisableKeyword("_EMISSION");
+    }
+
 }

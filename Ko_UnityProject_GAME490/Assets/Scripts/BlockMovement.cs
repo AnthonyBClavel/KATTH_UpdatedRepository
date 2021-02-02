@@ -115,9 +115,9 @@ public class BlockMovement : MonoBehaviour
 
         if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
         {
-            string tag = hit.collider.tag;
+            string tag = hit.collider.name;
             //Prevents block from moving onto bridge
-            if (tag == "ResetCameraBool")
+            if (tag == "BridgeBlock")
             {
                 audioSource.PlayOneShot(cantPushCrateSFX);
                 return false;

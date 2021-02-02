@@ -45,7 +45,7 @@ public class MainMenuSounds : MonoBehaviour
      * this is done to prevent two sounds from playing at the same time when mutiple animation events are played */
     public void PlayMainMenuSound(AudioClip whichSound)
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Escape))
             pressedSFX = false;
 
         if (!pressedSFX)
