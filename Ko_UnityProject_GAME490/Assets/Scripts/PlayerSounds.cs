@@ -67,7 +67,7 @@ public class PlayerSounds : MonoBehaviour
                 audioSource.pitch = 1.2f;
                 StoneFootsteps();
             }
-            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles" || hit.collider.name == "PowerStationBlock")
+            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles" || hit.collider.gameObject.name == "Checkpoint_EmberTiles" || hit.collider.name == "PowerStationBlock" || hit.collider.name == "EmberCityBlock")
             {
                 audioSource.volume = 1.0f;
                 audioSource.pitch = 1.0f;

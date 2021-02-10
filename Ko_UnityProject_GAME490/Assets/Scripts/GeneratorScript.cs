@@ -110,6 +110,12 @@ public class GeneratorScript : MonoBehaviour
     // Reset the emmisive textures to default setting
     public void resetEmissiveTextures()
     {
+        StartCoroutine("ResetEmissiveTexturesDelay");
+    }
+
+    private IEnumerator ResetEmissiveTexturesDelay()
+    {
+        yield return new WaitForSeconds(1f);
         heaterDoorMat.DisableKeyword("_EMISSION");
         generatorLightMat.DisableKeyword("_EMISSION");
     }
