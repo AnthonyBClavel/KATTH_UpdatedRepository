@@ -63,7 +63,7 @@ public class PlayerSounds : MonoBehaviour
             }
             else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "CaveCheckpoint" || hit.collider.gameObject.name == "Checkpoint_CaveTiles" || hit.collider.name == "CaveBlock")
             {
-                audioSource.volume = 0.5f;
+                audioSource.volume = 0.55f; //0.5f
                 audioSource.pitch = 1.2f;
                 StoneFootsteps();
             }
@@ -81,7 +81,7 @@ public class PlayerSounds : MonoBehaviour
             }
             else if (hit.collider.tag == "Obstacle")
             {
-                audioSource.volume = 0.34f;
+                audioSource.volume = 0.36f; //0.34f
                 audioSource.pitch = 1.0f;
                 WoodenCrateFootsteps();
             }
