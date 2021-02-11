@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class TorchMeterStat //Dont worry about this script, use the TileMovement Script and its component (in the Unity inspector) to manipulate the torch meter                
+public class TorchMeterStat // Dont change this script - use the TileMovementController's script component (in the Unity inspector) to manipulate the torch meter                
 {
     public TorchMeterScript bar;
 

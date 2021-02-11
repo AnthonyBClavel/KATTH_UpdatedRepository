@@ -18,28 +18,28 @@ public class LevelManager : MonoBehaviour
     public Sprite[] loadingScreenSprites;
 
     private Animator playerAnimator;
-    private TileMovementV2 playerScript;
+    private TileMovementController playerScript;
     private LevelFade levelFadeScript;
     
 
     // Start is called before the first frame update
     void Start()
     {
-        playerAnimator = FindObjectOfType<TileMovementV2>().GetComponentInChildren<Animator>();
-        playerScript = FindObjectOfType<TileMovementV2>();
+        playerAnimator = FindObjectOfType<TileMovementController>().GetComponentInChildren<Animator>();
+        playerScript = FindObjectOfType<TileMovementController>();
         levelFadeScript = FindObjectOfType<LevelFade>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*For Debugging...
-        if(Input.GetKeyDown(KeyCode.L))
-        {
-            DisablePlayer();
-        }*/
+        /*** For Debugging purposes ***/
+        /*if (Input.GetKeyDown(KeyCode.L))
+            DisablePlayer();*/
+        /*** End Debugging ***/
     }
 
+    // Loads the next level asynchronously as the loading screen is active 
     public IEnumerator LoadNextLevelAsync()
     {
         loadingScreen.SetActive(true);
@@ -72,6 +72,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    // Determines wether the player has touched this object 
     public bool checkIfCompletedLevel()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0, 0), Vector3.up);
@@ -80,7 +81,6 @@ public class LevelManager : MonoBehaviour
 
         if(Physics.Raycast(myRay, out hit, rayLength))
         {
-            // If we hit the player
             if (hit.collider.tag == "Player")
             {
                 playerScript.ResetTorchMeter();
@@ -93,6 +93,7 @@ public class LevelManager : MonoBehaviour
         return false;
     }
 
+    // Prevents the player from receiving input
     public void DisablePlayer()
     {
         levelFadeScript.FadeOutToNextLevel();
@@ -100,12 +101,7 @@ public class LevelManager : MonoBehaviour
         playerScript.enabled = false;
     }
 
-    private void ChangeLoadingScreenImg()
-    {
-        if (loadingScreenSprites != null)
-            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
-    }
-
+    // Sets a random image/sprite for the loading screen
     private void SetRandomSprite(Sprite newLoadingScreenImg)
     {
         if (loadingScreen.GetComponent<Image>().sprite.name == newLoadingScreenImg.name)
@@ -114,5 +110,11 @@ public class LevelManager : MonoBehaviour
             loadingScreen.GetComponent<Image>().sprite = newLoadingScreenImg;
     }
 
+    // Gets a random sprite from its respective array
+    private void ChangeLoadingScreenImg()
+    {
+        if (loadingScreenSprites != null)
+            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+    }
 
 }

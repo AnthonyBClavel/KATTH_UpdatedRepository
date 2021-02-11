@@ -15,6 +15,8 @@ public class ResetGeneratorBlocks : MonoBehaviour
     {
         
     }
+
+    // Resets the generator immediately 
     public void resetGenerator()
     {
         Debug.Log("Generator has been reseted");
@@ -23,6 +25,8 @@ public class ResetGeneratorBlocks : MonoBehaviour
             transform.GetChild(i).gameObject.GetComponentInChildren<GeneratorScript>().TurnOffGenerator();
         }
     }
+
+    // Resets the generator after a delay
     public IEnumerator resetGeneratorWithDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -32,4 +36,6 @@ public class ResetGeneratorBlocks : MonoBehaviour
             transform.GetChild(i).gameObject.GetComponentInChildren<GeneratorScript>().TurnOffGenerator();
         }
     }
+
+
 }

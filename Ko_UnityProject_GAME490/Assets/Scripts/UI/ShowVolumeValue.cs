@@ -13,6 +13,7 @@ public class ShowVolumeValue : MonoBehaviour
         sliderValueText = GetComponent<TextMeshProUGUI>();
     }
 
+    // Sets the volume slider's text value to a whole number (ex: 0.1 -> 10.0)
     public void textUpdate (float value)
     {
         sliderValueText.text = Mathf.RoundToInt(value * 100) + "";

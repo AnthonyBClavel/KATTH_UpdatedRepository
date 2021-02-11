@@ -16,6 +16,7 @@ public class ResetBreakableBlocks : MonoBehaviour
         
     }
 
+    // Sets the inactive breakable blocks back to active immediately
     public void resetBlocks()
     {
         Debug.Log("Num of breakable blocks: " + transform.childCount);
@@ -24,6 +25,8 @@ public class ResetBreakableBlocks : MonoBehaviour
             transform.GetChild(i).gameObject.SetActive(true);
         }
     }
+
+    // Sets the inactive breakable blocks back to active after a certain amount of seconds
     public IEnumerator resetBlocksWithDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -33,4 +36,5 @@ public class ResetBreakableBlocks : MonoBehaviour
             transform.GetChild(i).gameObject.SetActive(true);
         }
     }
+
 }

@@ -22,7 +22,7 @@ public class KimsPushableBlocks : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
-            child.GetComponent<BlockMovement>().resetPosition();
+            child.GetComponent<BlockMovementController>().resetPosition();
         }
     }
 }

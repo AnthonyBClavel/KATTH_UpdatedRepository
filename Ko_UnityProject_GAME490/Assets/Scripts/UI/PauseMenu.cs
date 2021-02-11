@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class PauseMenu01 : MonoBehaviour
+public class PauseMenu : MonoBehaviour
 {
     public string mainMenuScene;
 
@@ -57,7 +57,7 @@ public class PauseMenu01 : MonoBehaviour
                 Pause();
             }
         }
-        // You can close the options menu by pressing ESC
+        // Close the options menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu)
         {
             StartCoroutine("CloseOptionsDelay");
@@ -68,13 +68,14 @@ public class PauseMenu01 : MonoBehaviour
     {
         StartCoroutine("ResumeDelay");
     }
+
     public void ResumeImmediately()
     {
         Time.timeScale = 1f;
         optionsScreen.SetActive(false);
         pauseMenu.SetActive(false);
         isPaused = false;
-        player.GetComponent<TileMovementV2>().enabled = true;
+        player.GetComponent<TileMovementController>().enabled = true;
     }
 
     public void Pause()
@@ -83,7 +84,7 @@ public class PauseMenu01 : MonoBehaviour
         Time.timeScale = 0f;
         pauseMenu.SetActive(true);
         isPaused = true;
-        player.GetComponent<TileMovementV2>().enabled = false;
+        player.GetComponent<TileMovementController>().enabled = false;
         
         levelFade.enableMenuInputs();
         // Clear selected object
@@ -125,7 +126,7 @@ public class PauseMenu01 : MonoBehaviour
     }*/
 
 
-    // On Pointer Enter functions start here
+    /*** On Pointer Enter functions start here ***/
     public void SelectResumeButton()
     {
         if (lastSelectedObject != pauseFirstButton)
@@ -155,10 +156,10 @@ public class PauseMenu01 : MonoBehaviour
         }
 
     }
-    // On Pointer Enter functions end here
+    /*** On Pointer Enter functions end here ***/
 
 
-    // Loads the next scene in the background while the loading screen plays
+    // Loads the next scene asynchronously while the loading screen is active
     private IEnumerator LoadMainAsync()
     {
         //yield return new WaitForSecondsRealtime(0.15f);
@@ -187,7 +188,7 @@ public class PauseMenu01 : MonoBehaviour
         }
     }
 
-    // The Functions below delay the button input so that you can actually see the button press animations
+    // Delays the button input so you can actually see the button press animations
     private IEnumerator ResumeDelay()
     {
         canPause = false;
@@ -197,7 +198,7 @@ public class PauseMenu01 : MonoBehaviour
         Time.timeScale = 1f;
         optionsScreen.SetActive(false);
         isPaused = false;
-        player.GetComponent<TileMovementV2>().enabled = true;
+        player.GetComponent<TileMovementController>().enabled = true;
         yield return new WaitForSecondsRealtime(0.15f);
         pauseMenu.SetActive(false);
         canPause = true;

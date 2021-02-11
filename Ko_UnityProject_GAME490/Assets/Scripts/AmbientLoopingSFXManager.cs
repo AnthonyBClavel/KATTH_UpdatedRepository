@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class AmbientLoopingSFXManager : MonoBehaviour
 {
-    private AudioSource AmbientLoopingSFX;                                 //variable for the AudioSource component                                              
+    private AudioSource AmbientLoopingSFX;                                                                               
 
     // Start is called before the first frame update
     void Start()
     {
-        AmbientLoopingSFX = GetComponent<AudioSource>();                   //sets the audio source variable to the object's audio source component (sets instance)
+        AmbientLoopingSFX = GetComponent<AudioSource>();                   
     }
 
     // Update is called once per frame
@@ -19,15 +19,16 @@ public class AmbientLoopingSFXManager : MonoBehaviour
         
     }
 
-    public void ChangeAmbientLoopingSFX(AudioClip newAudioClip)            //the function that changes the ambient looping sfx
+    // Plays a new audio clip with a different name from the one currenlty playing
+    public void ChangeAmbientLoopingSFX(AudioClip newAudioClip)            
     {
-        if (AmbientLoopingSFX.clip.name == newAudioClip.name)              //if the audio clip is the same as the one currently being played...
-        {
-            return;                                                        //return the function (prevents the clip from restarting)
-        }
-        AmbientLoopingSFX.Stop();                                          //stop playing the clip in the AudioSource component
-        AmbientLoopingSFX.clip = newAudioClip;                             //set the clip equal to the 
-        AmbientLoopingSFX.Play();                                          //play the clip in the AudioSource component
+        if (AmbientLoopingSFX.clip.name == newAudioClip.name)              
+            return;                                                               
+
+        AmbientLoopingSFX.Stop();                                          
+        AmbientLoopingSFX.clip = newAudioClip;                             
+        AmbientLoopingSFX.Play();                                          
     }
+
 
 }

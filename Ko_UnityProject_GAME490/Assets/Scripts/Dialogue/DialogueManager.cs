@@ -36,15 +36,13 @@ public class DialogueManager : MonoBehaviour
             typingSpeed /= 2;
     }
 
-    /***
-     * Begins the dialogue
-     * Call this whenever you want to display dialogue
-     ***/
+    
+    // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
         inDialogue = true;
-        pauseMenuCanvas.GetComponent<PauseMenu01>().enabled = false;
-        player.GetComponent<TileMovementV2>().enabled = false; // Disabling player movement script
+        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
+        player.GetComponent<TileMovementController>().enabled = false; // Disabling player movement script
         typingSpeed = OGtypingSpeed;
         textDisplay.text = "";
         index = 0;
@@ -54,9 +52,8 @@ public class DialogueManager : MonoBehaviour
         StartCoroutine(Type());
     }
 
-    /***
-     * Shows the text dialogue in the Dialogue Box
-     ***/
+    
+    // Shows the text dialogue in the Dialogue Box
     IEnumerator Type()
     {
         continueTrigger.SetActive(false); // Removes continue button until sentence is finished
@@ -66,12 +63,11 @@ public class DialogueManager : MonoBehaviour
             charNoise.Play();
             yield return new WaitForSeconds(typingSpeed); // Adds delay between characters
         }
-        continueTrigger.SetActive(true); // Sentence is finished, show continue button
+        continueTrigger.SetActive(true); // Shows the continue button after the sentence is finished
     }
 
-    /***
-     * Displays the next sentence
-     ***/
+    
+    // Displays the next sentence
     public void nextSentence()
     {
         typingSpeed = OGtypingSpeed;
@@ -84,20 +80,19 @@ public class DialogueManager : MonoBehaviour
         else endDialogue();
     }
 
-    /***
-     * Ends the dialogue
-     * Call this when the dialogue is finished
-     ***/
+    
+    // Ends the dialogue - call this when the dialogue is finished
     public void endDialogue()
     {
         dialogue.SetActive(false);
         continueTrigger.SetActive(false);
         blackOverlay.SetActive(false);
-        pauseMenuCanvas.GetComponent<PauseMenu01>().enabled = true;
-        player.GetComponent<TileMovementV2>().enabled = true;
-        player.GetComponent<TileMovementV2>().hasDied = false;
+        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
+        player.GetComponent<TileMovementController>().enabled = true;
+        player.GetComponent<TileMovementController>().hasDied = false;
         inDialogue = false;
     }
+
 
     // Sets the dialogue
     public void setDialogue(string[] dialogue)
@@ -109,6 +104,5 @@ public class DialogueManager : MonoBehaviour
     {
         return textFile.text.Split("\n"[0]);
     }
-
 
 }

@@ -11,6 +11,7 @@ public class Interactable : MonoBehaviour
      * Interact function
      * Call when you want to interact with the NPC
      ***/
+
     public void Interact()
     {
         if (transform.childCount <= 0)
@@ -18,6 +19,7 @@ public class Interactable : MonoBehaviour
             Debug.Log("No dialogue");
             return;
         }
+
         Transform child = transform.GetChild(0);
         dialogue = child.GetComponent<Dialogue>().readTextFile();
         if (dialogue == null) return;
@@ -28,4 +30,6 @@ public class Interactable : MonoBehaviour
         if (transform.childCount > 1)
             GameObject.Destroy(child.gameObject);
     }
+
+
 }

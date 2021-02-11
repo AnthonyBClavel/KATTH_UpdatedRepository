@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CheckpointV2 : MonoBehaviour
+public class CheckpointManager : MonoBehaviour
 {
     public int numMovements;
-    private GameObject player; // Player object
+
+    private GameObject player;
     private IceMaterialScript iceMaterialScript;
-    private TileMovementV2 tileMovementScript;
+    private TileMovementController tileMovementScript;
     private Animator playerAnimator;
+
     Vector3 p; // Player position for debugging
     Vector3 blockPosition; // Block position
     private bool hit; // True if we hit it before, false otherwise
@@ -21,7 +23,7 @@ public class CheckpointV2 : MonoBehaviour
         hit = false;
 
         iceMaterialScript = player.GetComponent<IceMaterialScript>();
-        tileMovementScript = player.GetComponent<TileMovementV2>();
+        tileMovementScript = player.GetComponent<TileMovementController>();
         playerAnimator = player.GetComponentInChildren<Animator>();
     }
 
@@ -38,15 +40,15 @@ public class CheckpointV2 : MonoBehaviour
     // Returns the number of movements for the checkpoint
     public int getNumMovements() { return numMovements; }
 
-    /**
-     * Resets the player's position back to the checkpoint
-     **/
+    
+    // Resets the player's position back to the checkpoint
     public void resetPlayerPosition()
     {
         player.transform.position = blockPosition;
         tileMovementScript.setDestination(blockPosition);
     }
 
+    // Resets the player's position after a certain amount of seconds
     public IEnumerator resetPlayerPositionWithDelay(float seconds)
     {
         iceMaterialScript.StartCoroutine("IncreaseAlpha_ColdUI");

@@ -7,21 +7,19 @@ using UnityEngine.EventSystems;
 
 public class PauseMenuSounds : MonoBehaviour
 {
-    private PauseMenu01 pauseMenuScript;
-
-    //prevents spamming the button sfx sounds
-    private bool pressedSFX;
+    private PauseMenu pauseMenuScript;
+    private bool pressedSFX; // To prevents spamming the button sfx sounds
 
     // Start is called before the first frame update
     void Start()
     {
-        pauseMenuScript = FindObjectOfType<PauseMenu01>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //this is for reseting the pressed sfx when exiting and then immediately returning to the options menu, after pressing return, and left clicking
+        // Resets the pressedSFX bool back to false based on these inputs
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
         {
             pressedSFX = false;
@@ -33,17 +31,16 @@ public class PauseMenuSounds : MonoBehaviour
 
     }
 
-    //function for On Pointer Enter (when mouse hovers over button)
+    // Function for On Pointer Enter component - when the mouse hovers over button
     public void SetPressedSFXToFalse()
     {
         pressedSFX = false;
     }
 
-
-    //While in a level(any level) scene...
+    // While in a level scene...
     /* the function plays a sound whenever you havn't pressed enter
      * if you have, then the function doesnt play a sound
-     * this is done to prevent two sounds from playing at the same time when mutiple animation events are played */
+     * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
     public void PlayPauseMenuSound(AudioClip whichSound)
     {
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Escape))

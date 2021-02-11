@@ -265,7 +265,7 @@ public class KimsTileMovement : MonoBehaviour
 
             if (hit.collider.tag == "Obstacle" && canPush)                                                                                      //if the ray hits an object tagged "Obstacle" and etc... (hold down correct WASD key and then press left shift to push block)
             {   
-                bool move = hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock(direction);
+                bool move = hit.collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(direction);
                 if (Input.GetKeyDown(KeyCode.LeftShift) && move)                                                                                         //...and if the specified key is pressed... **this needs to be refined** 
                 {
                     torchMeterMoves.CurrentVal -= 1;                                                                                            //subract one from the torch meter's current value

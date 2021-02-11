@@ -9,8 +9,10 @@ public class DestroyObjectAferSeconds : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Destroy(gameObject, destroyAfterSeconds);              // Destroy this object within the specified time
-        //Destroy(gameObject, 1.5f);            // Original 
+        // Destroys this object within the specified time
+        Destroy(gameObject, destroyAfterSeconds);  
+        
+        //Destroy(gameObject, 1.5f);
     }
 
 }

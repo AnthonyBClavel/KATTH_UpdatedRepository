@@ -62,20 +62,20 @@ public class MainMenu : MonoBehaviour
             hasPressedEnter = true;
         }
 
-        // You can close the options menu by pressing ESC
+        // Close the options menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu)
         {
             StartCoroutine("CloseOptionsDelay");
         }
 
-        // Debugging..
+        /*** For Debugging purposes ***/
         /*if (Input.GetKeyDown(KeyCode.Delete))
         {
             SaveManager.DeleteGame();
         }*/
+        /*** End Debugging ***/
     }
 
-    //opens the main menu canvas
     public void OpenMainMenu()
     {
         StartCoroutine("OpenMainMenuDelay");
@@ -125,7 +125,7 @@ public class MainMenu : MonoBehaviour
     }
 
 
-    // On Pointer Enter functions start here
+    /*** On Pointer Enter functions start here ***/
     public void SelectContinueButton()
     {
         if (lastSelectedObject != continueFirstButton)
@@ -174,10 +174,10 @@ public class MainMenu : MonoBehaviour
         }
 
     }
-    // On Pointer Enter functions end here
+    /*** On Pointer Enter functions end here ***/
 
 
-    // Loads the next level in the background while the loading screen plays
+    // Loads the next level asynchronously while the loading screen is active
     public IEnumerator LoadLevelAsync()
     {
         loadingScreen.SetActive(true);
@@ -211,7 +211,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    // The functions below delay the button input so that you can actually see the button press animations
+    // Delays the button input so you can actually see the button press animations
     private IEnumerator setActiveDelay()
     {
         gameLogo.SetActive(true);
@@ -273,12 +273,14 @@ public class MainMenu : MonoBehaviour
         Debug.Log("Quit Successful");
     }
 
+    // Sets a random image/sprite for the loading screen
     private void ChangeLoadingScreenImg()
     {
         if (loadingScreenSprites != null)
             SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
     }
 
+    // Gets a random sprite from its respective array
     private void SetRandomSprite(Sprite newLoadingScreenImg)
     {
         if (loadingScreen.GetComponent<Image>().sprite.name == newLoadingScreenImg.name)    

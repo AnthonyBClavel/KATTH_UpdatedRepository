@@ -5,31 +5,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class TorchMeterScript : MonoBehaviour //Dont worry about this script, use the TileMovement Script and its component (in the Unity inspector) to manipulate the torch meter   
+public class TorchMeterScript : MonoBehaviour  
 {
-    private float fillAmount;
-    
-    public float lerpSpeed;
-
     public Image content;
-
     public Image flameIcon;
-
     public TextMeshProUGUI valueText;
 
     public Color fullColor;
-
     public Color lowColor;
-
     public Color fullFlameColor;
-
     public Color lowFlameColor;
+    public float lerpSpeed;
 
     public ParticleSystem fireParticle;
+
+    private float fillAmount;
     private ParticleSystem.MainModule main;
-
     private AudioSource audioSource;
-
     private Animator torchAnim;
 
     public float MaxValue { get; set; }
@@ -38,7 +30,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     {
         set
         {
-            //take everything behind the colon and place it as the tmp value...
+            // Take everything behind the colon and place it as the tmp value...
             //string[] tmp = valueText.text.Split(':');   
             //valueText.text = tmp[0] + ": " + value;
 
@@ -61,6 +53,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     {
         RadialBar();
 
+        /*** For Debugging purposes ***/
         /*if(Input.GetKeyDown(KeyCode.P))
         {
             TorchMeterPopIn();
@@ -69,8 +62,10 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
         {
             TorchMeterPopOut();
         }*/
+        /*** End Debugging ***/
     }
 
+    // Adjusts the torch meter bar based on color, value, and volume
     private void RadialBar()
     {
         if(fillAmount != content.fillAmount)
@@ -101,6 +96,7 @@ public class TorchMeterScript : MonoBehaviour //Dont worry about this script, us
     {
         torchAnim.SetTrigger("PopIn");
     }
+
     public void TorchMeterPopOut()
     {
         torchAnim.SetTrigger("PopOut");

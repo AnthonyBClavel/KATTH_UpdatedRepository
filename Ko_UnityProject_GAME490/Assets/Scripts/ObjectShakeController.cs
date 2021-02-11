@@ -2,42 +2,50 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StaticBlockShakeController : MonoBehaviour
+public class ObjectShakeController : MonoBehaviour
 {
-    public static StaticBlockShakeController instance;                                  //creates an instance variable for this script
+    [SerializeField]                                                            
+    public AudioClip[] clips;                                                     
 
-    private float shakeTimeRemaining, shakePower, shakeFadeTime, shakeRotation;         //create priavte float values
+    public static ObjectShakeController instance;                                 
 
-    public float rotationMultiplier = 7.5f;                                             //creates a public float value (can set/manipulate in the Unity inspector)
+    private float shakeTimeRemaining, shakePower, shakeFadeTime, shakeRotation;   
 
-    public GameObject particleEffect;                                                   //create a variable for a gameobject (either within the Unity hierarchy, or a prefab)
+    public float rotationMultiplier = 7.5f;                                       
+
+    public GameObject particleEffect;                                             
+
+    private AudioSource audioSource;                                              
 
     // Start is called before the first frame update
     void Start()
     {
-        instance = this;                                                                //set the instance variable to this script
+        instance = this;                                                          
+
+        audioSource = GetComponent<AudioSource>();                                
     }
 
     // Update is called once per frame
     void Update()
     {
-        //to test the screen shake (just for debugging purposes)
+        /*** For Debugging purposes ***/
         /*if(Input.GetKeyDown(KeyCode.K))
-        {
-            StartShake(0.5f, 1f);
-        }*/
+            StartShake(0.5f, 1f);*/
+        /*** End Debugging ***/
     }
 
     private void LateUpdate()
     {
-        if (shakeTimeRemaining > 0)                                                                                     //the statement that determines the shake...
+        // Determines the shake...
+        if (shakeTimeRemaining > 0)                                                                                         
         {
             shakeTimeRemaining -= Time.deltaTime;
 
             float xAmount = Random.Range(-1f, 1f) * shakePower;
             float yAmount = Random.Range(-1f, 1f) * shakePower;
 
-            //transform.position += new Vector3(xAmount, yAmount, 0);                                                   //ignore this line, unless you want the object to move to random/new position after it shakes
+            /* Ignore this line below, unless you want the object to move to a random/new position after it shakes */
+            //transform.position += new Vector3(xAmount, yAmount, 0);                                                       
 
             shakePower = Mathf.MoveTowards(shakePower, 0f, shakeFadeTime * Time.deltaTime);
 
@@ -48,15 +56,32 @@ public class StaticBlockShakeController : MonoBehaviour
 
     }
 
-    public void StartShake(float length, float power)                                                                   //the function for the shake itself (length is for how long the shake will last in seconds, power is the shake's intensity)             
+    // Function for the shake itself (length is for how long the shake will last in seconds, power is the shake's intensity)
+    public void StartShake(float length, float power)                                                                       
     {
-        Instantiate(particleEffect, gameObject.transform.position, gameObject.transform.rotation);                      //spwans the particle effect on the object's position and rotation
+        StaticBlockSFX();                                                                                                   
 
-        shakeTimeRemaining = length;                                                                                     
+        Instantiate(particleEffect, gameObject.transform.position, gameObject.transform.rotation);                          
+
+        shakeTimeRemaining = length;
         shakePower = power;
 
         shakeFadeTime = power / length;
 
         shakeRotation = power * rotationMultiplier;
     }
+
+    // Plays the random audio clip it aquired
+    private void StaticBlockSFX()                                                                                           
+    {
+        AudioClip clips = GetRandomClip();                                                                                   
+        audioSource.PlayOneShot(clips);                                                                                      
+    }
+
+    // Gets a random audio clip from its respective array
+    private AudioClip GetRandomClip()                                                                                        
+    {
+        return clips[UnityEngine.Random.Range(0, clips.Length)];                                                             
+    }
+
 }

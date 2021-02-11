@@ -6,13 +6,14 @@ using UnityEngine.EventSystems;
 
 public class ButtonPressScript : MonoBehaviour
 {
-    private Button myButton;
     public Animator anim;
 
+    //private Button myButton;
+    
     // Start is called before the first frame update
     void Awake()
     {
-        myButton = GetComponent<Button>();
+        //myButton = GetComponent<Button>();
     }
 
     // Update is called once per frame

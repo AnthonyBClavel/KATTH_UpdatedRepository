@@ -58,9 +58,9 @@ public class Tutorial : MonoBehaviour
             hasPlayedStart = true;
         }
 
-        else if (!player.GetComponent<TileMovementV2>().isWalking)
+        else if (!player.GetComponent<TileMovementController>().isWalking)
         {
-            Collider collider = player.GetComponent<TileMovementV2>().getCollider();
+            Collider collider = player.GetComponent<TileMovementController>().getCollider();
             if (collider != null)
                 switch (collider.tag)
                 {
@@ -95,7 +95,7 @@ public class Tutorial : MonoBehaviour
                         break;
                 }
 
-            else if (player.GetComponent<TileMovementV2>().onBridge() && !hasPassedBridge)
+            else if (player.GetComponent<TileMovementController>().onBridge() && !hasPassedBridge)
             {
                 setDialogue(bridgeDialogue);
                 currentDialogue = bridgeDialogue;
@@ -103,7 +103,7 @@ public class Tutorial : MonoBehaviour
                 hasPassedBridge = true;
             }
 
-            else if (player.GetComponent<TileMovementV2>().checkIfOnCheckpoint() && player.GetComponent<TileMovementV2>().puzzle.name == "Puzzle03" && !hasPlayedHole)
+            else if (player.GetComponent<TileMovementController>().checkIfOnCheckpoint() && player.GetComponent<TileMovementController>().puzzle.name == "Puzzle03" && !hasPlayedHole)
             {
                 setDialogue(holeDialogue);
                 currentDialogue = holeDialogue;
@@ -112,9 +112,9 @@ public class Tutorial : MonoBehaviour
             }
         }
 
-        if (player.GetComponent<TileMovementV2>().hasDied)
+        if (player.GetComponent<TileMovementController>().hasDied)
         {
-            player.GetComponent<TileMovementV2>().enabled = false;
+            player.GetComponent<TileMovementController>().enabled = false;
             if (!dialogueManager.GetComponent<DialogueManager>().inDialogue)
             {
                 setDialogue(deathDialogue);

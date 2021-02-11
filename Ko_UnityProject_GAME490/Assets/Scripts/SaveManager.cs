@@ -6,12 +6,11 @@ using UnityEngine;
 
 public static class SaveManager
 {
-
     /**
     private string level;
     private GameObject checkpoint;
     private GameObject puzzle;
-        **/
+    **/
 
     private static string path = Application.persistentDataPath + "/game_save/character_data/";
 

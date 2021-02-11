@@ -7,8 +7,6 @@ public class PlayerSounds : MonoBehaviour
 {
     public static PlayerSounds instance;
 
-
-    //creates arrays of audio clips for each puzzle area
     public AudioClip[] snowFootstepClips;                                    
 
     public AudioClip[] grassFootstepClips;                                   
@@ -21,14 +19,13 @@ public class PlayerSounds : MonoBehaviour
 
     public AudioClip[] woodenCrateFootstepClips;
 
-
     float rayLength = 1f;
 
     private AudioSource audioSource;
 
     void Start()
     {
-        //set this script as an instance here so it can be called upon other scripts without creating a variable for it
+        //sets this script as an instance - other scripts can call it without creating a variable for it
         instance = this;
 
         audioSource = GetComponent<AudioSource>();
@@ -39,7 +36,7 @@ public class PlayerSounds : MonoBehaviour
        
     }
 
-    //the function that checks to see which tile the player is on and determnes which array of audio clips to play
+    // Checks to see which tile the player is on and determines which array of audio clips to play
     public void TileCheck()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), -transform.up);
@@ -88,15 +85,15 @@ public class PlayerSounds : MonoBehaviour
         }
     }
 
-    /* the functions below are for playing/getting the a random audio clip for each array */
-    //the function below plays the random audio clip
+    /*** The functions below are for playing/getting the a random audio clip from each array ***/
+    // Plays the random audio clip it aquired
     private void SnowFootsteps()                                                                                                                 
     {
         AudioClip snowFootstepClips = GetRandomClipSF();                                                                                        
         audioSource.PlayOneShot(snowFootstepClips);                                                                                                       
     }
 
-    //the function below gets a random audio clip from its respective array
+    // Gets a random audio clip from its respective array
     private AudioClip GetRandomClipSF()
     { 
         return snowFootstepClips[UnityEngine.Random.Range(0, snowFootstepClips.Length)];                                                                                

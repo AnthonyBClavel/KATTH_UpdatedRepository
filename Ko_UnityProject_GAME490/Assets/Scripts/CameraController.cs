@@ -9,15 +9,16 @@ public class CameraController : MonoBehaviour
     public AudioClip[] clips;
 
     [SerializeField]
-    public AudioClip[] loopingClips;                                       
+    public AudioClip[] loopingClips;
 
+    [SerializeField]
     public Transform[] levelViews;
 
     public static CameraController instance;
-    public float transitonSpeed; // The camera's transition speed
+    public float transitonSpeed;
     public int currentIndex = 0;
 
-    Transform currentView; // The variable that is used to determine which view the camera is currenlty at
+    Transform currentView;
     private AudioSource audioSource;
     private AmbientLoopingSFXManager theALSM;
 
@@ -36,6 +37,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         currentView = levelViews[currentIndex];
+
         /*** For Debugging purposes ***/
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -55,22 +57,19 @@ public class CameraController : MonoBehaviour
             currentView = levelViews[currentIndex++];                                                               
         }
         /*** End Debugging ***/
-
     }
-
 
     /**
     * Called once per frame
-    * Move the camera's current position to the new position via linear interpolation
+    * Moves the camera's current position to the new position via linear interpolation
     **/
     void LateUpdate()
     {
         transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed); 
     }
 
-    /**
-     * Function for shifting the camera to the next puzzle view
-     **/
+    
+    // Shifts the camera to the next puzzle view
     public void NextPuzzleView(Transform newView)                                                                              
     {
         //Debug.Log("Switch Puzzle View");
@@ -101,12 +100,12 @@ public class CameraController : MonoBehaviour
         currentView = levelViews[currentIndex--];
     }
 
-    // Plays the wind gush audio clip
+    // Plays a random wind gush sfx from an audio clip array
     public void WindGush()                                                                                            
     {
+        // Plays an audio clip whose index is not equal to the one playing right now
         if (loopingClips != null)
-        {
-            // Play a new looping ambient sfx whose index is not equal to the one playing right now
+        {           
             theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);
         }
 
@@ -114,6 +113,7 @@ public class CameraController : MonoBehaviour
         audioSource.PlayOneShot(clips);                                                                          
     }
 
+    // Gets a random audio clip from its respective array
     private AudioClip GetRandomClip()                                                                                
     {
         return clips[UnityEngine.Random.Range(0, clips.Length)];

@@ -11,7 +11,7 @@ public class LevelFade : MonoBehaviour
     public GameObject gameCanvas;
 
     private MainMenu mainMenu;                                  
-    private PauseMenu01 pauseMenu;
+    private PauseMenu pauseMenu;
     private LevelManager levelManager;
 
     // Start is called before the first frame update
@@ -19,33 +19,34 @@ public class LevelFade : MonoBehaviour
     {
         mainMenu = FindObjectOfType<MainMenu>();               
 
-        pauseMenu = FindObjectOfType<PauseMenu01>();
+        pauseMenu = FindObjectOfType<PauseMenu>();
 
         levelManager = FindObjectOfType<LevelManager>();
     }
 
-    // Function that triggers the "FadeOutMain" animation (fade)
+
+    // Triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfGame()
     {
         disableMenuInputs();
         animator.SetTrigger("FadeOutGame");
     }
 
-    // Function that triggers the "FadeOutContinue" animation (fade)
+    // Triggers the "FadeOutContinue" animation (fade)
     public void FadeOutContinueGame()
     {
         disableMenuInputs();
         animator.SetTrigger("FadeOutContinue");
     }
 
-    // Function that triggers the "FadeOutMain" animation (fade)
+    // Triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfMainMenu()                             
     {
         disableMenuInputs();
         animator.SetTrigger("FadeOutMain");                     
     }
 
-    // Function that triggers the "FadeOutOfLevel" animation (fade)
+    // Triggers the "FadeOutOfLevel" animation (fade)
     public void FadeOutOfLevel()
     {
         pauseMenu.isChangingScenes = true;
@@ -54,12 +55,13 @@ public class LevelFade : MonoBehaviour
         animator.SetTrigger("FadeOutLevel");
     }
 
-    // Function that triggers the "FadeOutToNextLevel" animation (fade)
+    // Triggers the "FadeOutToNextLevel" animation (fade)
     public void FadeOutToNextLevel()
     {
         pauseMenu.isChangingScenes = true;
         animator.SetTrigger("FadeOutNextLevel");
     }
+
 
     // Calls the "QuitGame" function in the main menu script
     public void OnFadeCompleteForGame()
@@ -91,17 +93,19 @@ public class LevelFade : MonoBehaviour
         levelManager.StartCoroutine("LoadNextLevelAsync");
     }
 
+    
+    // Disables all inputs
     public void enableMenuInputs()
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
         gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
+    // Re-enables all inputs
     public void disableMenuInputs()
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
         gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
-
 
 }

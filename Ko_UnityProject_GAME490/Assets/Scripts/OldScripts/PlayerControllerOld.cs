@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using UnityEditor;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerControllerOld : MonoBehaviour
 {
     public float velocity = 5;
     public float turnSpeed = 10;

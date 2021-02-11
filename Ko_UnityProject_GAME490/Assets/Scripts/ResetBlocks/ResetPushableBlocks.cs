@@ -16,16 +16,18 @@ public class ResetPushableBlocks : MonoBehaviour
 
     }
 
+    // Resets the postion of the pushable blocks immediately
     public void resetBlocks()
     {
         Debug.Log("Num of pushable blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
-            child.GetComponent<BlockMovement>().resetPosition();
+            child.GetComponent<BlockMovementController>().resetPosition();
         }
     }
 
+    // Resets the postion of the pushbale blocks after a certain amount of seconds
     public IEnumerator resetBlocksWithDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -33,7 +35,8 @@ public class ResetPushableBlocks : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
-            child.GetComponent<BlockMovement>().resetPosition();
+            child.GetComponent<BlockMovementController>().resetPosition();
         }
     }
+
 }

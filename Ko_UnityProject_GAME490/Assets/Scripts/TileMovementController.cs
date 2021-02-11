@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class TileMovementV2 : MonoBehaviour
+public class TileMovementController : MonoBehaviour
 {
     public Camera main_camera;
     public Animator Anim;
@@ -45,14 +45,14 @@ public class TileMovementV2 : MonoBehaviour
     public string sceneName;
 
     [Header("Bools")]
-    public bool isWalking;                                      // Used to determine when to play an object's animation
+    public bool isWalking;                                      // Determines when to play an object's animation
     public bool hasDied = false;
-    private bool isPushing;                                     // Used to determine when the object can move
+    private bool isPushing;                                     // Determines when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
-    private bool hasAlreadyPopedOut;                            // To determine when the torch meter can scale in/out
-    private bool hasMovedPuzzleView;                            // To determine when the camera can switch puzzle views
-    private bool canRestartPuzzle;                              // To determine when the the areas where the player can press "R" (restart puzzle)
+    private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
+    private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views
+    private bool canRestartPuzzle;                              // Determines when the player can press "R" (restart puzzle)
 
     private void Awake()
     {
@@ -109,7 +109,7 @@ public class TileMovementV2 : MonoBehaviour
      ***/
     void Move()
     {
-        // Moving the character to the destination
+        // Moves the object (player) to the destination
         transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
 
         // Checks if we're on a checkpoint AFTER moving
@@ -118,10 +118,10 @@ public class TileMovementV2 : MonoBehaviour
             isWalking = false;
             checkIfOnCheckpoint();
             levelManagerScript.checkIfCompletedLevel();
-            // If player runs out of the meter
+            // If player's torch meter runs out...
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
             {
-                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation); // Play audio clip
+                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);
                 Instantiate(freezingSFX, transform.position, transform.rotation);
                 alreadyPlayedSFX = true; // The audio clip cannot be played again
                 resetPuzzleWithDelay();
@@ -133,14 +133,15 @@ public class TileMovementV2 : MonoBehaviour
             return;
         }
 
-        if (!updateKeyboardInput()) return; // Returns if we have no movement keyboard input
+        if (!updateKeyboardInput()) return; // Returns if we have no movement (keyboard input)
 
         transform.localEulerAngles = currentDirection;
 
-        // Checking for colliders
+        // Checks for colliders
         if (Valid())
         {
-            if (EdgeCheck()) // If no colliders, but we hit an edge
+            // If no colliders, but we hit an edge
+            if (EdgeCheck()) 
             {
                 isWalking = true;
                 PlayerSounds.instance.TileCheck();
@@ -165,7 +166,7 @@ public class TileMovementV2 : MonoBehaviour
      ***/
     private bool updateKeyboardInput()
     {
-        /*** Movement inputs ***/
+        /*** Movement inputs start here ***/
         // W key (North)
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -197,13 +198,12 @@ public class TileMovementV2 : MonoBehaviour
             currentDirection = left;
             return true;
         }
+        /*** Movement inputs end here ***/
 
-        /*** Non-Movement Inputs ***/
-
-        // Hit R (Reset puzzle)
+        // Hit R to reset puzzle
         else if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
 
-        // Hit Return (Interact / Break Block)
+        // Hit Return to interact/break block
         else if (Input.GetKeyDown(KeyCode.Return))
         {
             Collider collider = getCollider();
@@ -231,7 +231,7 @@ public class TileMovementV2 : MonoBehaviour
         CheckToPlayAnims();
     }
 
-    // Function for turning on the generator
+    // Turns on the generator if the player is colliding/interacting with it
     public void turnOnGenerator(Collider collider)
     {
         Debug.Log("Turned On Generator");
@@ -242,14 +242,14 @@ public class TileMovementV2 : MonoBehaviour
         CheckToPlayAnims();
     }
 
-    // Function for interacting with the firestone
+    // Disables firestone light if the player is colliding/interacting with it
     public void getFirestone(Collider collider)
     {
         Debug.Log("Firestone has been used");
         if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
         {
             torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
-            Instantiate(torchFireIgniteSFX, transform.position, transform.rotation); // Spawns the particle effect on the object's position and rotation
+            Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);
         }
         collider.gameObject.GetComponentInChildren<Light>().enabled = false;
         isInteracting = true;
@@ -268,9 +268,7 @@ public class TileMovementV2 : MonoBehaviour
         npc.GetComponent<Interactable>().Interact();
     }
 
-    /***
-     * Draws a ray forward and returns the collider if it hits, or null otherwise
-     ***/
+    // Draws a ray forward and returns the collider if it hits, or null otherwise 
     public Collider getCollider()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);
@@ -282,9 +280,8 @@ public class TileMovementV2 : MonoBehaviour
         return null;
     }
 
-    /***
-     * The bool function that checks to see if the next position is valid or not
-     ***/
+
+    // Checks to see if the next position is valid or not
     bool Valid()
     {
         isPushing = false;
@@ -301,7 +298,7 @@ public class TileMovementV2 : MonoBehaviour
                 break;
 
             case ("Obstacle"):
-                if (collider.gameObject.GetComponent<BlockMovement>().MoveBlock(currentDirection))
+                if (collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(currentDirection))
                     torchMeterMoves.CurrentVal--;
                 isWalking = false;
                 CheckToPlayAnims();
@@ -348,7 +345,7 @@ public class TileMovementV2 : MonoBehaviour
         return false;
     }
 
-    /*** Checks if there's an edge ***/
+    // Checks if there's an edge - determines where the player cant move towards
     bool EdgeCheck()
     {
         Ray myEdgeRay = new Ray(edgeCheck.transform.position, -transform.up);
@@ -362,7 +359,7 @@ public class TileMovementV2 : MonoBehaviour
             {
                 if (!hasAlreadyPopedOut)
                 {
-                    // Make the torch meter pop out
+                    // Makes the torch meter pop out
                     torchMeterScript.TorchMeterPopOut();
                     hasAlreadyPopedOut = true;
                 }
@@ -372,7 +369,7 @@ public class TileMovementV2 : MonoBehaviour
             } 
             else if (tag == "EmptyBlock")
             {
-                // Player cannot walk over ditches - the areas where blocks can fall in
+                // The player cannot walk over ditches - the areas where blocks can fall in
                 isWalking = false;
                 return false;
             }
@@ -380,7 +377,7 @@ public class TileMovementV2 : MonoBehaviour
             {
                 if (hasAlreadyPopedOut)
                 {
-                    // Make the torch meter pop in
+                    // Makes the torch meter pop in
                     torchMeterScript.TorchMeterPopIn();
                     hasAlreadyPopedOut = false;
                 }
@@ -401,17 +398,13 @@ public class TileMovementV2 : MonoBehaviour
         destination = newDestination;
     }
 
-    /***
-     * Resets the current value of the torch meter to the maximum value
-     ***/
+    // Resets the current value of the torch meter to the maximum value
     public void ResetTorchMeter()
     {
         torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
     }
 
-    /***
-     * Draws a ray below the character and returns true if player is standing on a checkpoint, returns false otherwise
-     ***/
+    // Draws a ray below the player and returns true if player is standing on a checkpoint, returns false otherwise
     public bool checkIfOnCheckpoint()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
@@ -425,18 +418,18 @@ public class TileMovementV2 : MonoBehaviour
         checkpoint = hit.collider.gameObject;
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
-        // Setting new puzzle view
+        // Sets the new puzzle view
         //GameObject view = puzzle.transform.Find("View").gameObject;
         //main_camera.GetComponent<CameraController>().NextPuzzleView(view.transform);
 
-        // Setting new torch meter value
-        int newNumMovements = checkpoint.GetComponent<CheckpointV2>().getNumMovements();
+        // Sets the new torch meter value based on the checkpoint's value
+        int newNumMovements = checkpoint.GetComponent<CheckpointManager>().getNumMovements();
         torchMeterMoves.setMaxValue(newNumMovements);
 
         // If this is the first time we visited this checkpoint
-        if (!checkpoint.GetComponent<CheckpointV2>().hitCheckpoint())
+        if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
         {
-            checkpoint.GetComponent<CheckpointV2>().setCheckpoint();
+            checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
             ResetTorchMeter();
 
             //main_camera.GetComponent<CameraController>().WindGush();
@@ -444,9 +437,7 @@ public class TileMovementV2 : MonoBehaviour
         return true;
     }
 
-    /***
-     * Draws a ray below the character - Returns true of the player is standing on a bridge, false otherwise
-     ***/
+    // Determines if the player on the bridge - returns true of the player is standing on a bridge tile, false otherwise
     public bool onBridge()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
@@ -457,7 +448,7 @@ public class TileMovementV2 : MonoBehaviour
         if (hit.collider.name == "BridgeBlock")
         {
             string tag = hit.collider.tag;
-            // For the functions below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
+            // For the if statements below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
             if (tag == "MoveCameraBlock" && !hasMovedPuzzleView && hasAlreadyPopedOut)
             {
                 Debug.Log("Switched To Next Puzzle View");
@@ -468,12 +459,10 @@ public class TileMovementV2 : MonoBehaviour
             }
             if (tag == "InstantiateBlock" && isWalking)
             {
-                // Spawns an invisible block that prevents the player from traveling to previous puzzles (we'll remove this in the future)
                 Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
             }
             if (tag == "ResetCameraBool" && hasAlreadyPopedOut && isWalking)
             {
-                // Spawns an invisible block that prevents the player from traveling to previous puzzles (we'll remove this in the future)
                 Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
             }
             if (tag == "ResetCameraBool" && hasMovedPuzzleView && hasAlreadyPopedOut)
@@ -486,15 +475,13 @@ public class TileMovementV2 : MonoBehaviour
         return false;
     }
 
-    /***
-     * Resets the current puzzle the player is at (from last checkpoint)
-     ***/
+    // Resets the current puzzle the player is on (determined by last checkpoint)
     private void resetPuzzle()
     {
-        // You can only resart the puzzle when you're not on a bridge block (determined in EdgeCheck)
+        // You cant restart a puzzle while on a bridge tile (determined in EdgeCheck)
         if (canRestartPuzzle)
         {
-            checkpoint.GetComponent<CheckpointV2>().resetPlayerPosition();
+            checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
             ResetTorchMeter();
 
             Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
@@ -516,12 +503,10 @@ public class TileMovementV2 : MonoBehaviour
         }
     }
 
-    /***
-     * Resets the puzzle the player is currently at (from the last checkpoint) (with delay)
-     ***/
+    // Resets the current puzzle the player is on (determined by last checkpoint) BUT with a delay
     private void resetPuzzleWithDelay()
     {
-        checkpoint.GetComponent<CheckpointV2>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
+        checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
 
         // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -544,12 +529,14 @@ public class TileMovementV2 : MonoBehaviour
         hasDied = true;
     }
 
+    // Plays a new animation state
     private void ChangeAnimationState(string newState)
     {
         Anim.Play(newState);
         currentState = newState;
     }
 
+    // Determines which animation state to play
     private void CheckToPlayAnims()
     {
         if (isPushing) ChangeAnimationState("Pushing");
@@ -576,12 +563,15 @@ public class TileMovementV2 : MonoBehaviour
 
         return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
     }
+
+    // Plays the random audio clip it aquired
     private void SwooshSFX()
     {
         AudioClip swooshClips = GetRandomSwooshSFX();
         audioSource.volume = 0.36f;
         audioSource.PlayOneShot(swooshClips);
     }
+    // Gets a random audio clip from its respective array
     private AudioClip GetRandomSwooshSFX()
     {
         return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];

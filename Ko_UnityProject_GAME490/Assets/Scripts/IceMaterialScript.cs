@@ -26,6 +26,7 @@ public class IceMaterialScript : MonoBehaviour
         iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
     }
 
+    // Increases the alpha of the ice material over time until it reaches its max value
     public IEnumerator FadeMaterialToFullAlpha()
     {
         for (float i = 0f; i <= 1; i += 0.05f)
@@ -36,12 +37,14 @@ public class IceMaterialScript : MonoBehaviour
         }
     }
 
+    // Sets the alpha of the ice material back to 0 after a delay
     public IEnumerator ResetPlayerMaterial()
     {
         yield return new WaitForSeconds(1.5f);
         iceMaterialAlpha = 0f;
     }
 
+    // Increases the alpha of the Cold UI over time until it reaches its max value
     public IEnumerator IncreaseAlpha_ColdUI()
     {
         for (float i = 0f; i <= 1; i -= 0.02f)
@@ -52,6 +55,7 @@ public class IceMaterialScript : MonoBehaviour
         }
     }
 
+    // Sets the alpha of the Cold UI back to 0 after a delay
     public IEnumerator ResetUIAlpha_ColdUI()
     {
         yield return new WaitForSeconds(1.5f);

@@ -4,20 +4,12 @@ using UnityEngine;
 
 public class MainMenuMusicScript : MonoBehaviour
 {
-    /*public GameObject initialLoopBGM;
-    public GameObject cleanLoopBGM;
-    private float duration;*/
-
     public GameObject mainMenuBGM;
     private float loopingMainMenuBGM;
 
     // Start is called before the first frame update
     void Awake()
     {
-        /* Sets the duration to the length of the audio clip
-        duration = initialLoopBGM.GetComponent<AudioSource>().clip.length;
-        StartCoroutine("PlayCleanLoopBGM"); */
-
         loopingMainMenuBGM = 0.0f;
 
         StartCoroutine("FadeInVolume");
@@ -29,6 +21,7 @@ public class MainMenuMusicScript : MonoBehaviour
         mainMenuBGM.GetComponent<AudioSource>().volume = loopingMainMenuBGM;
     }
 
+    // Increases the volume over time until it reaches its max value
     public IEnumerator FadeInVolume()
     {
         for (float i = 0f; i <= 0.8; i += 0.01f)
@@ -38,13 +31,5 @@ public class MainMenuMusicScript : MonoBehaviour
             yield return new WaitForSeconds(0.025f);
         }
     }
-
-    /* Plays the clean looping bgm after the intitial looping bgm (the initial one's volume fades in via the file itself; woudln't be ideal to loop that)
-    private IEnumerator PlayCleanLoopBGM()
-    {
-        yield return new WaitForSecondsRealtime(duration);
-        initialLoopBGM.SetActive(false);
-        cleanLoopBGM.SetActive(true);
-    }*/
 
 }

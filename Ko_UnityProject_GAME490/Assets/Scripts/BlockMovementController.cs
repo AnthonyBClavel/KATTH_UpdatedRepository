@@ -5,8 +5,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class BlockMovement : MonoBehaviour
+public class BlockMovementController : MonoBehaviour
 {
+    public GameObject crateEdgeCheck;
+    public AudioClip pushCrateSFX;
+    public AudioClip cantPushCrateSFX;
+
     Vector3 up = Vector3.zero,                                 
     right = new Vector3(0, 90, 0),                           
     down = new Vector3(0, 180, 0),                             
@@ -20,11 +24,7 @@ public class BlockMovement : MonoBehaviour
     float rayLengthEdgeCheck = 1f;                              
     float rayFalleCheck = 1f;
 
-    public GameObject crateEdgeCheck;                         
-
-    private AudioSource audioSource;                           
-    public AudioClip pushCrateSFX;                             
-    public AudioClip cantPushCrateSFX; 
+    private AudioSource audioSource;
 
     void Start()
     {
@@ -41,6 +41,7 @@ public class BlockMovement : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime); 
     }
 
+    // Moves the block based on direction and bool checks
     public bool MoveBlock(Vector3 direction)
     {
         setDirection(direction);
@@ -58,8 +59,7 @@ public class BlockMovement : MonoBehaviour
     }
 
     void setDirection(Vector3 direction)
-    {
-        
+    {     
         if (direction == up)
         {
             nextBlockPos = Vector3.forward;
@@ -89,6 +89,7 @@ public class BlockMovement : MonoBehaviour
         }
     }
 
+    // Checks to see if the next position is valid or not
     bool Valid()                                                                                                                
     {
         Ray myRay = new Ray(transform.position, nextBlockPos);                                                             
@@ -107,6 +108,8 @@ public class BlockMovement : MonoBehaviour
         return true;                                                                                                           
 
     }
+
+    // Checks if there's an edge - determines where the block cant move towards
     bool EdgeCheck()                                                                                                           
     {
         Ray myEdgeRay = new Ray(crateEdgeCheck.transform.position, -transform.up);                                              
@@ -116,7 +119,7 @@ public class BlockMovement : MonoBehaviour
         if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
         {
             string tag = hit.collider.name;
-            //Prevents block from moving onto bridge
+            // Prevents block from moving onto a bridge tile
             if (tag == "BridgeBlock")
             {
                 audioSource.PlayOneShot(cantPushCrateSFX);
@@ -129,7 +132,7 @@ public class BlockMovement : MonoBehaviour
         return false;                                                                                                      
     }
 
-    // Checks to see if the object can "fall" or not 
+    // Checks to see if the block can fall (into hole)
     void FallCheck()                                                                                                            
     {
         Ray myFallCheckRay = new Ray(transform.position, -transform.up);                                                        
@@ -140,10 +143,11 @@ public class BlockMovement : MonoBehaviour
              destination = hit.collider.gameObject.transform.position;                                                                                                                                                                                        
     }
 
-    // Resets the block to where it originally was placed
+    // Resets the block back to its original position
     public void resetPosition()
     {
         transform.position = startingPosition;
         Start();
     }
+
 }

@@ -11,16 +11,11 @@ public class OptionsMenu : MonoBehaviour
     public Toggle fullScreenTog, vsyncTog;
 
     public ResItem[] resolutions;
-
     public int selectedResolution;
-
     public TextMeshProUGUI resolutionLabel;
 
     public AudioMixer theMixer;
-
     public Slider masterSlider, musicSlider, sfxSlider;
-
-    public AudioSource sfxLoop;
 
     // Start is called before the first frame update
     void Start()
@@ -36,7 +31,7 @@ public class OptionsMenu : MonoBehaviour
             vsyncTog.isOn = true;
         }
 
-        //Search for resolution in the list
+        // Search for resolution in the list
         bool foundRes = false;
         for(int i = 0; i < resolutions.Length; i++)
         {
@@ -111,7 +106,7 @@ public class OptionsMenu : MonoBehaviour
             QualitySettings.vSyncCount = 0;
         }
 
-        //Set resolution
+        // Set resolution
         Screen.SetResolution(resolutions[selectedResolution].horizontal, resolutions[selectedResolution].vertical, fullScreenTog.isOn);
 
         Debug.Log("Graphic Settings Applied");
@@ -143,16 +138,6 @@ public class OptionsMenu : MonoBehaviour
         theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 22);
 
         PlayerPrefs.SetFloat("SFXVol", sfxVolumeSlider);
-    }
-
-    public void PlaySFXLoop()
-    {
-        sfxLoop.Play();
-    }
-
-    public void StopSFXLoop()
-    {
-        sfxLoop.Stop();
     }
 
 }

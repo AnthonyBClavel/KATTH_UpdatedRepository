@@ -20,7 +20,6 @@ public class IntroCredits : MonoBehaviour
         QualitySettings.vSyncCount = 1;
 
         StartCoroutine("PlayIntroCredits");
-
         StartCoroutine(LoadSceneAsync(levelToLoad));
     }
 
@@ -91,7 +90,7 @@ public class IntroCredits : MonoBehaviour
 
     }
 
-    // Loads the next scene in the background until the credits finishes
+    // Loads the next scene asynchronously until the credits finish
     IEnumerator LoadSceneAsync(string sceneName)
     {
         yield return new WaitForSeconds(2);
@@ -119,6 +118,5 @@ public class IntroCredits : MonoBehaviour
         yield return new WaitForSeconds(19.6f);
         asyncLoad.allowSceneActivation = true;
     }
-
 
 }

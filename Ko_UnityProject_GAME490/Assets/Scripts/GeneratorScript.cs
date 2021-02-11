@@ -20,7 +20,6 @@ public class GeneratorScript : MonoBehaviour
     private Animator anim;
     private string currentState;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -49,7 +48,7 @@ public class GeneratorScript : MonoBehaviour
 
     }
 
-    // Turns on the generator
+    // Turns on the generator immediately
     public void TurnOnGenerator()
     {
         canInteract = false;
@@ -63,7 +62,7 @@ public class GeneratorScript : MonoBehaviour
         ChangeAnimationState("GeneratorGears");
     }
 
-    // Turns off the generator
+    // Turns off the generator immediately
     public void TurnOffGenerator()
     {
         canInteract = true;
@@ -80,7 +79,7 @@ public class GeneratorScript : MonoBehaviour
         ChangeAnimationState("GeneratorIdle");
     }
 
-    // Function that changes the animation state of the generator
+    // Changes the animation state of the generator
     private void ChangeAnimationState(string newState)
     {
         anim.Play(newState);
@@ -97,6 +96,7 @@ public class GeneratorScript : MonoBehaviour
         steamParticle02.SetActive(true);
     }
 
+    // Increases the generator's volume until it reaches its max value
     public IEnumerator FadeInGeneratorVolume()
     {
         for (float i = 0f; i <= 1; i += 0.02f)
@@ -107,12 +107,12 @@ public class GeneratorScript : MonoBehaviour
         }
     }
 
-    // Reset the emmisive textures to default setting
+    // Resets the generator's emmisive textures to default settings after a delay
     public void resetEmissiveTextures()
     {
         StartCoroutine("ResetEmissiveTexturesDelay");
     }
-
+    
     private IEnumerator ResetEmissiveTexturesDelay()
     {
         yield return new WaitForSeconds(1f);
