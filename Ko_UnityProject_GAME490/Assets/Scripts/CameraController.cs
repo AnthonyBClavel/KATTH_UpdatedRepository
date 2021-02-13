@@ -81,7 +81,7 @@ public class CameraController : MonoBehaviour
         //Debug.Log("Switch Puzzle View");
         currentView = levelViews[currentIndex++];
 
-        if(SceneManager.GetActiveScene().name == "FithMap" || SceneManager.GetActiveScene().name == "FourthMap")
+        if(SceneManager.GetActiveScene().name == "FifthMap" || SceneManager.GetActiveScene().name == "FourthMap")
         {
             FindObjectOfType<GeneratorScript>().resetEmissiveTextures();
         }

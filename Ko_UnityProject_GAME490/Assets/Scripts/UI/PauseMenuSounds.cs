@@ -8,10 +8,10 @@ using UnityEngine.EventSystems;
 public class PauseMenuSounds : MonoBehaviour
 {
     private PauseMenu pauseMenuScript;
-    private bool pressedSFX; // To prevents spamming the button sfx sounds
+    public bool pressedSFX; // To prevents spamming the button sfx sounds
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
@@ -20,14 +20,14 @@ public class PauseMenuSounds : MonoBehaviour
     void Update()
     {
         // Resets the pressedSFX bool back to false based on these inputs
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
         {
             pressedSFX = false;
         }
-        if (pauseMenuScript.isOptionsMenu == true)
+        if (pauseMenuScript.isOptionsMenu == true || pauseMenuScript.canPlayButtonSFX == false)
         {
             pressedSFX = true;
-        }
+        }     
 
     }
 
@@ -43,7 +43,10 @@ public class PauseMenuSounds : MonoBehaviour
      * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
     public void PlayPauseMenuSound(AudioClip whichSound)
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return))
+            pressedSFX = false;
+
+        if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
             pressedSFX = false;
 
         if (!pressedSFX)
