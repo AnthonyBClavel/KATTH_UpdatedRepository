@@ -13,15 +13,16 @@ public class PauseMenu : MonoBehaviour
     [Header("Pause Menu Elements")]
     public GameObject optionsScreen;
     public GameObject safetyMenu;
-    public GameObject pauseMenu;
+    public GameObject pauseScreen;
+    public GameObject pauseScreenBG;
     public GameObject player;
     public GameObject pauseFirstButton, optionsFirstButton, optionsClosedButton, mainMenuButton, safetyFirstButton, safetySecondButton;
     public Animator pauseScreenAnim;
+    public Animator pauseScreenBgAnim;
+    public Animator optionsScreenAnim;
     public Animator safetyMenuAnim;
 
-    private GameObject lastSelectedObject;
-    private LevelFade levelFade;
-    private PauseMenuSounds pauseMenuSounds;
+    private GameObject lastSelectedObject;  
     private EventSystem eventSystem;
 
     [Header("Bools")]
@@ -30,7 +31,7 @@ public class PauseMenu : MonoBehaviour
     public bool canPause;
     public bool isSafetyMenu;
     public bool canPlayButtonSFX;
-    private bool isPaused;
+    public bool isPaused;
 
     [Header("Loading Screen Elements")]
     public GameObject loadingScreen, loadingIcon;
@@ -39,9 +40,7 @@ public class PauseMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        pauseMenuSounds = FindObjectOfType<PauseMenuSounds>();
         eventSystem = FindObjectOfType<EventSystem>();
-        levelFade = FindObjectOfType<LevelFade>();
         isChangingScenes = false;
         canPlayButtonSFX = true;
         //canPause = true;
@@ -86,7 +85,7 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         optionsScreen.SetActive(false);
-        pauseMenu.SetActive(false);
+        pauseScreen.SetActive(false);
         isPaused = false;
         player.GetComponent<TileMovementController>().enabled = true;
     }
@@ -95,8 +94,10 @@ public class PauseMenu : MonoBehaviour
     {
         StopCoroutine("ResumeDelay");      
         Time.timeScale = 0f;
-        pauseMenu.SetActive(true);
         isPaused = true;
+        canPause = false;
+        pauseScreen.SetActive(true);
+        pauseScreenBG.SetActive(true);      
         player.GetComponent<TileMovementController>().enabled = false;
 
         EnableMenuInputPS();
@@ -240,17 +241,21 @@ public class PauseMenu : MonoBehaviour
     // Delays the button input so you can actually see the button press animations
     private IEnumerator ResumeDelay()
     {
-        canPause = false;
         DisableMenuInputsPS();
-        yield return new WaitForSecondsRealtime(0.15f);
+
+        yield return new WaitForSecondsRealtime(0.15f);      
         pauseScreenAnim.SetTrigger("PS_PopOut");
-        Time.timeScale = 1f;
+        pauseScreenBgAnim.SetTrigger("PS_FadeOut");     
         optionsScreen.SetActive(false);
-        isPaused = false;
+        safetyMenu.SetActive(false);
         player.GetComponent<TileMovementController>().enabled = true;
+        Time.timeScale = 1f;
+
         yield return new WaitForSecondsRealtime(0.15f);
-        pauseMenu.SetActive(false);
+        isPaused = false;
         canPause = true;
+        pauseScreen.SetActive(false);
+        pauseScreenBG.SetActive(false);        
     }
 
     private IEnumerator OpenOptionsDelay()
@@ -258,61 +263,61 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
-        optionsScreen.SetActive(true);
+        pauseScreenAnim.SetTrigger("PS_PopOut"); // The pause menu is set inactive and the safety menu is set active at the end of the animation via anim event
 
+        yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsFirstButton);
+        EnableMenuInputPS();
     }
 
     private IEnumerator CloseOptionsDelay()
     {
-        EnableMenuInputPS();
+        DisableMenuInputsPS();
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = false;
-        optionsScreen.SetActive(false);
+        optionsScreenAnim.SetTrigger("OS_PopOut");
 
+        yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsClosedButton);
+        EnableMenuInputPS();
     }
 
     private IEnumerator OpenSafetyMenuDelay()
     {
         DisableMenuInputsPS();
         yield return new WaitForSecondsRealtime(0.15f);
-        pauseScreenAnim.SetTrigger("PS_PopOut02");
-        safetyMenu.SetActive(true);
+        pauseScreenAnim.SetTrigger("PS_PopOut");  // The pause menu is set inactive and the safety menu is set active at the end of the animation via anim event
         isSafetyMenu = true;
 
+        yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
-
-        yield return new WaitForSecondsRealtime(0.25f);
         EnableMenuInputPS();
     }
 
+    // For closing the safety menu when you press "no"
     private IEnumerator CloseSafetyMenuDelay()
     {
         DisableMenuInputsPS();
         yield return new WaitForSecondsRealtime(0.15f);
-        safetyMenuAnim.SetTrigger("SM_PopOut");      
+        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the pause menu is set active at the end of the animation via anim event     
         isSafetyMenu = false;
 
+        yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(mainMenuButton);
-
-        yield return new WaitForSecondsRealtime(0.25f);
         EnableMenuInputPS();
     }
 
+    // For closing the safety menu when you press "yes"
     private IEnumerator CloseSafetyMenuDelay02()
     {
         DisableMenuInputsPS();
         yield return new WaitForSecondsRealtime(0.15f);
         safetyMenuAnim.SetTrigger("SM_PopOut");
         isSafetyMenu = false;
-
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(mainMenuButton);
     }
 
     private void EnableMenuInputPS()
@@ -320,8 +325,8 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
         safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-        pauseMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-
+        pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     private void DisableMenuInputsPS()
@@ -329,7 +334,8 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
         safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
-        pauseMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
 
 
@@ -341,6 +347,7 @@ public class PauseMenu : MonoBehaviour
     }*/
 
     // Cant pause until the scene fully fades in (to avoid layering issues in UI)
+
     private IEnumerator DelayPauseMenuInput()
     {
         canPause = false;

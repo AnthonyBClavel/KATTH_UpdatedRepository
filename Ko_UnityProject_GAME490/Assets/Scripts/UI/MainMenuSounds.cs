@@ -11,7 +11,7 @@ public class MainMenuSounds : MonoBehaviour
     private bool pressedSFX; //prevents spamming the button sfx sounds
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         mainMenuScript = FindObjectOfType<MainMenu>();
     }
@@ -20,11 +20,11 @@ public class MainMenuSounds : MonoBehaviour
     void Update()
     {
         // Resets the pressedSFX bool back to false based on these inputs
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
         {
             pressedSFX = false;
         }
-        if (FindObjectOfType<MainMenu>().isOptionsMenu == true)
+        if (mainMenuScript.isOptionsMenu == true || mainMenuScript.canPlayButtonSFX == false)
         {
             pressedSFX = true;
         }
@@ -43,11 +43,14 @@ public class MainMenuSounds : MonoBehaviour
      * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
     public void PlayMainMenuSound(AudioClip whichSound)
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return))
+            pressedSFX = false;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
             pressedSFX = false;
 
         if (!pressedSFX)
-            FindObjectOfType<MainMenu>().GetComponent<AudioSource>().PlayOneShot(whichSound);
+            mainMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
 
         else return;
 

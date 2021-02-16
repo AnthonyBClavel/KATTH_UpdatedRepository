@@ -5,15 +5,19 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class PauseMenuSounds : MonoBehaviour
+public class MenuSounds : MonoBehaviour
 {
     private PauseMenu pauseMenuScript;
-    public bool pressedSFX; // To prevents spamming the button sfx sounds
+    private MainMenu mainMenuScript;
+    private bool pressedSFX; // To prevents spamming the button sfx sounds
 
     // Start is called before the first frame update
     void Awake()
     {
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+            mainMenuScript = FindObjectOfType<MainMenu>();
+        else
+            pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Update is called once per frame
@@ -24,10 +28,22 @@ public class PauseMenuSounds : MonoBehaviour
         {
             pressedSFX = false;
         }
-        if (pauseMenuScript.isOptionsMenu == true || pauseMenuScript.canPlayButtonSFX == false)
+
+        if(SceneManager.GetActiveScene().name == "MainMenu")
         {
-            pressedSFX = true;
-        }     
+            if (mainMenuScript.isOptionsMenu == true || mainMenuScript.canPlayButtonSFX == false)
+            {
+                pressedSFX = true;
+            }
+        }
+
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            if (pauseMenuScript.isOptionsMenu == true || pauseMenuScript.canPlayButtonSFX == false)
+            {
+                pressedSFX = true;
+            }
+        }
 
     }
 
@@ -41,17 +57,23 @@ public class PauseMenuSounds : MonoBehaviour
     /* the function plays a sound whenever you havn't pressed enter
      * if you have, then the function doesnt play a sound
      * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
-    public void PlayPauseMenuSound(AudioClip whichSound)
+    public void PlayMenuSound(AudioClip whichSound)
     {
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return))
             pressedSFX = false;
 
-        if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
             pressedSFX = false;
 
         if (!pressedSFX)
-            pauseMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
+        {
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+                mainMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
 
+            else
+                pauseMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
+        }
+            
         else return;
 
         pressedSFX = true;

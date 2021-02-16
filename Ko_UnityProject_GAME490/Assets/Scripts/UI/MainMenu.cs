@@ -14,13 +14,16 @@ public class MainMenu : MonoBehaviour
     [Header("Game Objects")]
     public GameObject optionsScreen;
     public GameObject mainMenuButtons;
-    public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton, newGameButton, creditsButton, quitGameButton;
+    public GameObject safetyMenu;
+    public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton, newGameButton, creditsButton, quitGameButton, safetyFirstButton, safetySecondButton;
     public GameObject loadingScreen, loadingIcon, pressEnterText, gameLogo;
     public GameObject PressEnterSFX;
 
     private GameObject lastSelectedObject;
-    private LevelFade levelFade;
     private EventSystem eventSystem;
+
+    [Header("Audio")]
+    public AudioClip buttonSelectSFX;
 
     [Header("Loading Screen Elements")]
     public TextMeshProUGUI loadingText;
@@ -31,19 +34,25 @@ public class MainMenu : MonoBehaviour
     public Animator titleScreenLogoAnim;
     public Animator pressEnterTextAnim;
     public Animator mainMenuButtonsAnim;
+    public Animator optionsScreenAnim;
+    public Animator safetyMenuAnim;
     public Animator lowPolySceneAnim;
 
     [Header("Bools")]
     public bool isOptionsMenu;
+    public bool canPlayButtonSFX;
+    public bool canFadeLogo;
+    public bool isQuitingGame;
+    public bool isSafetyMenu;
     private bool hasPressedEnter;
 
     // Start is called before the first frame update
     void Start()
     {    
-        StartCoroutine("setActiveDelay");
-
+        StartCoroutine("SetActiveDelay");
+        canPlayButtonSFX = true;
+        canFadeLogo = false;
         eventSystem = FindObjectOfType<EventSystem>();
-        levelFade = FindObjectOfType<LevelFade>();
 
         /*if (!SaveManager.hasSaveFile())
         {
@@ -66,6 +75,11 @@ public class MainMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu)
         {
             StartCoroutine("CloseOptionsDelay");
+        }
+        // Close safety menu by pressing ESC
+        if (Input.GetKeyDown(KeyCode.Escape) && isSafetyMenu)
+        {
+            StartCoroutine("CloseSafetyMenuDelay");
         }
 
         /*** For Debugging purposes ***/
@@ -95,7 +109,7 @@ public class MainMenu : MonoBehaviour
             SaveManager.DeleteGame();*/
 
         StartCoroutine("LoadLevelAsync");
-        Debug.Log("Continue Successful");
+        //Debug.Log("Continue Successful");
     }
 
     public void NewGame()
@@ -122,6 +136,29 @@ public class MainMenu : MonoBehaviour
     public void PlayCredits()
     {
         Debug.Log("Credits have been played");
+    }
+
+    public void OpenSafetyMenu()
+    {
+        StartCoroutine("OpenSafetyMenuDelay");
+    }
+
+    // For closing the saftey menu when you press "No"
+    public void CloseSafetyMenu()
+    {
+        StartCoroutine("CloseSafetyMenuDelay");
+    }
+
+    // For closing the saftey menu when you press "Yes"
+    public void CloseSafetyMenu02()
+    {
+        StartCoroutine("CloseSafetyMenuDelay02");
+    }
+
+    public void PopOut_MMB()
+    {
+        canFadeLogo = false;
+        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
     }
 
 
@@ -174,6 +211,24 @@ public class MainMenu : MonoBehaviour
         }
 
     }
+    public void SelectYesButton()
+    {
+        if (lastSelectedObject != safetyFirstButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(safetyFirstButton);
+        }
+
+    }
+    public void SelectNoButton()
+    {
+        if (lastSelectedObject != safetySecondButton)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(safetySecondButton);
+        }
+
+    }
     /*** On Pointer Enter functions end here ***/
 
 
@@ -212,27 +267,32 @@ public class MainMenu : MonoBehaviour
     }
 
     // Delays the button input so you can actually see the button press animations
-    private IEnumerator setActiveDelay()
+    private IEnumerator SetActiveDelay()
     {
         gameLogo.SetActive(true);
         hasPressedEnter = true;
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSecondsRealtime(4f);
         pressEnterText.SetActive(true);
         hasPressedEnter = false;
     }
 
     private IEnumerator OpenMainMenuDelay()
     {
-        yield return new WaitForSeconds(0.15f);
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
         pressEnterTextAnim.SetTrigger("TextExit");
         titleScreenLogoAnim.SetTrigger("MoveUp");
-        yield return new WaitForSeconds(0.4f);
+        yield return new WaitForSecondsRealtime(0.4f);
         FindObjectOfType<TitleScreenEffects>().SharpenBG();
         pressEnterText.SetActive(false);
         lowPolySceneAnim.SetTrigger("MoveDown");
-        yield return new WaitForSeconds(2.4f);
+        yield return new WaitForSecondsRealtime(2.4f);
         mainMenuButtons.SetActive(true);
 
+        yield return new WaitForSecondsRealtime(1.5f);
+        EnableMenuInputPS();
+        GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
+        mainMenuButtonsAnim.speed = 2;
         // Clear selected object
         EventSystem.current.SetSelectedGameObject(null);
         // Set new selected object
@@ -241,36 +301,102 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator NewGameDelay()
     {
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSecondsRealtime(0.15f);
         StartCoroutine(LoadLevelAsync());
     }
 
     private IEnumerator OpenOptionsDelay()
     {
-        levelFade.disableMenuInputs();
-        yield return new WaitForSeconds(0.15f);
-        optionsScreen.SetActive(true);
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
+        canFadeLogo = false;
+        mainMenuButtonsAnim.SetTrigger("MMB_PopOut"); // The main menu buttons are set inactive and the options menu is set active at the end of the animation via anim event
 
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(optionsFirstButton);
+        yield return new WaitForSecondsRealtime(0.85f);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(optionsFirstButton);
+        EnableMenuInputPS();
     }
 
     private IEnumerator CloseOptionsDelay()
     {
-        levelFade.enableMenuInputs();
-        yield return new WaitForSeconds(0.15f);
-        optionsScreen.SetActive(false);
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = false;
+        canFadeLogo = true;
+        optionsScreenAnim.SetTrigger("OS_PopOut"); // The options screen is set inactive and the main menu is set active at the end of the animation via anim event
 
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(optionsClosedButton);
+        yield return new WaitForSecondsRealtime(0.2f);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(optionsClosedButton);
+        EnableMenuInputPS();     
     }
+
+    private IEnumerator OpenSafetyMenuDelay()
+    {
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
+        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");  // The main menu is set inactive and the safety menu is set active at the end of the animation via anim event
+        isSafetyMenu = true;
+        canFadeLogo = false;
+
+        yield return new WaitForSecondsRealtime(0.85f);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(safetyFirstButton);
+        EnableMenuInputPS();
+    }
+
+    // For closing the safety menu when you press "no"
+    private IEnumerator CloseSafetyMenuDelay()
+    {
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
+        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the main menu is set active at the end of the animation via anim event     
+        isSafetyMenu = false;
+        canFadeLogo = true;
+        isQuitingGame = false;
+
+        yield return new WaitForSecondsRealtime(0.2f);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(quitGameButton);
+        EnableMenuInputPS();
+    }
+
+    // For closing the safety menu when you press "yes"
+    private IEnumerator CloseSafetyMenuDelay02()
+    {
+        DisableMenuInputPS();
+        yield return new WaitForSecondsRealtime(0.15f);
+        safetyMenuAnim.SetTrigger("SM_PopOut");
+        isSafetyMenu = false;
+        canFadeLogo = true;
+        isQuitingGame = true;
+    }
+
     private IEnumerator QuitGameDelay()
     {
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSecondsRealtime(0.15f);
         Application.Quit();
         Debug.Log("Quit Successful");
+    }
+
+    private void EnableMenuInputPS()
+    {
+        canPlayButtonSFX = true;
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
+        mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+    }
+
+    private void DisableMenuInputPS()
+    {
+        canPlayButtonSFX = false;
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
+        mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
 
     // Sets a random image/sprite for the loading screen
