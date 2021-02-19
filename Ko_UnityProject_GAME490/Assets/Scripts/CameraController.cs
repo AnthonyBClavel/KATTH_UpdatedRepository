@@ -21,11 +21,19 @@ public class CameraController : MonoBehaviour
     Transform currentView;
     private AudioSource audioSource;
     private AmbientLoopingSFXManager theALSM;
+    private SaveManagerScript saveManagerScript;
+
+    void Awake()
+    {
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        saveManagerScript.LoadCameraPosition();       
+    }
 
     // Start is called before the first frame update
     void Start()
     {       
-        currentView = levelViews[currentIndex]; 
+        //currentView = levelViews[currentIndex];
+        gameObject.transform.position = levelViews[currentIndex].transform.position;
 
         instance = this;
 
@@ -81,7 +89,9 @@ public class CameraController : MonoBehaviour
         //Debug.Log("Switch Puzzle View");
         currentView = levelViews[currentIndex++];
 
-        if(SceneManager.GetActiveScene().name == "FifthMap" || SceneManager.GetActiveScene().name == "FourthMap")
+        saveManagerScript.SaveCameraPosition();
+
+        if (SceneManager.GetActiveScene().name == "FifthMap" || SceneManager.GetActiveScene().name == "FourthMap")
         {
             FindObjectOfType<GeneratorScript>().resetEmissiveTextures();
         }

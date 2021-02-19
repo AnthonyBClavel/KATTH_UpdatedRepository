@@ -28,7 +28,7 @@ public class ReselectLastSelectedOnInput : MonoBehaviour
              (Input.GetAxisRaw(standaloneInputModule.verticalAxis) != 0) ||
              (Input.GetButtonDown(standaloneInputModule.submitButton)) ||
              (Input.GetButtonDown(standaloneInputModule.cancelButton)) ||
-             (Input.GetMouseButton(0)))          
+             (Input.GetMouseButton(0)) || (Input.GetMouseButton(1)) || (Input.GetMouseButton(2)))        
         {
             // Reselect the cached 'lastSelectedObject'
             ReselectLastObject();

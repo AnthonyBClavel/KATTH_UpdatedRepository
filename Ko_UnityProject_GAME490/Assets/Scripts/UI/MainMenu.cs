@@ -46,9 +46,14 @@ public class MainMenu : MonoBehaviour
     public bool isSafetyMenu;
     private bool hasPressedEnter;
 
+    void Awake()
+    {
+        DetermineLevelToLoad();
+    }
+
     // Start is called before the first frame update
     void Start()
-    {    
+    {
         StartCoroutine("SetActiveDelay");
         canPlayButtonSFX = true;
         canFadeLogo = false;
@@ -63,6 +68,8 @@ public class MainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //DetermineLevelToLoad();
+
         // If enter is already pressed once, you cannot call this function again
         if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
         {
@@ -107,14 +114,33 @@ public class MainMenu : MonoBehaviour
             levelToLoad = save.getSceneName();
         else
             SaveManager.DeleteGame();*/
-
-        StartCoroutine("LoadLevelAsync");
-        //Debug.Log("Continue Successful");
+        
+        Debug.Log("Continue Game successful");
+        StartCoroutine("LoadLevelAsync");       
     }
 
     public void NewGame()
     {
         //SaveManager.DeleteGame();
+        Debug.Log("New Game created");
+
+        PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_z");
+        PlayerPrefs.DeleteKey("r_y");
+
+        PlayerPrefs.DeleteKey("pc_x");
+        PlayerPrefs.DeleteKey("pc_y");
+        PlayerPrefs.DeleteKey("pc_z");
+        PlayerPrefs.DeleteKey("cameraIndex");
+
+        PlayerPrefs.DeleteKey("TimeToLoad");
+        PlayerPrefs.DeleteKey("Save");
+        PlayerPrefs.DeleteKey("savedScene");
+
+        //string tutorialScene = "TutorialMap";
+        //PlayerPrefs.SetString("savedScene", tutorialScene);
+
+        levelToLoad = "TutorialMap";
         StartCoroutine("LoadLevelAsync");
     }
 
@@ -231,10 +257,10 @@ public class MainMenu : MonoBehaviour
     }
     /*** On Pointer Enter functions end here ***/
 
-
     // Loads the next level asynchronously while the loading screen is active
     public IEnumerator LoadLevelAsync()
     {
+        DetermineLevelToLoad();
         loadingScreen.SetActive(true);
         ChangeLoadingScreenImg();
 
@@ -266,6 +292,19 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    // Checks which scene to load when your save file is deleted/null
+    private void DetermineLevelToLoad()
+    {
+        if (string.IsNullOrWhiteSpace(levelToLoad) == true)
+        {
+            levelToLoad = "TutorialMap";
+        }
+        else if (string.IsNullOrWhiteSpace(levelToLoad) == false)
+        {
+            levelToLoad = PlayerPrefs.GetString("savedScene");
+        }
+    }
+
     // Delays the button input so you can actually see the button press animations
     private IEnumerator SetActiveDelay()
     {
@@ -288,15 +327,15 @@ public class MainMenu : MonoBehaviour
         lowPolySceneAnim.SetTrigger("MoveDown");
         yield return new WaitForSecondsRealtime(2.4f);
         mainMenuButtons.SetActive(true);
-
-        yield return new WaitForSecondsRealtime(1.5f);
-        EnableMenuInputPS();
-        GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
-        mainMenuButtonsAnim.speed = 2;
         // Clear selected object
         EventSystem.current.SetSelectedGameObject(null);
         // Set new selected object
         EventSystem.current.SetSelectedGameObject(continueFirstButton);
+
+        yield return new WaitForSecondsRealtime(1.5f);
+        EnableMenuInputPS();
+        //GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
+        mainMenuButtonsAnim.speed = 2;
     }
 
     private IEnumerator NewGameDelay()

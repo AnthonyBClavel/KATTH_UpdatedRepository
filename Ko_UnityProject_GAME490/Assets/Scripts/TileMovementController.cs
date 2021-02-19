@@ -38,6 +38,7 @@ public class TileMovementController : MonoBehaviour
     public TorchMeterStat torchMeterMoves;
     private LevelManager levelManagerScript;
     private TorchMeterScript torchMeterScript;
+    private SaveManagerScript SaveManagerScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
@@ -54,9 +55,12 @@ public class TileMovementController : MonoBehaviour
     private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views
     private bool canRestartPuzzle;                              // Determines when the player can press "R" (restart puzzle)
 
-    private void Awake()
+    void Awake()
     {
         torchMeterMoves.Initialize();
+
+        SaveManagerScript = FindObjectOfType<SaveManagerScript>();
+        SaveManagerScript.LoadPlayerPosition();
     }
 
     void Start()
@@ -118,6 +122,7 @@ public class TileMovementController : MonoBehaviour
             isWalking = false;
             checkIfOnCheckpoint();
             levelManagerScript.checkIfCompletedLevel();
+
             // If player's torch meter runs out...
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
             {
@@ -297,6 +302,15 @@ public class TileMovementController : MonoBehaviour
                 CheckToPlayAnims();
                 break;
 
+            case ("Crystal"):
+                collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);
+                collider.gameObject.GetComponentInChildren<SetCrystalGlowActive>().SetGlowActive();
+                collider.gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalIdleAnim();
+                isWalking = false;
+                isPushing = true;
+                CheckToPlayAnims();
+                break;
+
             case ("Obstacle"):
                 if (collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(currentDirection))
                     torchMeterMoves.CurrentVal--;
@@ -425,13 +439,14 @@ public class TileMovementController : MonoBehaviour
         // Sets the new torch meter value based on the checkpoint's value
         int newNumMovements = checkpoint.GetComponent<CheckpointManager>().getNumMovements();
         torchMeterMoves.setMaxValue(newNumMovements);
+       
 
         // If this is the first time we visited this checkpoint
         if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
         {
             checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
             ResetTorchMeter();
-
+            SaveManagerScript.SavePlayerPosition();
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
@@ -482,6 +497,7 @@ public class TileMovementController : MonoBehaviour
         if (canRestartPuzzle)
         {
             checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
+            //crystalGlowScript.ResetCrystalsImmediatley();
             ResetTorchMeter();
 
             Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
@@ -490,6 +506,9 @@ public class TileMovementController : MonoBehaviour
                 GameObject child = puzzle.transform.GetChild(i).gameObject;
                 if (child.name == "Pushable Blocks")
                     child.GetComponent<ResetPushableBlocks>().resetBlocks();
+
+                else if (child.name == "Crystal Blocks")
+                    child.GetComponent<ResetCrystalBlocks>().ResetCrystals();
 
                 else if (child.name == "Breakable Blocks")
                     child.GetComponent<ResetBreakableBlocks>().resetBlocks();
@@ -514,6 +533,9 @@ public class TileMovementController : MonoBehaviour
             GameObject child = puzzle.transform.GetChild(i).gameObject;
             if (child.name == "Pushable Blocks")
                 child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
+
+            else if (child.name == "Crystal Blocks")
+                child.GetComponent<ResetCrystalBlocks>().StartCoroutine("ResetCrystalsWithDelay", 1.5f);
 
             else if (child.name == "Breakable Blocks")
                 child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);

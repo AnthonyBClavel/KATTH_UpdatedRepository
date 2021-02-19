@@ -99,7 +99,7 @@ public class BlockMovementController : MonoBehaviour
         if (Physics.Raycast(myRay, out hit, rayLength))                                                                         
         {
             string tag = hit.collider.tag;
-            if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone" | tag == "Generator" | tag == "InvisibleBlock") 
+            if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone" | tag == "Generator" | tag == "InvisibleBlock" || tag == "Crystal") 
             {
                 audioSource.PlayOneShot(cantPushCrateSFX);                                                                 
                 return false;                                                                                                  

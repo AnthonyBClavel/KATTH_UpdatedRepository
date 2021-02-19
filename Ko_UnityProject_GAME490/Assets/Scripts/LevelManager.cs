@@ -20,7 +20,12 @@ public class LevelManager : MonoBehaviour
     private Animator playerAnimator;
     private TileMovementController playerScript;
     private LevelFade levelFadeScript;
-    
+    private SaveManagerScript saveMangerScript;
+
+    void Awake()
+    {
+        saveMangerScript = FindObjectOfType<SaveManagerScript>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -60,6 +65,8 @@ public class LevelManager : MonoBehaviour
 
                 if (Input.anyKeyDown)
                 {
+                    saveMangerScript.CreateNewSaveFile();
+
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);

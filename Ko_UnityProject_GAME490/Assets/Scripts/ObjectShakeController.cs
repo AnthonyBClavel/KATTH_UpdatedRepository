@@ -61,7 +61,10 @@ public class ObjectShakeController : MonoBehaviour
     {
         StaticBlockSFX();                                                                                                   
 
-        Instantiate(particleEffect, gameObject.transform.position, gameObject.transform.rotation);                          
+        if(gameObject.name == "GreenCrystal")
+            Instantiate(particleEffect, gameObject.transform.position + new Vector3(0, 0.5f, 0), gameObject.transform.rotation);
+        else
+            Instantiate(particleEffect, gameObject.transform.position, gameObject.transform.rotation);                          
 
         shakeTimeRemaining = length;
         shakePower = power;
