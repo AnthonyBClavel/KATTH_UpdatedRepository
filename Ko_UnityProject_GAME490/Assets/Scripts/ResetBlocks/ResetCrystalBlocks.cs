@@ -31,21 +31,27 @@ public class ResetCrystalBlocks : MonoBehaviour
     // Checks to see if each crystal's light component has an intesity value of 1f
     public void CheckCrystalIntesities()
     {
+        bool allLit = true;
+
         for (int i = 0; i < transform.childCount; i++)
         {
-            if (transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().crystalGlow.activeSelf)
+            if (!transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().crystalGlow.activeSelf)
+                allLit = false;                    
+        }
+
+        if (allLit)
+        {
+            for (int i = 0; i < transform.childCount; i++)
             {
                 transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().DisableCrystalFade();
                 transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalIdleAnim();
 
-                if(!canPlaySFX)
+                if (!canPlaySFX)
                 {
                     audioSource.Play();
                     canPlaySFX = true;
                 }
             }
-            else
-                return;                     
         }
     }
 

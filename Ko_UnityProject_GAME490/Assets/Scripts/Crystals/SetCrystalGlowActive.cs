@@ -34,7 +34,7 @@ public class SetCrystalGlowActive : MonoBehaviour
     // Resets the glowing animation for the crystal, but only after it fades in
     public void ResetCrystalIdleAnim()
     {
-        if(crystalAnimScript.canResetIdle == true)
+        if(crystalAnimScript.canResetIdle)
             crystalAnim.SetTrigger("Idle");
     }
 
