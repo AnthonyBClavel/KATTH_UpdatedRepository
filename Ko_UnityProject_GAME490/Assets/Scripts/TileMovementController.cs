@@ -8,8 +8,9 @@ public class TileMovementController : MonoBehaviour
 {
     public Camera main_camera;
     public Animator Anim;
-    public GameObject edgeCheck;
+    public GameObject edgeCheck;   
     private AudioSource audioSource;
+    private GameObject savedInvisibleBlock;
     private string currentState;
 
     Vector3 up = Vector3.zero,                                  // Object look North
@@ -38,7 +39,7 @@ public class TileMovementController : MonoBehaviour
     public TorchMeterStat torchMeterMoves;
     private LevelManager levelManagerScript;
     private TorchMeterScript torchMeterScript;
-    private SaveManagerScript SaveManagerScript;
+    private SaveManagerScript saveManagerScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
@@ -58,9 +59,11 @@ public class TileMovementController : MonoBehaviour
     void Awake()
     {
         torchMeterMoves.Initialize();
+        savedInvisibleBlock = GameObject.Find("SavedInvisibleBlock");
 
-        SaveManagerScript = FindObjectOfType<SaveManagerScript>();
-        SaveManagerScript.LoadPlayerPosition();
+        //saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        //saveManagerScript.LoadPlayerPosition();
+        //saveManagerScript.LoadBlockPosition();
     }
 
     void Start()
@@ -446,7 +449,8 @@ public class TileMovementController : MonoBehaviour
         {
             checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
             ResetTorchMeter();
-            SaveManagerScript.SavePlayerPosition();
+            saveManagerScript.SavePlayerPosition();
+            saveManagerScript.SaveCameraPosition();
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
@@ -483,6 +487,12 @@ public class TileMovementController : MonoBehaviour
             if (tag == "ResetCameraBool" && hasMovedPuzzleView && hasAlreadyPopedOut)
             {
                 hasMovedPuzzleView = false;
+            }
+            if (tag == "LastBridgeTile" && isWalking)
+            {
+                Debug.Log("Invisible Block Position has been saved");
+                savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
+                saveManagerScript.SaveBlockPosition();
             }
             return true;
         }

@@ -25,8 +25,8 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        saveManagerScript.LoadCameraPosition();       
+        //saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        //saveManagerScript.LoadCameraPosition();       
     }
 
     // Start is called before the first frame update
@@ -87,9 +87,7 @@ public class CameraController : MonoBehaviour
     public void NextPuzzleView02()
     {
         //Debug.Log("Switch Puzzle View");
-        currentView = levelViews[currentIndex++];
-
-        saveManagerScript.SaveCameraPosition();
+        currentView = levelViews[currentIndex++];       
 
         if (SceneManager.GetActiveScene().name == "FifthMap" || SceneManager.GetActiveScene().name == "FourthMap")
         {

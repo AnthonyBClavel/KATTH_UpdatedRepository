@@ -68,8 +68,6 @@ public class MainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //DetermineLevelToLoad();
-
         // If enter is already pressed once, you cannot call this function again
         if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
         {
@@ -88,6 +86,14 @@ public class MainMenu : MonoBehaviour
         {
             StartCoroutine("CloseSafetyMenuDelay");
         }
+        
+        /*** Debugging: To load the FifthMap via main menu ***/
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            string fifthWorld = "FifthMap";
+            PlayerPrefs.SetString("savedScene", fifthWorld);
+        }
+        /*** Debugging ends here ***/
 
         /*** For Debugging purposes ***/
         /*if (Input.GetKeyDown(KeyCode.Delete))
@@ -121,26 +127,7 @@ public class MainMenu : MonoBehaviour
 
     public void NewGame()
     {
-        //SaveManager.DeleteGame();
-        Debug.Log("New Game created");
-
-        PlayerPrefs.DeleteKey("p_x");
-        PlayerPrefs.DeleteKey("p_z");
-        PlayerPrefs.DeleteKey("r_y");
-
-        PlayerPrefs.DeleteKey("pc_x");
-        PlayerPrefs.DeleteKey("pc_y");
-        PlayerPrefs.DeleteKey("pc_z");
-        PlayerPrefs.DeleteKey("cameraIndex");
-
-        PlayerPrefs.DeleteKey("TimeToLoad");
-        PlayerPrefs.DeleteKey("Save");
-        PlayerPrefs.DeleteKey("savedScene");
-
-        //string tutorialScene = "TutorialMap";
-        //PlayerPrefs.SetString("savedScene", tutorialScene);
-
-        levelToLoad = "TutorialMap";
+        CreateNewSaveFile();
         StartCoroutine("LoadLevelAsync");
     }
 
@@ -290,6 +277,31 @@ public class MainMenu : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    public void CreateNewSaveFile()
+    {
+        Debug.Log("Updated Save File");
+
+        PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_z");
+        PlayerPrefs.DeleteKey("r_y");
+
+        PlayerPrefs.DeleteKey("b_x");
+        PlayerPrefs.DeleteKey("b_y");
+        PlayerPrefs.DeleteKey("b_z");
+
+        PlayerPrefs.DeleteKey("pc_x");
+        PlayerPrefs.DeleteKey("pc_y");
+        PlayerPrefs.DeleteKey("pc_z");
+        PlayerPrefs.DeleteKey("cameraIndex");
+
+        PlayerPrefs.DeleteKey("TimeToLoad");
+        PlayerPrefs.DeleteKey("Save");
+        //PlayerPrefs.DeleteKey("savedScene");
+
+        string tutorialScene = "TutorialMap";
+        PlayerPrefs.SetString("savedScene", tutorialScene);
     }
 
     // Checks which scene to load when your save file is deleted/null

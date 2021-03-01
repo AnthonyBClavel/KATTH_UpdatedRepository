@@ -10,6 +10,8 @@ public class BlockMovementController : MonoBehaviour
     public GameObject crateEdgeCheck;
     public AudioClip pushCrateSFX;
     public AudioClip cantPushCrateSFX;
+    public AudioSource crateSlideSFX;
+    public AudioSource crateFallSFX;
 
     Vector3 up = Vector3.zero,                                 
     right = new Vector3(0, 90, 0),                           
@@ -25,6 +27,7 @@ public class BlockMovementController : MonoBehaviour
     float rayFalleCheck = 1f;
 
     private AudioSource audioSource;
+    private bool hasPlayedSFX;
 
     void Start()
     {
@@ -51,7 +54,7 @@ public class BlockMovementController : MonoBehaviour
             {
                 destination = transform.position + nextBlockPos;
                 direction = nextBlockPos;
-                audioSource.PlayOneShot(pushCrateSFX);
+                PlayCanPushSFX();             
                 return true;
             }
         }
@@ -101,7 +104,7 @@ public class BlockMovementController : MonoBehaviour
             string tag = hit.collider.tag;
             if (tag == "Obstacle" | tag == "StaticBlock" | tag == "DestroyableBlock" | tag == "FireStone" | tag == "Generator" | tag == "InvisibleBlock" || tag == "Crystal") 
             {
-                audioSource.PlayOneShot(cantPushCrateSFX);                                                                 
+                PlayCantPushSFX();                                                                 
                 return false;                                                                                                  
             }
         }
@@ -122,13 +125,13 @@ public class BlockMovementController : MonoBehaviour
             // Prevents block from moving onto a bridge tile
             if (tag == "BridgeBlock")
             {
-                audioSource.PlayOneShot(cantPushCrateSFX);
+                PlayCantPushSFX();
                 return false;
             }
             return true;
         }
-        
-        audioSource.PlayOneShot(cantPushCrateSFX);                                                                               
+
+        PlayCantPushSFX();
         return false;                                                                                                      
     }
 
@@ -140,7 +143,14 @@ public class BlockMovementController : MonoBehaviour
         Debug.DrawRay(myFallCheckRay.origin, myFallCheckRay.direction, Color.red);                                             
 
         if (Physics.Raycast(myFallCheckRay, out hit, rayFalleCheck) && hit.collider.tag == "EmptyBlock")
-             destination = hit.collider.gameObject.transform.position;                                                                                                                                                                                        
+        {
+            destination = hit.collider.gameObject.transform.position;
+            if(!hasPlayedSFX)
+            {
+                PlayCrateFallSFX();
+                hasPlayedSFX = true;
+            }             
+        }           
     }
 
     // Resets the block back to its original position
@@ -148,6 +158,30 @@ public class BlockMovementController : MonoBehaviour
     {
         transform.position = startingPosition;
         Start();
+    }
+
+    private void PlayCantPushSFX()
+    {
+        audioSource.volume = 0.9f;
+        audioSource.pitch = 1.0f;
+        audioSource.PlayOneShot(cantPushCrateSFX);
+    }
+
+    private void PlayCanPushSFX()
+    {
+        hasPlayedSFX = false;
+        audioSource.volume = 0.72f;
+        audioSource.pitch = 0.9f;
+        audioSource.PlayOneShot(pushCrateSFX);
+        crateSlideSFX.volume = 0.06f;
+        crateSlideSFX.Play();
+    }
+
+    private void PlayCrateFallSFX()
+    {
+        //crateFallSFX.volume = 0.5f;
+        //crateFallSFX.pitch = 0.75f;
+        crateFallSFX.Play();
     }
 
 }

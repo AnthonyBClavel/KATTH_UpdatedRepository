@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class SaveManagerScript : MonoBehaviour
 {
     public GameObject player;
+    public GameObject savedInvisibleBlock;
     public GameObject pixelatedCamera;
 
     private string sceneName;
@@ -13,6 +14,10 @@ public class SaveManagerScript : MonoBehaviour
     private float pX;
     private float pZ;
     private float rY;
+
+    private float bX;
+    private float bY;
+    private float bZ;
 
     // Start is called before the first frame update
     void Awake()
@@ -27,12 +32,26 @@ public class SaveManagerScript : MonoBehaviour
             pZ = player.transform.position.z;
             rY = player.transform.eulerAngles.y;
 
+            bX = savedInvisibleBlock.transform.position.x;
+            bY = savedInvisibleBlock.transform.position.y;
+            bZ = savedInvisibleBlock.transform.position.z;
+
             pX = PlayerPrefs.GetFloat("p_x");
             pZ = PlayerPrefs.GetFloat("p_z");
             rY = PlayerPrefs.GetFloat("r_y");
 
+            bX = PlayerPrefs.GetFloat("b_x");
+            bY = PlayerPrefs.GetFloat("b_y");
+            bZ = PlayerPrefs.GetFloat("b_z");
+
             player.transform.position = new Vector3(pX, 0, pZ);
             player.transform.eulerAngles = new Vector3(0, rY, 0);
+
+            savedInvisibleBlock.transform.position = new Vector3(bX, bY, bZ);
+
+            // If a new game is created or if the PlayerPrefs is null, set the savedInvisibleBlock to its default position
+            if(savedInvisibleBlock.transform.position == new Vector3(0,0,0))
+                savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
 
             pixelatedCamera.GetComponent<CameraController>().currentIndex = PlayerPrefs.GetInt("cameraIndex");
 
@@ -53,6 +72,10 @@ public class SaveManagerScript : MonoBehaviour
             PlayerPrefs.DeleteKey("p_x");
             PlayerPrefs.DeleteKey("p_z");
             PlayerPrefs.DeleteKey("r_y");
+
+            PlayerPrefs.DeleteKey("b_x");
+            PlayerPrefs.DeleteKey("b_y");
+            PlayerPrefs.DeleteKey("b_z");
 
             PlayerPrefs.DeleteKey("pc_x");
             PlayerPrefs.DeleteKey("pc_y");
@@ -80,8 +103,7 @@ public class SaveManagerScript : MonoBehaviour
             PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
-        }
-        
+        }     
     }
 
     public void LoadPlayerPosition()
@@ -107,6 +129,24 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    public void SaveBlockPosition()
+    {
+        if (SceneManager.GetActiveScene().name != "TutorialMap")
+        {
+            PlayerPrefs.SetFloat("b_x", savedInvisibleBlock.transform.position.x);
+            PlayerPrefs.SetFloat("b_y", savedInvisibleBlock.transform.position.y);
+            PlayerPrefs.SetFloat("b_z", savedInvisibleBlock.transform.position.z);
+            PlayerPrefs.SetInt("Saved", 1);
+            PlayerPrefs.Save();
+        }
+
+    }
+    public void LoadBlockPosition()
+    {
+        PlayerPrefs.SetInt("TimeToLoad", 1);
+        PlayerPrefs.Save();
+    }
+
     public void SaveSceneName()
     {
         sceneName = SceneManager.GetActiveScene().name;
@@ -122,6 +162,10 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.DeleteKey("p_x");
         PlayerPrefs.DeleteKey("p_z");
         PlayerPrefs.DeleteKey("r_y");
+
+        PlayerPrefs.DeleteKey("b_x");
+        PlayerPrefs.DeleteKey("b_y");
+        PlayerPrefs.DeleteKey("b_z");
 
         PlayerPrefs.DeleteKey("pc_x");
         PlayerPrefs.DeleteKey("pc_y");

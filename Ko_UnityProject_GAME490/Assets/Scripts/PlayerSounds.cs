@@ -78,7 +78,7 @@ public class PlayerSounds : MonoBehaviour
             }
             else if (hit.collider.tag == "Obstacle")
             {
-                audioSource.volume = 0.36f; //0.34f
+                audioSource.volume = 0.4f; //0.34f
                 audioSource.pitch = 1.0f;
                 WoodenCrateFootsteps();
             }
