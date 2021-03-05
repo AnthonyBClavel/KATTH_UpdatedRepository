@@ -49,19 +49,25 @@ public class TileMovementController : MonoBehaviour
     [Header("Bools")]
     public bool isWalking;                                      // Determines when to play an object's animation
     public bool hasDied = false;
+    public bool canMove = true;
+    public bool canInteract = true;
+    public bool canRestartPuzzle;                               // Determines when the player can press "R" (restart puzzle)
     private bool isPushing;                                     // Determines when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
     private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views
-    private bool canRestartPuzzle;                              // Determines when the player can press "R" (restart puzzle)
+    
 
     void Awake()
     {
         torchMeterMoves.Initialize();
         savedInvisibleBlock = GameObject.Find("SavedInvisibleBlock");
 
-        //saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        levelManagerScript = FindObjectOfType<LevelManager>();
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
         //saveManagerScript.LoadPlayerPosition();
         //saveManagerScript.LoadBlockPosition();
     }
@@ -87,9 +93,6 @@ public class TileMovementController : MonoBehaviour
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
         destination = transform.position; // The point where the object is currently at
-
-        levelManagerScript = FindObjectOfType<LevelManager>();
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
     }
 
     void Update()
@@ -176,7 +179,7 @@ public class TileMovementController : MonoBehaviour
     {
         /*** Movement inputs start here ***/
         // W key (North)
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) && canMove)
         {
             nextPos = Vector3.forward;
             currentDirection = up;
@@ -184,7 +187,7 @@ public class TileMovementController : MonoBehaviour
         }
 
         // S key (South)
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKeyDown(KeyCode.S) && canMove)
         {
             nextPos = Vector3.back;
             currentDirection = down;
@@ -192,7 +195,7 @@ public class TileMovementController : MonoBehaviour
         }
 
         // D key (East)
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (Input.GetKeyDown(KeyCode.D) && canMove)
         {
             nextPos = Vector3.right;
             currentDirection = right;
@@ -200,7 +203,7 @@ public class TileMovementController : MonoBehaviour
         }
 
         // A key (West)
-        else if (Input.GetKeyDown(KeyCode.A))
+        else if (Input.GetKeyDown(KeyCode.A) && canMove)
         {
             nextPos = Vector3.left;
             currentDirection = left;
@@ -212,7 +215,7 @@ public class TileMovementController : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
 
         // Hit Return to interact/break block
-        else if (Input.GetKeyDown(KeyCode.Return))
+        else if (Input.GetKeyDown(KeyCode.Return) && canInteract)
         {
             Collider collider = getCollider();
             if (collider == null) return false;
@@ -307,8 +310,8 @@ public class TileMovementController : MonoBehaviour
 
             case ("Crystal"):
                 collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);
-                collider.gameObject.GetComponentInChildren<SetCrystalGlowActive>().SetGlowActive();
-                collider.gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalIdleAnim();
+                collider.gameObject.GetComponentInChildren<CrystalsManager>().SetGlowActive();
+                collider.gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
                 isWalking = false;
                 isPushing = true;
                 CheckToPlayAnims();
@@ -441,8 +444,7 @@ public class TileMovementController : MonoBehaviour
 
         // Sets the new torch meter value based on the checkpoint's value
         int newNumMovements = checkpoint.GetComponent<CheckpointManager>().getNumMovements();
-        torchMeterMoves.setMaxValue(newNumMovements);
-       
+        torchMeterMoves.setMaxValue(newNumMovements);    
 
         // If this is the first time we visited this checkpoint
         if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
@@ -450,7 +452,7 @@ public class TileMovementController : MonoBehaviour
             checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
             ResetTorchMeter();
             saveManagerScript.SavePlayerPosition();
-            saveManagerScript.SaveCameraPosition();
+            saveManagerScript.SaveCameraPosition();          
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
@@ -561,6 +563,22 @@ public class TileMovementController : MonoBehaviour
         hasDied = true;
     }
 
+    
+    public void SetPlayerBoolsFalse()
+    {
+        canRestartPuzzle = false;
+        canMove = false;
+        canInteract = false;
+    }
+
+    public void SetPlayerBoolsTrue()
+    {
+        canRestartPuzzle = true;
+        canMove = true;
+        canInteract = true;
+    }
+
+
     // Plays a new animation state
     private void ChangeAnimationState(string newState)
     {
@@ -608,5 +626,11 @@ public class TileMovementController : MonoBehaviour
     {
         return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
     }
+
+    // Updates the puzzle number in the GameHUD via Checkpoint Script
+    /*private void SetPuzzleNumber()
+    {
+        //gameHUDScript.puzzleNumber.text = "Puzzle: " + checkpoint.GetComponent<CheckpointManager>().getPuzzleNumber() + "/10";
+    }*/
 
 }

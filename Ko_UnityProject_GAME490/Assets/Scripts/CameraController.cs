@@ -22,11 +22,15 @@ public class CameraController : MonoBehaviour
     private AudioSource audioSource;
     private AmbientLoopingSFXManager theALSM;
     private SaveManagerScript saveManagerScript;
+    private GameHUD gameHUDScript;
 
     void Awake()
     {
         //saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        //saveManagerScript.LoadCameraPosition();       
+        //saveManagerScript.LoadCameraPosition(); 
+
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
     }
 
     // Start is called before the first frame update
@@ -35,11 +39,9 @@ public class CameraController : MonoBehaviour
         //currentView = levelViews[currentIndex];
         gameObject.transform.position = levelViews[currentIndex].transform.position;
 
+        SetPuzzleNumber();
         instance = this;
-
-        audioSource = GetComponent<AudioSource>();                        
-
-        theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
+        audioSource = GetComponent<AudioSource>();                               
     }
 
     void Update()
@@ -87,7 +89,8 @@ public class CameraController : MonoBehaviour
     public void NextPuzzleView02()
     {
         //Debug.Log("Switch Puzzle View");
-        currentView = levelViews[currentIndex++];       
+        currentView = levelViews[currentIndex++];
+        SetPuzzleNumber();
 
         if (SceneManager.GetActiveScene().name == "FifthMap" || SceneManager.GetActiveScene().name == "FourthMap")
         {
@@ -127,5 +130,13 @@ public class CameraController : MonoBehaviour
         return clips[UnityEngine.Random.Range(0, clips.Length)];
     }
 
+    // Updates the puzzle number in the GameHUD via Camera Script
+    private void SetPuzzleNumber()
+    {
+        if (SceneManager.GetActiveScene().name != "TutorialMap")
+            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/10";
+        else
+            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";
+    }
 
 }

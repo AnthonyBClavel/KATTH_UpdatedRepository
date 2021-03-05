@@ -25,14 +25,15 @@ public class LevelManager : MonoBehaviour
     void Awake()
     {
         saveMangerScript = FindObjectOfType<SaveManagerScript>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        levelFadeScript = FindObjectOfType<LevelFade>();
+        playerAnimator = FindObjectOfType<TileMovementController>().GetComponentInChildren<Animator>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        playerAnimator = FindObjectOfType<TileMovementController>().GetComponentInChildren<Animator>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        levelFadeScript = FindObjectOfType<LevelFade>();
+        
     }
 
     // Update is called once per frame
@@ -105,7 +106,7 @@ public class LevelManager : MonoBehaviour
     {
         levelFadeScript.FadeOutToNextLevel();
         //playerAnimator.SetTrigger("Idle");
-        playerScript.enabled = false;
+        playerScript.SetPlayerBoolsFalse();
     }
 
     // Sets a random image/sprite for the loading screen

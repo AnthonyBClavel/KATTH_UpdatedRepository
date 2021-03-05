@@ -72,7 +72,7 @@ public class PlayerSounds : MonoBehaviour
             }
             else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.name == "BridgeBlock")
             {
-                audioSource.volume = 0.75f;
+                audioSource.volume = 0.8f; //0.75f
                 audioSource.pitch = 0.9f;
                 WoodFootsteps();
             }

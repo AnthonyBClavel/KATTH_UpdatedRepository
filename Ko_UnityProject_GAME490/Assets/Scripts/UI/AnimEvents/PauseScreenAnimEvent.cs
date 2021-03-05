@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PauseScreenAnimEvent : MonoBehaviour
 {
-    public GameObject safetyMenu;
-    public GameObject optionsScreen;
+    //public GameObject safetyMenu;
+    //public GameObject optionsScreen;
     private PauseMenu pauseMenuScript;
 
     // Start is called before the first frame update
@@ -20,16 +20,18 @@ public class PauseScreenAnimEvent : MonoBehaviour
 
     }
 
+    // For an animation event in the pause menu
     public void SetPauseMenuInactive()
     {
         gameObject.SetActive(false);
 
-        if (pauseMenuScript.isOptionsMenu == true)
-            optionsScreen.SetActive(true); 
-        
+        //if (pauseMenuScript.isOptionsMenu == true)
+            //pauseMenuScript.optionsScreen.SetActive(true);
+                 
         if (pauseMenuScript.isSafetyMenu == true)
-            safetyMenu.SetActive(true);
+            pauseMenuScript.safetyMenu.SetActive(true);
 
     }
+
 
 }

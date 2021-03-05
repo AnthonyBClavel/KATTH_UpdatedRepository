@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class OptionsMenuAnimEvent : MonoBehaviour
 {
-    public GameObject pauseScreen;
+    public GameObject mainCanvas;
 
     // Start is called before the first frame update
     void Start()
@@ -19,11 +19,12 @@ public class OptionsMenuAnimEvent : MonoBehaviour
         
     }
 
+    // For an animation event in the options menu
     public void SetOptionsMenuInactive()
     {
         gameObject.SetActive(false);
 
-        pauseScreen.SetActive(true);
+        mainCanvas.SetActive(true);
     }
 
 }

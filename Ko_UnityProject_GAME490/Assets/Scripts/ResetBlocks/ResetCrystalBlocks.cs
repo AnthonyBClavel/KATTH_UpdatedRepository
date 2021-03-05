@@ -24,7 +24,7 @@ public class ResetCrystalBlocks : MonoBehaviour
     {
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalIdleAnim();
+            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
         }
     }
 
@@ -35,7 +35,7 @@ public class ResetCrystalBlocks : MonoBehaviour
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            if (!transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().crystalGlow.activeSelf)
+            if (!transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().crystalGlow.activeSelf)
                 allLit = false;                    
         }
 
@@ -43,8 +43,8 @@ public class ResetCrystalBlocks : MonoBehaviour
         {
             for (int i = 0; i < transform.childCount; i++)
             {
-                transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().DisableCrystalFade();
-                transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalIdleAnim();
+                transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().DisableCrystalFade();
+                transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
 
                 if (!canPlaySFX)
                 {
@@ -61,10 +61,10 @@ public class ResetCrystalBlocks : MonoBehaviour
         Debug.Log("Num of Crystal blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().SetGlowInactive();
-            transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalBool();
+            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
+            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
             canPlaySFX = false;
-            //transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().EnableCrystalFade();
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().EnableCrystalFade();
         }
     }
 
@@ -75,10 +75,10 @@ public class ResetCrystalBlocks : MonoBehaviour
         Debug.Log("Num of Crystal blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().SetGlowInactive();
-            transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().ResetCrystalBool();
+            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
+            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
             canPlaySFX = false;
-            //transform.GetChild(i).gameObject.GetComponentInChildren<SetCrystalGlowActive>().EnableCrystalFade();
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().EnableCrystalFade();
         }
     }
 

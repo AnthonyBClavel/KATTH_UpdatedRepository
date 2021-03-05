@@ -24,10 +24,10 @@ public class MenuSounds : MonoBehaviour
     void Update()
     {
         // Resets the pressedSFX bool back to false based on these inputs
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
+        /*if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
         {
             pressedSFX = false;
-        }
+        }*/
 
         if(SceneManager.GetActiveScene().name == "MainMenu")
         {
@@ -59,7 +59,7 @@ public class MenuSounds : MonoBehaviour
      * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
     public void PlayMenuSound(AudioClip whichSound)
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Escape))
             pressedSFX = false;
 
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))

@@ -11,16 +11,16 @@ public class InteractiveGrassScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine("writeToMaterial");
+        //StartCoroutine("writeToMaterial");
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        WriteToMaterial();
     }
 
-    private IEnumerator writeToMaterial()
+    /*private IEnumerator writeToMaterial()
     {
         while(true)
         {   
@@ -32,6 +32,21 @@ public class InteractiveGrassScript : MonoBehaviour
 
             yield return null;
         }      
+    }*/
+
+    // Sets the player's position to the material's vector position
+    private void WriteToMaterial()
+    {
+        while (true)
+        {
+            thePosition = thePlayer.transform.position;
+            for (int i = 0; i < materials.Length; i++)
+            {
+                materials[i].SetVector("_position", thePosition);
+            }
+
+            return;
+        }
     }
 
 }

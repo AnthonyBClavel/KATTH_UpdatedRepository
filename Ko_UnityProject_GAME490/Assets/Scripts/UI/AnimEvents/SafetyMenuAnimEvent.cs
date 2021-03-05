@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class SafetyMenuAnimEvent : MonoBehaviour
 {
-    public GameObject canvasWithButtons;
+    public GameObject mainCanvas;
     private PauseMenu pauseMenuScript;
     private MainMenu mainMenuScript;
 
@@ -24,6 +24,7 @@ public class SafetyMenuAnimEvent : MonoBehaviour
         
     }
 
+    // For an animation event in the saftey menu
     public void SetSafetyMenuInactive()
     {
         gameObject.SetActive(false);
@@ -31,13 +32,13 @@ public class SafetyMenuAnimEvent : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
             if (mainMenuScript.isQuitingGame == false)
-                canvasWithButtons.SetActive(true);
+                mainCanvas.SetActive(true);
         }
 
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
             if (pauseMenuScript.isChangingScenes == false)
-                canvasWithButtons.SetActive(true);
+                mainCanvas.SetActive(true);
         }
     }
     

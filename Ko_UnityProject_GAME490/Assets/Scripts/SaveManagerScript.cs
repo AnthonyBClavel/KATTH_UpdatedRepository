@@ -112,6 +112,14 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    // This is only for loading the player's rotation after freezing UI
+    public void LoadPlayerRotation()
+    {
+        rY = player.transform.eulerAngles.y;
+        rY = PlayerPrefs.GetFloat("r_y");
+        player.transform.eulerAngles = new Vector3(0, rY, 0);
+    }
+
     public void SaveCameraPosition()
     {
         if(SceneManager.GetActiveScene().name != "TutorialMap")

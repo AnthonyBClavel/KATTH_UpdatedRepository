@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetCrystalGlowActive : MonoBehaviour
+public class CrystalsManager : MonoBehaviour
 {
     public GameObject crystalGlow;
     public Animator crystalAnim;   

@@ -181,6 +181,7 @@ public class BlockMovementController : MonoBehaviour
     {
         //crateFallSFX.volume = 0.5f;
         //crateFallSFX.pitch = 0.75f;
+        crateSlideSFX.Stop();
         crateFallSFX.Play();
     }
 

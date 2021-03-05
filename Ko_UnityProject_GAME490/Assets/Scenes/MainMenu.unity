@@ -592,6 +592,10 @@ PrefabInstance:
       propertyPath: pauseScreen
       value: 
       objectReference: {fileID: 440542144}
+    - target: {fileID: 1990930530719969612, guid: b06c84bfcbd025741ab19ec66013336e, type: 3}
+      propertyPath: mainCanvas
+      value: 
+      objectReference: {fileID: 440542144}
     - target: {fileID: 3557729435957714252, guid: b06c84bfcbd025741ab19ec66013336e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -888,7 +892,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -693.93494}
+  m_AnchoredPosition: {x: 960, y: -693.7714}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &389137178
@@ -998,7 +1002,7 @@ GameObject:
   - component: {fileID: 440542151}
   - component: {fileID: 440542152}
   m_Layer: 5
-  m_Name: MainMenuButtons
+  m_Name: MainMenuButtonsCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1894,7 +1898,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -777.8699}
+  m_AnchoredPosition: {x: 960, y: -777.54285}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1154092364 stripped
@@ -2087,7 +2091,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -1029.6747}
+  m_AnchoredPosition: {x: 960, y: -1028.8572}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1234408263
@@ -2456,7 +2460,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -945.73975}
+  m_AnchoredPosition: {x: 960, y: -945.0857}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1545130876 stripped
@@ -2826,7 +2830,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -861.8048}
+  m_AnchoredPosition: {x: 960, y: -861.3143}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1703672689
@@ -7322,6 +7326,10 @@ PrefabInstance:
       objectReference: {fileID: 440542144}
     - target: {fileID: 5101696550924381886, guid: 8dbdf35b3317bdd4d980547b197fc3f3, type: 3}
       propertyPath: canvasWithButtons
+      value: 
+      objectReference: {fileID: 440542144}
+    - target: {fileID: 5101696550924381886, guid: 8dbdf35b3317bdd4d980547b197fc3f3, type: 3}
+      propertyPath: mainCanvas
       value: 
       objectReference: {fileID: 440542144}
     - target: {fileID: 5101696551205631943, guid: 8dbdf35b3317bdd4d980547b197fc3f3, type: 3}

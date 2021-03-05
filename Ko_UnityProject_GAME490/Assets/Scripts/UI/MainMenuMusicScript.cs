@@ -7,18 +7,22 @@ public class MainMenuMusicScript : MonoBehaviour
     public GameObject mainMenuBGM;
     private float loopingMainMenuBGM;
 
-    // Start is called before the first frame update
     void Awake()
     {
         loopingMainMenuBGM = 0.0f;
+        mainMenuBGM.GetComponent<AudioSource>().volume = loopingMainMenuBGM;
+    }
 
-        StartCoroutine("FadeInVolume");
+    // Start is called before the first frame update
+    void Start()
+    {
+        StartCoroutine(FadeInVolume());
     }
 
     // Update is called once per frame
     void Update()
     {
-        mainMenuBGM.GetComponent<AudioSource>().volume = loopingMainMenuBGM;
+
     }
 
     // Increases the volume over time until it reaches its max value
@@ -28,6 +32,7 @@ public class MainMenuMusicScript : MonoBehaviour
         {
             i = loopingMainMenuBGM;
             loopingMainMenuBGM += 0.01f;
+            mainMenuBGM.GetComponent<AudioSource>().volume = loopingMainMenuBGM;
             yield return new WaitForSeconds(0.025f);
         }
     }

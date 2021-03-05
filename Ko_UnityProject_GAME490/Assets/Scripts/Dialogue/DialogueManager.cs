@@ -9,7 +9,9 @@ public class DialogueManager : MonoBehaviour
     public GameObject dialogue;
     public GameObject continueTrigger;
     public GameObject blackOverlay;
+    public GameObject skipTutorialButton;
     public Canvas pauseMenuCanvas;
+    private GameHUD gameHUDScript;
 
     public TextMeshProUGUI textDisplay;
     private string[] sentences;
@@ -21,6 +23,11 @@ public class DialogueManager : MonoBehaviour
 
     public bool hasStarted = false;
     public bool inDialogue = false;
+
+    void Awake()
+    {
+        gameHUDScript = FindObjectOfType<GameHUD>();
+    }
 
     void Start()
     {
@@ -40,13 +47,15 @@ public class DialogueManager : MonoBehaviour
     // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
+        gameHUDScript.TurnOffHUD();
         inDialogue = true;
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
-        player.GetComponent<TileMovementController>().enabled = false; // Disabling player movement script
+        player.GetComponent<TileMovementController>().SetPlayerBoolsFalse(); // Disabling player movement
         typingSpeed = OGtypingSpeed;
         textDisplay.text = "";
         index = 0;
         continueTrigger.SetActive(false);
+        skipTutorialButton.SetActive(false);     
         blackOverlay.SetActive(true);
         dialogue.SetActive(true);
         StartCoroutine(Type());
@@ -56,6 +65,8 @@ public class DialogueManager : MonoBehaviour
     // Shows the text dialogue in the Dialogue Box
     IEnumerator Type()
     {
+        yield return new WaitForSeconds(0.03f);
+
         continueTrigger.SetActive(false); // Removes continue button until sentence is finished
         foreach (char letter in sentences[index].ToCharArray())
         {
@@ -65,7 +76,6 @@ public class DialogueManager : MonoBehaviour
         }
         continueTrigger.SetActive(true); // Shows the continue button after the sentence is finished
     }
-
     
     // Displays the next sentence
     public void nextSentence()
@@ -79,20 +89,20 @@ public class DialogueManager : MonoBehaviour
         }
         else endDialogue();
     }
-
     
     // Ends the dialogue - call this when the dialogue is finished
     public void endDialogue()
     {
+        gameHUDScript.TurnOnHUD();
         dialogue.SetActive(false);
         continueTrigger.SetActive(false);
-        blackOverlay.SetActive(false);
+        blackOverlay.SetActive(false);     
+        skipTutorialButton.SetActive(true);
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
-        player.GetComponent<TileMovementController>().enabled = true;
+        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
         player.GetComponent<TileMovementController>().hasDied = false;
         inDialogue = false;
     }
-
 
     // Sets the dialogue
     public void setDialogue(string[] dialogue)

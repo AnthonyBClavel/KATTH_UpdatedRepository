@@ -49,7 +49,6 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     { 
-
         if (dialogueManager.GetComponent<DialogueManager>().hasStarted && !hasPlayedStart)
         {
             setDialogue(startupDialogue);
@@ -114,7 +113,7 @@ public class Tutorial : MonoBehaviour
 
         if (player.GetComponent<TileMovementController>().hasDied)
         {
-            player.GetComponent<TileMovementController>().enabled = false;
+            player.GetComponent<TileMovementController>().SetPlayerBoolsFalse();
             if (!dialogueManager.GetComponent<DialogueManager>().inDialogue)
             {
                 setDialogue(deathDialogue);
