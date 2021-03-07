@@ -96,14 +96,14 @@ public class SaveManagerScript : MonoBehaviour
 
     public void SavePlayerPosition()
     {
-        if(SceneManager.GetActiveScene().name != "TutorialMap")
+        if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
             PlayerPrefs.SetFloat("p_x", player.transform.position.x);
             PlayerPrefs.SetFloat("p_z", player.transform.position.z);
-            PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
-            PlayerPrefs.SetInt("Saved", 1);
-            PlayerPrefs.Save();
-        }     
+        }
+        PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
     }
 
     public void LoadPlayerPosition()

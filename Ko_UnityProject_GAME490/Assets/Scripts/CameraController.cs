@@ -24,6 +24,8 @@ public class CameraController : MonoBehaviour
     private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
 
+    private bool hasPaused;
+
     void Awake()
     {
         //saveManagerScript = FindObjectOfType<SaveManagerScript>();
@@ -35,7 +37,8 @@ public class CameraController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {       
+    {
+        hasPaused = false;
         //currentView = levelViews[currentIndex];
         gameObject.transform.position = levelViews[currentIndex].transform.position;
 
@@ -46,6 +49,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
+        //CheckIfPaused();
         currentView = levelViews[currentIndex];
 
         /*** For Debugging purposes ***/
@@ -120,8 +124,10 @@ public class CameraController : MonoBehaviour
             theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);
         }
 
-        AudioClip clips = GetRandomClip();                                                                
-        audioSource.PlayOneShot(clips);                                                                          
+        AudioClip clips = GetRandomClip();
+        //audioSource.clip = clips;
+        audioSource.PlayOneShot(clips);
+
     }
 
     // Gets a random audio clip from its respective array
@@ -137,6 +143,22 @@ public class CameraController : MonoBehaviour
             gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/10";
         else
             gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";
+    }
+
+    private void CheckIfPaused()
+    {
+        if(FindObjectOfType<PauseMenu>().isPaused && !hasPaused)
+        {
+            Debug.Log("Wind Gush SFX has been paused");
+            audioSource.Pause();
+            hasPaused = true;
+        }
+        else if (!FindObjectOfType<PauseMenu>().isPaused && hasPaused)
+        {
+            Debug.Log("Wind Gush SFX has resumed");
+            audioSource.UnPause();
+            hasPaused = false;
+        }
     }
 
 }

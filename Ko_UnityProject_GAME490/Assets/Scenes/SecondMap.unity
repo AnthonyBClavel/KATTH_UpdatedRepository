@@ -370,6 +370,73 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
   m_PrefabInstance: {fileID: 842958324}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &44473084
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 912997953}
+    m_Modifications:
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8546623762279068947, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+      propertyPath: m_Name
+      value: EntryBridge
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+--- !u!4 &44473085 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8546623762279068944, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+  m_PrefabInstance: {fileID: 44473084}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &44473086 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8546623763310117191, guid: d48aabc3ba462884990373df05e3a41d, type: 3}
+  m_PrefabInstance: {fileID: 44473084}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &47306469
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,7 +785,7 @@ GameObject:
   - component: {fileID: 60365484}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -1103,7 +1170,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 77438330}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 5.5, y: 0, z: 6.5}
+  m_LocalPosition: {x: 4.5, y: 0, z: 5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020662590}
@@ -2028,7 +2095,7 @@ GameObject:
   - component: {fileID: 134368940}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -2684,9 +2751,10 @@ GameObject:
   - component: {fileID: 180878483}
   - component: {fileID: 180878482}
   - component: {fileID: 180878481}
+  - component: {fileID: 180878484}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -2767,6 +2835,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180878479}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &180878484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180878479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 513913855}
+  newDirection: 0
 --- !u!1001 &182415976
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3075,7 +3157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3130,7 +3212,7 @@ Transform:
   - {fileID: 1904356920}
   - {fileID: 534589388}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 16
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &215107912
 PrefabInstance:
@@ -3534,9 +3616,10 @@ GameObject:
   - component: {fileID: 225560248}
   - component: {fileID: 225560247}
   - component: {fileID: 225560246}
+  - component: {fileID: 225560249}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -3549,7 +3632,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225560244}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 5.5, y: 0, z: 7.5}
+  m_LocalPosition: {x: 3.5, y: 0, z: 5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020662590}
@@ -3617,6 +3700,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225560244}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &225560249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225560244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 251926687}
+  newDirection: 180
 --- !u!1001 &228265421
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3693,7 +3790,7 @@ GameObject:
   - component: {fileID: 228794569}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -4265,6 +4362,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
+--- !u!1 &251926687 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 911725049}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &257742816 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
@@ -4284,7 +4386,7 @@ GameObject:
   - component: {fileID: 258818620}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5105,7 +5207,7 @@ GameObject:
   - component: {fileID: 306289116}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5200,7 +5302,7 @@ GameObject:
   - component: {fileID: 307952537}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5419,7 +5521,7 @@ GameObject:
   - component: {fileID: 313791309}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5819,7 +5921,7 @@ GameObject:
   - component: {fileID: 326070180}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -6038,7 +6140,7 @@ GameObject:
   - component: {fileID: 365661680}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -6829,9 +6931,10 @@ GameObject:
   - component: {fileID: 408719571}
   - component: {fileID: 408719570}
   - component: {fileID: 408719569}
+  - component: {fileID: 408719572}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -6912,6 +7015,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408719567}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &408719572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408719567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1497259450}
+  newDirection: 90
 --- !u!1001 &411295250
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7376,7 +7493,7 @@ Transform:
   - {fileID: 767513378}
   - {fileID: 1477325590}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &455609593
 PrefabInstance:
@@ -8447,6 +8564,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
   m_PrefabInstance: {fileID: 2005133969}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &513913855 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 1798412781}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &519129344
 GameObject:
@@ -9718,7 +9840,7 @@ Transform:
   - {fileID: 1171677382}
   - {fileID: 1214168519}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &605208198 stripped
 Transform:
@@ -9764,7 +9886,7 @@ Transform:
   - {fileID: 2074352798}
   - {fileID: 1757439114}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &619977212
 PrefabInstance:
@@ -10050,7 +10172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -10916,7 +11038,7 @@ GameObject:
   - component: {fileID: 699193749}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -11322,9 +11444,10 @@ GameObject:
   - component: {fileID: 737634687}
   - component: {fileID: 737634686}
   - component: {fileID: 737634685}
+  - component: {fileID: 737634688}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -11405,6 +11528,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 737634683}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &737634688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737634683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1316716933}
+  newDirection: 180
 --- !u!1001 &741622612
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11562,7 +11699,7 @@ Transform:
   - {fileID: 1099343872}
   - {fileID: 269208398}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &757933333 stripped
 Transform:
@@ -12553,7 +12690,7 @@ GameObject:
   - component: {fileID: 805667508}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -12913,6 +13050,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
   m_PrefabInstance: {fileID: 825476696}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &826339420 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 191587925}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &826853929 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 582526933623311058, guid: 36a6192c60f25e54aba30d94a6b604a7, type: 3}
@@ -12932,7 +13074,7 @@ GameObject:
   - component: {fileID: 827392924}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -13084,7 +13226,7 @@ GameObject:
   - component: {fileID: 829113259}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -13184,6 +13326,10 @@ PrefabInstance:
       propertyPath: levelFade
       value: 
       objectReference: {fileID: 1281061983}
+    - target: {fileID: 4460257800670101573, guid: 7027b65293dd0b041bc9da9b09990591, type: 3}
+      propertyPath: firstBlock
+      value: 
+      objectReference: {fileID: 44473086}
     - target: {fileID: 4460257800670101688, guid: 7027b65293dd0b041bc9da9b09990591, type: 3}
       propertyPath: m_Name
       value: WolrdIntroCanvas
@@ -13557,7 +13703,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4511282862961232, guid: cf2b180cac3506c4a9a0ab45fe990065, type: 3}
       propertyPath: m_RootOrder
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 4511282862961232, guid: cf2b180cac3506c4a9a0ab45fe990065, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -13637,7 +13783,7 @@ GameObject:
   - component: {fileID: 858051025}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -13883,7 +14029,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3056343533742739575, guid: 09d4776dd10e5434c80090d1a8cb12e2, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3056343533742739575, guid: 09d4776dd10e5434c80090d1a8cb12e2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -14079,7 +14225,7 @@ Transform:
   - {fileID: 691175469}
   - {fileID: 868996937}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &886475090
 GameObject:
@@ -14484,6 +14630,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 44473085}
   - {fileID: 2018155446}
   - {fileID: 1978885200}
   - {fileID: 1126725248}
@@ -14654,7 +14801,7 @@ GameObject:
   - component: {fileID: 935723233}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -14764,7 +14911,7 @@ GameObject:
   - component: {fileID: 958927046}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -15031,6 +15178,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
   m_PrefabInstance: {fileID: 967595912}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &974979942 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 751330344}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &975850969
 GameObject:
   m_ObjectHideFlags: 0
@@ -15045,7 +15197,7 @@ GameObject:
   - component: {fileID: 975850971}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -15306,7 +15458,7 @@ GameObject:
   - component: {fileID: 986223783}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -15672,7 +15824,7 @@ Transform:
   - {fileID: 1220626547}
   - {fileID: 1562680661}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1023976097
 PrefabInstance:
@@ -17355,7 +17507,7 @@ Transform:
   - {fileID: 1760219572}
   - {fileID: 262087019}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1135011643
 PrefabInstance:
@@ -17488,9 +17640,10 @@ GameObject:
   - component: {fileID: 1142724643}
   - component: {fileID: 1142724642}
   - component: {fileID: 1142724641}
+  - component: {fileID: 1142724644}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -17503,7 +17656,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1142724639}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 3.5, y: 0, z: 9.5}
+  m_LocalPosition: {x: 1.5, y: 0, z: 7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1424132646}
@@ -17571,6 +17724,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1142724639}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1142724644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142724639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 974979942}
+  newDirection: 0
 --- !u!1001 &1153199728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17645,9 +17812,10 @@ GameObject:
   - component: {fileID: 1165936548}
   - component: {fileID: 1165936547}
   - component: {fileID: 1165936546}
+  - component: {fileID: 1165936549}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -17728,6 +17896,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1165936544}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1165936549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165936544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 826339420}
+  newDirection: 90
 --- !u!1 &1166597577
 GameObject:
   m_ObjectHideFlags: 0
@@ -17742,7 +17924,7 @@ GameObject:
   - component: {fileID: 1166597579}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -17880,6 +18062,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09d4776dd10e5434c80090d1a8cb12e2, type: 3}
+--- !u!1 &1169373068 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 69951157}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1171677381
 GameObject:
   m_ObjectHideFlags: 0
@@ -17894,7 +18081,7 @@ GameObject:
   - component: {fileID: 1171677383}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18265,9 +18452,10 @@ GameObject:
   - component: {fileID: 1197570664}
   - component: {fileID: 1197570663}
   - component: {fileID: 1197570662}
+  - component: {fileID: 1197570665}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18348,6 +18536,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1197570660}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1197570665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197570660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1201013079}
+  newDirection: 0
 --- !u!1001 &1199415336
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18512,9 +18714,10 @@ GameObject:
   - component: {fileID: 1201013083}
   - component: {fileID: 1201013082}
   - component: {fileID: 1201013081}
+  - component: {fileID: 1201013084}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18595,6 +18798,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1201013079}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1201013084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201013079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 2042965438}
+  newDirection: 90
 --- !u!1001 &1203158767
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18652,6 +18869,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+--- !u!1 &1207400320 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 113490332}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1208271592 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
@@ -18833,7 +19055,7 @@ GameObject:
   - component: {fileID: 1220626548}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18948,7 +19170,7 @@ Transform:
   - {fileID: 981333065}
   - {fileID: 1225063652}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 12
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1221504100
 PrefabInstance:
@@ -20151,9 +20373,10 @@ GameObject:
   - component: {fileID: 1316716937}
   - component: {fileID: 1316716936}
   - component: {fileID: 1316716935}
+  - component: {fileID: 1316716938}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -20166,7 +20389,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316716933}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 4.5, y: 0, z: 7.5}
+  m_LocalPosition: {x: 2.5, y: 0, z: 5.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020662590}
@@ -20234,6 +20457,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1316716933}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1316716938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1316716933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 251926687}
+  newDirection: 90
 --- !u!1001 &1316774915
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20864,6 +21101,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
   m_PrefabInstance: {fileID: 1336656048}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1338274789 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
+  m_PrefabInstance: {fileID: 1412113165}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1339600315
 GameObject:
   m_ObjectHideFlags: 0
@@ -20898,7 +21140,7 @@ Transform:
   - {fileID: 1041642114}
   - {fileID: 1052954320}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1343605345
 PrefabInstance:
@@ -21110,9 +21352,10 @@ GameObject:
   - component: {fileID: 1370761243}
   - component: {fileID: 1370761242}
   - component: {fileID: 1370761241}
+  - component: {fileID: 1370761244}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -21193,6 +21436,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1370761239}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1370761244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370761239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1207400320}
+  newDirection: 180
 --- !u!1001 &1372575203
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21269,7 +21526,7 @@ GameObject:
   - component: {fileID: 1376464247}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -21590,7 +21847,7 @@ GameObject:
   - component: {fileID: 1389004942}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -21986,19 +22243,19 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 505564931}
+    m_TransformParent: {fileID: 1860684174}
     m_Modifications:
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2
+      value: 14.5
       objectReference: {fileID: 0}
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 6.5
       objectReference: {fileID: 0}
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_LocalRotation.x
@@ -22253,7 +22510,7 @@ Transform:
   - {fileID: 1842401696}
   - {fileID: 1660619909}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 15
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1434689425
 PrefabInstance:
@@ -22774,7 +23031,7 @@ GameObject:
   - component: {fileID: 1472219065}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -22787,7 +23044,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1472219063}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 3.5, y: 0, z: 7.5}
+  m_LocalPosition: {x: 2.5, y: 0, z: 6.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020662590}
@@ -23193,6 +23450,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
   m_PrefabInstance: {fileID: 1493515803}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1497259450 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 1298686860}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1499923434
 PrefabInstance:
@@ -25296,7 +25558,7 @@ Transform:
   - {fileID: 134368939}
   - {fileID: 1773650731}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1635367634
 PrefabInstance:
@@ -25591,7 +25853,7 @@ Transform:
   - {fileID: 1166597578}
   - {fileID: 106770596}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1660619908
 GameObject:
@@ -25620,7 +25882,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1660619908}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 2.5, y: 0, z: 10.5}
+  m_LocalPosition: {x: 1.5, y: 0, z: 9.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1424132646}
@@ -25700,9 +25962,10 @@ GameObject:
   - component: {fileID: 1663571127}
   - component: {fileID: 1663571126}
   - component: {fileID: 1663571125}
+  - component: {fileID: 1663571128}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -25783,6 +26046,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663571123}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1663571128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1663571123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1142724639}
+  newDirection: 270
 --- !u!4 &1664032788 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6184282007080999767, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
@@ -25802,7 +26079,7 @@ GameObject:
   - component: {fileID: 1665504478}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -25957,9 +26234,10 @@ GameObject:
   - component: {fileID: 1688487954}
   - component: {fileID: 1688487953}
   - component: {fileID: 1688487952}
+  - component: {fileID: 1688487955}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -26040,6 +26318,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1688487950}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1688487955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1688487950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1969111151}
+  newDirection: 0
 --- !u!1 &1691389515
 GameObject:
   m_ObjectHideFlags: 0
@@ -26272,7 +26564,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4270419123437196854, guid: 4fcedbd3d475dd049a06d4e139096e00, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4270419123437196854, guid: 4fcedbd3d475dd049a06d4e139096e00, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -26378,7 +26670,7 @@ GameObject:
   - component: {fileID: 1713979368}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -26992,7 +27284,7 @@ Transform:
   - {fileID: 326070179}
   - {fileID: 60365483}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 19
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1740126180
 PrefabInstance:
@@ -27413,7 +27705,7 @@ GameObject:
   - component: {fileID: 1763030928}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -27508,7 +27800,7 @@ GameObject:
   - component: {fileID: 1764304322}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -27670,7 +27962,7 @@ GameObject:
   - component: {fileID: 1772034017}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -27683,7 +27975,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1772034015}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 3.5, y: 0, z: 8.5}
+  m_LocalPosition: {x: 2.5, y: 0, z: 7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1424132646}
@@ -28869,7 +29161,7 @@ GameObject:
   - component: {fileID: 1842401697}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -28882,7 +29174,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1842401695}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 3.5, y: 0, z: 10.5}
+  m_LocalPosition: {x: 1.5, y: 0, z: 8.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1424132646}
@@ -29162,7 +29454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3434436977890614709, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -29333,6 +29625,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 505564931}
+  - {fileID: 1338274789}
   m_Father: {fileID: 1126725248}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -30292,7 +30585,7 @@ GameObject:
   - component: {fileID: 1916667554}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -31084,6 +31377,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4bf702c2051ed345934ce4facee651b, type: 3}
+--- !u!1 &1969111151 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 387951403}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1978846617
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31180,7 +31478,7 @@ Transform:
   - {fileID: 2042965439}
   - {fileID: 1821817500}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1979713612
 GameObject:
@@ -31458,7 +31756,7 @@ Transform:
   - {fileID: 662298947}
   - {fileID: 2075533387}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1992711910
 GameObject:
@@ -31472,9 +31770,10 @@ GameObject:
   - component: {fileID: 1992711914}
   - component: {fileID: 1992711913}
   - component: {fileID: 1992711912}
+  - component: {fileID: 1992711915}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -31555,6 +31854,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1992711910}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1992711915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992711910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1169373068}
+  newDirection: 90
 --- !u!1001 &1994547948
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32104,7 +32417,7 @@ Transform:
   - {fileID: 2005202747}
   - {fileID: 591414487}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2020662589
 GameObject:
@@ -32140,7 +32453,7 @@ Transform:
   - {fileID: 225560245}
   - {fileID: 77438331}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2021986298
 PrefabInstance:
@@ -32751,9 +33064,10 @@ GameObject:
   - component: {fileID: 2042965442}
   - component: {fileID: 2042965441}
   - component: {fileID: 2042965440}
+  - component: {fileID: 2042965443}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -32834,6 +33148,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2042965438}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &2042965443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042965438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 6786903482607442493}
+  newDirection: 0
 --- !u!1001 &2045732731
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33386,7 +33714,7 @@ GameObject:
   - component: {fileID: 2076158822}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: InstantiateBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -34059,7 +34387,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4180174444347004450, guid: 2ae7f2136f51bfc4b8636bedae70fbc1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -34117,7 +34445,7 @@ Transform:
   - {fileID: 1389004941}
   - {fileID: 2036380901}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2129593776
 PrefabInstance:
@@ -34327,7 +34655,7 @@ Transform:
   - {fileID: 307952536}
   - {fileID: 1960633267}
   m_Father: {fileID: 912997953}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2140510056
 PrefabInstance:
@@ -35610,8 +35938,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4368097892873146747}
-  - component: {fileID: 4368097892873146746}
   - component: {fileID: 4368097892873146748}
+  - component: {fileID: 4368097892873146746}
+  - component: {fileID: 4368097892873146749}
   m_Layer: 0
   m_Name: Level Manager
   m_TagString: Untagged
@@ -35651,7 +35980,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 912997953}
-  m_RootOrder: 21
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4368097892873146748
 BoxCollider:
@@ -35666,6 +35995,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4368097892873146749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4368097892873146745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 60365482}
+  newDirection: 0
 --- !u!1 &4377125571904106064 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4203290450916882642, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
@@ -36077,6 +36420,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+--- !u!1 &6786903482607442493 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6786903482142824711, guid: 5c063df17a0a0934899e4453a86371b8, type: 3}
+  m_PrefabInstance: {fileID: 6786903482607442492}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6796336034624658191
 Transform:
   m_ObjectHideFlags: 0
@@ -36429,7 +36777,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8893811602064672361, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 8893811602064672361, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
       propertyPath: m_LocalRotation.x

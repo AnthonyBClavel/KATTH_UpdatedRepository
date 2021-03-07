@@ -13,21 +13,7 @@ public class AudioLoops : MonoBehaviour
 
     void Awake()
     {
-        BGM.GetComponent<AudioSource>().volume = loopingBGM;
-        AmbienceLoop.GetComponent<AudioSource>().volume = loopingAmbience;
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-        {
-            loopingBGM = 0.0f;
-            AmbienceLoop.GetComponent<AudioSource>().volume = 0.4f;
-            SetAudioLoopsActive();
-        }
-        else
-        {
-            loopingBGM = 0.0f;
-            loopingAmbience = 0.0f;
-        }
-
+        SetAudioLoopsCheck();
     }
 
     // Start is called before the first frame update
@@ -42,6 +28,7 @@ public class AudioLoops : MonoBehaviour
 
     }
 
+    // Fades in the volumes for both the BGM and Ambience loop (used after world intros)
     public void SetAudioLoopsActive()
     {
         BGM.SetActive(true);
@@ -49,6 +36,32 @@ public class AudioLoops : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name != "TutorialMap")
             StartCoroutine(FadeInAmbienceLoop());
+    }
+
+    // Sets the loop volumes to their defaults (used for when the player loads saved game)
+    public void SetAudioLoopsToDefault()
+    {
+        BGM.SetActive(true);
+        loopingBGM = 0.4f;
+        loopingAmbience = 0.4f;
+    }
+
+    // Checks if you're in the tutorial scene - fades in only the music IF SO, sets volume for loops to zero IF NOT
+    private void SetAudioLoopsCheck()
+    {
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+        {
+            BGM.GetComponent<AudioSource>().volume = loopingBGM;
+            loopingBGM = 0.0f;
+            SetAudioLoopsActive();
+        }
+        else
+        {
+            BGM.GetComponent<AudioSource>().volume = loopingBGM;
+            AmbienceLoop.GetComponent<AudioSource>().volume = loopingAmbience;
+            loopingBGM = 0.0f;
+            loopingAmbience = 0.0f;
+        }
     }
 
     // Increases the bgm volume over time until it reaches its max value

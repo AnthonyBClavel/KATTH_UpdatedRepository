@@ -12,9 +12,12 @@ public class WorldIntroManager : MonoBehaviour
     public GameObject worldName;
     public GameObject blackOverlay;
     public GameObject levelFade;
+    public GameObject firstBlock;
 
     public TextMeshProUGUI textDisplay;
     public AudioSource charNoise;
+
+    public bool hasPlayedIntro;
 
     public float typingDelay = 0.03f;
     private string worldNameText;
@@ -25,7 +28,8 @@ public class WorldIntroManager : MonoBehaviour
     void Awake()
     {
         audioLoopsScript = FindObjectOfType<AudioLoops>();
-        StartCoroutine(ShowWorldName());
+
+        StartIntroCheck();
     }
 
     // Start is called before the first frame update
@@ -41,12 +45,13 @@ public class WorldIntroManager : MonoBehaviour
 
     private IEnumerator ShowWorldName()
     {
-        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
         player.GetComponent<TileMovementController>().SetPlayerBoolsFalse(); // Disable player movement
+        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;  
         blackOverlay.SetActive(true);
         worldName.SetActive(true);
 
         yield return new WaitForSeconds(0.5f);
+        player.GetComponent<TileMovementController>().PopOutTorchMeterCheck();
         displayWorldName();
 
         for (int i = 0; i <= worldNameText.Length; i++)
@@ -59,9 +64,9 @@ public class WorldIntroManager : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
         worldName.SetActive(false);
-        //yield return new WaitForSeconds(0.5f);
+        player.GetComponent<TileMovementController>().WalkIntoScene();
+        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement - this is now enabled when the player hits a checkpoint
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
-        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement
         blackOverlay.SetActive(false);       
         levelFade.SetActive(true);
         audioLoopsScript.SetAudioLoopsActive();
@@ -77,19 +82,32 @@ public class WorldIntroManager : MonoBehaviour
         }
     }
 
+    private void StartIntroCheck()
+    {
+        if (player.transform.position == firstBlock.transform.position)
+        {
+            StartCoroutine(ShowWorldName());
+        }
+        else
+        {
+            levelFade.SetActive(true);
+            audioLoopsScript.SetAudioLoopsToDefault();
+        }
+    }
+
     // Sets the world name to a string
     private void displayWorldName()
     {
         if (SceneManager.GetActiveScene().name == "FirstMap")
-            worldNameText = "World 1: Boreal Forest";
+            worldNameText = "Zone 1: Boreal Forest";
         else if (SceneManager.GetActiveScene().name == "SecondMap")
-            worldNameText = "World 2: Frozen Forest";
+            worldNameText = "Zone 2: Frozen Forest";
         else if (SceneManager.GetActiveScene().name == "ThirdMap")
-            worldNameText = "World 3: Crystal Cave";
+            worldNameText = "Zone 3: Crystal Cave";
         else if (SceneManager.GetActiveScene().name == "FourthMap")
-            worldNameText = "World 4: Ember City";
+            worldNameText = "Zone 4: Barren Lands";
         else if (SceneManager.GetActiveScene().name == "FifthMap")
-            worldNameText = "World 5: Power Station";
+            worldNameText = "Zone 5: Power Station";
     }
 
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerSounds : MonoBehaviour
 {
+    public bool canPlayFootsteps;
     public static PlayerSounds instance;
 
     public AudioClip[] snowFootstepClips;                                    
@@ -22,12 +23,14 @@ public class PlayerSounds : MonoBehaviour
     float rayLength = 1f;
 
     private AudioSource audioSource;
+    private string tag;
+    private string name;
 
     void Start()
     {
         //sets this script as an instance - other scripts can call it without creating a variable for it
         instance = this;
-
+        canPlayFootsteps = true;
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -44,44 +47,91 @@ public class PlayerSounds : MonoBehaviour
 
         Debug.DrawRay(myRay.origin, myRay.direction, Color.blue);                                                                                
 
-        if (Physics.Raycast(myRay, out hit, rayLength))
+        if (Physics.Raycast(myRay, out hit, rayLength) && canPlayFootsteps)
         {
-            if (hit.collider.tag == "SnowTiles" || hit.collider.gameObject.name == "SnowCheckpoint" || hit.collider.gameObject.name == "Checkpoint_SnowTiles" || hit.collider.name == "SnowTileBlock")
-            {
-                audioSource.volume = 0.7f;
-                audioSource.pitch = 1.0f;
-                SnowFootsteps();
-            }
-            else if (hit.collider.tag == "GrassTiles" || hit.collider.gameObject.name == "GrassCheckpoint" || hit.collider.gameObject.name == "Checkpoint_GrassTiles" || hit.collider.name == "PatchyGrassBlock")
-            {
-                audioSource.volume = 0.7f;
-                audioSource.pitch = 1.0f;
-                GrassFootsteps();
-            }
-            else if (hit.collider.tag == "StoneTiles" || hit.collider.gameObject.name == "CaveCheckpoint" || hit.collider.gameObject.name == "Checkpoint_CaveTiles" || hit.collider.name == "CaveBlock")
-            {
-                audioSource.volume = 0.55f; //0.5f
-                audioSource.pitch = 1.2f;
-                StoneFootsteps();
-            }
-            else if (hit.collider.tag == "MetalTiles" || hit.collider.gameObject.name == "MetalCheckpoint" || hit.collider.gameObject.name == "Checkpoint_MetalTiles" || hit.collider.gameObject.name == "Checkpoint_EmberTiles" || hit.collider.name == "PowerStationBlock" || hit.collider.name == "EmberCityBlock")
-            {
-                audioSource.volume = 1.0f;
-                audioSource.pitch = 1.0f;
-                MetalFootsteps();
-            }
-            else if (hit.collider.tag == "WoodTiles" || hit.collider.tag == "MoveCameraBlock" || hit.collider.name == "BridgeBlock")
-            {
-                audioSource.volume = 0.8f; //0.75f
-                audioSource.pitch = 0.9f;
-                WoodFootsteps();
-            }
-            else if (hit.collider.tag == "Obstacle")
-            {
-                audioSource.volume = 0.4f; //0.34f
-                audioSource.pitch = 1.0f;
-                WoodenCrateFootsteps();
-            }
+            tag = hit.collider.tag;
+            name = hit.collider.name;
+
+            CheckForSnowTiles();
+            CheckForGrassTiles();
+            CheckForStoneTiles();
+            CheckForMetalTiles();
+            CheckForBridgeTiles();
+            CheckForCrateTiles();
+        }
+    }
+    public void BridgeTileCheck()
+    {
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), -transform.up);
+        RaycastHit hit;
+
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.blue);
+
+        if (Physics.Raycast(myRay, out hit, rayLength) && canPlayFootsteps)
+        {
+            tag = hit.collider.tag;
+            name = hit.collider.name;
+
+            CheckForBridgeTiles();
+        }
+    }
+    private void CheckForSnowTiles()
+    {
+        if (tag == "SnowTiles" || name == "SnowCheckpoint" || name == "Checkpoint_SnowTiles" || name == "SnowTileBlock" || name == "EmberCityBlock" || name == "Checkpoint_EmberCityTiles")
+        {
+            audioSource.volume = 0.7f;
+            audioSource.pitch = 1.0f;
+            SnowFootsteps();
+        }
+    }
+
+    private void CheckForGrassTiles()
+    {
+        if (tag == "GrassTiles" || name == "GrassCheckpoint" || name == "Checkpoint_GrassTiles" || name == "PatchyGrassBlock")
+        {
+            audioSource.volume = 0.7f;
+            audioSource.pitch = 1.0f;
+            GrassFootsteps();
+        }
+    }
+
+    private void CheckForStoneTiles()
+    {
+        if (tag == "StoneTiles" || name == "CaveCheckpoint" || name == "Checkpoint_CaveTiles" || name == "CaveBlock")
+        {
+            audioSource.volume = 0.55f; //0.5f
+            audioSource.pitch = 1.2f;
+            StoneFootsteps();
+        }
+    }
+
+    private void CheckForMetalTiles()
+    {
+        if (tag == "MetalTiles" || name == "MetalCheckpoint" || name == "Checkpoint_MetalTiles" || name == "PowerStationBlock")
+        {
+            audioSource.volume = 1.0f;
+            audioSource.pitch = 1.0f;
+            MetalFootsteps();
+        }
+    }
+
+    private void CheckForBridgeTiles()
+    {
+        if (name == "BridgeBlock" || tag == "BridgeController" || tag == "LastBridgeTile" || tag == "WoodTiles")
+        {
+            audioSource.volume = 0.8f; //0.75f
+            audioSource.pitch = 0.9f;
+            WoodFootsteps();
+        }
+    }
+
+    private void CheckForCrateTiles()
+    {
+        if (tag == "Obstacle")
+        {
+            audioSource.volume = 0.4f; //0.34f
+            audioSource.pitch = 1.0f;
+            WoodenCrateFootsteps();
         }
     }
 
@@ -98,7 +148,6 @@ public class PlayerSounds : MonoBehaviour
     { 
         return snowFootstepClips[UnityEngine.Random.Range(0, snowFootstepClips.Length)];                                                                                
     }
-
 
     private void GrassFootsteps()
     {

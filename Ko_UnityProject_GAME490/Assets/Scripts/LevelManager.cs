@@ -19,14 +19,14 @@ public class LevelManager : MonoBehaviour
 
     private Animator playerAnimator;
     private TileMovementController playerScript;
-    private LevelFade levelFadeScript;
     private SaveManagerScript saveMangerScript;
+    private PlayerSounds playerSoundsScript;
 
     void Awake()
     {
         saveMangerScript = FindObjectOfType<SaveManagerScript>();
         playerScript = FindObjectOfType<TileMovementController>();
-        levelFadeScript = FindObjectOfType<LevelFade>();
+        playerSoundsScript = FindObjectOfType<PlayerSounds>();
         playerAnimator = FindObjectOfType<TileMovementController>().GetComponentInChildren<Animator>();
     }
 
@@ -89,9 +89,12 @@ public class LevelManager : MonoBehaviour
 
         if(Physics.Raycast(myRay, out hit, rayLength))
         {
-            if (hit.collider.tag == "Player")
+            string tag = hit.collider.tag;
+
+            if (tag == "Player")
             {
                 playerScript.ResetTorchMeter();
+                GetComponent<BridgeMovementController>().MoveToNextBlock();
                 DisablePlayer();
                 //SaveManager.DeleteGame();
                 return true;
@@ -104,8 +107,8 @@ public class LevelManager : MonoBehaviour
     // Prevents the player from receiving input
     public void DisablePlayer()
     {
-        levelFadeScript.FadeOutToNextLevel();
-        //playerAnimator.SetTrigger("Idle");
+        StartCoroutine(DisbalePlayerSounds());
+        FindObjectOfType<LevelFade>().FadeOutToNextLevel();
         playerScript.SetPlayerBoolsFalse();
     }
 
@@ -123,6 +126,13 @@ public class LevelManager : MonoBehaviour
     {
         if (loadingScreenSprites != null)
             SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+    }
+
+    // Disables the player's footsteps sfx by the end of the level fade
+    private IEnumerator DisbalePlayerSounds()
+    {
+        yield return new WaitForSecondsRealtime(1.6f);
+        playerSoundsScript.canPlayFootsteps = false;
     }
 
 }

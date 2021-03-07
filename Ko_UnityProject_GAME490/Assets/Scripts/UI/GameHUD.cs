@@ -76,17 +76,17 @@ public class GameHUD : MonoBehaviour
     private void CheckWorld()
     {
         if (SceneManager.GetActiveScene().name == "FirstMap")
-            worldName.text = "World: Boreal Forest";
+            worldName.text = "Zone: Boreal Forest";
         else if (SceneManager.GetActiveScene().name == "SecondMap")
-            worldName.text = "World: Frozen Forest";
+            worldName.text = "Zone: Frozen Forest";
         else if (SceneManager.GetActiveScene().name == "ThirdMap")
-            worldName.text = "World: Crystal Cave";
+            worldName.text = "Zone: Crystal Cave";
         else if (SceneManager.GetActiveScene().name == "FourthMap")
-            worldName.text = "World: Ember City";
+            worldName.text = "Zone: Barren Lands";
         else if (SceneManager.GetActiveScene().name == "FifthMap")
-            worldName.text = "World: Power Station";
+            worldName.text = "Zone: Power Station";
         else if (SceneManager.GetActiveScene().name == "TutorialMap")
-            worldName.text = "World: Tutorial";
+            worldName.text = "Zone: Tutorial";
     }
 
 

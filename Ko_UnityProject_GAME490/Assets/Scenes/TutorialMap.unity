@@ -2441,7 +2441,7 @@ GameObject:
   - component: {fileID: 120005043}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5171,9 +5171,10 @@ GameObject:
   - component: {fileID: 326008146}
   - component: {fileID: 326008145}
   - component: {fileID: 326008144}
+  - component: {fileID: 326008147}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5254,6 +5255,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 326008142}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &326008147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 326008142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1948236265}
+  newDirection: 0
 --- !u!1 &339409905
 GameObject:
   m_ObjectHideFlags: 0
@@ -5266,9 +5281,10 @@ GameObject:
   - component: {fileID: 339409909}
   - component: {fileID: 339409908}
   - component: {fileID: 339409907}
+  - component: {fileID: 339409910}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -5349,6 +5365,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 339409905}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &339409910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339409905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1602531958}
+  newDirection: 0
 --- !u!1001 &344426583
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8641,7 +8671,7 @@ GameObject:
   - component: {fileID: 658209431}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -9527,7 +9557,7 @@ GameObject:
   - component: {fileID: 704992084}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -12709,9 +12739,10 @@ GameObject:
   - component: {fileID: 1005726551}
   - component: {fileID: 1005726550}
   - component: {fileID: 1005726549}
+  - component: {fileID: 1005726552}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -12792,6 +12823,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1005726547}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1005726552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005726547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1901382583}
+  newDirection: 0
 --- !u!1001 &1005811135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13273,7 +13318,7 @@ GameObject:
   - component: {fileID: 1066060376}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -13366,9 +13411,10 @@ GameObject:
   - component: {fileID: 1066665976}
   - component: {fileID: 1066665975}
   - component: {fileID: 1066665974}
+  - component: {fileID: 1066665977}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -13449,6 +13495,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1066665972}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1066665977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066665972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 93005665}
+  newDirection: 0
 --- !u!1 &1072138187
 GameObject:
   m_ObjectHideFlags: 0
@@ -16272,7 +16332,7 @@ GameObject:
   - component: {fileID: 1273015154}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18682,9 +18742,10 @@ GameObject:
   - component: {fileID: 1418935826}
   - component: {fileID: 1418935825}
   - component: {fileID: 1418935824}
+  - component: {fileID: 1418935827}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -18765,6 +18826,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418935822}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1418935827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418935822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 1203239968}
+  newDirection: 0
 --- !u!1001 &1421894843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23446,9 +23521,10 @@ GameObject:
   - component: {fileID: 1749011531}
   - component: {fileID: 1749011530}
   - component: {fileID: 1749011529}
+  - component: {fileID: 1749011532}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: ResetCameraBool
+  m_TagString: BridgeController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -23529,6 +23605,20 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1749011527}
   m_Mesh: {fileID: 2899273830549889081, guid: 4112251827c6d034dbf2ce98c991cec2, type: 3}
+--- !u!114 &1749011532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749011527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 800110711}
+  newDirection: 0
 --- !u!1001 &1751578484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26853,7 +26943,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9114648221040790844, guid: ff53f18b64711e1439802b7ff913f029, type: 3}
       propertyPath: m_Name
-      value: PatchyGrassBlock
+      value: PatchyGrassBlockTutorial
       objectReference: {fileID: 0}
     - target: {fileID: 9114648221040790844, guid: ff53f18b64711e1439802b7ff913f029, type: 3}
       propertyPath: m_TagString
@@ -29363,7 +29453,7 @@ GameObject:
   - component: {fileID: 65338115009172079}
   m_Layer: 0
   m_Name: BridgeBlock
-  m_TagString: MoveCameraBlock
+  m_TagString: WoodTiles
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967294
@@ -30816,8 +30906,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5317506019127787037}
-  - component: {fileID: 5317506019127787036}
   - component: {fileID: 5317506019127787034}
+  - component: {fileID: 5317506019127787036}
+  - component: {fileID: 5317506019127787040}
   m_Layer: 0
   m_Name: Level Manager
   m_TagString: Untagged
@@ -30825,6 +30916,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &5317506019127787040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5317506019127787039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e155febc350cf23408180441cb1b5d6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockToMoveTo: {fileID: 615099861}
+  newDirection: 0
 --- !u!198 &5761075523220912633 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 3791565989062631380, guid: d1a0146929ac34e4086ded96f5bef2b8, type: 3}
