@@ -28,7 +28,7 @@ public class PauseScreenAnimEvent : MonoBehaviour
         //if (pauseMenuScript.isOptionsMenu == true)
             //pauseMenuScript.optionsScreen.SetActive(true);
                  
-        if (pauseMenuScript.isSafetyMenu == true)
+        if (pauseMenuScript.isSafetyMenu)
             pauseMenuScript.safetyMenu.SetActive(true);
 
     }

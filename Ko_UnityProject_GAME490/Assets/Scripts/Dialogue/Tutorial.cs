@@ -94,7 +94,7 @@ public class Tutorial : MonoBehaviour
                         break;
                 }
 
-            else if (player.GetComponent<TileMovementController>().onBridge() && !hasPassedBridge)
+            else if (player.GetComponent<TileMovementController>().onLastTileBlock() && !hasPassedBridge)
             {
                 setDialogue(bridgeDialogue);
                 currentDialogue = bridgeDialogue;

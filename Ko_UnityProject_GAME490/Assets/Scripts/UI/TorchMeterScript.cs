@@ -102,4 +102,14 @@ public class TorchMeterScript : MonoBehaviour
         torchAnim.SetTrigger("PopOut");
     }
 
+    // Reset the torch meter's fill amounts, volume, and particle effect
+    public void ResetTorchMeterElements()
+    {
+        content.fillAmount = 1f;
+        content.color = fullColor;
+        flameIcon.color = fullFlameColor;
+        audioSource.volume = 0.9f;
+        main.startLifetime = 0.72f;
+    }
+
 }

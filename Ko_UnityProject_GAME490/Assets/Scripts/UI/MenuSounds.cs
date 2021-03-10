@@ -9,15 +9,23 @@ public class MenuSounds : MonoBehaviour
 {
     private PauseMenu pauseMenuScript;
     private MainMenu mainMenuScript;
+    private AudioSource audioSource;
     private bool pressedSFX; // To prevents spamming the button sfx sounds
 
     // Start is called before the first frame update
     void Awake()
     {
         if (SceneManager.GetActiveScene().name == "MainMenu")
+        {
             mainMenuScript = FindObjectOfType<MainMenu>();
+            audioSource = FindObjectOfType<MainMenu>().gameObject.GetComponent<AudioSource>();
+        }           
         else
+        {
             pauseMenuScript = FindObjectOfType<PauseMenu>();
+            audioSource = FindObjectOfType<PauseMenu>().gameObject.GetComponent<AudioSource>();           
+        }
+           
     }
 
     // Update is called once per frame
@@ -68,14 +76,16 @@ public class MenuSounds : MonoBehaviour
         if (!pressedSFX)
         {
             if (SceneManager.GetActiveScene().name == "MainMenu")
-                mainMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
-
+            {
+                audioSource.PlayOneShot(whichSound);
+            }           
             else
-                pauseMenuScript.GetComponent<AudioSource>().PlayOneShot(whichSound);
+            {
+                audioSource.PlayOneShot(whichSound);
+            }             
         }
             
         else return;
-
         pressedSFX = true;
     }
 

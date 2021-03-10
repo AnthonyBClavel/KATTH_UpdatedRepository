@@ -7,24 +7,34 @@ using TMPro;
 
 public class GameHUD : MonoBehaviour
 {
-    public GameObject keybindIcons, levelInfo;
+    public GameObject keybindIcons, levelInfo, deathScreen;
+    public GameObject safetyMenuText, safetyMenuDeathScreenText;
     public TextMeshProUGUI puzzleNumber;
     public TextMeshProUGUI worldName;
 
+    public AudioClip deathScreenSFX;
+    private AudioSource audioSource;
+
     public bool canToggleHUD;
+    public bool canDeathScreen;
+    public bool isDeathScreen;
     private bool isKeybindIcons;
     private bool isLevelInfo;
 
     private PauseMenu pauseMenuScript;
+    private TileMovementController playerScript;
 
     void Awake()
     {
         CheckWorld();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+        playerScript = FindObjectOfType<TileMovementController>();
     }
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        canDeathScreen = true;
         isKeybindIcons = true;
         isLevelInfo = true;
     }
@@ -33,12 +43,14 @@ public class GameHUD : MonoBehaviour
     void Update()
     {
         CheckWhenToToggle();
+        CheckDeathScreenInput();
 
         /*** For Debuging ***/
         if (Input.GetKeyDown(KeyCode.I) && canToggleHUD)
         {
             isKeybindIcons = !isKeybindIcons;
             isLevelInfo = !isLevelInfo;
+            canDeathScreen = !canDeathScreen;
         }
         /*** Debugging Ends Here **/
 
@@ -65,12 +77,55 @@ public class GameHUD : MonoBehaviour
         isLevelInfo = true;
     }
 
+    // Sets the death screen active ONLY IF canDeathScreen true - this will be an options to toggle in the option screen
+    public void SetDeathScreenActiveCheck()
+    {
+        if(canDeathScreen)
+        {
+            StartCoroutine(SetDeathScreenActiveDelay());
+        }
+    }
+
+    public void SetDeathScreenInactive()
+    {
+        deathScreen.SetActive(false);
+        isDeathScreen = false;
+    }
+
+    // Sets the restarting puzzle bool to true
+    public void CanRestartPuzzle()
+    {
+        playerScript.canRestartPuzzle = true;
+    }
+
+    // Sets the restarting puzzle bool to false
+    public void CannotRestartPuzzle()
+    {
+        playerScript.canRestartPuzzle = false;
+    }
+
+    // Checks when the player can toggle the Game HUD
     private void CheckWhenToToggle()
     {
         if (pauseMenuScript.canPause && !pauseMenuScript.isPaused && !pauseMenuScript.isChangingScenes && pauseMenuScript.isActiveAndEnabled)
             canToggleHUD = true;
         else
             canToggleHUD = false;
+    }
+
+    // Checks when the player can perform the inputs for the death screen
+    private void CheckDeathScreenInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Q) && isDeathScreen && !pauseMenuScript.isSafetyMenu && !pauseMenuScript.isChangingMenus)
+        {
+            pauseMenuScript.OpenSafetyMenu();
+
+        }
+        // ESC is an alternative for closing the saftey menu during the death screen
+        if (Input.GetKeyDown(KeyCode.Escape) && isDeathScreen && pauseMenuScript.isSafetyMenu && !pauseMenuScript.isChangingMenus)
+        {
+            pauseMenuScript.CloseSafetyMenu();
+        }
     }
 
     private void CheckWorld()
@@ -87,6 +142,22 @@ public class GameHUD : MonoBehaviour
             worldName.text = "Zone: Power Station";
         else if (SceneManager.GetActiveScene().name == "TutorialMap")
             worldName.text = "Zone: Tutorial";
+    }
+
+    private void PlayDeathScreenSFX()
+    {
+        audioSource.volume = 0.5f;
+        audioSource.pitch = 1f;
+        audioSource.PlayOneShot(deathScreenSFX);
+    }
+
+    private IEnumerator SetDeathScreenActiveDelay()
+    {
+        yield return new WaitForSeconds(1.25f);
+        deathScreen.SetActive(true);
+        isDeathScreen = true;
+        CanRestartPuzzle();
+        PlayDeathScreenSFX();
     }
 
 

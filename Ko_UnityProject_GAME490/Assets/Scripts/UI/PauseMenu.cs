@@ -17,13 +17,17 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseScreenBG;
     public GameObject player;
     public GameObject pauseFirstButton, optionsFirstButton, optionsClosedButton, mainMenuButton, safetyFirstButton, safetySecondButton;
+
+    [Header("Animators")]
     public Animator pauseScreenAnim;
     public Animator pauseScreenBgAnim;
     public Animator optionsScreenAnim;
     public Animator safetyMenuAnim;
+    public Animator deathScreenAnim;
 
     private GameObject lastSelectedObject;
     private EventSystem eventSystem;
+    private GameHUD gameHUDScript;
 
     [Header("Bools")]
     public bool isOptionsMenu;
@@ -32,20 +36,29 @@ public class PauseMenu : MonoBehaviour
     public bool isSafetyMenu;
     public bool canPlayButtonSFX;
     public bool isPaused;
-    private bool isChangingMenus;
+    public bool isChangingMenus;
 
     [Header("Loading Screen Elements")]
     public GameObject loadingScreen, loadingIcon;
     public TextMeshProUGUI loadingText;
 
+    [Header("Audio")]
+    public AudioClip safetyMenuSFX;
+    public AudioSource audioSourceUI;
+
+    void Awake()
+    {
+        eventSystem = FindObjectOfType<EventSystem>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        eventSystem = FindObjectOfType<EventSystem>();
         isChangingScenes = false;
         isChangingMenus = false;
         canPlayButtonSFX = true;
-        StartCoroutine("DelayPauseMenuInput");
+        StartCoroutine(DelayPauseMenuInput());
     }
 
     // Update is called once per frame
@@ -68,18 +81,18 @@ public class PauseMenu : MonoBehaviour
         // Close the options menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu && !isChangingMenus)
         {
-            StartCoroutine("CloseOptionsDelay");
+            StartCoroutine(CloseOptionsDelay());
         }
         // Close safety menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isSafetyMenu && !isChangingMenus)
         {
-            StartCoroutine("CloseSafetyMenuDelay");
+            StartCoroutine(CloseSafetyMenuDelay());
         }
     }
 
     public void Resume()
     {
-        StartCoroutine("ResumeDelay");
+        StartCoroutine(ResumeDelay());
     }
 
     public void ResumeImmediately()
@@ -93,7 +106,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Pause()
     {
-        StopCoroutine("ResumeDelay");      
+        StopCoroutine(ResumeDelay());      
         Time.timeScale = 0f;
         isPaused = true;
         pauseScreen.SetActive(true);
@@ -109,34 +122,40 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenOptions()
     {
-        StartCoroutine("OpenOptionsDelay");
+        StartCoroutine(OpenOptionsDelay());
     }
 
     public void CloseOptions()
     {
-        StartCoroutine("CloseOptionsDelay");
+        StartCoroutine(CloseOptionsDelay());
     }
 
     public void QuitToMain()
     {
-        StartCoroutine("LoadMainAsync");
+        StartCoroutine(LoadMainAsync());
     }
 
     public void OpenSafetyMenu()
     {
-        StartCoroutine("OpenSafetyMenuDelay");
+        if(gameHUDScript.isDeathScreen)
+            StartCoroutine(OpenSafetyMenuDelay_DS());
+        else
+            StartCoroutine(OpenSafetyMenuDelay());
     }
 
     // For closing the saftey menu when you press "No"
     public void CloseSafetyMenu()
     {
-        StartCoroutine("CloseSafetyMenuDelay");
+        if (gameHUDScript.isDeathScreen)         
+            StartCoroutine(CloseSafetyMenuDelay_DS());
+        else
+            StartCoroutine(CloseSafetyMenuDelay());
     }
 
     // For closing the saftey menu when you press "Yes"
     public void CloseSafetyMenu02()
     {
-        StartCoroutine("CloseSafetyMenuDelay02");
+        StartCoroutine(CloseSafetyMenuDelay02());
     }
 
     /*private SaveSlot makeSaveSlot()
@@ -300,6 +319,23 @@ public class PauseMenu : MonoBehaviour
         eventSystem.SetSelectedGameObject(safetyFirstButton);
         EnableMenuInputPS();
     }
+    
+    // *** For opening the saftey menu while the death screen is active ***
+    private IEnumerator OpenSafetyMenuDelay_DS()
+    {
+        DisableMenuInputsPS();
+        gameHUDScript.CannotRestartPuzzle();
+
+        yield return new WaitForSecondsRealtime(0.15f);
+        PlaySafetyMenuSFX();
+        isSafetyMenu = true;
+        deathScreenAnim.SetTrigger("DS_PopOut");  // The death screen is set inactive and the safety menu is set active at the end of the animation via anim event
+
+        yield return new WaitForSecondsRealtime(0.2f);
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(safetyFirstButton);
+        EnableMenuInputPS();
+    }
 
     // For closing the safety menu when you press "no"
     private IEnumerator CloseSafetyMenuDelay()
@@ -316,6 +352,20 @@ public class PauseMenu : MonoBehaviour
         EnableMenuInputPS();
     }
 
+    // *** For closing the safety menu when you press "no" while the death screen is active ***
+    private IEnumerator CloseSafetyMenuDelay_DS()
+    {
+        DisableMenuInputsPS();
+
+        yield return new WaitForSecondsRealtime(0.15f);
+        isSafetyMenu = false;
+        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the death screen is set active at the end of the animation via anim event      
+
+        yield return new WaitForSecondsRealtime(0.2f);
+        gameHUDScript.CanRestartPuzzle();
+        EnableMenuInputPS();
+    }
+
     // For closing the safety menu when you press "yes"
     private IEnumerator CloseSafetyMenuDelay02()
     {
@@ -323,7 +373,7 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut");
+        safetyMenuAnim.SetTrigger("SM_PopOut");         
     }
 
     private void EnableMenuInputPS()
@@ -353,12 +403,21 @@ public class PauseMenu : MonoBehaviour
         StartCoroutine("LoadMainAsync");
     }*/
 
+    // Plays the sfx for opening the safety menu in the death screen
+    private void PlaySafetyMenuSFX()
+    {
+        audioSourceUI.volume = 0.35f;
+        audioSourceUI.pitch = 1f;
+        audioSourceUI.PlayOneShot(safetyMenuSFX);
+    }
+
     // Cant pause until the scene fully fades in (to avoid layering issues in UI)
     private IEnumerator DelayPauseMenuInput()
     {
         canPause = false;
         yield return new WaitForSeconds(2.0f);
         canPause = true;
+        PlayerSounds.instance.canCheckBridgeTiles = true; // This is only false when the player enters and leaves a scene
     }
 
 }

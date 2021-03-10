@@ -6,6 +6,8 @@ using UnityEngine;
 public class PlayerSounds : MonoBehaviour
 {
     public bool canPlayFootsteps;
+    public bool canCheckBridgeTiles;
+
     public static PlayerSounds instance;
 
     public AudioClip[] snowFootstepClips;                                    
@@ -31,6 +33,7 @@ public class PlayerSounds : MonoBehaviour
         //sets this script as an instance - other scripts can call it without creating a variable for it
         instance = this;
         canPlayFootsteps = true;
+        canCheckBridgeTiles = false;
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -67,7 +70,7 @@ public class PlayerSounds : MonoBehaviour
 
         Debug.DrawRay(myRay.origin, myRay.direction, Color.blue);
 
-        if (Physics.Raycast(myRay, out hit, rayLength) && canPlayFootsteps)
+        if (Physics.Raycast(myRay, out hit, rayLength) && canPlayFootsteps && canCheckBridgeTiles)
         {
             tag = hit.collider.tag;
             name = hit.collider.name;
@@ -77,7 +80,7 @@ public class PlayerSounds : MonoBehaviour
     }
     private void CheckForSnowTiles()
     {
-        if (tag == "SnowTiles" || name == "SnowCheckpoint" || name == "Checkpoint_SnowTiles" || name == "SnowTileBlock" || name == "EmberCityBlock" || name == "Checkpoint_EmberCityTiles")
+        if (tag == "SnowTiles" || name == "SnowCheckpoint" || name == "Checkpoint_SnowTiles" || name == "SnowTileBlock" || name == "BarrenLandsBlock" || name == "Checkpoint_BarrenLandsTiles")
         {
             audioSource.volume = 0.7f;
             audioSource.pitch = 1.0f;

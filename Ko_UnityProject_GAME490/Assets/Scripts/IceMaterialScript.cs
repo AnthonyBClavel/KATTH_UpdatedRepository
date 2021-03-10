@@ -44,6 +44,12 @@ public class IceMaterialScript : MonoBehaviour
         iceMaterialAlpha = 0f;
     }
 
+    // Sets the alpha of the ice material back to 0 immediately
+    public void ResetPlayerMaterial02()
+    {
+        iceMaterialAlpha = 0f;
+    }
+
     // Increases the alpha of the Cold UI over time until it reaches its max value
     public IEnumerator IncreaseAlpha_ColdUI()
     {
@@ -59,6 +65,12 @@ public class IceMaterialScript : MonoBehaviour
     public IEnumerator ResetUIAlpha_ColdUI()
     {
         yield return new WaitForSeconds(1.5f);
+        coldUIAlpha = 0f;
+    }
+
+    // Sets the alpha of the Cold UI back to 0 immediately
+    public void ResetUIAlpha_ColdUI02()
+    {
         coldUIAlpha = 0f;
     }
 

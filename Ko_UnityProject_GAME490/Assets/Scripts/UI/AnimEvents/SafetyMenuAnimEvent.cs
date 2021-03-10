@@ -8,14 +8,18 @@ public class SafetyMenuAnimEvent : MonoBehaviour
     public GameObject mainCanvas;
     private PauseMenu pauseMenuScript;
     private MainMenu mainMenuScript;
+    private GameHUD gameHUDScript;
 
     // Start is called before the first frame update
     void Awake()
     {
         if(SceneManager.GetActiveScene().name == "MainMenu")
            mainMenuScript = FindObjectOfType<MainMenu>();
-        else 
-           pauseMenuScript = FindObjectOfType<PauseMenu>();     
+        else
+        {
+            gameHUDScript = FindObjectOfType<GameHUD>();
+            pauseMenuScript = FindObjectOfType<PauseMenu>();
+        }            
     }
 
     // Update is called once per frame
@@ -31,14 +35,21 @@ public class SafetyMenuAnimEvent : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
-            if (mainMenuScript.isQuitingGame == false)
+            if (!mainMenuScript.isQuitingGame)
                 mainCanvas.SetActive(true);
         }
 
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
-            if (pauseMenuScript.isChangingScenes == false)
+            if (!pauseMenuScript.isChangingScenes && !gameHUDScript.isDeathScreen)
                 mainCanvas.SetActive(true);
+            if (!pauseMenuScript.isChangingScenes && gameHUDScript.isDeathScreen)
+            {
+                gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
+                gameHUDScript.safetyMenuText.SetActive(true);
+                pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
+            }
+                
         }
     }
     

@@ -25,21 +25,22 @@ public class MainMenuAnimEvent : MonoBehaviour
     {
         gameObject.SetActive(false);
 
-        //if (mainMenuScript.isOptionsMenu == true)
+        //if (mainMenuScript.isOptionsMenu)
             //optionsScreen.SetActive(true);
 
-        if (mainMenuScript.isSafetyMenu == true)
+        if (mainMenuScript.isSafetyMenu)
             safetyMenu.SetActive(true);
     }
 
     public void FadeInLogo()
     {
-        if(mainMenuScript.canFadeLogo == true)
+        if(mainMenuScript.canFadeLogo)
             logoAnim.SetTrigger("TC_FadeIn");
     }
+
     public void FadeOutLogo()
     {
-        if (mainMenuScript.canFadeLogo == false)
+        if (!mainMenuScript.canFadeLogo)
             logoAnim.SetTrigger("TC_FadeOut");
     }
 

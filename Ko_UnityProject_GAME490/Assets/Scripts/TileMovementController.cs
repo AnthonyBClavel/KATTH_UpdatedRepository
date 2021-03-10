@@ -40,6 +40,7 @@ public class TileMovementController : MonoBehaviour
     private LevelManager levelManagerScript;
     private TorchMeterScript torchMeterScript;
     private SaveManagerScript saveManagerScript;
+    private GameHUD gameHUDScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
@@ -66,6 +67,7 @@ public class TileMovementController : MonoBehaviour
 
         levelManagerScript = FindObjectOfType<LevelManager>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         //saveManagerScript.LoadPlayerPosition();
@@ -128,7 +130,7 @@ public class TileMovementController : MonoBehaviour
             isWalking = false;
             checkIfOnCheckpoint();
             //checkIfOnBridgeController();
-            levelManagerScript.checkIfCompletedLevel();
+            checkIfCompletedLevel();
 
             // If player's torch meter runs out...
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
@@ -136,7 +138,11 @@ public class TileMovementController : MonoBehaviour
                 Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);
                 Instantiate(freezingSFX, transform.position, transform.rotation);
                 alreadyPlayedSFX = true; // The audio clip cannot be played again
-                resetPuzzleWithDelay();
+
+                if (SceneManager.GetActiveScene().name == "TutorialMap")
+                    resetPuzzleWithDelayInTutorial();
+                else
+                    resetPuzzleWithDelay();
             }
         }
         else
@@ -369,7 +375,7 @@ public class TileMovementController : MonoBehaviour
     // Checks if there's an edge - determines where the player cant move towards
     bool EdgeCheck()
     {
-        Ray myEdgeRay = new Ray(edgeCheck.transform.position, -transform.up);
+        Ray myEdgeRay = new Ray(edgeCheck.transform.position, Vector3.down);
         RaycastHit hit;
         Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);
 
@@ -415,6 +421,7 @@ public class TileMovementController : MonoBehaviour
     public void ResetTorchMeter()
     {
         torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+        torchMeterScript.ResetTorchMeterElements();
     }
 
     // Draws a ray below the player and returns true if player is standing on a checkpoint, returns false otherwise
@@ -453,6 +460,30 @@ public class TileMovementController : MonoBehaviour
             //main_camera.GetComponent<CameraController>().WindGush();
         }
         return true;
+    }
+
+    // Determines wether the player has touched this object 
+    public bool checkIfCompletedLevel()
+    {
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
+        RaycastHit hit;
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.blue);
+
+        if (Physics.Raycast(myRay, out hit, rayLength))
+        {
+            string tag = hit.collider.tag;
+
+            if (tag == "EndOfLevel")
+            {
+                ResetTorchMeter();
+                levelManagerScript.GetComponent<BridgeMovementController>().MoveToNextBlock();
+                levelManagerScript.DisablePlayer();
+                levelManagerScript.SetLevelCompletedEffects();
+                //SaveManager.DeleteGame();
+                return true;
+            }
+        }
+        return false;
     }
 
     // Determines when the player lands on a bridge tile with the BridgeMovementController
@@ -498,7 +529,7 @@ public class TileMovementController : MonoBehaviour
         Physics.Raycast(myRay, out hit, rayLength);
         string name = hit.collider.name;
 
-        if (name == "BridgeBlock" || name == "PatchyGrassBlockTutorial")
+        if (name == "BridgeBlock")
         {
             //string tag = hit.collider.tag;
             // For the if statements below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
@@ -533,6 +564,26 @@ public class TileMovementController : MonoBehaviour
         return false;
     }
 
+    // Determines if the player on the last tile block in a puzzle - returns true if so, false otherwise - ONLY USED IN TUTORIAL SCRIPT
+    public bool onLastTileBlock()
+    {
+        if(SceneManager.GetActiveScene().name == "TutorialMap")
+        {
+            Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
+            RaycastHit hit;
+            Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
+
+            Physics.Raycast(myRay, out hit, rayLength);
+            string name = hit.collider.name;
+
+            if (name == "PatchyGrassBlockTutorial")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Resets the current puzzle the player is on (determined by last checkpoint)
     private void resetPuzzle()
     {
@@ -540,7 +591,6 @@ public class TileMovementController : MonoBehaviour
         if (canRestartPuzzle)
         {
             checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
-            ResetTorchMeter();
 
             Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
             for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -564,10 +614,10 @@ public class TileMovementController : MonoBehaviour
         }
     }
 
-    // Resets the current puzzle the player is on (determined by last checkpoint) BUT with a delay
-    private void resetPuzzleWithDelay()
+    // Resets the current puzzle the player is on (determined by last checkpoint) BUT with a delay - USED ONLY IN TUTORIAL
+    private void resetPuzzleWithDelayInTutorial()
     {
-        checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
+        checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionInTutorialWithDelay", 1.5f);
 
         // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -589,10 +639,41 @@ public class TileMovementController : MonoBehaviour
                 child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
         }
 
-        //ResetTorchMeter();
         hasDied = true;
     }
 
+    // Resets the current puzzle the player is on (determined by last checkpoint) BUT with a delay
+    private void resetPuzzleWithDelay()
+    {
+        checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionWithDelay", 1.5f);
+
+        // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
+        for (int i = 0; i < puzzle.transform.childCount; i++)
+        {
+            if(!gameHUDScript.canDeathScreen)
+            {
+                GameObject child = puzzle.transform.GetChild(i).gameObject;
+                if (child.name == "Pushable Blocks")
+                    child.GetComponent<ResetPushableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
+
+                else if (child.name == "Crystal Blocks")
+                    child.GetComponent<ResetCrystalBlocks>().StartCoroutine("ResetCrystalsWithDelay", 1.5f);
+
+                else if (child.name == "Breakable Blocks")
+                    child.GetComponent<ResetBreakableBlocks>().StartCoroutine("resetBlocksWithDelay", 1.5f);
+
+                else if (child.name == "Fire Stones")
+                    child.GetComponent<ResetFireStone>().StartCoroutine("resetFirestoneWithDelay", 1.5f);
+
+                else if (child.name == "Generator Blocks")
+                    child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
+            }
+
+        }
+
+        //ResetTorchMeter();
+        hasDied = true;
+    }
     
     public void SetPlayerBoolsFalse()
     {

@@ -9,7 +9,10 @@ using TMPro;
 public class LevelManager : MonoBehaviour
 {
     public string nextLevelToLoad;
-    float rayLength = 1f;
+    //float rayLength = 1f;
+
+    [Header("Game Objects")]
+    public GameObject levelCompleteItem;
 
     [Header("Loading Screen Elements")]
     public TextMeshProUGUI loadingText;
@@ -17,23 +20,25 @@ public class LevelManager : MonoBehaviour
     public GameObject loadingScreen, loadingIcon;
     public Sprite[] loadingScreenSprites;
 
-    private Animator playerAnimator;
     private TileMovementController playerScript;
     private SaveManagerScript saveMangerScript;
     private PlayerSounds playerSoundsScript;
+
+    private AudioSource audioSource;
+    private bool hasfinishedLevel;
 
     void Awake()
     {
         saveMangerScript = FindObjectOfType<SaveManagerScript>();
         playerScript = FindObjectOfType<TileMovementController>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
-        playerAnimator = FindObjectOfType<TileMovementController>().GetComponentInChildren<Animator>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        hasfinishedLevel = false;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -80,8 +85,8 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    // Determines wether the player has touched this object 
-    public bool checkIfCompletedLevel()
+    // Determines wether the player has touched this object - this is now done in the TileMovementController
+    /*public bool checkIfCompletedLevel()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0, 0), Vector3.up);
         RaycastHit hit;
@@ -91,7 +96,7 @@ public class LevelManager : MonoBehaviour
         {
             string tag = hit.collider.tag;
 
-            if (tag == "Player")
+            if (tag == "EndOfLevel")
             {
                 playerScript.ResetTorchMeter();
                 GetComponent<BridgeMovementController>().MoveToNextBlock();
@@ -102,7 +107,7 @@ public class LevelManager : MonoBehaviour
             else return false;
         }
         return false;
-    }
+    }*/
 
     // Prevents the player from receiving input
     public void DisablePlayer()
@@ -110,6 +115,17 @@ public class LevelManager : MonoBehaviour
         StartCoroutine(DisbalePlayerSounds());
         FindObjectOfType<LevelFade>().FadeOutToNextLevel();
         playerScript.SetPlayerBoolsFalse();
+    }
+
+    // Plays the level complete sfx and sets gameobject inactive
+    public void SetLevelCompletedEffects()
+    {
+        if(!hasfinishedLevel)
+        {
+            levelCompleteItem.SetActive(false);
+            audioSource.Play();
+            hasfinishedLevel = false;
+        }
     }
 
     // Sets a random image/sprite for the loading screen
@@ -131,6 +147,7 @@ public class LevelManager : MonoBehaviour
     // Disables the player's footsteps sfx by the end of the level fade
     private IEnumerator DisbalePlayerSounds()
     {
+        playerSoundsScript.canCheckBridgeTiles = false;
         yield return new WaitForSecondsRealtime(1.6f);
         playerSoundsScript.canPlayFootsteps = false;
     }
