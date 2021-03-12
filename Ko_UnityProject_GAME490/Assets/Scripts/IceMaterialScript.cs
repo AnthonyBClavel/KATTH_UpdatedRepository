@@ -53,7 +53,7 @@ public class IceMaterialScript : MonoBehaviour
     // Increases the alpha of the Cold UI over time until it reaches its max value
     public IEnumerator IncreaseAlpha_ColdUI()
     {
-        for (float i = 0f; i <= 1; i -= 0.02f)
+        for (float i = 0f; i <= 1; i += 0.02f)
         {
             i = coldUIAlpha;
             coldUIAlpha += 0.025f;

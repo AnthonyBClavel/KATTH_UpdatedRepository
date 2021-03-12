@@ -23,15 +23,18 @@ public class LevelManager : MonoBehaviour
     private TileMovementController playerScript;
     private SaveManagerScript saveMangerScript;
     private PlayerSounds playerSoundsScript;
+    private PauseMenu pauseMenuScript;
 
     private AudioSource audioSource;
     private bool hasfinishedLevel;
+    private bool hasSavedFile;
 
     void Awake()
     {
         saveMangerScript = FindObjectOfType<SaveManagerScript>();
         playerScript = FindObjectOfType<TileMovementController>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Start is called before the first frame update
@@ -112,8 +115,11 @@ public class LevelManager : MonoBehaviour
     // Prevents the player from receiving input
     public void DisablePlayer()
     {
-        StartCoroutine(DisbalePlayerSounds());
-        FindObjectOfType<LevelFade>().FadeOutToNextLevel();
+        if (SceneManager.GetActiveScene().name != "FifthMap")
+            FindObjectOfType<LevelFade>().FadeOutToNextLevel();
+
+        pauseMenuScript.isChangingScenes = true;
+        StartCoroutine("DisbalePlayerSounds");
         playerScript.SetPlayerBoolsFalse();
     }
 
@@ -124,8 +130,15 @@ public class LevelManager : MonoBehaviour
         {
             levelCompleteItem.SetActive(false);
             audioSource.Play();
-            hasfinishedLevel = false;
+            hasfinishedLevel = true;
         }
+        // This is only for when the player leaves the fifth map
+        if(SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
+        {
+            saveMangerScript.CreateNewSaveFile();
+            hasSavedFile = true;
+        }
+            
     }
 
     // Sets a random image/sprite for the loading screen

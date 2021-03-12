@@ -449,7 +449,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f94882adfcfaac4cb448b60f73b8608, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canResetGlow: 0
+  lightIntensity: 0
+  canResetIdle: 0
+  canFadeOut: 0
 --- !u!1 &2070077362653838937
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,7 +667,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: -895295930677450239, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.3
+  m_Volume: 0.28
   m_Pitch: 0.9
   Loop: 0
   Mute: 0

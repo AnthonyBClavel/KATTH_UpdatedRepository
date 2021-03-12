@@ -44,6 +44,8 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Audio")]
     public AudioClip safetyMenuSFX;
+    public AudioClip buttonClickSFX;
+    public AudioClip buttonSelectSFX;
     public AudioSource audioSourceUI;
 
     void Awake()
@@ -58,7 +60,7 @@ public class PauseMenu : MonoBehaviour
         isChangingScenes = false;
         isChangingMenus = false;
         canPlayButtonSFX = true;
-        StartCoroutine(DelayPauseMenuInput());
+        StartCoroutine("DelayPauseMenuInput");
     }
 
     // Update is called once per frame
@@ -81,18 +83,18 @@ public class PauseMenu : MonoBehaviour
         // Close the options menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu && !isChangingMenus)
         {
-            StartCoroutine(CloseOptionsDelay());
+            StartCoroutine("CloseOptionsDelay");
         }
         // Close safety menu by pressing ESC
         if (Input.GetKeyDown(KeyCode.Escape) && isSafetyMenu && !isChangingMenus)
         {
-            StartCoroutine(CloseSafetyMenuDelay());
+            StartCoroutine("CloseSafetyMenuDelay");
         }
     }
 
     public void Resume()
     {
-        StartCoroutine(ResumeDelay());
+        StartCoroutine("ResumeDelay");
     }
 
     public void ResumeImmediately()
@@ -110,7 +112,8 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         pauseScreen.SetActive(true);
-        pauseScreenBG.SetActive(true);      
+        pauseScreenBG.SetActive(true);
+        GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
         player.GetComponent<TileMovementController>().SetPlayerBoolsFalse();
 
         EnableMenuInputPS();
@@ -122,40 +125,40 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenOptions()
     {
-        StartCoroutine(OpenOptionsDelay());
+        StartCoroutine("OpenOptionsDelay");
     }
 
     public void CloseOptions()
     {
-        StartCoroutine(CloseOptionsDelay());
+        StartCoroutine("CloseOptionsDelay");
     }
 
     public void QuitToMain()
     {
-        StartCoroutine(LoadMainAsync());
+        StartCoroutine("LoadMainAsync");
     }
 
     public void OpenSafetyMenu()
     {
         if(gameHUDScript.isDeathScreen)
-            StartCoroutine(OpenSafetyMenuDelay_DS());
+            StartCoroutine("OpenSafetyMenuDelay_DS");
         else
-            StartCoroutine(OpenSafetyMenuDelay());
+            StartCoroutine("OpenSafetyMenuDelay");
     }
 
     // For closing the saftey menu when you press "No"
     public void CloseSafetyMenu()
     {
         if (gameHUDScript.isDeathScreen)         
-            StartCoroutine(CloseSafetyMenuDelay_DS());
+            StartCoroutine("CloseSafetyMenuDelay_DS");
         else
-            StartCoroutine(CloseSafetyMenuDelay());
+            StartCoroutine("CloseSafetyMenuDelay");
     }
 
     // For closing the saftey menu when you press "Yes"
     public void CloseSafetyMenu02()
     {
-        StartCoroutine(CloseSafetyMenuDelay02());
+        StartCoroutine("CloseSafetyMenuDelay02");
     }
 
     /*private SaveSlot makeSaveSlot()

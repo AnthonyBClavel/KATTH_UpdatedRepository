@@ -62,7 +62,6 @@ public class LevelFade : MonoBehaviour
         animator.SetTrigger("FadeOutNextLevel");
     }
 
-
     // Calls the "QuitGame" function in the main menu script
     public void OnFadeCompleteForGame()
     {

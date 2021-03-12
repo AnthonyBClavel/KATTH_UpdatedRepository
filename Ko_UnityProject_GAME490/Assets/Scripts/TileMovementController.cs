@@ -57,8 +57,7 @@ public class TileMovementController : MonoBehaviour
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
-    private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views
-    
+    private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views   
 
     void Awake()
     {
@@ -268,9 +267,12 @@ public class TileMovementController : MonoBehaviour
         {
             torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
             Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);
+            isInteracting = true;
         }
+        else
+            isInteracting = false;
+
         collider.gameObject.GetComponentInChildren<Light>().enabled = false;
-        isInteracting = true;
         isWalking = false;
         CheckToPlayAnims();
     }
@@ -345,10 +347,12 @@ public class TileMovementController : MonoBehaviour
             /*case ("FireStone"):
                 if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
                 {
-                    torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
-                    Instantiate(torchFireIgniteSFX, transform.position, transform.rotation); // Spwans the particle effect on the object's position and rotation
+                    collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);
+                    isPushing = true;                  
                 }
-                collider.gameObject.GetComponentInChildren<Light>().enabled = false;
+                else
+                    isPushing = false; 
+                
                 isWalking = false;
                 CheckToPlayAnims();
                 break;*/
@@ -612,6 +616,7 @@ public class TileMovementController : MonoBehaviour
                     child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
             }
         }
+
     }
 
     // Resets the current puzzle the player is on (determined by last checkpoint) BUT with a delay - USED ONLY IN TUTORIAL
@@ -668,10 +673,8 @@ public class TileMovementController : MonoBehaviour
                 else if (child.name == "Generator Blocks")
                     child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", 1.5f);
             }
-
         }
 
-        //ResetTorchMeter();
         hasDied = true;
     }
     

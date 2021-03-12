@@ -44,8 +44,15 @@ public class MainMenu : MonoBehaviour
     private bool hasPressedEnter;
     private bool isChangingMenus;
 
+    [Header("Audio")]
+    public AudioClip buttonClickSFX;
+    public AudioClip buttonSelectSFX;
+
+    private EndCredits endCreditsScript;
+
     void Awake()
     {
+        endCreditsScript = FindObjectOfType<EndCredits>();
         DetermineLevelToLoad();
     }
 
@@ -67,6 +74,8 @@ public class MainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        lastSelectedObject = eventSystem.currentSelectedGameObject;
+
         // If enter is already pressed once, you cannot call this function again
         if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
         {
@@ -146,7 +155,10 @@ public class MainMenu : MonoBehaviour
 
     public void PlayCredits()
     {
-        Debug.Log("Credits have been played");
+        DisableMenuInputMM();
+        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
+        canFadeLogo = false;
+        endCreditsScript.StartEndCreditsManually();
     }
 
     public void OpenSafetyMenu()
@@ -302,6 +314,13 @@ public class MainMenu : MonoBehaviour
         PlayerPrefs.SetString("savedScene", tutorialScene);
     }
 
+    // Selects the credits button - ONLY used after credits have ended
+    public void SelectCreditsButtonAfterCredits()
+    {
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(creditsButton);
+    }
+
     // Checks which scene to load when your save file is deleted/null
     private void DetermineLevelToLoad()
     {
@@ -328,7 +347,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator OpenMainMenuDelay()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         pressEnterTextAnim.SetTrigger("TextExit");
@@ -347,19 +366,19 @@ public class MainMenu : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(continueFirstButton);
 
         yield return new WaitForSecondsRealtime(1.5f);
-        EnableMenuInputPS();
+        EnableMenuInputMM();
         mainMenuButtonsAnim.speed = 2;
     }
 
     private IEnumerator StartGameDelay()
     {
         yield return new WaitForSecondsRealtime(0.15f);
-        StartCoroutine(LoadLevelAsync());
+        StartCoroutine("LoadLevelAsync");
     }
 
     private IEnumerator OpenOptionsDelay()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
@@ -370,12 +389,12 @@ public class MainMenu : MonoBehaviour
         optionsScreen.SetActive(true);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsFirstButton);
-        EnableMenuInputPS();
+        EnableMenuInputMM();
     }
 
     private IEnumerator CloseOptionsDelay()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = false;
@@ -385,12 +404,13 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsClosedButton);
-        EnableMenuInputPS();     
+        //EnableMenuInputMM();   
+        EnableInputDelay();
     }
 
     private IEnumerator OpenSafetyMenuDelay()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         mainMenuButtonsAnim.SetTrigger("MMB_PopOut");  // The main menu is set inactive and the safety menu is set active at the end of the animation via anim event
@@ -400,13 +420,13 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.85f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
-        EnableMenuInputPS();
+        EnableMenuInputMM();
     }
 
     // For closing the safety menu when you press "no"
     private IEnumerator CloseSafetyMenuDelay()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the main menu is set active at the end of the animation via anim event     
@@ -417,19 +437,32 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(quitGameButton);
-        EnableMenuInputPS();
+        //EnableMenuInputMM();
+        EnableInputDelay();
     }
 
     // For closing the safety menu when you press "yes"
     private IEnumerator CloseSafetyMenuDelay02()
     {
-        DisableMenuInputPS();
+        DisableMenuInputMM();
 
         yield return new WaitForSecondsRealtime(0.15f);
         safetyMenuAnim.SetTrigger("SM_PopOut");
         isSafetyMenu = false;
         canFadeLogo = true;
         isQuitingGame = true;
+    }
+
+    private IEnumerator PlayEndCredits()
+    {
+        DisableMenuInputMM();
+
+        yield return new WaitForSecondsRealtime(0.15f);
+        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
+        canFadeLogo = false;
+
+        yield return new WaitForSecondsRealtime(0.85f);
+        endCreditsScript.StartEndCreditsManually();
     }
 
     private IEnumerator QuitGameDelay()
@@ -439,7 +472,7 @@ public class MainMenu : MonoBehaviour
         Debug.Log("Quit Successful");
     }
 
-    private void EnableMenuInputPS()
+    private void EnableMenuInputMM()
     {
         canPlayButtonSFX = true;
         isChangingMenus = false;
@@ -449,7 +482,7 @@ public class MainMenu : MonoBehaviour
         safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
-    private void DisableMenuInputPS()
+    private void DisableMenuInputMM()
     {
         canPlayButtonSFX = false;
         isChangingMenus = true;
@@ -457,6 +490,19 @@ public class MainMenu : MonoBehaviour
         mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = false;
         optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
         safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+    }
+
+    // Enables the input after a delay - ONLY used after credits have ended
+    public void EnableInputDelay()
+    {
+        StartCoroutine("DelayEnableInput");
+    }
+
+    // Enables the input after the specified time
+    private IEnumerator DelayEnableInput()
+    {
+        yield return new WaitForSeconds(0.25f);
+        EnableMenuInputMM();
     }
 
     // Sets a random image/sprite for the loading screen

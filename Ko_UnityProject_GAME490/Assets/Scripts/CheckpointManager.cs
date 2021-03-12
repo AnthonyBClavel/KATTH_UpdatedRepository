@@ -81,7 +81,8 @@ public class CheckpointManager : MonoBehaviour
     // Resets the player's position and other elements after a certain amount of seconds
     public IEnumerator resetPlayerPositionWithDelay(float seconds)
     {
-        DetermineIceMatCoroutines();
+        //DetermineIceMatCoroutines();
+        StartIceMatCoroutines02();
         tileMovementScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.canPause = false;
@@ -96,7 +97,8 @@ public class CheckpointManager : MonoBehaviour
     // Resets the player's position and other elements after a certain amount of seconds - ONLY USED IN TUTORIAL
     public IEnumerator resetPlayerPositionInTutorialWithDelay(float seconds)
     {
-        DetermineIceMatCoroutines();
+        //DetermineIceMatCoroutines();
+        StartIceMatCoroutines02();
         tileMovementScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.canPause = false;
@@ -115,19 +117,21 @@ public class CheckpointManager : MonoBehaviour
         return hit;
     }
 
-    // Determines if the death screen should be activated
+    // Determines what coroutines should play if the death screen should be activated
     private void DetermineIceMatCoroutines()
     {
-        if (gameHUDScript.canDeathScreen && SceneManager.GetActiveScene().name != "TutorialMap")
+        /*if (gameHUDScript.canDeathScreen && SceneManager.GetActiveScene().name != "TutorialMap")
             StartIceMatCoroutines02();
         else
-            StartIceMatCoroutines();
+            StartIceMatCoroutines();*/
     }
 
 
     // Resets the player's animation, position, rotation, and torch meter
     private void ResetPlayer()
-    { 
+    {
+        ResetIceMatAlphas();
+        //if (!player.GetComponent<TileMovementController>().checkIfOnCheckpoint())
         player.SetActive(false);
         playerAnimator.enabled = true;
         player.SetActive(true);

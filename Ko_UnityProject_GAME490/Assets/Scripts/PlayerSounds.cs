@@ -25,8 +25,8 @@ public class PlayerSounds : MonoBehaviour
     float rayLength = 1f;
 
     private AudioSource audioSource;
-    private string tag;
-    private string name;
+    private new string tag;
+    private new string name;
 
     void Start()
     {
@@ -63,6 +63,7 @@ public class PlayerSounds : MonoBehaviour
             CheckForCrateTiles();
         }
     }
+
     public void BridgeTileCheck()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), -transform.up);
@@ -78,6 +79,7 @@ public class PlayerSounds : MonoBehaviour
             CheckForBridgeTiles();
         }
     }
+
     private void CheckForSnowTiles()
     {
         if (tag == "SnowTiles" || name == "SnowCheckpoint" || name == "Checkpoint_SnowTiles" || name == "SnowTileBlock" || name == "BarrenLandsBlock" || name == "Checkpoint_BarrenLandsTiles")

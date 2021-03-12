@@ -16,7 +16,7 @@ public class DestoryThisObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(CheckToDestoryObject());
+        StartCoroutine("CheckToDestoryObject");
     }
 
     // Update is called once per frame

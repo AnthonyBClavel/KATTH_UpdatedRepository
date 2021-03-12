@@ -27,6 +27,7 @@ public class CrystalAnimEvent : MonoBehaviour
 
 
     /*** Functions for animation events in crystal's animator ***/
+
     // Sets the game object inactive
     public void SetCrystalInactive()
     {

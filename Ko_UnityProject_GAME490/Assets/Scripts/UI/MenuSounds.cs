@@ -10,83 +10,113 @@ public class MenuSounds : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private MainMenu mainMenuScript;
     private AudioSource audioSource;
-    private bool pressedSFX; // To prevents spamming the button sfx sounds
+    private bool pressedSFX; // To prevent spamming the buttonSFX
+    private bool hasClicked;
+
+    void Awake()
+    {
+        SetAudioSourceAndScripts();
+    }
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
+    {
+        pressedSFX = true;
+        hasClicked = false;
+    }
+
+    // Update is called once per frame
+    void LateUpdate()
+    {
+        // Resets the pressedSFX bool back to false if any input is recieved
+        /*if (Input.anyKey || Input.anyKeyDown)
+        {
+            pressedSFX = false;
+        }*/
+
+        DeterminePressedSFX();
+    }
+
+    // Function for On Pointer Enter component - when the mouse hovers over button
+    public void SetHasClickedToTrue()
+    {
+        hasClicked = true;
+    }
+
+    // Just for the credits button in main menu - this will get removed when we add a credits
+    public void SetHasClickedToFalse()
+    {
+        hasClicked = false;
+    }
+
+    // Plays an sfx if the bool is false, this function plays via animation event (in the button's animation)
+    // AudioClip determined in the animation event as well
+    public void PlayMenuSound(AudioClip whichSound)
+    {
+        if (!pressedSFX && !hasClicked)
+            audioSource.PlayOneShot(whichSound);
+    }
+    public void PlayMenuSound02(AudioClip whichSound)
+    {
+        if (!pressedSFX)
+            audioSource.PlayOneShot(whichSound);
+    }
+
+    // Plays the button click sfx from the correct audio source in each scene
+    public void PlayButtonClickSFX()
+    {
+        if (!pressedSFX)
+        {
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+            {
+                audioSource.PlayOneShot(mainMenuScript.buttonClickSFX);
+            }
+            else
+            {
+                audioSource.PlayOneShot(pauseMenuScript.buttonClickSFX);
+            }
+        }
+    }
+
+
+    // Sets the audioSource to the appropriate correct audio component in each scene
+    private void SetAudioSourceAndScripts()
     {
         if (SceneManager.GetActiveScene().name == "MainMenu")
         {
             mainMenuScript = FindObjectOfType<MainMenu>();
             audioSource = FindObjectOfType<MainMenu>().gameObject.GetComponent<AudioSource>();
-        }           
+        }
         else
         {
             pauseMenuScript = FindObjectOfType<PauseMenu>();
-            audioSource = FindObjectOfType<PauseMenu>().gameObject.GetComponent<AudioSource>();           
+            audioSource = FindObjectOfType<PauseMenu>().gameObject.GetComponent<AudioSource>();
         }
-           
     }
 
-    // Update is called once per frame
-    void Update()
+    // Determines the states at which pressedSFX is true and false - false while changing menus or in options menu
+    private void DeterminePressedSFX()
     {
-        // Resets the pressedSFX bool back to false based on these inputs
-        /*if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
+        if (SceneManager.GetActiveScene().name == "MainMenu")
         {
-            pressedSFX = false;
-        }*/
-
-        if(SceneManager.GetActiveScene().name == "MainMenu")
-        {
-            if (mainMenuScript.isOptionsMenu == true || mainMenuScript.canPlayButtonSFX == false)
+            if (!mainMenuScript.canPlayButtonSFX)
             {
                 pressedSFX = true;
-            }
-        }
-
-        if (SceneManager.GetActiveScene().name != "MainMenu")
-        {
-            if (pauseMenuScript.isOptionsMenu == true || pauseMenuScript.canPlayButtonSFX == false)
-            {
-                pressedSFX = true;
-            }
-        }
-
-    }
-
-    // Function for On Pointer Enter component - when the mouse hovers over button
-    public void SetPressedSFXToFalse()
-    {
-        pressedSFX = false;
-    }
-
-    // While in a level scene...
-    /* the function plays a sound whenever you havn't pressed enter
-     * if you have, then the function doesnt play a sound
-     * this is done to prevent two sounds from playing at the same time when mutiple animation events are played or repeated */
-    public void PlayMenuSound(AudioClip whichSound)
-    {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Escape))
-            pressedSFX = false;
-
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
-            pressedSFX = false;
-
-        if (!pressedSFX)
-        {
-            if (SceneManager.GetActiveScene().name == "MainMenu")
-            {
-                audioSource.PlayOneShot(whichSound);
-            }           
-            else
-            {
-                audioSource.PlayOneShot(whichSound);
+                hasClicked = false;
             }             
+            else
+                pressedSFX = false;
         }
-            
-        else return;
-        pressedSFX = true;
+        else
+        {
+            if (!pauseMenuScript.canPlayButtonSFX)
+            {
+                pressedSFX = true;
+                hasClicked = false;
+            }               
+            else
+                pressedSFX = false;
+        }
     }
 
 }

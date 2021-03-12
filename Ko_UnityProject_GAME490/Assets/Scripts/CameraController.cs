@@ -96,9 +96,9 @@ public class CameraController : MonoBehaviour
         currentView = levelViews[currentIndex++];
         SetPuzzleNumber();
 
-        if (SceneManager.GetActiveScene().name == "FifthMap" /*|| SceneManager.GetActiveScene().name == "FourthMap"*/)
+        if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            FindObjectOfType<GeneratorScript>().resetEmissiveTextures();
+            FindObjectOfType<GeneratorScript>().TurnOffEmisionAndVolume();
         }
        
         if (currentIndex >= levelViews.Length)
@@ -145,6 +145,7 @@ public class CameraController : MonoBehaviour
             gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";
     }
 
+    // For pausing the WindGushSFX when you pause the game on the bridge
     private void CheckIfPaused()
     {
         if(FindObjectOfType<PauseMenu>().isPaused && !hasPaused)

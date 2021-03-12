@@ -48,9 +48,9 @@ public class SafetyMenuAnimEvent : MonoBehaviour
                 gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
                 gameHUDScript.safetyMenuText.SetActive(true);
                 pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
-            }
-                
+            }            
         }
+
     }
     
 }

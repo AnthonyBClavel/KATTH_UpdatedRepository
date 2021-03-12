@@ -30,5 +30,4 @@ public class AmbientLoopingSFXManager : MonoBehaviour
         AmbientLoopingSFX.Play();                                          
     }
 
-
 }

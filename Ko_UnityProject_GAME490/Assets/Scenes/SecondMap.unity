@@ -4967,10 +4967,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SnowTreeBlock01
       objectReference: {fileID: 0}
-    - target: {fileID: 3434436977890614711, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 91288cdffa3516f4dad448901584fa98, type: 3}
 --- !u!4 &284151162 stripped
@@ -17308,7 +17304,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -17328,7 +17324,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
-      value: SaveManagerScript, Assembly-CSharp
+      value: MenuSounds, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
@@ -17341,10 +17337,10 @@ PrefabInstance:
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 1623932482}
+      objectReference: {fileID: 1123045067}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
-      value: SaveSceneName
+      value: SetHasClickedToTrue
       objectReference: {fileID: 0}
     - target: {fileID: 801209505820746040, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -17503,6 +17499,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2397268899871946918, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
   m_PrefabInstance: {fileID: 1123045052}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1123045067 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6204848906690305100, guid: 065da80f3f71a9c4c94ce803ed6ac825, type: 3}
+  m_PrefabInstance: {fileID: 1123045052}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123045056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e7c71c8ef13e02488efe6f39174a23d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1126725247
 GameObject:
   m_ObjectHideFlags: 0
@@ -25110,6 +25117,8 @@ MonoBehaviour:
   loadingIcon: {fileID: 3655445800546282254}
   loadingText: {fileID: 3833354653390016451}
   safetyMenuSFX: {fileID: 8300000, guid: 819c87a4d4bd44742a6e695eded9d413, type: 3}
+  buttonClickSFX: {fileID: 8300000, guid: 91efa2e20b0b97e419dd0301ca62de5b, type: 3}
+  buttonSelectSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   audioSourceUI: {fileID: 1958019136}
 --- !u!114 &1613194340
 MonoBehaviour:
@@ -25368,17 +25377,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7b481ab1d2d91641863d569e2583778, type: 3}
---- !u!114 &1623932482 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5274545293025492821, guid: d7b481ab1d2d91641863d569e2583778, type: 3}
-  m_PrefabInstance: {fileID: 1623932481}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0070bc87e2f44a54f923ad6a9b19430a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1629066593
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34973,6 +34971,10 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1613194339}
+    - target: {fileID: 498697661094103490, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
+      propertyPath: m_text
+      value: Save & Quit
+      objectReference: {fileID: 0}
     - target: {fileID: 498697661233441815, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
       propertyPath: m_Name
       value: Pause Screen Holder

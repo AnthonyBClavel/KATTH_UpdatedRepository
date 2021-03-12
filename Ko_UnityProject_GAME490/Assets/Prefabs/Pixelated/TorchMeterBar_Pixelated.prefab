@@ -143,7 +143,6 @@ GameObject:
   - component: {fileID: 9028952016707619115}
   - component: {fileID: 9028952016707619124}
   - component: {fileID: 9028952016707619125}
-  - component: {fileID: 9028952016707619114}
   m_Layer: 5
   m_Name: ValueText
   m_TagString: Untagged
@@ -231,11 +230,11 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 115
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: -10
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -267,21 +266,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &9028952016707619114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9028952016707619112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: 2, y: -2}
-  m_UseGraphicAlpha: 1
 --- !u!1 &9028952016999894983
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +282,7 @@ GameObject:
   - component: {fileID: 9028952016999894979}
   - component: {fileID: 9028952016999894978}
   m_Layer: 5
-  m_Name: TorchMeterBar
+  m_Name: TorchMeterBar_Pixelated
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -491,7 +475,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afc44c50e22bf244c9f2f85b6ffefe64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lerpSpeed: 2
   content: {fileID: 9028952017456693282}
   flameIcon: {fileID: 9028952016622533619}
   valueText: {fileID: 9028952016707619125}
@@ -499,6 +482,7 @@ MonoBehaviour:
   lowColor: {r: 0.8584906, g: 0.26321647, b: 0.7434376, a: 1}
   fullFlameColor: {r: 1, g: 1, b: 1, a: 1}
   lowFlameColor: {r: 1, g: 1, b: 1, a: 0}
+  lerpSpeed: 2
   fireParticle: {fileID: 0}
 --- !u!114 &9028952016999894978
 MonoBehaviour:

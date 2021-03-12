@@ -20,13 +20,13 @@ public class Tutorial : MonoBehaviour
     public TextAsset deathDialogue;
 
     private bool hasPlayedStart = false;
-    private bool hasPlayedTorch = false;
-    private bool hasDied = false;
     private bool hasPlayedPush = false;
     private bool hasPlayedBreak = false;
     private bool hasPlayedHole = false;
     private bool hasPlayedFirestone = false;
     private bool hasPassedBridge = false;
+    //private bool hasPlayedTorch = false;
+    //private bool hasDied = false;
 
     private TextAsset currentDialogue;
 
@@ -122,4 +122,5 @@ public class Tutorial : MonoBehaviour
             }
         }
     }
+
 }

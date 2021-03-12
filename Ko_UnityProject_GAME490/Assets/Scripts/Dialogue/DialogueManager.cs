@@ -63,7 +63,7 @@ public class DialogueManager : MonoBehaviour
 
     
     // Shows the text dialogue in the Dialogue Box
-    IEnumerator Type()
+    private IEnumerator Type()
     {
         yield return new WaitForSeconds(0.03f);
 

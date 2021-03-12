@@ -31,11 +31,10 @@ public class AudioLoops : MonoBehaviour
     // Fades in the volumes for both the BGM and Ambience loop (used after world intros)
     public void SetAudioLoopsActive()
     {
-        BGM.SetActive(true);
-        StartCoroutine(FadeInMusicLoop());
+        FadeInBGMLoop();
 
         if (SceneManager.GetActiveScene().name != "TutorialMap")
-            StartCoroutine(FadeInAmbienceLoop());
+            StartCoroutine("FadeInAmbienceLoop");
     }
 
     // Sets the loop volumes to their defaults (used for when the player loads saved game)
@@ -44,6 +43,21 @@ public class AudioLoops : MonoBehaviour
         BGM.SetActive(true);
         loopingBGM = 0.4f;
         loopingAmbience = 0.4f;
+    }
+
+    public void FadeOutAudioLoops()
+    {
+        loopingBGM = 0.4f;
+        loopingAmbience = 0.4f;
+        StartCoroutine("FadeOutMusicLoop");
+        StartCoroutine("FadeOutAmbienceLoop");
+        StartCoroutine("DisableAudioLoops");
+    }
+
+    public void FadeInBGMLoop()
+    {
+        BGM.SetActive(true);
+        StartCoroutine("FadeInMusicLoop");
     }
 
     // Checks if you're in the tutorial scene - fades in only the music IF SO, sets volume for loops to zero IF NOT
@@ -67,7 +81,7 @@ public class AudioLoops : MonoBehaviour
     // Increases the bgm volume over time until it reaches its max value
     private IEnumerator FadeInMusicLoop()
     {
-        for (float i = 0f; i <= 0.4; i += 0.01f)
+        for (float i = 0f; i <= 0.4f; i += 0.01f)
         {
             i = loopingBGM;
             loopingBGM += 0.01f;
@@ -78,13 +92,46 @@ public class AudioLoops : MonoBehaviour
     // Increases the ambience loop volume over time until it reaches its max value
     private IEnumerator FadeInAmbienceLoop()
     {
-        for (float j = 0f; j <= 0.4; j += 0.01f)
+        for (float j = 0f; j <= 0.4f; j += 0.01f)
         {
             j = loopingAmbience;
             loopingAmbience += 0.01f;
             AmbienceLoop.GetComponent<AudioSource>().volume = loopingAmbience;
             yield return new WaitForSeconds(0.025f);
         }
+    }
+
+    // Decreases the bgm volume over time until it reaches its min value
+    private IEnumerator FadeOutMusicLoop()
+    {
+        for (float i = 0.4f; i >= 0f; i -= 0.01f)
+        {
+            i = loopingBGM;
+            loopingBGM -= 0.01f;
+            BGM.GetComponent<AudioSource>().volume = loopingBGM;
+            yield return new WaitForSeconds(0.025f);
+        }
+    }
+    // Decreases the ambience loop volume over time until it reaches its min value
+    private IEnumerator FadeOutAmbienceLoop()
+    {
+        for (float j = 0.4f; j >= 0f; j -= 0.01f)
+        {
+            j = loopingAmbience;
+            loopingAmbience -= 0.01f;
+            AmbienceLoop.GetComponent<AudioSource>().volume = loopingAmbience;
+            yield return new WaitForSeconds(0.025f);
+        }
+    }
+
+    // Sets the BGM and Ambience loop GameObjects to inactive after specified time
+    private IEnumerator DisableAudioLoops()
+    {
+        yield return new WaitForSeconds(1.6f);
+        loopingBGM = 0f;
+        loopingAmbience = 0f;       
+        BGM.SetActive(false);
+        AmbienceLoop.SetActive(false);
     }
 
 }

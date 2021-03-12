@@ -1412,7 +1412,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 47306469}
   m_LocalRotation: {x: 0.5, y: -0, z: -0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 7, z: -1.95}
+  m_LocalPosition: {x: 0, y: 7, z: -2.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1850761680}
@@ -16127,7 +16127,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249363697}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 7, z: -1.95}
+  m_LocalPosition: {x: 0, y: 7, z: -2.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 678786051}
@@ -33176,6 +33176,8 @@ MonoBehaviour:
   loadingIcon: {fileID: 1731129167}
   loadingText: {fileID: 151760401}
   safetyMenuSFX: {fileID: 8300000, guid: 819c87a4d4bd44742a6e695eded9d413, type: 3}
+  buttonClickSFX: {fileID: 8300000, guid: 91efa2e20b0b97e419dd0301ca62de5b, type: 3}
+  buttonSelectSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   audioSourceUI: {fileID: 1852898843}
 --- !u!114 &8796842615644123324
 MonoBehaviour:
@@ -33576,6 +33578,10 @@ PrefabInstance:
     - target: {fileID: 498697660864381991, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 498697661094103490, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
+      propertyPath: m_text
+      value: Save & Quit
       objectReference: {fileID: 0}
     - target: {fileID: 498697661233441815, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
       propertyPath: m_Name

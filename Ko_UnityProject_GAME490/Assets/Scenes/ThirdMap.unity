@@ -27516,6 +27516,8 @@ MonoBehaviour:
   loadingIcon: {fileID: 3655445800546282254}
   loadingText: {fileID: 3833354653390016451}
   safetyMenuSFX: {fileID: 8300000, guid: 819c87a4d4bd44742a6e695eded9d413, type: 3}
+  buttonClickSFX: {fileID: 8300000, guid: 91efa2e20b0b97e419dd0301ca62de5b, type: 3}
+  buttonSelectSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   audioSourceUI: {fileID: 326063314}
 --- !u!114 &1613194340
 MonoBehaviour:
@@ -36744,6 +36746,10 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1613194339}
+    - target: {fileID: 498697661094103490, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
+      propertyPath: m_text
+      value: Save & Quit
+      objectReference: {fileID: 0}
     - target: {fileID: 498697661233441815, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
       propertyPath: m_Name
       value: Pause Screen Holder

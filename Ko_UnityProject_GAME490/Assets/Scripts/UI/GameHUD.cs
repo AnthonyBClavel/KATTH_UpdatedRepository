@@ -82,7 +82,7 @@ public class GameHUD : MonoBehaviour
     {
         if(canDeathScreen)
         {
-            StartCoroutine(SetDeathScreenActiveDelay());
+            StartCoroutine("SetDeathScreenActiveDelay");
         }
     }
 
@@ -159,6 +159,5 @@ public class GameHUD : MonoBehaviour
         CanRestartPuzzle();
         PlayDeathScreenSFX();
     }
-
 
 }

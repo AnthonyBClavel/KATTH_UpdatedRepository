@@ -44,7 +44,6 @@ public class TorchMeterScript : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         main = fireParticle.main;
-
         torchAnim = GetComponent<Animator>();
     }
 

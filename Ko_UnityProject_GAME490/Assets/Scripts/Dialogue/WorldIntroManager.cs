@@ -7,8 +7,6 @@ using TMPro;
 
 public class WorldIntroManager : MonoBehaviour
 {
-    public Canvas pauseMenuCanvas;
-    public GameObject player;
     public GameObject worldName;
     public GameObject blackOverlay;
     public GameObject levelFade;
@@ -24,10 +22,14 @@ public class WorldIntroManager : MonoBehaviour
     private string currentText = "";
 
     private AudioLoops audioLoopsScript;
+    private TileMovementController playerScript;
+    private PauseMenu pauseMenuScript;
 
     void Awake()
     {
         audioLoopsScript = FindObjectOfType<AudioLoops>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
 
         StartIntroCheck();
     }
@@ -45,13 +47,13 @@ public class WorldIntroManager : MonoBehaviour
 
     private IEnumerator ShowWorldName()
     {
-        player.GetComponent<TileMovementController>().SetPlayerBoolsFalse(); // Disable player movement
-        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;  
+        playerScript.SetPlayerBoolsFalse(); // Disable player movement
+        pauseMenuScript.enabled = false;  
         blackOverlay.SetActive(true);
         worldName.SetActive(true);
 
         yield return new WaitForSeconds(0.5f);
-        player.GetComponent<TileMovementController>().PopOutTorchMeterCheck();
+        playerScript.PopOutTorchMeterCheck();
         displayWorldName();
 
         for (int i = 0; i <= worldNameText.Length; i++)
@@ -64,9 +66,9 @@ public class WorldIntroManager : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
         worldName.SetActive(false);
-        player.GetComponent<TileMovementController>().WalkIntoScene();
+        playerScript.WalkIntoScene();
         //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement - this is now enabled when the player hits a checkpoint
-        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
+        pauseMenuScript.enabled = true;
         blackOverlay.SetActive(false);       
         levelFade.SetActive(true);
         audioLoopsScript.SetAudioLoopsActive();
@@ -84,9 +86,9 @@ public class WorldIntroManager : MonoBehaviour
 
     private void StartIntroCheck()
     {
-        if (player.transform.position == firstBlock.transform.position)
+        if (playerScript.gameObject.transform.position == firstBlock.transform.position)
         {
-            StartCoroutine(ShowWorldName());
+            StartCoroutine("ShowWorldName");
         }
         else
         {
