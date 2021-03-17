@@ -53,11 +53,14 @@ public class TileMovementController : MonoBehaviour
     public bool canMove = true;
     public bool canInteract = true;
     public bool canRestartPuzzle;                               // Determines when the player can press "R" (restart puzzle)
+    public bool canSetBoolsTrue;
     private bool isPushing;                                     // Determines when the object can move
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
     private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views   
+    private bool hasStartedTutorial = false;
+
 
     void Awake()
     {
@@ -69,8 +72,8 @@ public class TileMovementController : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        //saveManagerScript.LoadPlayerPosition();
-        //saveManagerScript.LoadBlockPosition();
+        saveManagerScript.LoadPlayerPosition(); //
+        saveManagerScript.LoadBlockPosition(); //
     }
 
     void Start()
@@ -88,6 +91,8 @@ public class TileMovementController : MonoBehaviour
             main_camera.GetComponent<CameraController>().currentIndex = 0;
             puzzle = GameObject.Find("Puzzle01");
         }*/
+
+        canSetBoolsTrue = true;
         audioSource = GetComponent<AudioSource>();
 
         currentDirection = up;
@@ -105,7 +110,7 @@ public class TileMovementController : MonoBehaviour
         Anim.SetBool("isInteracting", isInteracting);
 
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        /*if (Input.GetKeyDown(KeyCode.LeftArrow))
             torchMeterMoves.CurrentVal--;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             torchMeterMoves.CurrentVal++;
@@ -250,27 +255,28 @@ public class TileMovementController : MonoBehaviour
 
     // Turns on the generator if the player is colliding/interacting with it
     public void turnOnGenerator(Collider collider)
-    {
-        Debug.Log("Turned On Generator");
-        if (collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
-        collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
-        isInteracting = true;
-        isWalking = false;
-        CheckToPlayAnims();
+    {    
+        if (collider.gameObject.GetComponent<GeneratorScript>().canInteract == true)
+        {
+            Debug.Log("Turned On Generator");
+            collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
+            torchMeterMoves.CurrentVal--;
+            isInteracting = true;
+            isWalking = false;
+            CheckToPlayAnims();
+        }
     }
 
     // Disables firestone light if the player is colliding/interacting with it
     public void getFirestone(Collider collider)
-    {
-        Debug.Log("Firestone has been used");
+    {      
         if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
         {
+            Debug.Log("Firestone has been used");
             torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
             Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);
             isInteracting = true;
         }
-        else
-            isInteracting = false;
 
         collider.gameObject.GetComponentInChildren<Light>().enabled = false;
         isWalking = false;
@@ -455,10 +461,12 @@ public class TileMovementController : MonoBehaviour
         // If this is the first time we visited this checkpoint
         if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
         {
+            if(canSetBoolsTrue)
+                SetPlayerBoolsTrue(); //Enable Player Movement
+
             checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
             ResetTorchMeter();
             PopInTorchMeterCheck();
-            SetPlayerBoolsTrue(); //Enable Player Movement
             saveManagerScript.SavePlayerPosition();
             saveManagerScript.SaveCameraPosition();
             //main_camera.GetComponent<CameraController>().WindGush();
@@ -568,8 +576,8 @@ public class TileMovementController : MonoBehaviour
         return false;
     }
 
-    // Determines if the player on the last tile block in a puzzle - returns true if so, false otherwise - ONLY USED IN TUTORIAL SCRIPT
-    public bool onLastTileBlock()
+    // Determines if the player on the last tile block in a puzzle - returns true if so, false otherwise - ONLY USED DURING TUTORIAL
+    public bool onFirstOrLastTileBlock()
     {
         if(SceneManager.GetActiveScene().name == "TutorialMap")
         {
@@ -580,9 +588,18 @@ public class TileMovementController : MonoBehaviour
             Physics.Raycast(myRay, out hit, rayLength);
             string name = hit.collider.name;
 
+            // Checks to see if the player has landed on the last green block in the first puzzle of tutorial
             if (name == "PatchyGrassBlockTutorial")
             {
+                canSetBoolsTrue = true;
                 return true;
+            }
+
+            // Checks to see if the player has landed on the first green block in the tutorial
+            if (name == "Checkpoint_GrassTiles" && !hasStartedTutorial)
+            {
+                hasStartedTutorial = true;
+                return true;             
             }
         }
         return false;

@@ -127,11 +127,13 @@ public class EndCredits : MonoBehaviour
                 hasStartedCredits = true;
             }
         }
-        if (Input.GetKeyDown(KeyCode.P) && !hasStartedCredits)
+        /*** For Debugging purposes ***/
+        /*if (Input.GetKeyDown(KeyCode.P) && !hasStartedCredits)
         {
             StartCoroutine("StartEndCredits");
             hasStartedCredits = true;
         }
+        /*** End Debugging ***/
     }
 
     // Checks if the logo and the credits can start moving

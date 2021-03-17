@@ -10,20 +10,27 @@ public class LevelFade : MonoBehaviour
     public Animator animator;
     public GameObject gameCanvas;
 
-    private MainMenu mainMenu;                                  
-    private PauseMenu pauseMenu;
+    private MainMenu mainMenuScript;                                  
+    private PauseMenu pauseMenuScript;
     private LevelManager levelManager;
+    private TileMovementController playerScript;
+    private PlayerSounds playerSoundsScript;
 
     // Start is called before the first frame update
     void Start()
     {
-        mainMenu = FindObjectOfType<MainMenu>();               
-
-        pauseMenu = FindObjectOfType<PauseMenu>();
-
-        levelManager = FindObjectOfType<LevelManager>();
+        SetScripts();
     }
 
+    // Sets the bools to true after the initial fade in is complete - for an animation event
+    public void SetBoolsToTrue()
+    {
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            pauseMenuScript.canPause = true; // Might need to refine later - works in tutorial because pause menu script component is disabled during dialogue
+            playerSoundsScript.canCheckBridgeTiles = true; // This is only false when the player enters and leaves a scene
+        }         
+    }
 
     // Triggers the "FadeOutMain" animation (fade)
     public void FadeOutOfGame()
@@ -49,7 +56,8 @@ public class LevelFade : MonoBehaviour
     // Triggers the "FadeOutOfLevel" animation (fade)
     public void FadeOutOfLevel()
     {
-        pauseMenu.isChangingScenes = true;
+        playerScript.canSetBoolsTrue = false;
+        pauseMenuScript.isChangingScenes = true;
         disableMenuInputs();
         Time.timeScale = 1f;
         animator.SetTrigger("FadeOutLevel");
@@ -58,32 +66,32 @@ public class LevelFade : MonoBehaviour
     // Triggers the "FadeOutToNextLevel" animation (fade)
     public void FadeOutToNextLevel()
     {
-        pauseMenu.isChangingScenes = true;
+        pauseMenuScript.isChangingScenes = true;
         animator.SetTrigger("FadeOutNextLevel");
     }
 
     // Calls the "QuitGame" function in the main menu script
     public void OnFadeCompleteForGame()
     {
-        mainMenu.QuitGame();
+        mainMenuScript.QuitGame();
     }
 
     // Calls the "ContinueGame" function in the main menu script
     public void OnFadeCompleteContinueButton()
     {
-        mainMenu.ContinueGame();
+        mainMenuScript.ContinueGame();
     }
 
     // Calls the "NewGame" function in the main menu script
     public void OnFadeCompleteForMain()                         
     {
-        mainMenu.NewGame();                                     
+        mainMenuScript.NewGame();                                     
     }
 
     // Calls the "QuitToMain" function in the pause menu
     public void OnFadeCompleteForPause()                       
     {
-        pauseMenu.QuitToMain();                                
+        pauseMenuScript.QuitToMain();                                
     }
 
     // Calls the "LoadNextLevel" coroutine in the pause menu
@@ -105,6 +113,21 @@ public class LevelFade : MonoBehaviour
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
         gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+    }
+
+    private void SetScripts()
+    {
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            levelManager = FindObjectOfType<LevelManager>();
+            playerScript = FindObjectOfType<TileMovementController>();
+            pauseMenuScript = FindObjectOfType<PauseMenu>();
+            playerSoundsScript = FindObjectOfType<PlayerSounds>();
+        }
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+        {
+            mainMenuScript = FindObjectOfType<MainMenu>();
+        }
     }
 
 }

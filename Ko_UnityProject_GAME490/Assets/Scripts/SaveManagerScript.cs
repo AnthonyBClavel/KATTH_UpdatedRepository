@@ -52,6 +52,9 @@ public class SaveManagerScript : MonoBehaviour
             // If a new game is created or if the PlayerPrefs is null, set the savedInvisibleBlock to its default position
             if(savedInvisibleBlock.transform.position == new Vector3(0,0,0))
                 savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
+            // If a new game is created or if the PlayerPrefs is null, set the player to its default position
+            if (player.transform.position == new Vector3(0, 0, 0))
+                player.transform.position = new Vector3(0, 0, -5);
 
             pixelatedCamera.GetComponent<CameraController>().currentIndex = PlayerPrefs.GetInt("cameraIndex");
 
@@ -65,7 +68,7 @@ public class SaveManagerScript : MonoBehaviour
     void Update()
     {
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.F))
+        /*if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("New Game created");
 

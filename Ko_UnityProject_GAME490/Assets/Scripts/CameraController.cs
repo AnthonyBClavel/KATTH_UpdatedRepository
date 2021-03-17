@@ -23,16 +23,19 @@ public class CameraController : MonoBehaviour
     private AmbientLoopingSFXManager theALSM;
     private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
+    private GeneratorScript generatorScript;
 
     private bool hasPaused;
 
     void Awake()
     {
-        //saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        //saveManagerScript.LoadCameraPosition(); 
+        saveManagerScript = FindObjectOfType<SaveManagerScript>(); //
+        saveManagerScript.LoadCameraPosition(); //
 
         gameHUDScript = FindObjectOfType<GameHUD>();
         theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
+
+        CheckForGenScript();
     }
 
     // Start is called before the first frame update
@@ -53,7 +56,7 @@ public class CameraController : MonoBehaviour
         currentView = levelViews[currentIndex];
 
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.Space))
+        /*if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Switch Puzzle View");                  
             if (currentIndex >= levelViews.Length)           
@@ -98,7 +101,7 @@ public class CameraController : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            FindObjectOfType<GeneratorScript>().TurnOffEmisionAndVolume();
+            generatorScript.TurnOffEmisionAndVolume();
         }
        
         if (currentIndex >= levelViews.Length)
@@ -160,6 +163,13 @@ public class CameraController : MonoBehaviour
             audioSource.UnPause();
             hasPaused = false;
         }
+    }
+
+    // Checks to see if it can find the generator script
+    private void CheckForGenScript()
+    {
+        if (SceneManager.GetActiveScene().name == "FifthMap")
+            generatorScript = FindObjectOfType<GeneratorScript>();
     }
 
 }

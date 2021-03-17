@@ -29,15 +29,13 @@ public class WorldIntroManager : MonoBehaviour
     {
         audioLoopsScript = FindObjectOfType<AudioLoops>();
         playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-
-        StartIntroCheck();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();    
     }
 
     // Start is called before the first frame update
     void Start()
     {
-       
+        StartIntroCheck(); //MUST be called in start, not awake!
     }
 
     void Update()
@@ -71,7 +69,7 @@ public class WorldIntroManager : MonoBehaviour
         pauseMenuScript.enabled = true;
         blackOverlay.SetActive(false);       
         levelFade.SetActive(true);
-        audioLoopsScript.SetAudioLoopsActive();
+        audioLoopsScript.FadeInAudioLoops();
     }
 
     
@@ -89,11 +87,12 @@ public class WorldIntroManager : MonoBehaviour
         if (playerScript.gameObject.transform.position == firstBlock.transform.position)
         {
             StartCoroutine("ShowWorldName");
-        }
+            audioLoopsScript.SetAudioLoopsToZero();
+        }   
         else
         {
             levelFade.SetActive(true);
-            audioLoopsScript.SetAudioLoopsToDefault();
+            audioLoopsScript.SetAudioLoopsToDefault();         
         }
     }
 

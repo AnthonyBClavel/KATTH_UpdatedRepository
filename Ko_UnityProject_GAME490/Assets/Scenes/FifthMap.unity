@@ -41453,7 +41453,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 8771736312381664715, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: d0457a5de83a80441a57d6741edec0d2, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 47220029083ce4a469c34ceddba39653, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.4
   m_Pitch: 1
@@ -43486,6 +43486,10 @@ PrefabInstance:
     - target: {fileID: 9028952016999894983, guid: b29441f66f0893549ab303816277666a, type: 3}
       propertyPath: m_Name
       value: TorchMeterBar
+      objectReference: {fileID: 0}
+    - target: {fileID: 9028952016999894988, guid: b29441f66f0893549ab303816277666a, type: 3}
+      propertyPath: m_UpdateMode
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b29441f66f0893549ab303816277666a, type: 3}

@@ -34,7 +34,7 @@ public class GameHUD : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        canDeathScreen = true;
+        canDeathScreen = false; //
         isKeybindIcons = true;
         isLevelInfo = true;
     }
@@ -50,7 +50,7 @@ public class GameHUD : MonoBehaviour
         {
             isKeybindIcons = !isKeybindIcons;
             isLevelInfo = !isLevelInfo;
-            canDeathScreen = !canDeathScreen;
+            //canDeathScreen = !canDeathScreen;
         }
         /*** Debugging Ends Here **/
 
@@ -128,6 +128,7 @@ public class GameHUD : MonoBehaviour
         }
     }
 
+    // Checks to see which zone the player is in, and sets the HUD with the correct info
     private void CheckWorld()
     {
         if (SceneManager.GetActiveScene().name == "FirstMap")
@@ -144,6 +145,7 @@ public class GameHUD : MonoBehaviour
             worldName.text = "Zone: Tutorial";
     }
 
+    // Plays the SFX for the optional death screen
     private void PlayDeathScreenSFX()
     {
         audioSource.volume = 0.5f;
@@ -151,6 +153,7 @@ public class GameHUD : MonoBehaviour
         audioSource.PlayOneShot(deathScreenSFX);
     }
 
+    // Sets the death screen elements active after specified time
     private IEnumerator SetDeathScreenActiveDelay()
     {
         yield return new WaitForSeconds(1.25f);

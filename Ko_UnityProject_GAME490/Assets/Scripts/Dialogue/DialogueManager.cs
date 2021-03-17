@@ -1,17 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
-    public GameObject player;
     public GameObject dialogue;
     public GameObject continueTrigger;
     public GameObject blackOverlay;
     public GameObject skipTutorialButton;
     public Canvas pauseMenuCanvas;
+
     private GameHUD gameHUDScript;
+    private TileMovementController playerScript;
 
     public TextMeshProUGUI textDisplay;
     private string[] sentences;
@@ -23,16 +25,18 @@ public class DialogueManager : MonoBehaviour
 
     public bool hasStarted = false;
     public bool inDialogue = false;
+    private bool hasEnteredTutorial = false;
 
     void Awake()
     {
         gameHUDScript = FindObjectOfType<GameHUD>();
+        playerScript = FindObjectOfType<TileMovementController>();
     }
 
     void Start()
     {
         OGtypingSpeed = typingSpeed;
-        hasStarted = true;
+        //hasStarted = true;
     }
 
     void Update()
@@ -41,6 +45,11 @@ public class DialogueManager : MonoBehaviour
             nextSentence();
         else if (Input.GetKeyDown(KeyCode.Return) && typingSpeed > OGtypingSpeed/2)
             typingSpeed /= 2;
+
+        if(playerScript.onFirstOrLastTileBlock() && !hasStarted)
+            hasStarted = true;
+
+        CheckToEnterTutorial();
     }
 
     
@@ -50,7 +59,7 @@ public class DialogueManager : MonoBehaviour
         gameHUDScript.TurnOffHUD();
         inDialogue = true;
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
-        player.GetComponent<TileMovementController>().SetPlayerBoolsFalse(); // Disabling player movement
+        playerScript.SetPlayerBoolsFalse(); // Disabling player movement
         typingSpeed = OGtypingSpeed;
         textDisplay.text = "";
         index = 0;
@@ -99,8 +108,8 @@ public class DialogueManager : MonoBehaviour
         blackOverlay.SetActive(false);     
         skipTutorialButton.SetActive(true);
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
-        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
-        player.GetComponent<TileMovementController>().hasDied = false;
+        playerScript.SetPlayerBoolsTrue();
+        playerScript.hasDied = false;
         inDialogue = false;
     }
 
@@ -113,6 +122,20 @@ public class DialogueManager : MonoBehaviour
     public string[] readTextFile(TextAsset textFile)
     {
         return textFile.text.Split("\n"[0]);
+    }
+
+    // Checks to see if the player has loaded into the tutorial zone
+    private void CheckToEnterTutorial()
+    {
+        if (!hasEnteredTutorial)
+        {
+            gameHUDScript.TurnOffHUD();
+            skipTutorialButton.SetActive(false);
+            playerScript.SetPlayerBoolsFalse();
+            playerScript.WalkIntoScene();
+            playerScript.canSetBoolsTrue = false;
+            hasEnteredTutorial = true;
+        }
     }
 
 }

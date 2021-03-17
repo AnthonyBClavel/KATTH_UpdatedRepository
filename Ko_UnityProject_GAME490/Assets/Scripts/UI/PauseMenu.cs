@@ -60,7 +60,7 @@ public class PauseMenu : MonoBehaviour
         isChangingScenes = false;
         isChangingMenus = false;
         canPlayButtonSFX = true;
-        StartCoroutine("DelayPauseMenuInput");
+        //StartCoroutine("DelayPauseMenuInput");
     }
 
     // Update is called once per frame
@@ -420,7 +420,6 @@ public class PauseMenu : MonoBehaviour
         canPause = false;
         yield return new WaitForSeconds(2.0f);
         canPause = true;
-        PlayerSounds.instance.canCheckBridgeTiles = true; // This is only false when the player enters and leaves a scene
     }
 
 }
