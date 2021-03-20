@@ -39,7 +39,7 @@ public class DialogueManager : MonoBehaviour
         //hasStarted = true;
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (Input.GetKeyDown(KeyCode.Return) && continueTrigger.activeSelf == true)
             nextSentence();

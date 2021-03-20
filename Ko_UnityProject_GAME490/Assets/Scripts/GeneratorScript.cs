@@ -33,9 +33,6 @@ public class GeneratorScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        generatorSFX.GetComponent<AudioSource>().volume = loopingGeneratorSFX;
-        genertaorSFX02.GetComponent<AudioSource>().volume = loopingGeneratorSFX02;
-
         /*** For Debugging purposes ***/
         // Note: all generators in the scene will turn on when use this debug - sounds will be loud
         /*if (Input.GetKeyDown(KeyCode.L))
@@ -116,6 +113,7 @@ public class GeneratorScript : MonoBehaviour
         {
             i = loopingGeneratorSFX;
             loopingGeneratorSFX += 0.02f;
+            generatorSFX.GetComponent<AudioSource>().volume = loopingGeneratorSFX;
             yield return new WaitForSeconds(0.025f);
         }
     }
@@ -124,15 +122,18 @@ public class GeneratorScript : MonoBehaviour
    private IEnumerator FadeOutGeneratorVolume()
     {
         for (float i = 1f; i >= 0; i -= 0.02f)
-        {
+        {         
             i = loopingGeneratorSFX02;
             loopingGeneratorSFX02 -= 0.02f;
+            genertaorSFX02.GetComponent<AudioSource>().volume = loopingGeneratorSFX02;
             yield return new WaitForSeconds(0.025f);
         }
     }
 
+    // Sets the volume objects inactive and disables emission within the generator texture.
     private IEnumerator TurnOffEmissionAndVolumeDelay()
     {
+        turnOnGeneratorSFX.SetActive(false);
         generatorSFX.SetActive(false);
         loopingGeneratorSFX = 0f;
         loopingGeneratorSFX02 = 1f;

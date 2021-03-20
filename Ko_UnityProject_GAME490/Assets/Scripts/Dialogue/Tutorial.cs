@@ -7,8 +7,6 @@ public class Tutorial : MonoBehaviour
     public GameObject player;
     public GameObject dialogueManager;
 
-    private DialogueManager dialogueScript;
-
     public TextAsset startupDialogue;
     public TextAsset pushDialogue;
     public TextAsset breakDialogue;
@@ -28,7 +26,18 @@ public class Tutorial : MonoBehaviour
     //private bool hasPlayedTorch = false;
     //private bool hasDied = false;
 
+    private DialogueManager dialogueManagerScript;
+    private TileMovementController playerScript;
+    private PauseMenu pauseMenuScript;
+
     private TextAsset currentDialogue;
+
+    void Awake()
+    {
+        playerScript = FindObjectOfType<TileMovementController>();
+        dialogueManagerScript = FindObjectOfType<DialogueManager>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -38,18 +47,18 @@ public class Tutorial : MonoBehaviour
 
     private void setDialogue(TextAsset dialogue)
     {
-        dialogueManager.GetComponent<DialogueManager>().setDialogue(dialogueManager.GetComponent<DialogueManager>().readTextFile(dialogue));
+        dialogueManagerScript.setDialogue(dialogueManagerScript.readTextFile(dialogue));
     }
 
     private void startDialogue()
     {
-        dialogueManager.GetComponent<DialogueManager>().startDialogue();
+        dialogueManagerScript.startDialogue();
     }
 
     // Update is called once per frame
     void Update()
     { 
-        if (dialogueManager.GetComponent<DialogueManager>().hasStarted && !hasPlayedStart)
+        if (dialogueManagerScript.hasStarted && !hasPlayedStart)
         {
             setDialogue(startupDialogue);
             currentDialogue = startupDialogue;
@@ -57,9 +66,9 @@ public class Tutorial : MonoBehaviour
             hasPlayedStart = true;
         }
 
-        else if (!player.GetComponent<TileMovementController>().isWalking)
+        else if (!playerScript.isWalking && !pauseMenuScript.isChangingScenes)
         {
-            Collider collider = player.GetComponent<TileMovementController>().getCollider();
+            Collider collider = playerScript.getCollider();
             if (collider != null)
                 switch (collider.tag)
                 {
@@ -94,7 +103,7 @@ public class Tutorial : MonoBehaviour
                         break;
                 }
 
-            else if (player.GetComponent<TileMovementController>().onFirstOrLastTileBlock() && !hasPassedBridge)
+            else if (playerScript.onFirstOrLastTileBlock() && !hasPassedBridge)
             {
                 setDialogue(bridgeDialogue);
                 currentDialogue = bridgeDialogue;
@@ -102,7 +111,7 @@ public class Tutorial : MonoBehaviour
                 hasPassedBridge = true;
             }
 
-            else if (player.GetComponent<TileMovementController>().checkIfOnCheckpoint() && player.GetComponent<TileMovementController>().puzzle.name == "Puzzle03" && !hasPlayedHole)
+            else if (playerScript.checkIfOnCheckpoint() && playerScript.puzzle.name == "Puzzle03" && !hasPlayedHole)
             {
                 setDialogue(holeDialogue);
                 currentDialogue = holeDialogue;
@@ -111,16 +120,17 @@ public class Tutorial : MonoBehaviour
             }
         }
 
-        if (player.GetComponent<TileMovementController>().hasDied)
+        if (playerScript.hasDied)
         {
-            player.GetComponent<TileMovementController>().SetPlayerBoolsFalse();
-            if (!dialogueManager.GetComponent<DialogueManager>().inDialogue)
+            playerScript.SetPlayerBoolsFalse();
+            if (!dialogueManagerScript.inDialogue)
             {
                 setDialogue(deathDialogue);
                 currentDialogue = deathDialogue;
                 startDialogue();
             }
         }
+
     }
 
 }

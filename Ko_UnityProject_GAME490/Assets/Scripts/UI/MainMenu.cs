@@ -96,11 +96,11 @@ public class MainMenu : MonoBehaviour
         }
         
         /*** Debugging: To load the FifthMap via main menu ***/
-        if(Input.GetKeyDown(KeyCode.P))
+        /*if(Input.GetKeyDown(KeyCode.P))
         {
             string fifthWorld = "FifthMap";
             PlayerPrefs.SetString("savedScene", fifthWorld);
-        }
+        }*/
         /*** Debugging ends here ***/
 
         /*** For Debugging purposes ***/
