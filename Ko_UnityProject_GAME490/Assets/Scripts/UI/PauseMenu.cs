@@ -28,6 +28,7 @@ public class PauseMenu : MonoBehaviour
     private GameObject lastSelectedObject;
     private EventSystem eventSystem;
     private GameHUD gameHUDScript;
+    private CharacterDialogue characterDialogueScript;
 
     [Header("Bools")]
     public bool isOptionsMenu;
@@ -52,6 +53,7 @@ public class PauseMenu : MonoBehaviour
     {
         eventSystem = FindObjectOfType<EventSystem>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        //characterDialogueScript = FindObjectOfType<CharacterDialogue>();
     }
 
     // Start is called before the first frame update
@@ -97,18 +99,19 @@ public class PauseMenu : MonoBehaviour
         StartCoroutine("ResumeDelay");
     }
 
-    public void ResumeImmediately()
+    /*public void ResumeImmediately()
     {
         Time.timeScale = 1f;
         optionsScreen.SetActive(false);
         pauseScreen.SetActive(false);
         isPaused = false;
+
         player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
-    }
+    }*/
 
     public void Pause()
     {
-        StopCoroutine(ResumeDelay());      
+        //StopCoroutine("ResumeDelay");      
         Time.timeScale = 0f;
         isPaused = true;
         pauseScreen.SetActive(true);
@@ -245,10 +248,10 @@ public class PauseMenu : MonoBehaviour
         {
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press Any Key To Continue";
+                loadingText.text = "Press ENTER to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.anyKeyDown)
+                if (Input.GetKeyDown(KeyCode.Return))
                 {
                     loadingText.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
@@ -270,8 +273,9 @@ public class PauseMenu : MonoBehaviour
         pauseScreenBgAnim.SetTrigger("PS_FadeOut");     
         optionsScreen.SetActive(false);
         safetyMenu.SetActive(false);
-        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
         Time.timeScale = 1f;
+        //SetPlayerBoolsTrueCheck();
+        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Only use this line for building project without NPCs
 
         yield return new WaitForSecondsRealtime(0.15f);
         isChangingMenus = false;
@@ -293,6 +297,7 @@ public class PauseMenu : MonoBehaviour
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsFirstButton);
         EnableMenuInputPS();
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false; //
     }
 
     private IEnumerator CloseOptionsDelay()
@@ -384,9 +389,10 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = true;
         isChangingMenus = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-        pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        gameObject.GetComponent<GraphicRaycaster>().enabled = true;
+        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+        //pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     private void DisableMenuInputsPS()
@@ -394,9 +400,10 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = false;
         isChangingMenus = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
-        pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
-        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        gameObject.GetComponent<GraphicRaycaster>().enabled = false;
+        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        //pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
 
     /*private IEnumerator QuitToMainDelay()
@@ -412,6 +419,18 @@ public class PauseMenu : MonoBehaviour
         audioSourceUI.volume = 0.35f;
         audioSourceUI.pitch = 1f;
         audioSourceUI.PlayOneShot(safetyMenuSFX);
+    }
+
+    // Checks to see if the player's bool can be set to true - cannot be true while interacting with an npc
+    private void SetPlayerBoolsTrueCheck()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (characterDialogueScript.canStartDialogue && sceneName != "TutorialMap")
+            player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
+
+        else if (sceneName == "TutorialMap")
+            player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
     }
 
     // Cant pause until the scene fully fades in (to avoid layering issues in UI)

@@ -69,13 +69,15 @@ public class LevelManager : MonoBehaviour
 
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press Any Key To Continue";
+                loadingText.text = "Press ENTER to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.anyKeyDown)
+                if (Input.GetKeyDown(KeyCode.Return))
                 {
                     saveMangerScript.CreateNewSaveFile();
 
+                    loadingScreen.GetComponent<Image>().color = Color.black; //Optional
+                    loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
@@ -119,7 +121,8 @@ public class LevelManager : MonoBehaviour
             FindObjectOfType<LevelFade>().FadeOutToNextLevel();
 
         pauseMenuScript.isChangingScenes = true;
-        StartCoroutine("DisbalePlayerSounds");
+        playerSoundsScript.canCheckBridgeTiles = false;
+        //StartCoroutine("DisbalePlayerSounds");
         playerScript.SetPlayerBoolsFalse();
     }
 
@@ -158,11 +161,11 @@ public class LevelManager : MonoBehaviour
     }
 
     // Disables the player's footsteps sfx by the end of the level fade
-    private IEnumerator DisbalePlayerSounds()
+    /*private IEnumerator DisbalePlayerSounds()
     {
         playerSoundsScript.canCheckBridgeTiles = false;
         yield return new WaitForSecondsRealtime(1.6f);
         playerSoundsScript.canPlayFootsteps = false;
-    }
+    }*/
 
 }

@@ -43,6 +43,7 @@ public class LevelFade : MonoBehaviour
     public void FadeOutContinueGame()
     {
         disableMenuInputs();
+        mainMenuScript.DisableMenuInputMM();
         animator.SetTrigger("FadeOutContinue");
     }
 
@@ -50,6 +51,7 @@ public class LevelFade : MonoBehaviour
     public void FadeOutOfMainMenu()                             
     {
         disableMenuInputs();
+        mainMenuScript.DisableMenuInputMM();
         animator.SetTrigger("FadeOutMain");                     
     }
 
@@ -100,31 +102,33 @@ public class LevelFade : MonoBehaviour
         levelManager.StartCoroutine("LoadNextLevelAsync");
     }
 
-    
-    // Disables all inputs
+
+    // Re-enables all inputs
     public void enableMenuInputs()
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+        //gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
-    // Re-enables all inputs
+    // Disables all inputs
     public void disableMenuInputs()
     {
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;      
+        //gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
 
     private void SetScripts()
     {
-        if (SceneManager.GetActiveScene().name != "MainMenu")
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName != "MainMenu")
         {
             levelManager = FindObjectOfType<LevelManager>();
             playerScript = FindObjectOfType<TileMovementController>();
             pauseMenuScript = FindObjectOfType<PauseMenu>();
             playerSoundsScript = FindObjectOfType<PlayerSounds>();
         }
-        if (SceneManager.GetActiveScene().name == "MainMenu")
+        if (sceneName == "MainMenu")
         {
             mainMenuScript = FindObjectOfType<MainMenu>();
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class TorchMeterScript : MonoBehaviour  
@@ -19,9 +20,9 @@ public class TorchMeterScript : MonoBehaviour
 
     public ParticleSystem fireParticle;
 
+    public AudioSource audioSource;
     private float fillAmount;
     private ParticleSystem.MainModule main;
-    private AudioSource audioSource;
     private Animator torchAnim;
 
     public float MaxValue { get; set; }
@@ -42,7 +43,6 @@ public class TorchMeterScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
         main = fireParticle.main;
         torchAnim = GetComponent<Animator>();
     }
@@ -110,5 +110,24 @@ public class TorchMeterScript : MonoBehaviour
         audioSource.volume = 0.9f;
         main.startLifetime = 0.72f;
     }
+
+    // Sets the correct initial torch meter moves for the first puzzle
+    /*public void SetFirstPuzzleValue()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "FirstMap")
+            valueText.text = "7";
+        else if (sceneName == "SecondMap")
+            valueText.text = "6";
+        else if (sceneName == "ThirdMap")
+            valueText.text = "11";
+        else if (sceneName == "FourthMap")
+            valueText.text = "13";
+        else if (sceneName == "FifthMap")
+            valueText.text = "15";
+        else if (sceneName == "TutorialMap")
+            valueText.text = "15";
+    }*/
 
 }

@@ -41,14 +41,14 @@ public class SafetyMenuAnimEvent : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
-            if (!pauseMenuScript.isChangingScenes && !gameHUDScript.isDeathScreen)
+            if (!pauseMenuScript.isChangingScenes /*&& !gameHUDScript.isDeathScreen*/)
                 mainCanvas.SetActive(true);
-            if (!pauseMenuScript.isChangingScenes && gameHUDScript.isDeathScreen)
+            /*if (!pauseMenuScript.isChangingScenes && gameHUDScript.isDeathScreen)
             {
                 gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
                 gameHUDScript.safetyMenuText.SetActive(true);
                 pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
-            }            
+            }*/            
         }
 
     }

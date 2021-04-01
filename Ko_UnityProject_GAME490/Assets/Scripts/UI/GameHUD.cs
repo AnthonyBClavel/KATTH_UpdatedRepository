@@ -30,6 +30,7 @@ public class GameHUD : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
     }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -63,18 +64,6 @@ public class GameHUD : MonoBehaviour
             levelInfo.SetActive(true);
         if (!isLevelInfo)
             levelInfo.SetActive(false);
-    }
-
-    public void TurnOffHUD()
-    {
-        isKeybindIcons = false;
-        isLevelInfo = false;
-    }
-
-    public void TurnOnHUD()
-    {
-        isKeybindIcons = true;
-        isLevelInfo = true;
     }
 
     // Sets the death screen active ONLY IF canDeathScreen true - this will be an options to toggle in the option screen
@@ -131,17 +120,19 @@ public class GameHUD : MonoBehaviour
     // Checks to see which zone the player is in, and sets the HUD with the correct info
     private void CheckWorld()
     {
-        if (SceneManager.GetActiveScene().name == "FirstMap")
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "FirstMap")
             worldName.text = "Zone: Boreal Forest";
-        else if (SceneManager.GetActiveScene().name == "SecondMap")
+        else if (sceneName == "SecondMap")
             worldName.text = "Zone: Frozen Forest";
-        else if (SceneManager.GetActiveScene().name == "ThirdMap")
+        else if (sceneName == "ThirdMap")
             worldName.text = "Zone: Crystal Cave";
-        else if (SceneManager.GetActiveScene().name == "FourthMap")
+        else if (sceneName == "FourthMap")
             worldName.text = "Zone: Barren Lands";
-        else if (SceneManager.GetActiveScene().name == "FifthMap")
+        else if (sceneName == "FifthMap")
             worldName.text = "Zone: Power Station";
-        else if (SceneManager.GetActiveScene().name == "TutorialMap")
+        else if (sceneName == "TutorialMap")
             worldName.text = "Zone: Tutorial";
     }
 

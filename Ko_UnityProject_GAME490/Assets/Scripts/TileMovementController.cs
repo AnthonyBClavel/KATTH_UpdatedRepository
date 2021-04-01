@@ -18,6 +18,7 @@ public class TileMovementController : MonoBehaviour
     down = new Vector3(0, 180, 0),                              // Object look South
     left = new Vector3(0, 270, 0),                              // Object look West
     currentDirection = Vector3.zero;                            // Default state
+    public Vector3 playerDirection;                             // Only used in Character Dialogue script
 
     Vector3 nextPos, destination, direction;
 
@@ -41,11 +42,12 @@ public class TileMovementController : MonoBehaviour
     private TorchMeterScript torchMeterScript;
     private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
+    private CharacterDialogue characterDialogueScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
     public GameObject puzzle;
-    public string sceneName;
+    //public string sceneName;
 
     [Header("Bools")]
     public bool isWalking;                                      // Determines when to play an object's animation
@@ -60,6 +62,7 @@ public class TileMovementController : MonoBehaviour
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
     private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views   
     private bool hasStartedTutorial = false;
+    private bool hasDisabledFootsteps = false;
 
 
     void Awake()
@@ -70,6 +73,7 @@ public class TileMovementController : MonoBehaviour
         levelManagerScript = FindObjectOfType<LevelManager>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         saveManagerScript.LoadPlayerPosition(); //
@@ -102,7 +106,10 @@ public class TileMovementController : MonoBehaviour
 
     void Update()
     {
-        sceneName = SceneManager.GetActiveScene().name;
+        //sceneName = SceneManager.GetActiveScene().name;
+        if (playerDirection != currentDirection)
+            playerDirection = currentDirection;
+        
         Move();
         checkIfOnBridgeController();
         Anim.SetBool("isWalking", isWalking);
@@ -290,8 +297,44 @@ public class TileMovementController : MonoBehaviour
      ***/
     public void interactWithNPC(Collider collider)
     {
-        GameObject npc = collider.gameObject;
-        npc.GetComponent<Interactable>().Interact();
+        //GameObject npc = collider.gameObject;
+        //npc.GetComponent<Interactable>().Interact();
+        string name = collider.name;
+
+        if (name == "Elder_NPC")
+        {
+            Debug.Log("Player has interacted with the first Village Elder");
+            characterDialogueScript.isVillageEdler = true;
+            characterDialogueScript.StartNPCDialogue();       
+        }
+        if (name == "Fisherman_NPC")
+        {
+            Debug.Log("Player has interacted with the Fisherman");
+            characterDialogueScript.isFisherman = true;
+            characterDialogueScript.StartNPCDialogue();
+        }
+        if (name == "Explorer01_NPC")
+        {
+            Debug.Log("Player has interacted with the first Village Explorer");
+            characterDialogueScript.isVillageExplorer01 = true;
+            characterDialogueScript.StartNPCDialogue();
+        }
+        if (name == "FriendlyGhost_NPC")
+        {
+            Debug.Log("Player has interacted with the Friendly Ghost");
+            characterDialogueScript.isFriendlyGhost = true;
+            characterDialogueScript.StartNPCDialogue();
+        }
+        if (name == "Explorer02_NPC")
+        {
+            Debug.Log("Player has interacted with the second Village Explorer");
+            characterDialogueScript.isVillageExplorer02 = true;
+            characterDialogueScript.StartNPCDialogue();
+        }
+
+        isInteracting = false;
+        isWalking = false;
+        CheckToPlayAnims();
     }
 
     // Draws a ray forward and returns the collider if it hits, or null otherwise 
@@ -511,14 +554,23 @@ public class TileMovementController : MonoBehaviour
 
         if (name == "BridgeBlock")
         {
+            // Disables the player's footstep sfx - ONLY disabled when the player transitions to another level/scene (on the end bridge)
+            if (tag == "DisableFootsteps" && !hasDisabledFootsteps)
+            {
+                Debug.Log("Player Footsteps Have Been Disabled");
+                PlayerSounds.instance.canPlayFootsteps = false;
+                hasDisabledFootsteps = true;
+            }
+            // Finds the object with the bridge controller script
             if (tag == "BridgeController" && !isWalking)
             {
-                Debug.Log("You hit this object");
+                Debug.Log("Bridge Controller Found");
                 SetPlayerBoolsFalse();
                 hit.collider.gameObject.GetComponent<BridgeMovementController>().MoveToNextBlock();
                 transform.localEulerAngles = new Vector3(0, hit.collider.gameObject.GetComponent<BridgeMovementController>().newDirection, 0);
                 NextPuzzleViewCheck();
             }
+            // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position
             if (tag == "LastBridgeTile" && hasMovedPuzzleView)
             {
                 Debug.Log("Invisible Block Position has been saved");
@@ -542,7 +594,7 @@ public class TileMovementController : MonoBehaviour
         string name = hit.collider.name;
 
         if (name == "BridgeBlock")
-        {
+        {          
             //string tag = hit.collider.tag;
             // For the if statements below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
             /*if (tag == "MoveCameraBlock" && !hasMovedPuzzleView && hasAlreadyPopedOut)
@@ -594,7 +646,6 @@ public class TileMovementController : MonoBehaviour
                 canSetBoolsTrue = true;
                 return true;
             }
-
             // Checks to see if the player has landed on the first green block in the tutorial
             if (name == "Checkpoint_GrassTiles" && !hasStartedTutorial)
             {
@@ -695,6 +746,7 @@ public class TileMovementController : MonoBehaviour
         hasDied = true;
     }
     
+    // Sets the bools to false - prevents the player from moving, restarting puzzles, and interacting with anything
     public void SetPlayerBoolsFalse()
     {
         canRestartPuzzle = false;
@@ -702,6 +754,7 @@ public class TileMovementController : MonoBehaviour
         canInteract = false;
     }
 
+    // Sets the bools to true - allows the player to move, restart puzzles, and interact with anything
     public void SetPlayerBoolsTrue()
     {
         canRestartPuzzle = true;
@@ -767,7 +820,21 @@ public class TileMovementController : MonoBehaviour
         isInteracting = false;
     }
 
-    private SaveSlot makeSaveSlot()
+    // Plays the random audio clip it aquired
+    private void SwooshSFX()
+    {
+        AudioClip swooshClips = GetRandomSwooshSFX();
+        audioSource.volume = 0.36f;
+        audioSource.PlayOneShot(swooshClips);
+    }
+
+    // Gets a random audio clip from its respective array
+    private AudioClip GetRandomSwooshSFX()
+    {
+        return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
+    }
+
+    /*private SaveSlot makeSaveSlot()
     {
         Vector3 position = transform.position;
         float x = position.x;
@@ -780,19 +847,7 @@ public class TileMovementController : MonoBehaviour
         int currCameraIndex = main_camera.GetComponent<CameraController>().currentIndex;
 
         return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
-    }
+    }*/
 
-    // Plays the random audio clip it aquired
-    private void SwooshSFX()
-    {
-        AudioClip swooshClips = GetRandomSwooshSFX();
-        audioSource.volume = 0.36f;
-        audioSource.PlayOneShot(swooshClips);
-    }
-    // Gets a random audio clip from its respective array
-    private AudioClip GetRandomSwooshSFX()
-    {
-        return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
-    }
 
 }

@@ -52,11 +52,10 @@ public class DialogueManager : MonoBehaviour
         CheckToEnterTutorial();
     }
 
-    
     // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
-        gameHUDScript.TurnOffHUD();
+        gameHUDScript.gameObject.SetActive(false);
         inDialogue = true;
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
         playerScript.SetPlayerBoolsFalse(); // Disabling player movement
@@ -102,7 +101,7 @@ public class DialogueManager : MonoBehaviour
     // Ends the dialogue - call this when the dialogue is finished
     public void endDialogue()
     {
-        gameHUDScript.TurnOnHUD();
+        gameHUDScript.gameObject.SetActive(true);
         dialogue.SetActive(false);
         continueTrigger.SetActive(false);
         blackOverlay.SetActive(false);     
@@ -129,7 +128,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (!hasEnteredTutorial)
         {
-            gameHUDScript.TurnOffHUD();
+            gameHUDScript.gameObject.SetActive(false);
             skipTutorialButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
             playerScript.WalkIntoScene();

@@ -271,11 +271,13 @@ public class MainMenu : MonoBehaviour
 
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press Any Key To Continue";
+                loadingText.text = "Press ENTER to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.anyKeyDown)
+                if (Input.GetKeyDown(KeyCode.Return))
                 {
+                    loadingScreen.GetComponent<Image>().color = Color.black; //Optional
+                    loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
@@ -390,6 +392,7 @@ public class MainMenu : MonoBehaviour
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsFirstButton);
         EnableMenuInputMM();
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false; //
     }
 
     private IEnumerator CloseOptionsDelay()
@@ -453,18 +456,6 @@ public class MainMenu : MonoBehaviour
         isQuitingGame = true;
     }
 
-    private IEnumerator PlayEndCredits()
-    {
-        DisableMenuInputMM();
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
-        canFadeLogo = false;
-
-        yield return new WaitForSecondsRealtime(0.85f);
-        endCreditsScript.StartEndCreditsManually();
-    }
-
     private IEnumerator QuitGameDelay()
     {
         yield return new WaitForSecondsRealtime(0.15f);
@@ -477,19 +468,21 @@ public class MainMenu : MonoBehaviour
         canPlayButtonSFX = true;
         isChangingMenus = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = true;
-        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
+        gameObject.GetComponent<GraphicRaycaster>().enabled = true;
+        //mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
-    private void DisableMenuInputMM()
+    public void DisableMenuInputMM()
     {
         canPlayButtonSFX = false;
         isChangingMenus = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = false;
-        optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-        safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
+        gameObject.GetComponent<GraphicRaycaster>().enabled = false;
+        //mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
 
     // Enables the input after a delay - ONLY used after credits have ended

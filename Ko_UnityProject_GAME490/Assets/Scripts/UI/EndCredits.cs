@@ -33,12 +33,15 @@ public class EndCredits : MonoBehaviour
     private bool canMoveCredits;
     private bool hasPlayedEndMessage;
     private bool canSpeedUpCredits;
+    private bool canSkipCredits;
 
     [Header("Floats")]
     public float typingDelay = 0.03f;
     public float scrollSpeed;
     private float creditsBGM = 0.4f;
+    private float charNoiseAudio = 1f;
     private float logoAlpha = 0f;
+    //public float endCreditsPositionY;
     private string endCreditsMessage;
     private string currentText = "";
 
@@ -54,9 +57,9 @@ public class EndCredits : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
-        gameLogoFirstPosition = gameLogo.transform.position;
-        endCreditsFirstPosition = endCredits.transform.position;
+    {      
+        gameLogoFirstPosition = gameLogo.transform.localPosition;
+        endCreditsFirstPosition = endCredits.transform.localPosition;
         image = gameLogo.GetComponent<Image>();
         endCreditsMusic.GetComponent<AudioSource>().volume = creditsBGM;
         hasEndedCredits = false;
@@ -65,18 +68,26 @@ public class EndCredits : MonoBehaviour
         canMoveGameLogo = false;
         hasPlayedEndMessage = false;
         canSpeedUpCredits = false;
+        canSkipCredits = false;
     }
 
     void Update()
-    {
+    { 
         image.color = new Color(1, 1, 1, logoAlpha);
 
         StartEndCreditsCheck();
-        CheckIfCanMove();
+        //CheckIfCanMove();
         CheckToStopMove();
         SpeedUpCreditsCheck();
+        CanSkipCreditsCheck();
     }
 
+    void LateUpdate()
+    {
+        CheckIfCanMove();
+    }
+
+    // Calls the function that starts the credits - for the credits button in the main menu
     public void StartEndCreditsManually()
     {
         if(!hasStartedCredits)
@@ -86,19 +97,22 @@ public class EndCredits : MonoBehaviour
         }
     }
 
-    // Resets the end credits elements to defaults
+    // Resets the end credits elements to defaults - called at the end of the secondFade's animation via animation event
     public void ResetEndCredits()
     {
+        StopCoroutine("StartEndCredits");
+        StopCoroutine("PlayCreditsMessage");
+        StopCoroutine("FadeOutCharNoise");
+        SetCreditsBoolsFalse();
         firstFade.SetActive(false);
         gameLogo.SetActive(false);
         endCredits.SetActive(false);
         endCreditsMusic.SetActive(false);
-        hasEndedCredits = false;
-        hasPlayedEndMessage = false;
+        //charNoise.volume = 1f;
         logoAlpha = 0f;
         messageText.text = "";
-        gameLogo.transform.position = gameLogoFirstPosition;
-        endCredits.transform.position = endCreditsFirstPosition;
+        gameLogo.transform.localPosition = gameLogoFirstPosition;
+        endCredits.transform.localPosition = endCreditsFirstPosition;
         mainMenuMusicScript.FadeInMusicVolume();
         secondFade.GetComponent<Animator>().SetTrigger("FadeIn");
     }
@@ -140,15 +154,15 @@ public class EndCredits : MonoBehaviour
     private void CheckIfCanMove()
     {
         if (canMoveGameLogo)
-            gameLogo.transform.position = Vector3.MoveTowards(gameLogo.transform.position, gameLogoDestination.position, scrollSpeed * Time.deltaTime);
+            gameLogo.transform.localPosition = Vector3.MoveTowards(gameLogo.transform.localPosition, gameLogoDestination.localPosition, scrollSpeed * Time.deltaTime);
         if (canMoveCredits)
-            endCredits.transform.position = Vector3.MoveTowards(endCredits.transform.position, endCreditsDestination.position, scrollSpeed * Time.deltaTime);
+            endCredits.transform.localPosition = Vector3.MoveTowards(endCredits.transform.localPosition, endCreditsDestination.localPosition, scrollSpeed * Time.deltaTime);
     }
 
     // Checks when the logo and credits should stop moving - when the team logo is centered on the screen
     private void CheckToStopMove()
     {
-        if (endCredits.transform.position == endCreditsDestination.position && !hasPlayedEndMessage)
+        if (endCredits.transform.localPosition == endCreditsDestination.localPosition && !hasPlayedEndMessage)
         {
             StartCoroutine("PlayCreditsMessage");
             canMoveCredits = false;
@@ -162,6 +176,7 @@ public class EndCredits : MonoBehaviour
     {
         firstFade.SetActive(true);
         CheckToFadeMainMenuAudio();
+        charNoise.volume = 1f;
 
         yield return new WaitForSeconds(2f);
         CheckToFadeLoopAudio();
@@ -174,10 +189,12 @@ public class EndCredits : MonoBehaviour
         yield return new WaitForSeconds(2f);
         endCredits.SetActive(true);
         canMoveCredits = true;
-        
-        yield return new WaitForSeconds(3f);
-        canMoveGameLogo = true;
+        canSkipCredits = true;
         canSpeedUpCredits = true;
+
+        //yield return new WaitForSeconds(3f);
+        //canMoveGameLogo = true;
+        //canSpeedUpCredits = true;
     }
 
     // Types a message that plays at the end of the credits - when it stops moving
@@ -197,12 +214,25 @@ public class EndCredits : MonoBehaviour
         }
 
         yield return new WaitForSeconds(4f);
+        canSkipCredits = false;
         hasEndedCredits = true;
         hasStartedCredits = false;
         secondFade.SetActive(true); // Next scene is loaded or canvas is re-activated at the end of the fade animation via animation event 
         
         yield return new WaitForSeconds(1f);
         StartCoroutine("FadeOutMusicEC");
+    }
+
+    // Stops playing the credits - used only while in the main menu
+    private IEnumerator StopPlayingCredits()
+    {
+        hasEndedCredits = true;
+        hasStartedCredits = false;
+        secondFade.SetActive(true);
+        charNoiseAudio = 1f;
+        StartCoroutine("FadeOutCharNoise");
+        yield return new WaitForSeconds(1f);      
+        StartCoroutine("FadeOutMusicEC");     
     }
 
     // Plays an SFX for every character in the end credits message
@@ -237,6 +267,18 @@ public class EndCredits : MonoBehaviour
         }
     }
 
+    // Decreases the charNoise volume until it reaches its min value - ONLY used if you skip the credits
+    private IEnumerator FadeOutCharNoise()
+    {
+        for (float j = 1f; j >= 0; j -= 0.02f)
+        {
+            j = charNoiseAudio;
+            charNoiseAudio -= 0.02f;
+            charNoise.volume = charNoiseAudio;
+            yield return new WaitForSeconds(0.025f);
+        }
+    }
+
     // Sets the volume and volume float to the correct values before starting coroutine
     private void SetCreditsMusicActive()
     {
@@ -251,7 +293,7 @@ public class EndCredits : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
             audioLoopsScript.FadeOutAudioLoops();
-            torchMeterScript.GetComponent<AudioSource>().volume = 0f;
+            torchMeterScript.audioSource.volume = 0f;
         }
     }
 
@@ -265,10 +307,35 @@ public class EndCredits : MonoBehaviour
     // Checks to see when you can speed up credits
     private void SpeedUpCreditsCheck()
     {
+        if (endCredits.transform.localPosition.y >= 280f && !canMoveGameLogo)
+            canMoveGameLogo = true;
+
         if (Input.GetKey(KeyCode.Return) && canSpeedUpCredits)
-            scrollSpeed = 9f;
+            scrollSpeed = 270f;
         else
-            scrollSpeed = 3f;
+            scrollSpeed = 90f;
+    }
+
+    // Checks to see if the credits can be skipped - can only skip in the main menu
+    private void CanSkipCreditsCheck()
+    {
+        if (SceneManager.GetActiveScene().name == "MainMenu" && Input.GetKeyDown(KeyCode.Escape) && canSkipCredits)
+        {
+            Debug.Log("Credits Have Been Skipped");
+            StartCoroutine("StopPlayingCredits");
+            canSkipCredits = false;
+        }
+    }
+
+    // Sets all of the bools to false
+    private void SetCreditsBoolsFalse()
+    {
+        canSpeedUpCredits = false;
+        canMoveCredits = false;
+        canMoveGameLogo = false;
+
+        hasEndedCredits = false;
+        hasPlayedEndMessage = false;
     }
 
 }

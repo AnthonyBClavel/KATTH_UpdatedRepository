@@ -17,6 +17,7 @@ public class CameraController : MonoBehaviour
     public static CameraController instance;
     public float transitonSpeed;
     public int currentIndex = 0;
+    public bool canMoveCamera = true;
 
     Transform currentView;
     private AudioSource audioSource;
@@ -41,30 +42,26 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        hasPaused = false;
-        //currentView = levelViews[currentIndex];
-        gameObject.transform.position = levelViews[currentIndex].transform.position;
-
-        SetPuzzleNumber();
+        hasPaused = false;   
         instance = this;
-        audioSource = GetComponent<AudioSource>();                               
+        audioSource = GetComponent<AudioSource>();
+
+        //gameObject.transform.position = levelViews[currentIndex].transform.position;
+        SetCameraPosition();
+        SetPuzzleNumber();
     }
 
     void Update()
     {
         //CheckIfPaused();
-        currentView = levelViews[currentIndex];
+
+        /*if (canMoveCamera)
+            currentView = levelViews[currentIndex];*/
 
         /*** For Debugging purposes ***/
         /*if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Switch Puzzle View");                  
-            if (currentIndex >= levelViews.Length)           
-            {
-                Debug.Log("Reset to Frist Puzzle View");
-                currentIndex = 0;                    
-            }
-            
             if(loopingClips != null)
             {
                 theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);       
@@ -72,6 +69,11 @@ public class CameraController : MonoBehaviour
 
             WindGush();                                                                                               
             currentView = levelViews[currentIndex++];                                                               
+        }
+        if (currentIndex > levelViews.Length - 1)
+        {
+            Debug.Log("Reset to Frist Puzzle View");
+            currentIndex = 0;
         }
         /*** End Debugging ***/
     }
@@ -82,7 +84,17 @@ public class CameraController : MonoBehaviour
     **/
     void LateUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed); 
+        if (canMoveCamera)
+        {
+            currentView = levelViews[currentIndex];
+            transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+        }          
+    }
+
+    public void SetCameraPosition()
+    {
+        if (canMoveCamera)
+            gameObject.transform.position = levelViews[currentIndex].transform.position;
     }
 
     
