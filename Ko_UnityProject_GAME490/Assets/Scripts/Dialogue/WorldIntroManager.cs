@@ -56,7 +56,7 @@ public class WorldIntroManager : MonoBehaviour
 
     void LateUpdate()
     {
-        if(!cameraScript.canMoveCamera)
+        if(!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews)
             pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, cameraSpeed * Time.deltaTime);
     }
 

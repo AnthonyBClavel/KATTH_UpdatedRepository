@@ -5,29 +5,33 @@ using UnityEngine;
 
 public class AmbientLoopingSFXManager : MonoBehaviour
 {
-    private AudioSource AmbientLoopingSFX;                                                                               
+    public AudioClip[] loopingClipsSFX;
+    private AudioClip lastClip;
+    private AudioSource audioSource;                                                                               
 
     // Start is called before the first frame update
     void Start()
     {
-        AmbientLoopingSFX = GetComponent<AudioSource>();                   
+        audioSource = GetComponent<AudioSource>();                   
     }
 
-    // Update is called once per frame
-    void Update()
+    // Plays a new audio clip different from the one currenlty playing
+    public void ChangeAmbientLoopingSFX()
     {
-        
-    }
+        int attempts = 3;
+        AudioClip newClip = loopingClipsSFX[Random.Range(0, loopingClipsSFX.Length)];
 
-    // Plays a new audio clip with a different name from the one currenlty playing
-    public void ChangeAmbientLoopingSFX(AudioClip newAudioClip)            
-    {
-        if (AmbientLoopingSFX.clip.name == newAudioClip.name)              
-            return;                                                               
+        while (newClip == lastClip && attempts > 0)
+        {
+            newClip = loopingClipsSFX[Random.Range(0, loopingClipsSFX.Length)];
+            attempts--;
+        }
 
-        AmbientLoopingSFX.Stop();                                          
-        AmbientLoopingSFX.clip = newAudioClip;                             
-        AmbientLoopingSFX.Play();                                          
+        lastClip = newClip;
+
+        audioSource.Stop();
+        audioSource.clip = newClip;
+        audioSource.Play();
     }
 
 }

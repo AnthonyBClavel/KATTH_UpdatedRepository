@@ -43,6 +43,8 @@ public class TileMovementController : MonoBehaviour
     private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
+    private PlayerSounds playerSoundsScript;
+    private CameraController cameraScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
@@ -60,7 +62,7 @@ public class TileMovementController : MonoBehaviour
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
-    private bool hasMovedPuzzleView;                            // Determines when the camera can switch puzzle views   
+    private bool hasMovedPuzzleView = false;                            // Determines when the camera can switch puzzle views   
     private bool hasStartedTutorial = false;
     private bool hasDisabledFootsteps = false;
 
@@ -73,7 +75,9 @@ public class TileMovementController : MonoBehaviour
         levelManagerScript = FindObjectOfType<LevelManager>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        playerSoundsScript = FindObjectOfType<PlayerSounds>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        cameraScript = FindObjectOfType<CameraController>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         saveManagerScript.LoadPlayerPosition(); //
@@ -109,17 +113,20 @@ public class TileMovementController : MonoBehaviour
         //sceneName = SceneManager.GetActiveScene().name;
         if (playerDirection != currentDirection)
             playerDirection = currentDirection;
-        
+
         Move();
+        AlertBubbleCheck();
         checkIfOnBridgeController();
+        checkIfCompletedLevel();
+
         Anim.SetBool("isWalking", isWalking);
         Anim.SetBool("isPushing", isPushing);
         Anim.SetBool("isInteracting", isInteracting);
 
         /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftBracket))
             torchMeterMoves.CurrentVal--;
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (Input.GetKeyDown(KeyCode.RightBracket))
             torchMeterMoves.CurrentVal++;
         /*** End Debugging ***/
         if (torchMeterMoves.CurrentVal > 0) alreadyPlayedSFX = false;
@@ -141,19 +148,19 @@ public class TileMovementController : MonoBehaviour
             isWalking = false;
             checkIfOnCheckpoint();
             //checkIfOnBridgeController();
-            checkIfCompletedLevel();
+            //checkIfCompletedLevel();
 
             // If player's torch meter runs out...
             if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
             {
-                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);
-                Instantiate(freezingSFX, transform.position, transform.rotation);
-                alreadyPlayedSFX = true; // The audio clip cannot be played again
-
                 if (SceneManager.GetActiveScene().name == "TutorialMap")
                     resetPuzzleWithDelayInTutorial();
                 else
                     resetPuzzleWithDelay();
+
+                Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);
+                Instantiate(freezingSFX, transform.position, transform.rotation);
+                alreadyPlayedSFX = true; // The audio clip cannot be played again
             }
         }
         else
@@ -173,19 +180,17 @@ public class TileMovementController : MonoBehaviour
             if (EdgeCheck()) 
             {
                 isWalking = true;
-                PlayerSounds.instance.TileCheck();
+                playerSoundsScript.TileCheck();
                 destination = transform.position + nextPos;
                 direction = nextPos;
+
                 if (!onBridge())
-                {
                     torchMeterMoves.CurrentVal -= 1;
-                }
                 else
-                {
                     ResetTorchMeter();
-                }
             }
         }
+
         CheckToPlayAnims();
     }
 
@@ -196,52 +201,60 @@ public class TileMovementController : MonoBehaviour
     private bool updateKeyboardInput()
     {
         /*** Movement inputs start here ***/
-        // W key (North)
-        if (Input.GetKeyDown(KeyCode.W) && canMove)
+        if (canMove)
         {
-            nextPos = Vector3.forward;
-            currentDirection = up;
-            return true;
-        }
+            // W key (North)
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                nextPos = Vector3.forward;
+                currentDirection = up;
+                return true;
+            }
 
-        // S key (South)
-        else if (Input.GetKeyDown(KeyCode.S) && canMove)
-        {
-            nextPos = Vector3.back;
-            currentDirection = down;
-            return true;
-        }
+            // S key (South)
+            else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                nextPos = Vector3.back;
+                currentDirection = down;
+                return true;
+            }
 
-        // D key (East)
-        else if (Input.GetKeyDown(KeyCode.D) && canMove)
-        {
-            nextPos = Vector3.right;
-            currentDirection = right;
-            return true;
-        }
+            // D key (East)
+            else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                nextPos = Vector3.right;
+                currentDirection = right;
+                return true;
+            }
 
-        // A key (West)
-        else if (Input.GetKeyDown(KeyCode.A) && canMove)
-        {
-            nextPos = Vector3.left;
-            currentDirection = left;
-            return true;
+            // A key (West)
+            else if (Input.GetKeyDown(KeyCode.A) ||Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                nextPos = Vector3.left;
+                currentDirection = left;
+                return true;
+            }
         }
         /*** Movement inputs end here ***/
 
         // Hit R to reset puzzle
-        else if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
+        if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
 
         // Hit Return to interact/break block
-        else if (Input.GetKeyDown(KeyCode.Return) && canInteract)
+        if (canInteract)
         {
-            Collider collider = getCollider();
-            if (collider == null) return false;
-            if (collider.tag == "DestroyableBlock") destroyBlock(collider);
-            if (collider.tag == "Generator") turnOnGenerator(collider);
-            if (collider.tag == "FireStone") getFirestone(collider);
-            else if (collider.tag == "NPC") interactWithNPC(collider);
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            {
+                Collider collider = getCollider();
+                if (collider == null) return false;
+                if (collider.tag == "DestroyableBlock") destroyBlock(collider);
+                if (collider.tag == "Generator") turnOnGenerator(collider);
+                if (collider.tag == "FireStone") getFirestone(collider);
+                if (collider.tag == "NPC") interactWithNPC(collider);
+                else if (collider.tag == "Artifact") interactWithArtifact(collider);
+            }
         }
+
         return false;
     }
 
@@ -299,38 +312,31 @@ public class TileMovementController : MonoBehaviour
     {
         //GameObject npc = collider.gameObject;
         //npc.GetComponent<Interactable>().Interact();
+
+        Debug.Log("Player has interacted with NPC");
+        cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+        characterDialogueScript.isInteractingWithNPC = true;      
+        characterDialogueScript.StartDialogue();
+
+        isInteracting = false;
+        isWalking = false;
+        CheckToPlayAnims();
+    }
+
+    public void interactWithArtifact(Collider collider)
+    {
         string name = collider.name;
 
-        if (name == "Elder_NPC")
-        {
-            Debug.Log("Player has interacted with the first Village Elder");
-            characterDialogueScript.isVillageEdler = true;
-            characterDialogueScript.StartNPCDialogue();       
-        }
-        if (name == "Fisherman_NPC")
-        {
-            Debug.Log("Player has interacted with the Fisherman");
-            characterDialogueScript.isFisherman = true;
-            characterDialogueScript.StartNPCDialogue();
-        }
-        if (name == "Explorer01_NPC")
-        {
-            Debug.Log("Player has interacted with the first Village Explorer");
-            characterDialogueScript.isVillageExplorer01 = true;
-            characterDialogueScript.StartNPCDialogue();
-        }
-        if (name == "FriendlyGhost_NPC")
-        {
-            Debug.Log("Player has interacted with the Friendly Ghost");
-            characterDialogueScript.isFriendlyGhost = true;
-            characterDialogueScript.StartNPCDialogue();
-        }
-        if (name == "Explorer02_NPC")
-        {
-            Debug.Log("Player has interacted with the second Village Explorer");
-            characterDialogueScript.isVillageExplorer02 = true;
-            characterDialogueScript.StartNPCDialogue();
-        }
+        Debug.Log("Player has interacted with Artifact");
+        if (name == "ArtifactOne")
+            characterDialogueScript.isArtifactOne = true;
+        if (name == "ArtifactTwo")
+            characterDialogueScript.isArtifactTwo = true;
+        if (name == "ArtifactThree")
+            characterDialogueScript.isArtifactThree = true;
+
+        cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+        characterDialogueScript.StartDialogue();
 
         isInteracting = false;
         isWalking = false;
@@ -342,7 +348,6 @@ public class TileMovementController : MonoBehaviour
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), transform.forward);
         RaycastHit hit;
-
         Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         if (Physics.Raycast(myRay, out hit, rayLength)) return hit.collider;
@@ -477,6 +482,26 @@ public class TileMovementController : MonoBehaviour
         torchMeterScript.ResetTorchMeterElements();
     }
 
+    bool AlertBubbleCheck()
+    { 
+        Ray myAlertBubbleRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), nextPos);
+        RaycastHit hit;
+        Debug.DrawRay(myAlertBubbleRay.origin, myAlertBubbleRay.direction, Color.blue);
+
+        if (Physics.Raycast(myAlertBubbleRay, out hit, rayLength))
+        {
+            string tag = hit.collider.tag;
+
+            if (tag == "NPC" || tag == "Artifact")
+            {
+                characterDialogueScript.SetAlertBubbleActive();
+                return true;
+            }              
+        }
+        characterDialogueScript.SetAlertBubbleInactive();
+        return false;
+    }
+
     // Draws a ray below the player and returns true if player is standing on a checkpoint, returns false otherwise
     public bool checkIfOnCheckpoint()
     {
@@ -504,7 +529,7 @@ public class TileMovementController : MonoBehaviour
         // If this is the first time we visited this checkpoint
         if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
         {
-            if(canSetBoolsTrue)
+            if (canSetBoolsTrue)
                 SetPlayerBoolsTrue(); //Enable Player Movement
 
             checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
@@ -531,7 +556,7 @@ public class TileMovementController : MonoBehaviour
             if (tag == "EndOfLevel")
             {
                 ResetTorchMeter();
-                levelManagerScript.GetComponent<BridgeMovementController>().MoveToNextBlock();
+                levelManagerScript.gameObject.GetComponent<BridgeMovementController>().MoveToNextBlock();
                 levelManagerScript.DisablePlayer();
                 levelManagerScript.SetLevelCompletedEffects();
                 //SaveManager.DeleteGame();
@@ -552,34 +577,32 @@ public class TileMovementController : MonoBehaviour
         string tag = hit.collider.tag;
         string name = hit.collider.name;
 
-        if (name == "BridgeBlock")
+        // Disables the player's footstep sfx - ONLY disabled when the player transitions to another level/scene (on the end bridge)
+        if (tag == "DisableFootsteps" && !hasDisabledFootsteps)
         {
-            // Disables the player's footstep sfx - ONLY disabled when the player transitions to another level/scene (on the end bridge)
-            if (tag == "DisableFootsteps" && !hasDisabledFootsteps)
-            {
-                Debug.Log("Player Footsteps Have Been Disabled");
-                PlayerSounds.instance.canPlayFootsteps = false;
-                hasDisabledFootsteps = true;
-            }
-            // Finds the object with the bridge controller script
-            if (tag == "BridgeController" && !isWalking)
-            {
-                Debug.Log("Bridge Controller Found");
-                SetPlayerBoolsFalse();
-                hit.collider.gameObject.GetComponent<BridgeMovementController>().MoveToNextBlock();
-                transform.localEulerAngles = new Vector3(0, hit.collider.gameObject.GetComponent<BridgeMovementController>().newDirection, 0);
-                NextPuzzleViewCheck();
-            }
-            // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position
-            if (tag == "LastBridgeTile" && hasMovedPuzzleView)
-            {
-                Debug.Log("Invisible Block Position has been saved");
-                savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
-                saveManagerScript.SaveBlockPosition();
-                hasMovedPuzzleView = false;
-            }
+            //Debug.Log("Player Footsteps Have Been Disabled");
+            playerSoundsScript.canPlayFootsteps = false;
+            hasDisabledFootsteps = true;
+        }
+        // Finds the object with the bridge controller script
+        if (tag == "BridgeController" && gameObject.transform.position == hit.collider.transform.position)
+        {
+            Debug.Log("Bridge Controller Found");
+            SetPlayerBoolsFalse();
+            hit.collider.gameObject.GetComponent<BridgeMovementController>().MoveToNextBlock();
+            transform.localEulerAngles = new Vector3(0, hit.collider.gameObject.GetComponent<BridgeMovementController>().newDirection, 0);
+            NextPuzzleViewCheck();
             return true;
         }
+        // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position
+        if (tag == "LastBridgeTile" && hasMovedPuzzleView)
+        {
+            Debug.Log("Invisible Block Position has been saved");
+            savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
+            saveManagerScript.SaveBlockPosition();
+            hasMovedPuzzleView = false;
+        }
+
         return false;
     }
 
@@ -723,7 +746,7 @@ public class TileMovementController : MonoBehaviour
         // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
         {
-            if(!gameHUDScript.canDeathScreen)
+            if (!gameHUDScript.canDeathScreen)
             {
                 GameObject child = puzzle.transform.GetChild(i).gameObject;
                 if (child.name == "Pushable Blocks")
@@ -791,7 +814,7 @@ public class TileMovementController : MonoBehaviour
     //Checks to see if the function for moving the camera has been called
     private void NextPuzzleViewCheck()
     {
-        if(!hasMovedPuzzleView)
+        if (!hasMovedPuzzleView)
         {
             Debug.Log("Switched To Next Puzzle View");
             main_camera.GetComponent<CameraController>().NextPuzzleView02();

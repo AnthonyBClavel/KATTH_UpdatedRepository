@@ -41,15 +41,22 @@ public class DialogueManager : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.Return) && continueTrigger.activeSelf == true)
-            nextSentence();
-        else if (Input.GetKeyDown(KeyCode.Return) && typingSpeed > OGtypingSpeed/2)
-            typingSpeed /= 2;
+        CheckToEnterTutorial();
 
-        if(playerScript.onFirstOrLastTileBlock() && !hasStarted)
+        if (playerScript.onFirstOrLastTileBlock() && !hasStarted)
             hasStarted = true;
 
-        CheckToEnterTutorial();
+        if (continueTrigger.activeSelf == true)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                nextSentence();
+        }
+
+        else if (typingSpeed > OGtypingSpeed / 2)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                typingSpeed /= 2;
+        }       
     }
 
     // Begins the dialogue - call this whenever you want to display dialogue

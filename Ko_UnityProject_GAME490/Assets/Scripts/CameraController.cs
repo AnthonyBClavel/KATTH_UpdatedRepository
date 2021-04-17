@@ -5,36 +5,49 @@ using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
+    //public static CameraController instance;
+
+    public GameObject dialogueViews;
+    public float transitonSpeed;
+    public int currentIndex = 0;
+
+    public bool canMoveCamera = true;
+    public bool canMoveToDialogueViews = false;
+    public bool hasCheckedDialogueViews = false;
+    private bool hasPaused = false;
+
+    Vector3 up = Vector3.zero,
+    right = new Vector3(0, 90, 0),
+    down = new Vector3(0, 180, 0),
+    left = new Vector3(0, 270, 0);
+
     [SerializeField]                                                        
     public AudioClip[] clips;
 
     [SerializeField]
-    public AudioClip[] loopingClips;
-
-    [SerializeField]
     public Transform[] levelViews;
-
-    public static CameraController instance;
-    public float transitonSpeed;
-    public int currentIndex = 0;
-    public bool canMoveCamera = true;
 
     Transform currentView;
     private AudioSource audioSource;
+    private AudioClip lastWindGushClip;
+
     private AmbientLoopingSFXManager theALSM;
     private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
     private GeneratorScript generatorScript;
+    private TileMovementController playerScript;
+    private DialogueCameraViews dialogueCameraViewsScript;
 
-    private bool hasPaused;
 
     void Awake()
     {
-        saveManagerScript = FindObjectOfType<SaveManagerScript>(); //
-        saveManagerScript.LoadCameraPosition(); //
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        saveManagerScript.LoadCameraPosition();
 
         gameHUDScript = FindObjectOfType<GameHUD>();
         theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
 
         CheckForGenScript();
     }
@@ -42,11 +55,10 @@ public class CameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        hasPaused = false;   
-        instance = this;
-        audioSource = GetComponent<AudioSource>();
-
+        //instance = this;
         //gameObject.transform.position = levelViews[currentIndex].transform.position;
+         
+        audioSource = GetComponent<AudioSource>();
         SetCameraPosition();
         SetPuzzleNumber();
     }
@@ -85,24 +97,27 @@ public class CameraController : MonoBehaviour
     void LateUpdate()
     {
         if (canMoveCamera)
-        {
+        {          
             currentView = levelViews[currentIndex];
-            transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
-        }          
+
+            if(transform.position != currentView.position)
+                transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+                
+        }
+
+        if (canMoveToDialogueViews)
+        {
+            DialogueViewsCheck();
+
+            if (transform.position != currentView.position)
+                transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+        }
     }
 
     public void SetCameraPosition()
     {
         if (canMoveCamera)
             gameObject.transform.position = levelViews[currentIndex].transform.position;
-    }
-
-    
-    // Shifts the camera to the next puzzle view
-    public void NextPuzzleView(Transform newView)                                                                              
-    {
-        //Debug.Log("Switch Puzzle View");
-        currentView = newView;
     }
 
     public void NextPuzzleView02()
@@ -122,33 +137,63 @@ public class CameraController : MonoBehaviour
             currentIndex = 0;
         }
     }
-    
+
+    // Shifts the camera to the next puzzle view
+    public void NextPuzzleView(Transform newView)
+    {
+        //Debug.Log("Switch Puzzle View");
+        currentView = newView;
+    }
+
     // We'll use this function below in the future when we want to travel between puzzles
     public void PreviousPuzzleView02()
     {
-        //Debug.Log("Switch Puzzle View");
+        //Debug.Log("Switch To Previous Puzzle View");
         currentView = levelViews[currentIndex--];
     }
 
     // Plays a random wind gush sfx from an audio clip array
     public void WindGush()                                                                                            
     {
-        // Plays an audio clip whose index is not equal to the one playing right now
-        if (loopingClips != null)
-        {           
-            theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);
-        }
-
-        AudioClip clips = GetRandomClip();
-        //audioSource.clip = clips;
-        audioSource.PlayOneShot(clips);
-
+        theALSM.ChangeAmbientLoopingSFX();
+        PlayWindGushSFX();
     }
 
-    // Gets a random audio clip from its respective array
-    private AudioClip GetRandomClip()                                                                                
+    // Checks to see what dialogue view the camera should move to
+    private void DialogueViewsCheck()
     {
-        return clips[UnityEngine.Random.Range(0, clips.Length)];
+        if (!hasCheckedDialogueViews)
+        { 
+            if (playerScript.playerDirection == left)
+                currentView = dialogueCameraViewsScript.dialogueCameraViews[0];
+
+            if (playerScript.playerDirection == right)
+                currentView = dialogueCameraViewsScript.dialogueCameraViews[1];
+
+            if (playerScript.playerDirection == up)
+                currentView = dialogueCameraViewsScript.dialogueCameraViews[2];
+
+            if (playerScript.playerDirection == down)
+                currentView = dialogueCameraViewsScript.dialogueCameraViews[3];
+
+            hasCheckedDialogueViews = true;
+        }
+    }
+
+    // Plays a new wind gush sfx that different from the one that was previously played
+    private void PlayWindGushSFX()
+    {
+        int attempts = 3;
+        AudioClip newWindGushClip = clips[Random.Range(0, clips.Length)];
+
+        while (newWindGushClip == lastWindGushClip && attempts > 0)
+        {
+            newWindGushClip = clips[Random.Range(0, clips.Length)];
+            attempts--;
+        }
+
+        lastWindGushClip = newWindGushClip;
+        audioSource.PlayOneShot(newWindGushClip);
     }
 
     // Updates the puzzle number in the GameHUD via Camera Script
@@ -163,7 +208,7 @@ public class CameraController : MonoBehaviour
     // For pausing the WindGushSFX when you pause the game on the bridge
     private void CheckIfPaused()
     {
-        if(FindObjectOfType<PauseMenu>().isPaused && !hasPaused)
+        if (FindObjectOfType<PauseMenu>().isPaused && !hasPaused)
         {
             Debug.Log("Wind Gush SFX has been paused");
             audioSource.Pause();

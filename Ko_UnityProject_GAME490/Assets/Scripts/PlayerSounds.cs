@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class PlayerSounds : MonoBehaviour
 {
+    //public static PlayerSounds instance;
+
     public bool canPlayFootsteps;
     public bool canCheckBridgeTiles;
-
-    public static PlayerSounds instance;
 
     public AudioClip[] snowFootstepClips;                                    
 
@@ -30,8 +30,9 @@ public class PlayerSounds : MonoBehaviour
 
     void Start()
     {
-        //sets this script as an instance - other scripts can call it without creating a variable for it
-        instance = this;
+        // Sets this script as an instance - other scripts can call it without creating a variable for it
+        //instance = this;
+
         canPlayFootsteps = true;
         canCheckBridgeTiles = false;
         audioSource = GetComponent<AudioSource>();
@@ -153,6 +154,7 @@ public class PlayerSounds : MonoBehaviour
     { 
         return snowFootstepClips[UnityEngine.Random.Range(0, snowFootstepClips.Length)];                                                                                
     }
+
 
     private void GrassFootsteps()
     {

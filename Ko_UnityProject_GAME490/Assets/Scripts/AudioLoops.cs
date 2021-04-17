@@ -22,12 +22,6 @@ public class AudioLoops : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     // Fades in the volumes for both the BGM and Ambience loop (used after world intros)
     public void FadeInAudioLoops()
     {
@@ -52,6 +46,7 @@ public class AudioLoops : MonoBehaviour
         loopingAmbience = 0.0f;
     }
 
+    // Fades out both the bgm and ambient sfx loop
     public void FadeOutAudioLoops()
     {
         loopingBGM = 0.4f;
@@ -61,14 +56,27 @@ public class AudioLoops : MonoBehaviour
         StartCoroutine("DisableAudioLoops");
     }
 
+    // Fades in the bgm loop
     public void FadeInBGMLoop()
     {
+        StopCoroutine("FadeOutMusicLoop");
         BGM.GetComponent<AudioSource>().volume = loopingBGM;
         loopingBGM = 0.0f;
         BGM.SetActive(true);
         StartCoroutine("FadeInMusicLoop");
     }
 
+    // Fades out the bgm loop
+    public void FadeOutBGMLoop()
+    {
+        StopCoroutine("FadeInMusicLoop");
+        BGM.GetComponent<AudioSource>().volume = loopingBGM;
+        loopingBGM = 0.4f;
+        BGM.SetActive(true);
+        StartCoroutine("FadeOutMusicLoop");
+    }
+
+    // Fades in the ambient sfx loop
     private void FadeInAmbienceLoop()
     {
         AmbienceLoop.GetComponent<AudioSource>().volume = loopingAmbience;
@@ -117,6 +125,7 @@ public class AudioLoops : MonoBehaviour
             yield return new WaitForSeconds(0.025f);
         }
     }
+
     // Decreases the ambience loop volume over time until it reaches its min value
     private IEnumerator FadeOutAmbienceLoop()
     {

@@ -5,11 +5,11 @@ using UnityEngine;
 public class FollowWorld : MonoBehaviour
 {
     [Header("Tweaks")]
-    [SerializeField] public Transform lookAtObject;
-    //[SerializeField] public Vector3 offset;
+    public Transform lookAtObject;
+    //public Vector3 offset;
 
-    [Header("Logic")]
-    [SerializeField] public Camera cam;
+    [Header("Camera")]
+    public Camera cam;
 
 
     // Start is called before the first frame update
@@ -25,9 +25,9 @@ public class FollowWorld : MonoBehaviour
     }
 
     // Sets to the position of the dialogue bubble to the position of the lookAtObject
-    public void SetDialogueBubblePosition()
+    private void SetDialogueBubblePosition()
     {
-        Vector3 pos = cam.WorldToScreenPoint(lookAtObject.transform.position /*+ offset*/);
+        Vector3 pos = cam.WorldToScreenPoint(lookAtObject.transform.position /* offset*/);
 
         if (transform.position != pos)
             transform.position = pos;

@@ -35,11 +35,11 @@ public class DialogueBars : MonoBehaviour
         //originalTopBarPos = topBar.transform.localPosition;
         //originalBottomBarPos = bottomBar.transform.localPosition;
 
-        originalTopBarPos = new Vector3(0, 620, 0);
+        originalTopBarPos = new Vector3(0, 620, 0); 
         originalBottomBarPos = new Vector3(0, -620, 0);
 
-        topBarDestination = new Vector3(0, 465.31f, 0);
-        bottomBarDestination = new Vector3(0, -465.31f, 0);
+        topBarDestination = new Vector3(0, 490, 0); //465.31f
+        bottomBarDestination = new Vector3(0, -490, 0); //-465.31f
     }
 
     // Update is called once per frame
@@ -99,8 +99,8 @@ public class DialogueBars : MonoBehaviour
         //topBar.transform.localPosition = topBarDestination;
         //bottomBar.transform.localPosition = bottomBarDestination;
 
-        topBar.transform.localPosition = new Vector3(0, 465.31f, 0);
-        bottomBar.transform.localPosition = new Vector3(0, -465.31f, 0);
+        topBar.transform.localPosition = new Vector3(0, 490, 0); //465.31f
+        bottomBar.transform.localPosition = new Vector3(0, -490, 0); //-465.31f
     }
 
     // Sets the dialogue bars back to their original position - ONLY USED in the world intro script

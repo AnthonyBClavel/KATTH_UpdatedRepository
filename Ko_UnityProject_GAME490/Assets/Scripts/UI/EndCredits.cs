@@ -310,10 +310,14 @@ public class EndCredits : MonoBehaviour
         if (endCredits.transform.localPosition.y >= 280f && !canMoveGameLogo)
             canMoveGameLogo = true;
 
-        if (Input.GetKey(KeyCode.Return) && canSpeedUpCredits)
-            scrollSpeed = 270f;
-        else
-            scrollSpeed = 90f;
+        if (canSpeedUpCredits)
+        {
+            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Space))
+                scrollSpeed = 270f;
+            else
+                scrollSpeed = 90f;
+        }
+
     }
 
     // Checks to see if the credits can be skipped - can only skip in the main menu

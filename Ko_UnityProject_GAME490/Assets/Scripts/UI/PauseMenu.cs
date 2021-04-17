@@ -53,7 +53,7 @@ public class PauseMenu : MonoBehaviour
     {
         eventSystem = FindObjectOfType<EventSystem>();
         gameHUDScript = FindObjectOfType<GameHUD>();
-        //characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
     }
 
     // Start is called before the first frame update
@@ -248,10 +248,10 @@ public class PauseMenu : MonoBehaviour
         {
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press ENTER to Continue";
+                loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 {
                     loadingText.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
@@ -274,8 +274,8 @@ public class PauseMenu : MonoBehaviour
         optionsScreen.SetActive(false);
         safetyMenu.SetActive(false);
         Time.timeScale = 1f;
-        //SetPlayerBoolsTrueCheck();
-        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Only use this line for building project without NPCs
+        SetPlayerBoolsTrueCheck();
+        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Only use this line for building project without NPCs
 
         yield return new WaitForSecondsRealtime(0.15f);
         isChangingMenus = false;

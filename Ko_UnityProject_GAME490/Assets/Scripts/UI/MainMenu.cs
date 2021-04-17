@@ -63,6 +63,7 @@ public class MainMenu : MonoBehaviour
         canPlayButtonSFX = true;
         canFadeLogo = false;
         isChangingMenus = false;
+        hasPressedEnter = false;
         eventSystem = FindObjectOfType<EventSystem>();
 
         /*if (!SaveManager.hasSaveFile())
@@ -77,11 +78,14 @@ public class MainMenu : MonoBehaviour
         lastSelectedObject = eventSystem.currentSelectedGameObject;
 
         // If enter is already pressed once, you cannot call this function again
-        if (Input.GetKeyDown(KeyCode.Return) && !hasPressedEnter)
+        if (!hasPressedEnter && pressEnterText.activeSelf)
         {
-            OpenMainMenu();
-            Instantiate(PressEnterSFX, transform.position, transform.rotation);
-            hasPressedEnter = true;
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            {
+                OpenMainMenu();
+                Instantiate(PressEnterSFX, transform.position, transform.rotation);
+                hasPressedEnter = true;
+            }
         }
 
         // Close the options menu by pressing ESC
@@ -271,12 +275,12 @@ public class MainMenu : MonoBehaviour
 
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press ENTER to Continue";
+                loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 {
-                    loadingScreen.GetComponent<Image>().color = Color.black; //Optional
+                    loadingScreen.GetComponent<Image>().color = Color.black;
                     loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
@@ -340,11 +344,8 @@ public class MainMenu : MonoBehaviour
     private IEnumerator SetActiveDelay()
     {
         gameLogo.SetActive(true);
-        hasPressedEnter = true;
-
         yield return new WaitForSecondsRealtime(4f);
         pressEnterText.SetActive(true);
-        hasPressedEnter = false;
     }
 
     private IEnumerator OpenMainMenuDelay()

@@ -173,7 +173,7 @@ public class TipsManager : MonoBehaviour
         tips[6] = "you can push wooden crates into holes and walk over them, very useful!";
         tips[7] = "sometimes there can be more than one way to both solve and fail a puzzle.";
         tips[8] = "remember this, interacting with a firestone will reset your torch meter!";
-        tips[9] = "wooden crates cannot be pushed onto bridges, what an inconvenience.";
+        tips[9] = "wooden crates cannot be pushed onto bridges, they're afraid of heights.";
 
         currentIndex = UnityEngine.Random.Range(0, tips.Length);
         tipTextBox.text = "TIP: " + tips[currentIndex];

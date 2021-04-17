@@ -11,9 +11,6 @@ public class LevelManager : MonoBehaviour
     public string nextLevelToLoad;
     //float rayLength = 1f;
 
-    [Header("Game Objects")]
-    public GameObject levelCompleteItem;
-
     [Header("Loading Screen Elements")]
     public TextMeshProUGUI loadingText;
     public Slider loadingBar;
@@ -69,14 +66,14 @@ public class LevelManager : MonoBehaviour
 
             if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
             {
-                loadingText.text = "Press ENTER to Continue";
+                loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 {
                     saveMangerScript.CreateNewSaveFile();
 
-                    loadingScreen.GetComponent<Image>().color = Color.black; //Optional
+                    loadingScreen.GetComponent<Image>().color = Color.black;
                     loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
@@ -122,7 +119,6 @@ public class LevelManager : MonoBehaviour
 
         pauseMenuScript.isChangingScenes = true;
         playerSoundsScript.canCheckBridgeTiles = false;
-        //StartCoroutine("DisbalePlayerSounds");
         playerScript.SetPlayerBoolsFalse();
     }
 
@@ -131,7 +127,6 @@ public class LevelManager : MonoBehaviour
     {
         if(!hasfinishedLevel)
         {
-            levelCompleteItem.SetActive(false);
             audioSource.Play();
             hasfinishedLevel = true;
         }
@@ -140,8 +135,7 @@ public class LevelManager : MonoBehaviour
         {
             saveMangerScript.CreateNewSaveFile();
             hasSavedFile = true;
-        }
-            
+        }           
     }
 
     // Sets a random image/sprite for the loading screen
@@ -159,13 +153,4 @@ public class LevelManager : MonoBehaviour
         if (loadingScreenSprites != null)
             SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
     }
-
-    // Disables the player's footsteps sfx by the end of the level fade
-    /*private IEnumerator DisbalePlayerSounds()
-    {
-        playerSoundsScript.canCheckBridgeTiles = false;
-        yield return new WaitForSecondsRealtime(1.6f);
-        playerSoundsScript.canPlayFootsteps = false;
-    }*/
-
 }
