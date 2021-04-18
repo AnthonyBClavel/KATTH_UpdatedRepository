@@ -81,8 +81,8 @@ public class CharacterDialogue : MonoBehaviour
     private bool canCheckBubbleBounds = false;
     private bool hasSetBubbleDefaultPosX = false;
     private bool hasSetBubbleDefaultPosY = false;
-    private bool hasStartedDialoguePlayer = false;
-    private bool hasStartedDialogueNPC = false;
+    public bool hasStartedDialoguePlayer = false;
+    public bool hasStartedDialogueNPC = false;
     private bool hasPlayedPopUpSFX = false;
     private bool hasSetDialogueBars = false;
     private bool hasSetPivot = false;
@@ -94,7 +94,7 @@ public class CharacterDialogue : MonoBehaviour
     public bool isInteractingWithNPC = false;
 
 
-    private bool hasGreetedInitially = false;
+    private bool hasLoadedInitialDialogue = false;
     private bool hasPlayedOptionOne = false;
     private bool hasPlayedOptionTwo = false;
     private bool hasSelectedDialogueOption = false;
@@ -120,6 +120,7 @@ public class CharacterDialogue : MonoBehaviour
     public Animator playerBubbleAnim;
     public Animator nPCBubbleAnim;
     public Animator dialogueOptionsBubbleAnim;
+    //public Animator nPCAnimator;
 
     [Header("TextMeshPro")]
     // Note: the white text is used to "calculate" the size of the bubble (to fit the text), dialogue text will overlay white text once size is found
@@ -171,6 +172,7 @@ public class CharacterDialogue : MonoBehaviour
     private NonPlayerCharacter nPCScript;
     private AudioLoops audioLoopsScript;
     private CameraController cameraScript;
+    private FidgetAnimControllerNPC fidgetAnimControllerNPC;
 
     void Awake()
     {
@@ -180,6 +182,7 @@ public class CharacterDialogue : MonoBehaviour
         nPCScript = FindObjectOfType<NonPlayerCharacter>();
         audioLoopsScript = FindObjectOfType<AudioLoops>();
         cameraScript = FindObjectOfType<CameraController>();
+        fidgetAnimControllerNPC = FindObjectOfType<FidgetAnimControllerNPC>();
     }
 
     // Start is called before the first frame update
@@ -387,8 +390,8 @@ public class CharacterDialogue : MonoBehaviour
             if (nPCDialogueSentences[nPCIndex + 1].Contains("SWITCH"))
             {
                 //Debug.Log("detected SWITCH for npc");
-                nPCIndex++;              
-                
+                nPCIndex++;           
+
                 if (playerDialogueSentences[playerIndex + 1].Contains("END DIALOGUE"))
                     hasPlayedPopUpSFX = true;
                 else 
@@ -928,7 +931,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             setDialogueQuestions(dialogueQuestionsFile);
             dialogueOptionsIndex = 0;
-            hasGreetedInitially = true;
+            hasLoadedInitialDialogue = true;
             hasSetIndex = true;
         }
 
@@ -944,6 +947,7 @@ public class CharacterDialogue : MonoBehaviour
         hasStartedDialoguePlayer = false;
         hasStartedDialogueNPC = false;
         canMoveDialogueArrow = true;
+        fidgetAnimControllerNPC.inCharacterDialogue = false;
 
         optionOneText.color = unselectedTextColor;
         optionTwoText.color = unselectedTextColor;
@@ -960,7 +964,7 @@ public class CharacterDialogue : MonoBehaviour
         optionOneText.color = unselectedTextColor;
         optionTwoText.color = unselectedTextColor;
         optionThreeText.color = unselectedTextColor;
-
+     
         dialogueOptionsBubble.SetActive(false);
         dialogueArrow.SetActive(false);
         hasSetBubbleDefaultPosX = false;
@@ -969,6 +973,7 @@ public class CharacterDialogue : MonoBehaviour
         canPlayBubbleAnim = false;
         hasPlayedPopUpSFX = false;
         hasSetPivot = false;
+        fidgetAnimControllerNPC.inCharacterDialogue = true;
 
         if (dialogueOptionsIndex == 2)
         {
@@ -1067,11 +1072,11 @@ public class CharacterDialogue : MonoBehaviour
     private void ChangeDialogueMusic()
     {
         int attempts = 3;
-        AudioClip newDialogueMusicTrack = dialogueMusicTracks[Random.Range(0, dialogueMusicTracks.Length)];
+        AudioClip newDialogueMusicTrack = dialogueMusicTracks[UnityEngine.Random.Range(0, dialogueMusicTracks.Length)];
 
         while (newDialogueMusicTrack == lastTrack && attempts > 0)
         {
-            newDialogueMusicTrack = dialogueMusicTracks[Random.Range(0, dialogueMusicTracks.Length)];
+            newDialogueMusicTrack = dialogueMusicTracks[UnityEngine.Random.Range(0, dialogueMusicTracks.Length)];
             attempts--;
         }
 
@@ -1140,13 +1145,13 @@ public class CharacterDialogue : MonoBehaviour
             nPCScript.SetRotationNPC();
             SetDialogueTextColor();
 
-            if (!hasGreetedInitially)
+            if (!hasLoadedInitialDialogue)
             {
                 setPlayerDialogue(playerDialogueFiles[0]);
                 setNPCDialogue(nPCDialogueFiles[0]);         
             }
 
-            else if (hasGreetedInitially)
+            else if (hasLoadedInitialDialogue)
             {
                 setPlayerDialogue(playerDialogueFiles[1]);
                 setNPCDialogue(nPCDialogueFiles[1]);
@@ -1156,11 +1161,11 @@ public class CharacterDialogue : MonoBehaviour
         else if (isArtifactOne)
         {
             int attempts = 3;
-            int newArtifactIndex = Random.Range(0, artifactOneDialogueFiles.Length);
+            int newArtifactIndex = UnityEngine.Random.Range(0, artifactOneDialogueFiles.Length);
 
             while (newArtifactIndex == lastArtifactIndex && attempts > 0)
             {
-                newArtifactIndex = Random.Range(0, artifactOneDialogueFiles.Length);
+                newArtifactIndex = UnityEngine.Random.Range(0, artifactOneDialogueFiles.Length);
                 attempts--;
             }
 
@@ -1171,11 +1176,11 @@ public class CharacterDialogue : MonoBehaviour
         else if (isArtifactTwo)
         {
             int attempts = 3;
-            int newArtifactIndex = Random.Range(0, artifactTwoDialogueFiles.Length);
+            int newArtifactIndex = UnityEngine.Random.Range(0, artifactTwoDialogueFiles.Length);
 
             while (newArtifactIndex == lastArtifactIndex && attempts > 0)
             {
-                newArtifactIndex = Random.Range(0, artifactTwoDialogueFiles.Length);
+                newArtifactIndex = UnityEngine.Random.Range(0, artifactTwoDialogueFiles.Length);
                 attempts--;
             }
 
@@ -1186,11 +1191,11 @@ public class CharacterDialogue : MonoBehaviour
         else if (isArtifactThree)
         {
             int attempts = 3;
-            int newArtifactIndex = Random.Range(0, artifactThreeDialogueFiles.Length);
+            int newArtifactIndex = UnityEngine.Random.Range(0, artifactThreeDialogueFiles.Length);
 
             while (newArtifactIndex == lastArtifactIndex && attempts > 0)
             {
-                newArtifactIndex = Random.Range(0, artifactThreeDialogueFiles.Length);
+                newArtifactIndex = UnityEngine.Random.Range(0, artifactThreeDialogueFiles.Length);
                 attempts--;
             }
 
@@ -1220,6 +1225,7 @@ public class CharacterDialogue : MonoBehaviour
         cameraScript.canMoveCamera = false;
         cameraScript.canMoveToDialogueViews = true;
         cameraScript.hasCheckedDialogueViews = false;
+        fidgetAnimControllerNPC.inCharacterDialogue = true;
 
         SetDialogueBarsCheck();
         dialogueBarsScript.TurnOffHUD();
@@ -1252,6 +1258,7 @@ public class CharacterDialogue : MonoBehaviour
         hasSelectedDialogueOption = false;
         cameraScript.canMoveCamera = true;
         cameraScript.canMoveToDialogueViews = false;
+        fidgetAnimControllerNPC.inCharacterDialogue = false;
 
         EmptyTextComponents();
         SetDialogueBarsCheck();
@@ -1261,6 +1268,7 @@ public class CharacterDialogue : MonoBehaviour
         yield return new WaitForSeconds(0.4f);
         canAlertBubble = true;
         yield return new WaitForSeconds(0.1f);
+        fidgetAnimControllerNPC.hasPlayedGreetAnimNPC = false;
         playerScript.SetPlayerBoolsTrue();
         canCheckBubbleBounds = false;
         hasPlayedPopUpSFX = false;
@@ -1310,8 +1318,9 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedDialogueNPC = true;
-        }           
-        
+            fidgetAnimControllerNPC.GetComponent<FidgetAnimControllerNPC>().PlayFidgetAnimCheck();
+        }
+
         playerDialgueBubble.SetActive(false);
         nPCDialgueBubble.SetActive(true);
         PlayDialogueBubbleSFXCheck();

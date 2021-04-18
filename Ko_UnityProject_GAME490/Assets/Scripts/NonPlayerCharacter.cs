@@ -12,7 +12,7 @@ public class NonPlayerCharacter : MonoBehaviour
     public GameObject nPC;
 
     private Vector3 originalRotation;
-    private Animator characterAnim;
+    //private Animator characterAnim;
     private TileMovementController playerScript;
 
     void Awake()
@@ -23,18 +23,14 @@ public class NonPlayerCharacter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        characterAnim = nPC.GetComponent<Animator>();
+        //characterAnim = nPC.GetComponent<Animator>();
         originalRotation = nPC.transform.localEulerAngles;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            //PlayGreetingAnim();
-            StartCoroutine("PlayGreetingAnim");
-        }
+
     }
 
     // Rotates the npc so that it faces the player
@@ -54,14 +50,6 @@ public class NonPlayerCharacter : MonoBehaviour
     public void ResetRotationNPC()
     {
         nPC.transform.localEulerAngles = originalRotation;
-    }
-
-    // Triggers the character's greeting animation;
-    public IEnumerator PlayGreetingAnim()
-    {
-        characterAnim.SetTrigger("Greet");
-        yield return new WaitForSeconds(2.5f);
-        characterAnim.SetTrigger("Idle");
     }
 
 }
