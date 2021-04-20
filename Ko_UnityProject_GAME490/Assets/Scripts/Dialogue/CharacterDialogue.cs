@@ -173,6 +173,7 @@ public class CharacterDialogue : MonoBehaviour
     private AudioLoops audioLoopsScript;
     private CameraController cameraScript;
     private FidgetAnimControllerNPC fidgetAnimControllerNPC;
+    private FidgetAnimControllerPlayer fidgetAnimControllerPlayer;
 
     void Awake()
     {
@@ -183,6 +184,7 @@ public class CharacterDialogue : MonoBehaviour
         audioLoopsScript = FindObjectOfType<AudioLoops>();
         cameraScript = FindObjectOfType<CameraController>();
         fidgetAnimControllerNPC = FindObjectOfType<FidgetAnimControllerNPC>();
+        fidgetAnimControllerPlayer = FindObjectOfType<FidgetAnimControllerPlayer>();
     }
 
     // Start is called before the first frame update
@@ -419,7 +421,9 @@ public class CharacterDialogue : MonoBehaviour
             if (hasStartedDialoguePlayer)
                 playerIndex++;
 
-            StartCoroutine("TypePlayerDialogue");
+            if (!playerDialogueSentences[playerIndex].Contains("END DIALOGUE"))
+                StartCoroutine("TypePlayerDialogue");
+                
         }
 
         if (nPCIndex < nPCDialogueSentences.Length - 1 && nPCDialogueSentences[nPCIndex + 1] != string.Empty && !isPlayerSpeaking)
@@ -427,7 +431,8 @@ public class CharacterDialogue : MonoBehaviour
             if (hasStartedDialogueNPC)
                 nPCIndex++;
 
-            StartCoroutine("TypeNPCDialogue");
+            if (!nPCDialogueSentences[nPCIndex].Contains("END DIALOGUE"))
+                StartCoroutine("TypeNPCDialogue");
         }
 
         else EndDialogueCheck();
@@ -948,6 +953,7 @@ public class CharacterDialogue : MonoBehaviour
         hasStartedDialogueNPC = false;
         canMoveDialogueArrow = true;
         fidgetAnimControllerNPC.inCharacterDialogue = false;
+        fidgetAnimControllerPlayer.inCharacterDialogue = false;
 
         optionOneText.color = unselectedTextColor;
         optionTwoText.color = unselectedTextColor;
@@ -974,6 +980,7 @@ public class CharacterDialogue : MonoBehaviour
         hasPlayedPopUpSFX = false;
         hasSetPivot = false;
         fidgetAnimControllerNPC.inCharacterDialogue = true;
+        fidgetAnimControllerPlayer.inCharacterDialogue = true;
 
         if (dialogueOptionsIndex == 2)
         {
@@ -1226,6 +1233,7 @@ public class CharacterDialogue : MonoBehaviour
         cameraScript.canMoveToDialogueViews = true;
         cameraScript.hasCheckedDialogueViews = false;
         fidgetAnimControllerNPC.inCharacterDialogue = true;
+        fidgetAnimControllerPlayer.inCharacterDialogue = true;
 
         SetDialogueBarsCheck();
         dialogueBarsScript.TurnOffHUD();
@@ -1259,6 +1267,7 @@ public class CharacterDialogue : MonoBehaviour
         cameraScript.canMoveCamera = true;
         cameraScript.canMoveToDialogueViews = false;
         fidgetAnimControllerNPC.inCharacterDialogue = false;
+        fidgetAnimControllerPlayer.inCharacterDialogue = false;
 
         EmptyTextComponents();
         SetDialogueBarsCheck();
@@ -1269,6 +1278,7 @@ public class CharacterDialogue : MonoBehaviour
         canAlertBubble = true;
         yield return new WaitForSeconds(0.1f);
         fidgetAnimControllerNPC.hasPlayedGreetAnimNPC = false;
+        fidgetAnimControllerPlayer.hasPlayedGreetAnimPlayer = false;
         playerScript.SetPlayerBoolsTrue();
         canCheckBubbleBounds = false;
         hasPlayedPopUpSFX = false;
@@ -1284,6 +1294,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedDialoguePlayer = true;
+            fidgetAnimControllerPlayer.FidgetAnimCheck();
         }            
 
         nPCDialgueBubble.SetActive(false);
@@ -1318,7 +1329,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedDialogueNPC = true;
-            fidgetAnimControllerNPC.GetComponent<FidgetAnimControllerNPC>().PlayFidgetAnimCheck();
+            fidgetAnimControllerNPC.FidgetAnimCheck();
         }
 
         playerDialgueBubble.SetActive(false);

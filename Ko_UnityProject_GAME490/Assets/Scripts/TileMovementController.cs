@@ -45,6 +45,7 @@ public class TileMovementController : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private PlayerSounds playerSoundsScript;
     private CameraController cameraScript;
+    private FidgetAnimControllerPlayer playerFidgetScript;
 
     [Header("Save Slot Elements")]
     public GameObject checkpoint;
@@ -78,6 +79,7 @@ public class TileMovementController : MonoBehaviour
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         cameraScript = FindObjectOfType<CameraController>();
+        playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         saveManagerScript.LoadPlayerPosition(); //
@@ -833,7 +835,9 @@ public class TileMovementController : MonoBehaviour
     // Determines which animation state to play
     private void CheckToPlayAnims()
     {
-        if (isPushing) ChangeAnimationState("Pushing");
+        if (isPushing) 
+            ChangeAnimationState("Pushing");
+
         else if (isInteracting)
         {
             ChangeAnimationState("Interacting");
@@ -841,6 +845,7 @@ public class TileMovementController : MonoBehaviour
         }
         isPushing = false;
         isInteracting = false;
+        playerFidgetScript.SetIdleIndexToZero();
     }
 
     // Plays the random audio clip it aquired

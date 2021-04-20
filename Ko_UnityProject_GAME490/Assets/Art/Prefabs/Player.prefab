@@ -249,87 +249,6 @@ Transform:
   m_Father: {fileID: 7810868341435263898}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0.0000002509628, y: 1.495855e-14, z: 0.000004015405}
---- !u!1 &1671281606172904763
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2052028895567599489}
-  - component: {fileID: 3158605526542833700}
-  - component: {fileID: 878599624686513390}
-  m_Layer: 0
-  m_Name: Baby Mammoth
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &2052028895567599489
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1671281606172904763}
-  m_LocalRotation: {x: 0.00000006657903, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.000000013969839, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 8893811602064672361}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3158605526542833700
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1671281606172904763}
-  m_Mesh: {fileID: 5060444177187149915, guid: cd04c02202e369441a3e393c8ee7a710, type: 3}
---- !u!23 &878599624686513390
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1671281606172904763}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 670224309865224971, guid: cd04c02202e369441a3e393c8ee7a710, type: 3}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2066125525000361994
 GameObject:
   m_ObjectHideFlags: 0
@@ -679,6 +598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7d44f48ea821e146b59db91fbdee378, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canPlayFootsteps: 0
+  canCheckBridgeTiles: 0
   snowFootstepClips:
   - {fileID: 8300000, guid: fb38af3f9b054df47a0a9234c9cf5280, type: 3}
   - {fileID: 8300000, guid: ce3e23e36d001cd438bf8140d9df9b54, type: 3}
@@ -714,6 +635,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b36c6bce6bea837488c7c6d7d0eb54dd, type: 3}
   - {fileID: 8300000, guid: cfc96d77c3ca2bb4bb380fce25ef6923, type: 3}
   - {fileID: 8300000, guid: 594be7c4c4db9b443ba14af900e9ed95, type: 3}
+  woodenCrateFootstepClips: []
 --- !u!1 &3095710361594441653
 GameObject:
   m_ObjectHideFlags: 0
@@ -6568,7 +6490,6 @@ Transform:
   m_Children:
   - {fileID: 2399525602712747855}
   - {fileID: 8893811600782353686}
-  - {fileID: 2052028895567599489}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6598,19 +6519,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  main_camera: {fileID: 0}
+  Anim: {fileID: 2107868210}
+  edgeCheck: {fileID: 8893811600782353687}
+  playerDirection: {x: 0, y: 0, z: 0}
   torchFireIgniteSFX: {fileID: 1950995079059036893, guid: 71822733051d59840b947397874af246, type: 3}
   torchFireExtinguishSFX: {fileID: 1950995079059036893, guid: 04c6088dcc58f3b4b94e5d2a233c8515, type: 3}
   freezingSFX: {fileID: 1028282897880530357, guid: 74d2d5378f8082145bb5862900818e50, type: 3}
-  edgeCheck: {fileID: 8893811600782353687}
-  Anim: {fileID: 2107868210}
+  swooshClips: []
   destroyedBlockParticle: {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
-  main_camera: {fileID: 0}
+  invisibleBlock: {fileID: 0}
   torchMeterMoves:
     bar: {fileID: 0}
     maxValue: 10
     currentValue: 10
   checkpoint: {fileID: 0}
   puzzle: {fileID: 0}
+  isWalking: 0
+  hasDied: 0
+  canMove: 1
+  canInteract: 1
+  canRestartPuzzle: 0
+  canSetBoolsTrue: 0
 --- !u!114 &1763956048
 MonoBehaviour:
   m_ObjectHideFlags: 0
