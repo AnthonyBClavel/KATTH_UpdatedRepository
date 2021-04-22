@@ -13,6 +13,7 @@ public class CameraController : MonoBehaviour
 
     public bool canMoveCamera = true;
     public bool canMoveToDialogueViews = false;
+    public bool canMoveToArtifactView = false;
     public bool hasCheckedDialogueViews = false;
     private bool hasPaused = false;
 
@@ -96,21 +97,24 @@ public class CameraController : MonoBehaviour
     **/
     void LateUpdate()
     {
-        if (canMoveCamera)
-        {          
-            currentView = levelViews[currentIndex];
-
-            if(transform.position != currentView.position)
-                transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
-                
-        }
-
-        if (canMoveToDialogueViews)
+        if (!canMoveToArtifactView)
         {
-            DialogueViewsCheck();
+            if (canMoveCamera)
+            {
+                currentView = levelViews[currentIndex];
 
-            if (transform.position != currentView.position)
-                transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+                if (transform.position != currentView.position)
+                    transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+
+            }
+
+            if (canMoveToDialogueViews)
+            {
+                DialogueViewsCheck();
+
+                if (transform.position != currentView.position)
+                    transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+            }
         }
     }
 

@@ -57,24 +57,26 @@ public class FidgetAnimControllerNPC : MonoBehaviour
 
         if (canFidget)
         {
-            if (!inCharacterDialogue && characterDialogueScript.dialogueOptionsBubble.activeSelf)
-                animNPC.SetTrigger("Fidget01");
-
-            if (!inCharacterDialogue && !characterDialogueScript.dialogueOptionsBubble.activeSelf)
+            if (!inCharacterDialogue)
             {
-                SetRadnomAnimIndexNPC();
+                if (characterDialogueScript.dialogueOptionsBubble.activeSelf)
+                        animNPC.SetTrigger("Fidget01");
+                else
+                {
+                    SetRadnomAnimIndexNPC();
 
-                if (fidgetIndexNPC == 0)
-                    animNPC.SetTrigger("Fidget01"); // Waiting
+                    if (fidgetIndexNPC == 0)
+                        animNPC.SetTrigger("Fidget01"); // Waiting
 
-                if (fidgetIndexNPC == 1)
-                    animNPC.SetTrigger("Fidget02"); // Searching
+                    if (fidgetIndexNPC == 1)
+                        animNPC.SetTrigger("Fidget02"); // Searching
 
-                if (fidgetIndexNPC == 2)
-                    animNPC.SetTrigger("Fidget03"); // Stretch
+                    if (fidgetIndexNPC == 2)
+                        animNPC.SetTrigger("Fidget03"); // Stretch
 
-                if (fidgetIndexNPC == 3)
-                    animNPC.SetTrigger("Fidget04"); // Waiting
+                    if (fidgetIndexNPC == 3)
+                        animNPC.SetTrigger("Fidget04"); // Waiting
+                }
             }
 
             if (inCharacterDialogue)

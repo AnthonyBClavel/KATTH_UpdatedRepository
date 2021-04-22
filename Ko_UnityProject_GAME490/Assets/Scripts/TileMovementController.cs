@@ -8,9 +8,8 @@ public class TileMovementController : MonoBehaviour
 {
     public Camera main_camera;
     public Animator Anim;
-    public GameObject edgeCheck;   
+    public GameObject edgeCheck;
     private AudioSource audioSource;
-    private GameObject savedInvisibleBlock;
     private string currentState;
 
     Vector3 up = Vector3.zero,                                  // Object look North
@@ -63,7 +62,7 @@ public class TileMovementController : MonoBehaviour
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
-    private bool hasMovedPuzzleView = false;                            // Determines when the camera can switch puzzle views   
+    private bool hasMovedPuzzleView = false;                    // Determines when the camera can switch puzzle views   
     private bool hasStartedTutorial = false;
     private bool hasDisabledFootsteps = false;
 
@@ -71,7 +70,6 @@ public class TileMovementController : MonoBehaviour
     void Awake()
     {
         torchMeterMoves.Initialize();
-        savedInvisibleBlock = GameObject.Find("SavedInvisibleBlock");
 
         levelManagerScript = FindObjectOfType<LevelManager>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
@@ -316,9 +314,17 @@ public class TileMovementController : MonoBehaviour
         //npc.GetComponent<Interactable>().Interact();
 
         Debug.Log("Player has interacted with NPC");
+        NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
+        FidgetAnimControllerNPC nPCFidgetScript = collider.GetComponentInChildren<FidgetAnimControllerNPC>();
+
         cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+        characterDialogueScript.fidgetAnimControllerNPC = nPCFidgetScript;
+        characterDialogueScript.nPCScript = nonPlayerCharacterScript;
+        characterDialogueScript.nPCDialogueCheck = nonPlayerCharacterScript.nPCDialogueCheck;
+        characterDialogueScript.talkingTo = nonPlayerCharacterScript.characterName;
         characterDialogueScript.isInteractingWithNPC = true;      
         characterDialogueScript.StartDialogue();
+        characterDialogueScript.setDialogueQuestions(nonPlayerCharacterScript.dialogueQuestionsFile);
 
         isInteracting = false;
         isWalking = false;
@@ -330,14 +336,9 @@ public class TileMovementController : MonoBehaviour
         string name = collider.name;
 
         Debug.Log("Player has interacted with Artifact");
-        if (name == "ArtifactOne")
-            characterDialogueScript.isArtifactOne = true;
-        if (name == "ArtifactTwo")
-            characterDialogueScript.isArtifactTwo = true;
-        if (name == "ArtifactThree")
-            characterDialogueScript.isArtifactThree = true;
-
         cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+        collider.GetComponent<ArtifactScript>().SetArtifactDialogue();
+        characterDialogueScript.isInteractingWithArtifact = true;    
         characterDialogueScript.StartDialogue();
 
         isInteracting = false;
@@ -600,7 +601,7 @@ public class TileMovementController : MonoBehaviour
         if (tag == "LastBridgeTile" && hasMovedPuzzleView)
         {
             Debug.Log("Invisible Block Position has been saved");
-            savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
+            saveManagerScript.savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
             saveManagerScript.SaveBlockPosition();
             hasMovedPuzzleView = false;
         }
@@ -619,7 +620,7 @@ public class TileMovementController : MonoBehaviour
         string name = hit.collider.name;
 
         if (name == "BridgeBlock")
-        {          
+        {
             //string tag = hit.collider.tag;
             // For the if statements below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
             /*if (tag == "MoveCameraBlock" && !hasMovedPuzzleView && hasAlreadyPopedOut)
@@ -645,7 +646,7 @@ public class TileMovementController : MonoBehaviour
             /*if (tag == "LastBridgeTile" && isWalking)
             {
                 Debug.Log("Invisible Block Position has been saved");
-                savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
+                saveManagerScript.savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
                 saveManagerScript.SaveBlockPosition();
             }*/
             return true;

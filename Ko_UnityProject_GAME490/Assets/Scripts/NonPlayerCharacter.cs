@@ -9,10 +9,22 @@ public class NonPlayerCharacter : MonoBehaviour
     down = new Vector3(0, 180, 0),
     left = new Vector3(0, 270, 0);
 
-    public GameObject nPC;
+    public string characterName;
 
+    [Header("NPC Character")]
+    public GameObject nPC;
+    public Transform nPCDialogueCheck;
     private Vector3 originalRotation;
-    //private Animator characterAnim;
+
+    [Header("NPC Dialogue Array")]
+    public TextAsset[] nPCDialogueFiles;
+    public TextAsset dialogueQuestionsFile;
+
+    [Header("Bools")]
+    public bool hasPlayedOptionOne = false;
+    public bool hasPlayedOptionTwo = false;
+    public bool hasLoadedInitialDialogue = false;
+
     private TileMovementController playerScript;
 
     void Awake()
@@ -23,7 +35,6 @@ public class NonPlayerCharacter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //characterAnim = nPC.GetComponent<Animator>();
         originalRotation = nPC.transform.localEulerAngles;
     }
 
@@ -38,15 +49,18 @@ public class NonPlayerCharacter : MonoBehaviour
     {
         if (playerScript.playerDirection == up)
             nPC.transform.localEulerAngles = down;
+
         if (playerScript.playerDirection == left)
             nPC.transform.localEulerAngles = right;
+
         if (playerScript.playerDirection == down)
             nPC.transform.localEulerAngles = up;
+
         if (playerScript.playerDirection == right)
             nPC.transform.localEulerAngles = left;
     }
 
-    // Sets the game object (npc) back to its original position
+    // Sets the npc back to its original rotation
     public void ResetRotationNPC()
     {
         nPC.transform.localEulerAngles = originalRotation;

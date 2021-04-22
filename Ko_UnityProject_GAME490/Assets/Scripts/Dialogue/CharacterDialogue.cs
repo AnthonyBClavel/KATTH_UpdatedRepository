@@ -7,7 +7,9 @@ using Unity.IO;
 
 public class CharacterDialogue : MonoBehaviour
 {
-    public int playerIndex;
+    public string talkingTo;
+    private string lastTalkedTo;
+    private int playerIndex;
     private int nPCIndex;
     private int dialogueOptionsIndex;
 
@@ -16,9 +18,9 @@ public class CharacterDialogue : MonoBehaviour
     down = new Vector3(0, 180, 0),
     left = new Vector3(0, 270, 0);
 
+    //public float sentenceLength;
     public float typingSpeed = 0.03f;
     public float sentenceDelay = 1f;
-    public float sentenceLength;
     private float speechBubbleAnimationDelay;
     private float dialogueBubbleScale = 0.8f; // the scale of the parent object affects the child object's positioning
 
@@ -78,11 +80,13 @@ public class CharacterDialogue : MonoBehaviour
     public bool isPlayerSpeaking;
     public bool canPlayBubbleAnim = false;
     public bool canStartDialogue = true;
+    public bool hasStartedDialoguePlayer = false;
+    public bool hasStartedDialogueNPC = false;
+    public bool isInteractingWithNPC = false;
+    public bool isInteractingWithArtifact = false;
     private bool canCheckBubbleBounds = false;
     private bool hasSetBubbleDefaultPosX = false;
     private bool hasSetBubbleDefaultPosY = false;
-    public bool hasStartedDialoguePlayer = false;
-    public bool hasStartedDialogueNPC = false;
     private bool hasPlayedPopUpSFX = false;
     private bool hasSetDialogueBars = false;
     private bool hasSetPivot = false;
@@ -90,20 +94,11 @@ public class CharacterDialogue : MonoBehaviour
     private bool canAlertBubble = true;
     private bool hasMovedDialogueArrow = false;
     private bool canMoveDialogueArrow = false;
-    private bool hasSetIndex = false;
-    public bool isInteractingWithNPC = false;
-
-
-    private bool hasLoadedInitialDialogue = false;
-    private bool hasPlayedOptionOne = false;
-    private bool hasPlayedOptionTwo = false;
+    //private bool hasSetIndex = false;
+    //private bool hasLoadedInitialDialogue = false;
+    //private bool hasPlayedOptionOne = false;
+    //private bool hasPlayedOptionTwo = false;
     private bool hasSelectedDialogueOption = false;
-
-    [Header("Artifact Bools")]
-    public bool isArtifactOne = false;
-    public bool isArtifactTwo = false;
-    public bool isArtifactThree = false;
-    private float lastArtifactIndex;
 
     [Header("Audio")]
     public AudioClip[] dialogueMusicTracks;
@@ -135,9 +130,11 @@ public class CharacterDialogue : MonoBehaviour
     [Header("GameObjects")]
     public GameObject playerDialgueBubble;
     public GameObject nPCDialgueBubble;
-    public GameObject playerAlertBubble;
     public GameObject dialogueOptionsBubble;
+    public GameObject playerAlertBubble;
     public GameObject continueButton;
+    public GameObject fadeTransition;
+    public Camera dialogueCamera;
 
     [Header("Dialogue Arrow GameObjects")]
     public GameObject dialogueArrow;
@@ -146,33 +143,28 @@ public class CharacterDialogue : MonoBehaviour
     public GameObject dialogueOptionThree;
 
     [Header("RectTransforms")]
+    public Transform playerDialogueCheck;
+    public Transform nPCDialogueCheck;
     public RectTransform playerSpeechBubbleHolder;
     public RectTransform nPCSpeechBubbleHolder;
     public RectTransform dialogueOptionsHolder;
 
     [Header("Dialogue Text Files")]
-    public TextAsset dialogueQuestionsFile;
     public TextAsset[] playerDialogueFiles;
-    public TextAsset[] nPCDialogueFiles;
-    public TextAsset[] artifactOneDialogueFiles;
-    public TextAsset[] artifactTwoDialogueFiles;
-    public TextAsset[] artifactThreeDialogueFiles;
 
     [Header("Dialogue Setences")]
-    //[TextArea]
-    public string[] playerDialogueSentences;
-    //[TextArea]
-    public string[] nPCDialogueSentences;
-    //[Text Area]
-    public string[] dialogueQuestions;
+    private string[] playerDialogueSentences;
+    private string[] nPCDialogueSentences;
+    private string[] dialogueQuestions;
 
+    [Header("Scripts")]
+    public NonPlayerCharacter nPCScript;
+    public FidgetAnimControllerNPC fidgetAnimControllerNPC;
     private DialogueBars dialogueBarsScript;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private NonPlayerCharacter nPCScript;
     private AudioLoops audioLoopsScript;
     private CameraController cameraScript;
-    private FidgetAnimControllerNPC fidgetAnimControllerNPC;
     private FidgetAnimControllerPlayer fidgetAnimControllerPlayer;
 
     void Awake()
@@ -218,23 +210,7 @@ public class CharacterDialogue : MonoBehaviour
         AdjustDialogueOptionsBubbleCheck();
         DialogueArrowCheck();
 
-        sentenceLength = whitePlayerText.text.Length;
-
-        /*if (pauseMenuScript.isPaused)
-        {
-            npcDialgueBubble.transform.localScale = new Vector3(0, 0, 0);
-            playerDialgueBubble.transform.localScale = new Vector3(0, 0, 0);
-        }
-        else if (!pauseMenuScript.isPaused)
-        {
-            npcDialgueBubble.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
-            playerDialgueBubble.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
-        }*/
-
-        /*if (Input.GetKeyDown(KeyCode.L))
-        {
-            OpenDialogueQuestionBubble();
-        }*/
+        //sentenceLength = whitePlayerText.text.Length;
 
         if (Input.GetKeyDown(KeyCode.R) && canStartDialogue)
         {
@@ -261,13 +237,18 @@ public class CharacterDialogue : MonoBehaviour
             hasSetBubbleDefaultPosX = false;
             hasSetBubbleDefaultPosY = false;
             isInteractingWithNPC = false;
-            isArtifactOne = false;
-            isArtifactTwo = false;
-            isArtifactThree = false;
         }
 
         AnimBubbleDelayCheck();
         ContinueButtonCheck();
+    }
+
+    void FixedUpdate()
+    {       
+        SetPlayerBubblePosition();
+        SetNPCBubblePosition();
+        SetDialogueBubblePosition();
+        SetAlertBubblePosition();
     }
 
     // Starts the dialogue with an npc
@@ -301,6 +282,24 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     /*** Reading and setting dialogue text files START HERE ***/
+    // Sets an array for the player dialogue (text assets) 
+    public void setPlayerDialogue(TextAsset playerDialogue)
+    {
+        setPlayerDialogueArray(readTextFile(playerDialogue));
+    }
+
+    // Sets an array for the npc dialogue (text assets) 
+    public void setNPCDialogue(TextAsset nPCDialogue)
+    {
+        setNPCDialogueArray(readTextFile(nPCDialogue));
+    }
+
+    // Sets an array for the dialogue questions (text asset) 
+    public void setDialogueQuestions(TextAsset questions)
+    {
+        setDialogueQuestionsArray(readTextFile(questions));
+    }
+
     // Sets the player's dialogue array - can be changed with new dialogue
     private void setPlayerDialogueArray(string[] playerDialogueArray)
     {
@@ -324,24 +323,6 @@ public class CharacterDialogue : MonoBehaviour
     {
         return textFile.text.Split("\n"[0]);
     }
-
-    // Sets an array for the player dialogue (text assets) 
-    private void setPlayerDialogue(TextAsset playerDialogue)
-    {
-        setPlayerDialogueArray(readTextFile(playerDialogue));
-    }
-
-    // Sets an array for the npc dialogue (text assets) 
-    private void setNPCDialogue(TextAsset nPCDialogue)
-    {
-        setNPCDialogueArray(readTextFile(nPCDialogue));
-    }
-
-    // Sets an array for the dialogue questions (text asset) 
-    private void setDialogueQuestions(TextAsset questions)
-    {
-        setDialogueQuestionsArray(readTextFile(questions));
-    }
     /*** Reading and setting dialogue text files END HERE ***/
 
 
@@ -358,13 +339,14 @@ public class CharacterDialogue : MonoBehaviour
         }
     }
 
+    // Checks to see if the dialogue can continue
     private void ContinueDialogueCheck()
     {
         if (!pauseMenuScript.isChangingScenes)
         {
-            NextDialogueSentenceCheck();
             hasSetBubbleDefaultPosX = false;
             hasSetBubbleDefaultPosY = false;
+            NextDialogueSentenceCheck();
             //continueButton.SetActive(false);
         }
     }
@@ -416,26 +398,32 @@ public class CharacterDialogue : MonoBehaviour
     // Determines the next dialogue sentence do be played
     private void NextDialogueSentenceCheck()
     {
-        if (playerIndex < playerDialogueSentences.Length - 1 && playerDialogueSentences[playerIndex + 1] != string.Empty && isPlayerSpeaking)
+        if (playerDialogueSentences != null)
         {
-            if (hasStartedDialoguePlayer)
-                playerIndex++;
+            if (playerIndex < playerDialogueSentences.Length - 1 && playerDialogueSentences[playerIndex + 1] != string.Empty && isPlayerSpeaking)
+            {
+                if (hasStartedDialoguePlayer)
+                    playerIndex++;
 
-            if (!playerDialogueSentences[playerIndex].Contains("END DIALOGUE"))
-                StartCoroutine("TypePlayerDialogue");
-                
+                if (!playerDialogueSentences[playerIndex].Contains("END DIALOGUE") && !playerDialogueSentences[playerIndex].Contains("LOAD DIALOGUE OPTIONS"))
+                    StartCoroutine("TypePlayerDialogue");
+                    
+            }
         }
 
-        if (nPCIndex < nPCDialogueSentences.Length - 1 && nPCDialogueSentences[nPCIndex + 1] != string.Empty && !isPlayerSpeaking)
+        if (nPCDialogueSentences != null)
         {
-            if (hasStartedDialogueNPC)
-                nPCIndex++;
+            if (nPCIndex < nPCDialogueSentences.Length - 1 && nPCDialogueSentences[nPCIndex + 1] != string.Empty && !isPlayerSpeaking)
+            {
+                if (hasStartedDialogueNPC)
+                    nPCIndex++;
 
-            if (!nPCDialogueSentences[nPCIndex].Contains("END DIALOGUE"))
-                StartCoroutine("TypeNPCDialogue");
+                if (!nPCDialogueSentences[nPCIndex].Contains("END DIALOGUE") && !playerDialogueSentences[playerIndex].Contains("LOAD DIALOGUE OPTIONS"))
+                    StartCoroutine("TypeNPCDialogue");
+            }
         }
 
-        else EndDialogueCheck();
+        EndDialogueCheck();
     }
 
     // Checks when the dialogue has ended
@@ -486,6 +474,42 @@ public class CharacterDialogue : MonoBehaviour
         }
     }
 
+    // Sets the player's dialogue bubble to follow the player
+    private void SetPlayerBubblePosition()
+    {
+        Vector3 playerBubblePos = dialogueCamera.WorldToScreenPoint(playerDialogueCheck.position);
+
+        if (playerDialgueBubble.transform.position != playerBubblePos)
+            playerDialgueBubble.transform.position = playerBubblePos;
+    }
+
+    // Sets the npc's dialogue bubble to follow the player
+    private void SetNPCBubblePosition()
+    {
+        Vector3 nPCBubblePos = dialogueCamera.WorldToScreenPoint(nPCDialogueCheck.position);
+
+        if (nPCDialgueBubble.transform.position != nPCBubblePos)
+            nPCDialgueBubble.transform.position = nPCBubblePos;
+    }
+
+    // Sets the dialogue bubble to follow the player
+    private void SetDialogueBubblePosition()
+    {
+        Vector3 dialogueBubblePos = dialogueCamera.WorldToScreenPoint(playerDialogueCheck.position);
+
+        if (dialogueOptionsBubble.transform.position != dialogueBubblePos)
+            dialogueOptionsBubble.transform.position = dialogueBubblePos;
+    }
+
+    // Sets the alert bubble to follow the player
+    private void SetAlertBubblePosition()
+    {
+        Vector3 alertBubblePos = dialogueCamera.WorldToScreenPoint(playerDialogueCheck.position);
+
+        if (playerAlertBubble.transform.position != alertBubblePos)
+            playerAlertBubble.transform.position = alertBubblePos;
+    }
+
     // Checks to see when the dialogue arrow can be move and execute functions
     private void DialogueArrowCheck()
     {
@@ -516,16 +540,16 @@ public class CharacterDialogue : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 {
-                    if (!hasPlayedOptionOne)
+                    if (!nPCScript.hasPlayedOptionOne)
                     {
                         setPlayerDialogue(playerDialogueFiles[2]);
-                        setNPCDialogue(nPCDialogueFiles[2]);
-                        hasPlayedOptionOne = true;
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[2]);
+                        nPCScript.hasPlayedOptionOne = true;
                     }
                     else
                     {
                         setPlayerDialogue(playerDialogueFiles[3]);
-                        setNPCDialogue(nPCDialogueFiles[3]);
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[3]);
                     }
                     hasSelectedDialogueOption = true;
                     CloseDialogueOptionsBuble();
@@ -549,16 +573,16 @@ public class CharacterDialogue : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 {
-                    if (!hasPlayedOptionTwo)
+                    if (!nPCScript.hasPlayedOptionTwo)
                     {
                         setPlayerDialogue(playerDialogueFiles[4]);
-                        setNPCDialogue(nPCDialogueFiles[4]);
-                        hasPlayedOptionTwo = true;
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[4]);
+                        nPCScript.hasPlayedOptionTwo = true;
                     }
                     else
                     {
                         setPlayerDialogue(playerDialogueFiles[5]);
-                        setNPCDialogue(nPCDialogueFiles[5]);
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[5]);
                     }
                     hasSelectedDialogueOption = true;
                     CloseDialogueOptionsBuble();
@@ -585,12 +609,12 @@ public class CharacterDialogue : MonoBehaviour
                     if (hasSelectedDialogueOption)
                     {
                         setPlayerDialogue(playerDialogueFiles[6]);
-                        setNPCDialogue(nPCDialogueFiles[6]);
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[6]);
                     }
                     else
                     {
                         setPlayerDialogue(playerDialogueFiles[7]);
-                        setNPCDialogue(nPCDialogueFiles[7]);
+                        setNPCDialogue(nPCScript.nPCDialogueFiles[7]);
                     }
                     CloseDialogueOptionsBuble();
                     StartDialogueCheck();
@@ -614,26 +638,10 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see if the dialogue options bubble goes outside of the screen and re-adjusts it accordingly
     private void AdjustDialogueOptionsBubbleCheck()
     {
-        if (dialogueOptionsBubbleWidth != dialogueOptionsHolder.rect.width)
-            dialogueOptionsBubbleWidth = dialogueOptionsHolder.rect.width;
-
-        if (dialogueOptionsBubbleHeight != dialogueOptionsHolder.rect.height)
-            dialogueOptionsBubbleHeight = dialogueOptionsHolder.rect.height;
-
-        if (dialogueOptionsHolderLocalPosX != dialogueOptionsHolder.localPosition.x)
-            dialogueOptionsHolderLocalPosX = dialogueOptionsHolder.localPosition.x;
-
-        if (dialogueOptionsHolderLocalPosY != dialogueOptionsHolder.localPosition.y)
-            dialogueOptionsHolderLocalPosY = dialogueOptionsHolder.localPosition.y;
-
-        if (dialogueOptionsBubbleLocalPosX != dialogueOptionsBubble.transform.localPosition.x)
-            dialogueOptionsBubbleLocalPosX = dialogueOptionsBubble.transform.localPosition.x;
-
-        if (dialogueOptionsBubbleLocalPosY != dialogueOptionsBubble.transform.localPosition.y)
-            dialogueOptionsBubbleLocalPosY = dialogueOptionsBubble.transform.localPosition.y;
-
         if (canCheckBubbleBounds && dialogueOptionsBubble.activeSelf)
         {
+            DialogueOptionsBubbleValuesCheck();
+
             dialogueOptionsTopEdgePosY = ((dialogueOptionsHolderLocalPosY + dialogueOptionsBubbleHeight) * dialogueBubbleScale) + dialogueOptionsBubbleLocalPosY /*+ dialogueOptionsBubbleAnim.gameObject.transform.localPosition.y*/;
 
             if (dialogueOptionsTopEdgePosY > screenTopEdgePosY)
@@ -651,12 +659,12 @@ public class CharacterDialogue : MonoBehaviour
             {
                 dialogueOptionsLeftEdgePosX = dialogueOptionsBubbleLocalPosX + ((dialogueOptionsHolderLocalPosX - dialogueOptionsBubbleWidth) * dialogueBubbleScale);
 
-                if (dialogueOptionsLeftEdgePosX < screenLeftEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (dialogueOptionsLeftEdgePosX < screenLeftEdgePosX02 && dialogueOptionsHolder.rect.width < ((-screenLeftEdgePosX02 * 2) / dialogueBubbleScale))
                 {
                     dialogueOptionsHolder.localPosition = new Vector3(dialogueOptionsHolder.localPosition.x + ((screenLeftEdgePosX02 - dialogueOptionsLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                 }
 
-                if (dialogueOptionsLeftEdgePosX >= screenLeftEdgePosX02 && !hasSetBubbleDefaultPosX)
+                if (dialogueOptionsLeftEdgePosX > screenLeftEdgePosX02 && playerSpeechBubbleHolder.rect.width < (-screenRightEdgePosX02 / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     dialogueOptionsHolder.localPosition = moveBubbleRight;
                     hasSetBubbleDefaultPosX = true;
@@ -667,12 +675,12 @@ public class CharacterDialogue : MonoBehaviour
             {
                 dialogueOptionsRightEdgePosX = dialogueOptionsBubbleLocalPosX + ((dialogueOptionsHolderLocalPosX + dialogueOptionsBubbleWidth) * dialogueBubbleScale);
 
-                if (dialogueOptionsRightEdgePosX > screenRightEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (dialogueOptionsRightEdgePosX > screenRightEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX02 * 2) / dialogueBubbleScale))
                 {
                     dialogueOptionsHolder.localPosition = new Vector3(dialogueOptionsHolder.localPosition.x - ((dialogueOptionsRightEdgePosX - screenRightEdgePosX02) / dialogueBubbleScale), 78, 0);
                 }
 
-                if (dialogueOptionsRightEdgePosX <= screenRightEdgePosX02 && !hasSetBubbleDefaultPosX)
+                if (dialogueOptionsRightEdgePosX < screenRightEdgePosX02 && playerSpeechBubbleHolder.rect.width < (screenRightEdgePosX02 / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     dialogueOptionsHolder.localPosition = moveBubbleLeft;
                     hasSetBubbleDefaultPosX = true;
@@ -684,12 +692,12 @@ public class CharacterDialogue : MonoBehaviour
                 dialogueOptionsLeftEdgePosX = dialogueOptionsBubbleLocalPosX + ((dialogueOptionsHolderLocalPosX - dialogueOptionsBubbleWidth * 0.5f) * dialogueBubbleScale);
                 dialogueOptionsRightEdgePosX = dialogueOptionsBubbleLocalPosX + ((dialogueOptionsHolderLocalPosX + dialogueOptionsBubbleWidth * 0.5f) * dialogueBubbleScale);
 
-                if (dialogueOptionsLeftEdgePosX < screenLeftEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (dialogueOptionsLeftEdgePosX < screenLeftEdgePosX02 && dialogueOptionsHolder.rect.width < ((-screenLeftEdgePosX02 * 2) / dialogueBubbleScale))
                 {
                     dialogueOptionsHolder.localPosition = new Vector3(dialogueOptionsHolder.localPosition.x + ((screenLeftEdgePosX02 - dialogueOptionsLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                 }
 
-                if (dialogueOptionsRightEdgePosX > screenRightEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (dialogueOptionsRightEdgePosX > screenRightEdgePosX02 && dialogueOptionsHolder.rect.width < ((screenRightEdgePosX02 * 2) / dialogueBubbleScale))
                 {
                     dialogueOptionsHolder.localPosition = new Vector3(dialogueOptionsHolder.localPosition.x - ((dialogueOptionsRightEdgePosX - screenRightEdgePosX02) / dialogueBubbleScale), 78, 0);
                 }
@@ -707,27 +715,10 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see if the player's dialogue bubble goes outside of the screen and re-adjusts it accordingly
     private void AdjustDialogueBubbleCheckPlayer()
     {
-        if (playerBubbleHeight != playerSpeechBubbleHolder.rect.height)
-            playerBubbleHeight = playerSpeechBubbleHolder.rect.height;
-
-        if (playerBubbleWidth != playerSpeechBubbleHolder.rect.width)
-            playerBubbleWidth = playerSpeechBubbleHolder.rect.width;
-
-        if (playerBubbleHolderLocalPosX != playerSpeechBubbleHolder.localPosition.x)
-            playerBubbleHolderLocalPosX = playerSpeechBubbleHolder.localPosition.x;
-
-        if (playerBubbbleHolderLocalPoxY != playerSpeechBubbleHolder.localPosition.y)
-            playerBubbbleHolderLocalPoxY = playerSpeechBubbleHolder.localPosition.y;
-
-        if (playerDialogueBubbleLocalPosX != playerDialgueBubble.transform.localPosition.x)
-            playerDialogueBubbleLocalPosX = playerDialgueBubble.transform.localPosition.x;
-
-        if (playerDialogueBubbleLocalPosY != playerDialgueBubble.transform.localPosition.y)
-            playerDialogueBubbleLocalPosY = playerDialgueBubble.transform.localPosition.y;
-
-
         if (canCheckBubbleBounds && playerDialgueBubble.activeSelf)
         {
+            PlayerBubbleValuesCheck();
+
             playerTopEdgePosY = ((playerBubbbleHolderLocalPoxY + playerBubbleHeight) * dialogueBubbleScale) + playerDialogueBubbleLocalPosY /*+ playerBubbleAnim.gameObject.transform.localPosition.y*/;
 
             if (playerTopEdgePosY > screenTopEdgePosY)
@@ -745,13 +736,13 @@ public class CharacterDialogue : MonoBehaviour
             {
                 playerLeftEdgePosX = playerDialogueBubbleLocalPosX + ((playerBubbleHolderLocalPosX - playerBubbleWidth) * dialogueBubbleScale);
 
-                if (playerLeftEdgePosX < screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (playerLeftEdgePosX < screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < ((-screenLeftEdgePosX * 2) / dialogueBubbleScale))
                 {
                     playerSpeechBubbleHolder.localPosition = new Vector3(playerSpeechBubbleHolder.localPosition.x + ((screenLeftEdgePosX - playerLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                     //playerSpeechBubbleHolder.localPosition = new Vector3(playerSpeechBubbleHolder.localPosition.x + ((-playerLeftEdgePosX - 960) / 0.8f), 78, 0);
                 }
 
-                if (playerLeftEdgePosX > screenLeftEdgePosX && !hasSetBubbleDefaultPosX)
+                if (playerLeftEdgePosX > screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < (-screenLeftEdgePosX / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     playerSpeechBubbleHolder.localPosition = moveBubbleRight;
                     hasSetBubbleDefaultPosX = true;
@@ -768,7 +759,7 @@ public class CharacterDialogue : MonoBehaviour
                     //playerSpeechBubbleHolder.localPosition = new Vector3(playerSpeechBubbleHolder.localPosition.x - ((rightEdgePosX - 960) / 0.8f), 78, 0);
                 }
 
-                if (playerRightEdgePosX < screenRightEdgePosX && !hasSetBubbleDefaultPosX)
+                if (playerRightEdgePosX < screenRightEdgePosX && playerSpeechBubbleHolder.rect.width < (screenRightEdgePosX / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     playerSpeechBubbleHolder.localPosition = moveBubbleLeft;
                     hasSetBubbleDefaultPosX = true;
@@ -780,7 +771,7 @@ public class CharacterDialogue : MonoBehaviour
                 playerLeftEdgePosX = playerDialogueBubbleLocalPosX + ((playerBubbleHolderLocalPosX - playerBubbleWidth * 0.5f) * dialogueBubbleScale);
                 playerRightEdgePosX = playerDialogueBubbleLocalPosX + ((playerBubbleHolderLocalPosX + playerBubbleWidth * 0.5f) * dialogueBubbleScale);
 
-                if (playerLeftEdgePosX < screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (playerLeftEdgePosX < screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < ((-screenLeftEdgePosX * 2) / dialogueBubbleScale))
                 {
                     playerSpeechBubbleHolder.localPosition = new Vector3(playerSpeechBubbleHolder.localPosition.x + ((screenLeftEdgePosX - playerLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                 }
@@ -802,27 +793,11 @@ public class CharacterDialogue : MonoBehaviour
 
     // Checks to see if the npc's dialogue bubble goes outside of the screen and re-adjusts it accordingly
     private void AdjustDialogueBubbleCheckNPC()
-    {
-        if (nPCBubbleWidth != nPCSpeechBubbleHolder.rect.width)
-            nPCBubbleWidth = nPCSpeechBubbleHolder.rect.width;
-
-        if (nPCBubbleHeight != nPCSpeechBubbleHolder.rect.height)
-            nPCBubbleHeight = nPCSpeechBubbleHolder.rect.height;
-
-        if (nPCBubbleHolderLocalPosX != nPCSpeechBubbleHolder.localPosition.x)
-            nPCBubbleHolderLocalPosX = nPCSpeechBubbleHolder.localPosition.x;
-
-        if (nPCBubbleHolderLocalPosY != nPCSpeechBubbleHolder.localPosition.y)
-            nPCBubbleHolderLocalPosY = nPCSpeechBubbleHolder.localPosition.y;
-
-        if (nPCDialogueBubbleLocalPosX != nPCDialgueBubble.transform.localPosition.x)
-            nPCDialogueBubbleLocalPosX = nPCDialgueBubble.transform.localPosition.x;
-
-        if (nPCDialogueBubbleLocalPosY != nPCDialgueBubble.transform.localPosition.y)
-            nPCDialogueBubbleLocalPosY = nPCDialgueBubble.transform.localPosition.y;
-
+    {    
         if (canCheckBubbleBounds && nPCDialgueBubble.activeSelf)
         {
+            NPCBubbleValuesCheck();
+
             nPCTopEdgePosY = ((nPCBubbleHolderLocalPosY + nPCBubbleHeight) * dialogueBubbleScale) + nPCDialogueBubbleLocalPosY /*+ nPCBubbleAnim.gameObject.transform.localPosition.y*/;
 
             if (nPCTopEdgePosY > screenTopEdgePosY)
@@ -846,7 +821,7 @@ public class CharacterDialogue : MonoBehaviour
                     //playerSpeechBubbleHolder.localPosition = new Vector3(playerSpeechBubbleHolder.localPosition.x - ((rightEdgePosX - 960) / 0.8f), 78, 0);
                 }
 
-                if (nPCRightEdgePosX < screenRightEdgePosX && !hasSetBubbleDefaultPosX)
+                if (nPCRightEdgePosX < screenRightEdgePosX && playerSpeechBubbleHolder.rect.width < (screenRightEdgePosX / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     nPCSpeechBubbleHolder.localPosition = moveBubbleLeft;
                     hasSetBubbleDefaultPosX = true;
@@ -857,13 +832,13 @@ public class CharacterDialogue : MonoBehaviour
             {
                 nPCLeftEdgePosX = nPCDialogueBubbleLocalPosX + ((nPCBubbleHolderLocalPosX - nPCBubbleWidth) * dialogueBubbleScale);
 
-                if (nPCLeftEdgePosX < screenLeftEdgePosX && nPCSpeechBubbleHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (nPCLeftEdgePosX < screenLeftEdgePosX && nPCSpeechBubbleHolder.rect.width < ((-screenLeftEdgePosX * 2) / dialogueBubbleScale))
                 {
                     nPCSpeechBubbleHolder.localPosition = new Vector3(nPCSpeechBubbleHolder.localPosition.x + ((screenLeftEdgePosX - nPCLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                     //npcSpeechBubbleHolder.localPosition = new Vector3(npcSpeechBubbleHolder.localPosition.x + ((-npcLeftEdgePosX - 960) / 0.8f), 78, 0);
                 }
 
-                if (nPCLeftEdgePosX > screenLeftEdgePosX && !hasSetBubbleDefaultPosX)
+                if (nPCLeftEdgePosX > screenLeftEdgePosX && playerSpeechBubbleHolder.rect.width < (-screenLeftEdgePosX / dialogueBubbleScale) && !hasSetBubbleDefaultPosX)
                 {
                     nPCSpeechBubbleHolder.localPosition = moveBubbleRight;
                     hasSetBubbleDefaultPosX = true;
@@ -875,7 +850,7 @@ public class CharacterDialogue : MonoBehaviour
                 nPCLeftEdgePosX = nPCDialogueBubbleLocalPosX + ((nPCBubbleHolderLocalPosX - nPCBubbleWidth * 0.5f) * dialogueBubbleScale);
                 nPCRightEdgePosX = nPCDialogueBubbleLocalPosX + ((nPCBubbleHolderLocalPosX + nPCBubbleWidth * 0.5f) * dialogueBubbleScale);
 
-                if (nPCLeftEdgePosX < screenLeftEdgePosX && nPCSpeechBubbleHolder.rect.width < ((screenRightEdgePosX * 2) / dialogueBubbleScale))
+                if (nPCLeftEdgePosX < screenLeftEdgePosX && nPCSpeechBubbleHolder.rect.width < ((-screenLeftEdgePosX * 2) / dialogueBubbleScale))
                 {
                     nPCSpeechBubbleHolder.localPosition = new Vector3(nPCSpeechBubbleHolder.localPosition.x + ((screenLeftEdgePosX - playerLeftEdgePosX) / dialogueBubbleScale), 78, 0);
                 }
@@ -893,6 +868,72 @@ public class CharacterDialogue : MonoBehaviour
             }
 
         }
+    }
+
+    // Updates the floats for the dialogue options bubble when they change
+    private void DialogueOptionsBubbleValuesCheck()
+    {
+        if (dialogueOptionsBubbleWidth != dialogueOptionsHolder.rect.width)
+            dialogueOptionsBubbleWidth = dialogueOptionsHolder.rect.width;
+
+        if (dialogueOptionsBubbleHeight != dialogueOptionsHolder.rect.height)
+            dialogueOptionsBubbleHeight = dialogueOptionsHolder.rect.height;
+
+        if (dialogueOptionsHolderLocalPosX != dialogueOptionsHolder.localPosition.x)
+            dialogueOptionsHolderLocalPosX = dialogueOptionsHolder.localPosition.x;
+
+        if (dialogueOptionsHolderLocalPosY != dialogueOptionsHolder.localPosition.y)
+            dialogueOptionsHolderLocalPosY = dialogueOptionsHolder.localPosition.y;
+
+        if (dialogueOptionsBubbleLocalPosX != dialogueOptionsBubble.transform.localPosition.x)
+            dialogueOptionsBubbleLocalPosX = dialogueOptionsBubble.transform.localPosition.x;
+
+        if (dialogueOptionsBubbleLocalPosY != dialogueOptionsBubble.transform.localPosition.y)
+            dialogueOptionsBubbleLocalPosY = dialogueOptionsBubble.transform.localPosition.y;
+    }
+
+    // Updates the floats for the player's bubble when they change
+    private void PlayerBubbleValuesCheck()
+    {
+        if (playerBubbleHeight != playerSpeechBubbleHolder.rect.height)
+            playerBubbleHeight = playerSpeechBubbleHolder.rect.height;
+
+        if (playerBubbleWidth != playerSpeechBubbleHolder.rect.width)
+            playerBubbleWidth = playerSpeechBubbleHolder.rect.width;
+
+        if (playerBubbleHolderLocalPosX != playerSpeechBubbleHolder.localPosition.x)
+            playerBubbleHolderLocalPosX = playerSpeechBubbleHolder.localPosition.x;
+
+        if (playerBubbbleHolderLocalPoxY != playerSpeechBubbleHolder.localPosition.y)
+            playerBubbbleHolderLocalPoxY = playerSpeechBubbleHolder.localPosition.y;
+
+        if (playerDialogueBubbleLocalPosX != playerDialgueBubble.transform.localPosition.x)
+            playerDialogueBubbleLocalPosX = playerDialgueBubble.transform.localPosition.x;
+
+        if (playerDialogueBubbleLocalPosY != playerDialgueBubble.transform.localPosition.y)
+            playerDialogueBubbleLocalPosY = playerDialgueBubble.transform.localPosition.y;
+    }
+
+    // Updates the floats for the npc's bubble when they change
+    private void NPCBubbleValuesCheck()
+    {
+        if (nPCBubbleWidth != nPCSpeechBubbleHolder.rect.width)
+            nPCBubbleWidth = nPCSpeechBubbleHolder.rect.width;
+
+        if (nPCBubbleHeight != nPCSpeechBubbleHolder.rect.height)
+            nPCBubbleHeight = nPCSpeechBubbleHolder.rect.height;
+
+        if (nPCBubbleHolderLocalPosX != nPCSpeechBubbleHolder.localPosition.x)
+            nPCBubbleHolderLocalPosX = nPCSpeechBubbleHolder.localPosition.x;
+
+        if (nPCBubbleHolderLocalPosY != nPCSpeechBubbleHolder.localPosition.y)
+            nPCBubbleHolderLocalPosY = nPCSpeechBubbleHolder.localPosition.y;
+
+        if (nPCDialogueBubbleLocalPosX != nPCDialgueBubble.transform.localPosition.x)
+            nPCDialogueBubbleLocalPosX = nPCDialgueBubble.transform.localPosition.x;
+
+        if (nPCDialogueBubbleLocalPosY != nPCDialgueBubble.transform.localPosition.y)
+            nPCDialogueBubbleLocalPosY = nPCDialgueBubble.transform.localPosition.y;
     }
 
     // Sets the pivot for both the player and npc's dialogue bubble - pivot determines which direction the dialogue bubble extends to
@@ -932,12 +973,10 @@ public class CharacterDialogue : MonoBehaviour
     {
         StartCoroutine("SetDialogueArrowActiveDelay");
 
-        if (!hasSetIndex)
+        if (!nPCScript.hasLoadedInitialDialogue)
         {
-            setDialogueQuestions(dialogueQuestionsFile);
             dialogueOptionsIndex = 0;
-            hasLoadedInitialDialogue = true;
-            hasSetIndex = true;
+            nPCScript.hasLoadedInitialDialogue = true;
         }
 
         playerDialgueBubble.SetActive(false);
@@ -954,6 +993,7 @@ public class CharacterDialogue : MonoBehaviour
         canMoveDialogueArrow = true;
         fidgetAnimControllerNPC.inCharacterDialogue = false;
         fidgetAnimControllerPlayer.inCharacterDialogue = false;
+        fidgetAnimControllerPlayer.FidgetAnimCheck();
 
         optionOneText.color = unselectedTextColor;
         optionTwoText.color = unselectedTextColor;
@@ -1035,22 +1075,23 @@ public class CharacterDialogue : MonoBehaviour
     // Sets a specific text color for each npc
     private void SetDialogueTextColor()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName == "FirstMap")// For the Eilage Elder NPC
+        if (talkingTo == "VillageElder")
             nPCDialogueText.color = new Color32(58, 78, 112, 255);
-        
-        if (sceneName == "SecondMap")// For the Fisherman NPC
-            nPCDialogueText.color = new Color32(194, 130, 104, 255); 
-        
-        if (sceneName == "ThirdMap")// For the First Explorer NPC
+
+        else if (talkingTo == "Fisherman")
+            nPCDialogueText.color = new Color32(194, 130, 104, 255);
+
+        else if (talkingTo == "VillageExplorer01")
             nPCDialogueText.color = new Color32(115, 106, 142, 255);
-        
-        if (sceneName == "FourthMap")// For the Friendly Ghost NPC
+
+        else if (talkingTo == "FriendlyGhost")
             nPCDialogueText.color = Color.black;
-        
-        if (sceneName == "FifthMap")// For the Second Explorer NPC
+
+        else if (talkingTo == "VillageExplorer02")
             nPCDialogueText.color = new Color32(155, 162, 125, 255);
+
+        else
+            nPCDialogueText.color = Color.black;
     }
 
     // Sets values for all vectors
@@ -1152,64 +1193,18 @@ public class CharacterDialogue : MonoBehaviour
             nPCScript.SetRotationNPC();
             SetDialogueTextColor();
 
-            if (!hasLoadedInitialDialogue)
+            if (!nPCScript.hasLoadedInitialDialogue)
             {
                 setPlayerDialogue(playerDialogueFiles[0]);
-                setNPCDialogue(nPCDialogueFiles[0]);         
+                setNPCDialogue(nPCScript.nPCDialogueFiles[0]);         
             }
 
-            else if (hasLoadedInitialDialogue)
+            else if (nPCScript.hasLoadedInitialDialogue)
             {
                 setPlayerDialogue(playerDialogueFiles[1]);
-                setNPCDialogue(nPCDialogueFiles[1]);
+                setNPCDialogue(nPCScript.nPCDialogueFiles[1]);
             }
         }
-
-        else if (isArtifactOne)
-        {
-            int attempts = 3;
-            int newArtifactIndex = UnityEngine.Random.Range(0, artifactOneDialogueFiles.Length);
-
-            while (newArtifactIndex == lastArtifactIndex && attempts > 0)
-            {
-                newArtifactIndex = UnityEngine.Random.Range(0, artifactOneDialogueFiles.Length);
-                attempts--;
-            }
-
-            lastArtifactIndex = newArtifactIndex;
-            setPlayerDialogue(artifactOneDialogueFiles[newArtifactIndex]);
-        }
-
-        else if (isArtifactTwo)
-        {
-            int attempts = 3;
-            int newArtifactIndex = UnityEngine.Random.Range(0, artifactTwoDialogueFiles.Length);
-
-            while (newArtifactIndex == lastArtifactIndex && attempts > 0)
-            {
-                newArtifactIndex = UnityEngine.Random.Range(0, artifactTwoDialogueFiles.Length);
-                attempts--;
-            }
-
-            lastArtifactIndex = newArtifactIndex;
-            setPlayerDialogue(artifactTwoDialogueFiles[newArtifactIndex]);
-        }
-
-        else if (isArtifactThree)
-        {
-            int attempts = 3;
-            int newArtifactIndex = UnityEngine.Random.Range(0, artifactThreeDialogueFiles.Length);
-
-            while (newArtifactIndex == lastArtifactIndex && attempts > 0)
-            {
-                newArtifactIndex = UnityEngine.Random.Range(0, artifactThreeDialogueFiles.Length);
-                attempts--;
-            }
-
-            lastArtifactIndex = newArtifactIndex;
-            setPlayerDialogue(artifactThreeDialogueFiles[newArtifactIndex]);
-        }
-
     }
 
     // Sets the dialogue arrow active after specified time
@@ -1260,9 +1255,6 @@ public class CharacterDialogue : MonoBehaviour
         hasSetBubbleDefaultPosY = false;
         hasAlertBubble = false;
         isInteractingWithNPC = false;
-        isArtifactOne = false;
-        isArtifactTwo = false;
-        isArtifactThree = false;
         hasSelectedDialogueOption = false;
         cameraScript.canMoveCamera = true;
         cameraScript.canMoveToDialogueViews = false;
@@ -1294,7 +1286,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedDialoguePlayer = true;
-            fidgetAnimControllerPlayer.FidgetAnimCheck();
+            fidgetAnimControllerPlayer.FidgetAnimCheck();                 
         }            
 
         nPCDialgueBubble.SetActive(false);
@@ -1357,11 +1349,11 @@ public class CharacterDialogue : MonoBehaviour
 
 
     // Make a notification pop up for the puzzles
-    // Create an idle fidget animation system to play accordingly within dialogue
     // Create a unique sfx to play for each npc to give them their own personality (charNoise)
     // Come up with sample dialogue for All characters
     // Import and set up Whatever NPC's and Artifacts we have
-    // Create the artifact interactive rotation thingy
+    // Polish the artifact interactive rotation thingy
+    // Make the continue game show up only when a save has been loaded (in  the main menu)
 
     // ***Extras***
     // Set all Bridges to gloabal illumination - colors are too dark, didn't notice due to monitors insufficient color accuracy - Move bridge far away, then bake light

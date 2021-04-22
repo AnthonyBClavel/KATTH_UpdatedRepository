@@ -22,6 +22,7 @@ public class WorldIntroManager : MonoBehaviour
     public AudioSource charNoise;
 
     public bool hasPlayedIntro;
+    private bool canWorldIntro = false;
     public float typingDelay = 0.03f;
     private float cameraSpeed = 3f;
     private string worldNameText;
@@ -56,13 +57,14 @@ public class WorldIntroManager : MonoBehaviour
 
     void LateUpdate()
     {
-        if(!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews)
+        if(!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canWorldIntro)
             pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, cameraSpeed * Time.deltaTime);
     }
 
     private IEnumerator ShowWorldName()
     {   
         cameraScript.canMoveCamera = false;
+        canWorldIntro = true;
         pixelatedCamera.transform.position = newCameraPosition;
         dialogueBarScript.canMoveBars = false;
         dialogueBarScript.SetDialogueBars();      
@@ -90,6 +92,7 @@ public class WorldIntroManager : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
         cameraScript.canMoveCamera = true;
+        canWorldIntro = false;
         pixelatedCamera.transform.position = originalCameraPos;     
         dialogueBarScript.ResetDialogueBars();
         dialogueBarScript.canMoveBars = true;

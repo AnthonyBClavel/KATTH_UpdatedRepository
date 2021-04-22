@@ -54,7 +54,6 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
             if (idleAnimIndexPlayer >= timesToRepeatPlayer)
                 FidgetAnimCheck();
         }
- 
     }
 
     // Plays a fidget animation when called - cannot play a fidget animation while another is playing
@@ -64,24 +63,26 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
 
         if (canFidget)
         {
-            if (!inCharacterDialogue && characterDialogueScript.dialogueOptionsBubble.activeSelf)
-                animPlayer.SetTrigger("Fidget03");
-
-            if (!inCharacterDialogue && !characterDialogueScript.dialogueOptionsBubble.activeSelf)
+            if (!inCharacterDialogue)
             {
-                SetRadnomAnimIndexPlayer();
+                if (characterDialogueScript.dialogueOptionsBubble.activeSelf)
+                    animPlayer.SetTrigger("Fidget03");                   
+                else
+                {
+                    SetRadnomAnimIndexPlayer();
 
-                if (fidgetIndexPlayer == 0)
-                    animPlayer.SetTrigger("Fidget01"); // Strecth
+                    if (fidgetIndexPlayer == 0)
+                        animPlayer.SetTrigger("Fidget01"); // Strecth
 
-                if (fidgetIndexPlayer == 1)
-                    animPlayer.SetTrigger("Fidget02"); // LookATTorch
+                    if (fidgetIndexPlayer == 1)
+                        animPlayer.SetTrigger("Fidget02"); // LookATTorch
 
-                if (fidgetIndexPlayer == 2)
-                    animPlayer.SetTrigger("Fidget03"); // ScratchHead
+                    if (fidgetIndexPlayer == 2)
+                        animPlayer.SetTrigger("Fidget03"); // ScratchHead
 
-                if (fidgetIndexPlayer == 3)
-                    animPlayer.SetTrigger("Fidget04"); // JumpingJacks
+                    if (fidgetIndexPlayer == 3)
+                        animPlayer.SetTrigger("Fidget04"); // JumpingJacks
+                }
             }
      
             if (inCharacterDialogue)
@@ -107,7 +108,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
         }
     }
 
-    // Checks when the bool should be false or true
+    // Checks when the canFidget should be false or true
     private void CanPlayerFidgetCheck()
     {
         if (animPlayer.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
