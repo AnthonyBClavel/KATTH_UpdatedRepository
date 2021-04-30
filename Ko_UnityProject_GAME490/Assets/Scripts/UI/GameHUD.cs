@@ -23,8 +23,8 @@ public class GameHUD : MonoBehaviour
     private bool isArtifactNotification = false;
 
     [Header("Floats")]
-    public float bubbleSpeed;
-    public float keybindBubbleSpeed;
+    public float bubbleSpeed; //1500
+    public float keybindBubbleSpeed; //2000
     private float puzzleBubbleWidth;
     private float artifactBubbleWidth;
     private float notificationBubbleScale = 0.8f;

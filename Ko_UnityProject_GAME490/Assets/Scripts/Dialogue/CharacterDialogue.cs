@@ -1487,11 +1487,12 @@ public class CharacterDialogue : MonoBehaviour
     // Create a unique sfx to play for each npc to give them their own personality (charNoise)
     // Polish the artifact interactive rotation thingy
     // Add a save feature to the collectable count for artifact chests
-    // Implememnt dialogue for artifacts
     // Implement what you did in thrid map to all scenes
     // rememebr to comment out code before building
+    // Update village elder anims
     // Increase typeing speed when player presses space again during dialogue - like in tutorial
     // Update Credits?! Add Luke to UI design, and crate a narrative section
+    // Update Power point pictures
 
     // *** Extras ***
     // Make the tutorial button show up only if you completed the game at least once

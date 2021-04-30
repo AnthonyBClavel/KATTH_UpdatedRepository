@@ -66,7 +66,6 @@ public class TileMovementController : MonoBehaviour
     private bool hasStartedTutorial = false;
     private bool hasDisabledFootsteps = false;
 
-
     void Awake()
     {
         torchMeterMoves.Initialize();
@@ -76,8 +75,8 @@ public class TileMovementController : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         iceMaterialScript = FindObjectOfType<IceMaterialScript>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         cameraScript = FindObjectOfType<CameraController>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
@@ -116,9 +115,9 @@ public class TileMovementController : MonoBehaviour
             playerDirection = currentDirection;
 
         Move();
-        AlertBubbleCheck();
         checkIfOnBridgeController();
         checkIfCompletedLevel();
+        AlertBubbleCheck();
 
         Anim.SetBool("isWalking", isWalking);
         Anim.SetBool("isPushing", isPushing);
@@ -483,7 +482,7 @@ public class TileMovementController : MonoBehaviour
     }
 
     bool AlertBubbleCheck()
-    { 
+    {   
         Ray myAlertBubbleRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), nextPos);
         RaycastHit hit;
         Debug.DrawRay(myAlertBubbleRay.origin, myAlertBubbleRay.direction, Color.blue);
@@ -750,7 +749,7 @@ public class TileMovementController : MonoBehaviour
 
         hasDied = true;
     }
-    
+
     // Sets the bools to false - prevents the player from moving, restarting puzzles, and interacting with anything
     public void SetPlayerBoolsFalse()
     {

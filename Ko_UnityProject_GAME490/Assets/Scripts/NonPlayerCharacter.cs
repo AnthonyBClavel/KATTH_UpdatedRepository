@@ -11,6 +11,11 @@ public class NonPlayerCharacter : MonoBehaviour
 
     public string characterName;
 
+    [Header("Bools")]
+    public bool hasPlayedOptionOne = false;
+    public bool hasPlayedOptionTwo = false;
+    public bool hasLoadedInitialDialogue = false;
+
     [Header("NPC Character")]
     public GameObject nPC;
     public Transform nPCDialogueCheck;
@@ -20,11 +25,6 @@ public class NonPlayerCharacter : MonoBehaviour
     public TextAsset[] nPCDialogueFiles;
     public TextAsset[] playerDialogueFiles;
     public TextAsset dialogueOptionsFile;
-
-    [Header("Bools")]
-    public bool hasPlayedOptionOne = false;
-    public bool hasPlayedOptionTwo = false;
-    public bool hasLoadedInitialDialogue = false;
 
     private TileMovementController playerScript;
 
