@@ -15,7 +15,7 @@ public class LevelFade : MonoBehaviour
     private LevelManager levelManager;
     private TileMovementController playerScript;
     private PlayerSounds playerSoundsScript;
-    private GameHUD gameHUDScript;
+    //private ArtifactScript artifactScript;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +30,9 @@ public class LevelFade : MonoBehaviour
         {
             pauseMenuScript.canPause = true; // Might need to refine later - works in tutorial because pause menu script component is disabled during dialogue
             playerSoundsScript.canCheckBridgeTiles = true; // This is only false when the player enters and leaves a scene
+
+            /*if (SceneManager.GetActiveScene().name != "TutorialMap")
+                artifactScript.SetNumberOfCollectedArtifacts();*/
         }         
     }
 
@@ -128,7 +131,9 @@ public class LevelFade : MonoBehaviour
             playerScript = FindObjectOfType<TileMovementController>();
             pauseMenuScript = FindObjectOfType<PauseMenu>();
             playerSoundsScript = FindObjectOfType<PlayerSounds>();
-            gameHUDScript = FindObjectOfType<GameHUD>();
+
+            /*if (sceneName != "TutorialMap")
+                artifactScript = FindObjectOfType<ArtifactScript>();*/
         }
         if (sceneName == "MainMenu")
         {

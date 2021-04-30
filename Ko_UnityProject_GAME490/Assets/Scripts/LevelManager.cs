@@ -133,6 +133,8 @@ public class LevelManager : MonoBehaviour
         // This is only for when the player finishes the fifth map - creates new save file
         if (SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
         {
+            PlayerPrefs.DeleteKey("listOfArtifacts");
+            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
             saveMangerScript.CreateNewSaveFile();
             hasSavedFile = true;
         }           

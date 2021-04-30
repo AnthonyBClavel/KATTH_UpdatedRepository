@@ -124,7 +124,7 @@ public class TileMovementController : MonoBehaviour
         Anim.SetBool("isInteracting", isInteracting);
 
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        /*if (Input.GetKeyDown(KeyCode.LeftBracket))
             torchMeterMoves.CurrentVal--;
         if (Input.GetKeyDown(KeyCode.RightBracket))
             torchMeterMoves.CurrentVal++;

@@ -62,6 +62,8 @@ public class DialogueManager : MonoBehaviour
     // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
+        gameHUDScript.canTogglePuzzleBubble = false;
+        gameHUDScript.canToggleArtifactBubble = false;
         gameHUDScript.gameObject.SetActive(false);
         inDialogue = true;
         pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
@@ -109,6 +111,10 @@ public class DialogueManager : MonoBehaviour
     public void endDialogue()
     {
         gameHUDScript.gameObject.SetActive(true);
+        gameHUDScript.canTogglePuzzleBubble = true;
+        gameHUDScript.canToggleArtifactBubble = true;
+        gameHUDScript.isPuzzleNotification = false;
+        gameHUDScript.isArtifactNotification = false;
         dialogue.SetActive(false);
         continueTrigger.SetActive(false);
         blackOverlay.SetActive(false);     

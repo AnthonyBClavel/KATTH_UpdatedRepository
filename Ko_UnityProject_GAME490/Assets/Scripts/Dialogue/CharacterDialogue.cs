@@ -1101,6 +1101,7 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the dialogue options bubble active
     public void OpenDialogueOptionsBubble()
     {
+        typingSpeed = originalTypingSpeed;
         StartCoroutine("SetDialogueArrowActiveDelay");
 
         if (!nPCScript.hasLoadedInitialDialogue && !isInteractingWithArtifact)
@@ -1137,6 +1138,7 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the dialogue options bubble inactive
     private void CloseDialogueOptionsBuble()
     {
+        typingSpeed = originalTypingSpeed;
         SetTextToUnselectedTextColor();
         dialogueOptionsBubble.SetActive(false);
         dialogueArrow.SetActive(false);
@@ -1448,6 +1450,7 @@ public class CharacterDialogue : MonoBehaviour
 
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
+        typingSpeed = originalTypingSpeed;
 
         //yield return new WaitForSeconds(sentenceDelay);
         //ContinueDialogueCheck();
@@ -1489,6 +1492,7 @@ public class CharacterDialogue : MonoBehaviour
 
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
+        typingSpeed = originalTypingSpeed;
 
         //yield return new WaitForSeconds(sentenceDelay);
         //ContinueDialogueCheck();      

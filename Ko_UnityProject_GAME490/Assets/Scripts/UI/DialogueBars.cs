@@ -80,6 +80,10 @@ public class DialogueBars : MonoBehaviour
         //Debug.Log("Has Turned On HUD");
         canTurnOnHUD = true;
         gameHUDScript.gameObject.SetActive(true);
+        gameHUDScript.canTogglePuzzleBubble = true;
+        gameHUDScript.canToggleArtifactBubble = true;
+        gameHUDScript.isPuzzleNotification = false;
+        gameHUDScript.isArtifactNotification = false;
         torchMeterScript.gameObject.SetActive(true);
     }
 
@@ -88,6 +92,8 @@ public class DialogueBars : MonoBehaviour
     {
         //Debug.Log("Has Turned Off HUD");
         canTurnOnHUD = false;
+        gameHUDScript.canTogglePuzzleBubble = false;
+        gameHUDScript.canToggleArtifactBubble = false;
         gameHUDScript.gameObject.SetActive(false);
         torchMeterScript.gameObject.SetActive(false);
     }

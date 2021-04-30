@@ -108,7 +108,7 @@ public class MainMenu : MonoBehaviour
             string fifthWorld = "FifthMap";
             PlayerPrefs.SetString("savedScene", fifthWorld);
         }
-
+        /*
         if (Input.GetKeyDown(KeyCode.Delete))
         {
             SaveManager.DeleteGame();
@@ -319,6 +319,9 @@ public class MainMenu : MonoBehaviour
         PlayerPrefs.DeleteKey("TimeToLoad");
         PlayerPrefs.DeleteKey("Save");
         //PlayerPrefs.DeleteKey("savedScene");
+
+        PlayerPrefs.DeleteKey("listOfArtifacts");
+        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
 
         string tutorialScene = "TutorialMap";
         PlayerPrefs.SetString("savedScene", tutorialScene);

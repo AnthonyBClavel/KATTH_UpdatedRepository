@@ -19,8 +19,8 @@ public class GameHUD : MonoBehaviour
     public bool hasArtifactNotification = false;
     public bool canTogglePuzzleBubble = false;
     public bool canToggleArtifactBubble = false;
-    private bool isPuzzleNotification = false;
-    private bool isArtifactNotification = false;
+    public bool isPuzzleNotification = false;
+    public bool isArtifactNotification = false;
 
     [Header("Floats")]
     public float bubbleSpeed; //1500
@@ -77,6 +77,7 @@ public class GameHUD : MonoBehaviour
     void Awake()
     {
         CheckWorld();
+        SetNumberOfCollectedArtifacts();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
     }
@@ -169,6 +170,13 @@ public class GameHUD : MonoBehaviour
         ArtifactNotificationCheck();
         PuzzleNotificationCheck();
         UpdateBubblesOriginalPos();
+    }
+
+    // Sets the int to the current amount of artifacts collected - this is called after the scene fully fades in
+    private void SetNumberOfCollectedArtifacts()
+    {
+        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") != 0 && PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15)
+            UpdateArtifactBubbleText(PlayerPrefs.GetInt("numberOfArtifactsCollected") + "/15");
     }
 
     // Sets the death screen active ONLY IF canDeathScreen true - this will be an options to toggle in the option screen

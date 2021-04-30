@@ -50,7 +50,7 @@ public class SaveManagerScript : MonoBehaviour
             savedInvisibleBlock.transform.position = new Vector3(bX, bY, bZ);
 
             // If a new game is created or if the PlayerPrefs is null, set the savedInvisibleBlock to its default position
-            if(savedInvisibleBlock.transform.position == new Vector3(0,0,0))
+            if (savedInvisibleBlock.transform.position == new Vector3(0,0,0))
                 savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
 
             // If a new game is created or if the PlayerPrefs is null, set the player to its default position
@@ -69,7 +69,7 @@ public class SaveManagerScript : MonoBehaviour
     void Update()
     {
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.F))
+        /*if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("New Game created");
 
@@ -89,6 +89,9 @@ public class SaveManagerScript : MonoBehaviour
             PlayerPrefs.DeleteKey("TimeToLoad");
             PlayerPrefs.DeleteKey("Save");
             PlayerPrefs.DeleteKey("savedScene");
+
+            PlayerPrefs.DeleteKey("listOfArtifacts");
+            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
 
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
@@ -129,23 +132,37 @@ public class SaveManagerScript : MonoBehaviour
         player.transform.eulerAngles = new Vector3(0, rY, 0);
     }
 
+    // Loads the camera's position
+    public void LoadCameraPosition()
+    {
+        PlayerPrefs.SetInt("TimeToLoad", 1);
+        PlayerPrefs.Save();
+    }
+
+    // Loads the savedBlock's position
+    public void LoadBlockPosition()
+    {
+        PlayerPrefs.SetInt("TimeToLoad", 1);
+        PlayerPrefs.Save();
+    }
+
+    // Loads the camera's position
+    public void LoadCollectedArtifacts()
+    {
+        PlayerPrefs.SetInt("TimeToLoad", 1);
+        PlayerPrefs.Save();
+    }
+
     // Saves the camera's position
     public void SaveCameraPosition()
     {
-        if(SceneManager.GetActiveScene().name != "TutorialMap")
+        if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
             PlayerPrefs.SetInt("cameraIndex", pixelatedCamera.GetComponent<CameraController>().currentIndex);
 
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
         }
-    }
-
-    // Loads the camera's position
-    public void LoadCameraPosition()
-    {
-        PlayerPrefs.SetInt("TimeToLoad", 1);
-        PlayerPrefs.Save();
     }
 
     // Saves the savedBlock's position - the block that's moved to the last tile on the bridge after every puzzle
@@ -159,14 +176,6 @@ public class SaveManagerScript : MonoBehaviour
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
         }
-
-    }
-
-    // Loads the savedBlock's position
-    public void LoadBlockPosition()
-    {
-        PlayerPrefs.SetInt("TimeToLoad", 1);
-        PlayerPrefs.Save();
     }
 
     // Saves the name of the scene
@@ -174,6 +183,22 @@ public class SaveManagerScript : MonoBehaviour
     {
         sceneName = SceneManager.GetActiveScene().name;
         PlayerPrefs.SetString("savedScene", sceneName);
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
+    }
+
+    // Saves the name of the collected artifact - name is added to string
+    public void SaveCollectedArtifact(string collectedArtifacts)
+    {
+        PlayerPrefs.SetString("listOfArtifacts", collectedArtifacts);
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
+    }
+
+    // Saves the amount of artifacts that have been collected
+    public void SaveNumberOfArtifactsCollected(int numberOfArtifactsCollected)
+    {
+        PlayerPrefs.SetInt("numberOfArtifactsCollected", numberOfArtifactsCollected);
         PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
     }
@@ -199,6 +224,9 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.DeleteKey("TimeToLoad");
         PlayerPrefs.DeleteKey("Save");
         PlayerPrefs.DeleteKey("savedScene");
+
+        //PlayerPrefs.DeleteKey("listOfArtifacts");
+        //PlayerPrefs.DeleteKey("numberOfArtifactsCollected"); // Check level manager...
 
         PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();

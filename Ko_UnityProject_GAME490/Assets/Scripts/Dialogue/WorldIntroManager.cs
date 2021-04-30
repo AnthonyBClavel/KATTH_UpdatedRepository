@@ -52,6 +52,7 @@ public class WorldIntroManager : MonoBehaviour
     void Start()
     {
         SetCameraVariables();
+        dialogueBarScript.canMoveBars = true;
         StartIntroCheck(); //MUST be called in start, not awake!
     }
 

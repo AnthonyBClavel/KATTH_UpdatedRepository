@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class ArtifactScript : MonoBehaviour
 {
+    public string artifactName;
+    private string listOfArtifactNames;
+    private int numberOfArtifactsCollected;
+
     Vector3 up = Vector3.zero,
     right = new Vector3(0, 90, 0),
     down = new Vector3(0, 180, 0),
@@ -54,6 +58,8 @@ public class ArtifactScript : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private PauseMenu pauseMenuScript;
     private TileMovementController playerScript;
+    private GameHUD gameHUDScript;
+    private SaveManagerScript saveManagerScript;
 
     void Awake()
     {
@@ -62,11 +68,17 @@ public class ArtifactScript : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        saveManagerScript.LoadCollectedArtifacts();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        CollectedArtifactsCheck();
+
         pixelatedCamera = cameraScript.gameObject.GetComponent<Transform>();
         originalArtifactHolderRotation = artifactHolder.eulerAngles;
 
@@ -108,6 +120,36 @@ public class ArtifactScript : MonoBehaviour
         MoveObjectWithKeysCheck();
         MoveObjectWithMouseCheck();
     }
+
+    // Checks to see if the player has already collected the artifact
+    public void CollectedArtifactsCheck()
+    {
+        listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
+
+        if (listOfArtifactNames.Contains(artifactName) && hasCollectedArtifact != true)
+            hasCollectedArtifact = true;
+    }
+
+    // Saves the name of the artifact within the large string, and updates/plays the artifact notification
+    public void SaveCollectedArtifact()
+    { 
+        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15 && hasCollectedArtifact)
+        {
+            gameHUDScript.UpdateArtifactBubbleText((PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1) + "/15");
+            gameHUDScript.PlayArtifactNotificationCheck();
+
+            saveManagerScript.SaveCollectedArtifact(PlayerPrefs.GetString("listOfArtifacts") + artifactName);
+            saveManagerScript.SaveNumberOfArtifactsCollected(PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1);
+        }
+    }
+
+    // Sets the int to the current amount of artifacts collected - this is called after the scene fully fades in
+    public void SetNumberOfCollectedArtifacts()
+    {
+        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") != 0 && PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15)
+            gameHUDScript.UpdateArtifactBubbleText(PlayerPrefs.GetInt("numberOfArtifactsCollected") + "/15");
+    }
+
 
     // Interacts with the artifact - transitions to the close up camera view of the artifact
     public void InspectArtifact()
@@ -277,7 +319,7 @@ public class ArtifactScript : MonoBehaviour
     }
 
     // Sets the artifact inactive - for when the player collects it
-    private void CollectArtifactCheck()
+    private void HasCollectArtifactCheck()
     {
         if (hasCollectedArtifact)
             artifactObject.SetActive(false);
@@ -286,9 +328,11 @@ public class ArtifactScript : MonoBehaviour
     // Triggers the sequence that closes the woodencrate
     private IEnumerator CloseWoodenChestSequence()
     {
-        CollectArtifactCheck();
+        HasCollectArtifactCheck();
         woodenChestAnim.SetTrigger("Close");
         yield return new WaitForSeconds(0.166f);
+        SetNumberOfCollectedArtifacts();
+        SaveCollectedArtifact();
         PlayCloseChestSFX();
     }
 
