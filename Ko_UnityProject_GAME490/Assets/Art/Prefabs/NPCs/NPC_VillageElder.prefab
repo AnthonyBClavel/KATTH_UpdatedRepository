@@ -260,7 +260,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1951073162950390121}
   - component: {fileID: 1951073162950390122}
-  - component: {fileID: 1951073162950390123}
   - component: {fileID: 1951073162950390120}
   m_Layer: 0
   m_Name: NPC_VillageElder
@@ -297,23 +296,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &1951073162950390123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1951073162950390126}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85b6748ac4ddf24f89c8fcd78806bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueCameraViews:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &1951073162950390120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,6 +309,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: VillageElder
+  hasPlayedOptionOne: 0
+  hasPlayedOptionTwo: 0
+  hasLoadedInitialDialogue: 0
   nPC: {fileID: 2708090525913863347}
   nPCDialogueCheck: {fileID: 1951073162992568408}
   nPCDialogueFiles:
@@ -348,9 +333,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: f9772e534308d714689e5938d2f4c4e3, type: 3}
   - {fileID: 4900000, guid: f825507e2a050254998f00b90abf1792, type: 3}
   dialogueOptionsFile: {fileID: 4900000, guid: d3fd911f0d4a37c4bb521de271fdc40a, type: 3}
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
 --- !u!1 &1951073162992568409
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,7 +568,7 @@ SkinnedMeshRenderer:
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
   m_SkinnedMotionVectors: 1
-  m_Mesh: {fileID: -2232952877369940510, guid: 368c570750dfe1241ba766b5509cde9c, type: 3}
+  m_Mesh: {fileID: 1992760946006970721, guid: 368c570750dfe1241ba766b5509cde9c, type: 3}
   m_Bones:
   - {fileID: 2724291598164218225}
   - {fileID: 5832879035820625997}

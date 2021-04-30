@@ -41,7 +41,6 @@ GameObject:
   m_Component:
   - component: {fileID: 758194346461846699}
   - component: {fileID: 941002461545249659}
-  - component: {fileID: 130170155805246992}
   - component: {fileID: 130170155805246991}
   m_Layer: 0
   m_Name: NPC_VillageExplorer01
@@ -78,23 +77,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &130170155805246992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130170155805246993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85b6748ac4ddf24f89c8fcd78806bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueCameraViews:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &130170155805246991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,6 +90,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: VillageExplorer01
+  hasPlayedOptionOne: 0
+  hasPlayedOptionTwo: 0
+  hasLoadedInitialDialogue: 0
   nPC: {fileID: 7192707770298321041}
   nPCDialogueCheck: {fileID: 941002461577874862}
   nPCDialogueFiles:
@@ -129,9 +114,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 3a79c59adc7edb647ab8b790cc8f9520, type: 3}
   - {fileID: 4900000, guid: 7890145a77c1f374da722bc480777bf3, type: 3}
   dialogueOptionsFile: {fileID: 4900000, guid: 8ae2e62dae3dddb418733a402501ec5c, type: 3}
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
 --- !u!1 &266431686851297990
 GameObject:
   m_ObjectHideFlags: 0

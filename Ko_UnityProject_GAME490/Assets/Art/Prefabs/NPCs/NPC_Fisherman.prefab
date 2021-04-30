@@ -1239,7 +1239,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8757862368346975546}
   - component: {fileID: 8757862368346975495}
-  - component: {fileID: 8757862368346975544}
   - component: {fileID: 8757862368346975545}
   m_Layer: 0
   m_Name: NPC_Fisherman
@@ -1276,23 +1275,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &8757862368346975544
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8757862368346975547}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85b6748ac4ddf24f89c8fcd78806bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueCameraViews:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &8757862368346975545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1306,6 +1288,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterName: Fisherman
+  hasPlayedOptionOne: 0
+  hasPlayedOptionTwo: 0
+  hasLoadedInitialDialogue: 0
   nPC: {fileID: 6375458349501063252}
   nPCDialogueCheck: {fileID: 8757862368404226562}
   nPCDialogueFiles:
@@ -1327,9 +1312,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 0e159483f86e6324b95bb90150656762, type: 3}
   - {fileID: 4900000, guid: 233964a6df8451844a3fa75108ad1d2c, type: 3}
   dialogueOptionsFile: {fileID: 4900000, guid: 7bd54db37dad883468005117fc0d0947, type: 3}
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
 --- !u!1 &8757862368404226563
 GameObject:
   m_ObjectHideFlags: 0

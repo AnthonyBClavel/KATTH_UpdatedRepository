@@ -18,8 +18,9 @@ public class CharacterDialogue : MonoBehaviour
     left = new Vector3(0, 270, 0);
 
     //public float sentenceLength;
-    public float typingSpeed = 0.03f;
     public float sentenceDelay = 1f;
+    public float typingSpeed = 0.03f;
+    private float originalTypingSpeed = 0.03f;
     private float speechBubbleAnimationDelay;
     private float dialogueBubbleScale = 0.8f; // the scale of the parent object affects the child object's positioning
 
@@ -342,22 +343,31 @@ public class CharacterDialogue : MonoBehaviour
     // Checks for when the player can load the next dialogue sentence
     private void ContinueButtonCheck()
     {
-        if (continueButton.activeSelf && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused)
+        if (!pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.enabled)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             {
-                if (hasTransitionedToArtifactView)
+                if (continueButton.activeSelf)
                 {
-                    artifactScript.StopInspectingArtifact();
-                    continueButton.SetActive(false);
-                    ChangeContinueButtonText("Continue");
-                    hasTransitionedToArtifactView = false;
+                    if (hasTransitionedToArtifactView)
+                    {
+                        artifactScript.StopInspectingArtifact();
+                        continueButton.SetActive(false);
+                        ChangeContinueButtonText("Continue");
+                        hasTransitionedToArtifactView = false;
+                    }
+
+                    if (hasStartedDialoguePlayer || hasStartedDialogueNPC)
+                    {
+                        ContinueDialogueCheck();
+                        continueButton.SetActive(false);
+                    }
                 }
 
-                if (hasStartedDialoguePlayer || hasStartedDialogueNPC)
+                else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2)
                 {
-                    ContinueDialogueCheck();
-                    continueButton.SetActive(false);
+                    //Debug.Log("Sped up text");
+                    typingSpeed /= 2;
                 }
             }
         }
@@ -1417,6 +1427,7 @@ public class CharacterDialogue : MonoBehaviour
             fidgetAnimControllerPlayer.FidgetAnimCheck();                 
         }
 
+        typingSpeed = originalTypingSpeed;
         SetDialogueBubblePivot();
         nPCDialgueBubble.SetActive(false);
         playerDialgueBubble.SetActive(true);
@@ -1457,6 +1468,7 @@ public class CharacterDialogue : MonoBehaviour
             fidgetAnimControllerNPC.FidgetAnimCheck();
         }
 
+        typingSpeed = originalTypingSpeed;
         SetDialogueBubblePivot();
         playerDialgueBubble.SetActive(false);
         nPCDialgueBubble.SetActive(true);
@@ -1484,17 +1496,18 @@ public class CharacterDialogue : MonoBehaviour
 
 
     //*** PRIORITIES ***
-    // Create a unique sfx to play for each npc to give them their own personality (charNoise)
-    // Polish the artifact interactive rotation thingy
+
     // Add a save feature to the collectable count for artifact chests
-    // Implement what you did in thrid map to all scenes
-    // rememebr to comment out code before building
-    // Update village elder anims
-    // Increase typeing speed when player presses space again during dialogue - like in tutorial
-    // Update Credits?! Add Luke to UI design, and crate a narrative section
     // Update Power point pictures
+    // rememebr to comment out code before building
 
     // *** Extras ***
+    // Polish the artifact interactive rotation thingy
+    // Update Credits?! Add Luke to UI design, and crate a narrative section
+    // Create a unique sfx to play for each npc to give them their own personality (charNoise)
+
+    // *** EXTRA extras ***
+    // IMPLEMENT TOON SHADER!!! See how it looks with and without pixel effect
     // Make the tutorial button show up only if you completed the game at least once
     // Set all bridges to gloabal illumination - colors are too dark, didn't notice due to monitors insufficient color accuracy - do so by moving bridge far away, then bake light
     // Make the dialogue arrow shrink when you press enter and rescale it to normal size when you unpress enter
