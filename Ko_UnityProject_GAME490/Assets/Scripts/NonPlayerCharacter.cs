@@ -18,7 +18,8 @@ public class NonPlayerCharacter : MonoBehaviour
 
     [Header("NPC Dialogue Array")]
     public TextAsset[] nPCDialogueFiles;
-    public TextAsset dialogueQuestionsFile;
+    public TextAsset[] playerDialogueFiles;
+    public TextAsset dialogueOptionsFile;
 
     [Header("Bools")]
     public bool hasPlayedOptionOne = false;
@@ -36,12 +37,6 @@ public class NonPlayerCharacter : MonoBehaviour
     void Start()
     {
         originalRotation = nPC.transform.localEulerAngles;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     // Rotates the npc so that it faces the player

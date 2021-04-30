@@ -118,13 +118,13 @@ public class CheckpointManager : MonoBehaviour
     }
 
     // Determines what coroutines should play if the death screen should be activated
-    private void DetermineIceMatCoroutines()
+    /*private void DetermineIceMatCoroutines()
     {
-        /*if (gameHUDScript.canDeathScreen && SceneManager.GetActiveScene().name != "TutorialMap")
+        if (gameHUDScript.canDeathScreen && SceneManager.GetActiveScene().name != "TutorialMap")
             StartIceMatCoroutines02();
         else
-            StartIceMatCoroutines();*/
-    }
+            StartIceMatCoroutines();
+    }*/
 
 
     // Resets the player's animation, position, rotation, and torch meter
@@ -144,13 +144,13 @@ public class CheckpointManager : MonoBehaviour
     }
 
     // Fades in the alphas for the Ice Material and Cold UI and resets them after a delay
-    private void StartIceMatCoroutines()
+    /*private void StartIceMatCoroutines()
     {
         iceMaterialScript.StartCoroutine("IncreaseAlpha_ColdUI");
         iceMaterialScript.StartCoroutine("ResetUIAlpha_ColdUI");
         iceMaterialScript.StartCoroutine("FadeMaterialToFullAlpha");
         iceMaterialScript.StartCoroutine("ResetPlayerMaterial");
-    }
+    }*/
 
     // Fades in the alphas for the Ice Material and Cold UI
     private void StartIceMatCoroutines02()

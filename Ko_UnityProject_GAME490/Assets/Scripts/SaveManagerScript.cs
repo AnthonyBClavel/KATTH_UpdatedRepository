@@ -52,6 +52,7 @@ public class SaveManagerScript : MonoBehaviour
             // If a new game is created or if the PlayerPrefs is null, set the savedInvisibleBlock to its default position
             if(savedInvisibleBlock.transform.position == new Vector3(0,0,0))
                 savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
+
             // If a new game is created or if the PlayerPrefs is null, set the player to its default position
             if (player.transform.position == new Vector3(0, 0, 0))
                 player.transform.position = new Vector3(0, 0, -5);
@@ -87,16 +88,20 @@ public class SaveManagerScript : MonoBehaviour
 
             PlayerPrefs.DeleteKey("TimeToLoad");
             PlayerPrefs.DeleteKey("Save");
-            //PlayerPrefs.DeleteKey("savedScene");
+            PlayerPrefs.DeleteKey("savedScene");
 
-            string tutorialScene = "TutorialMap";
-            PlayerPrefs.SetString("savedScene", tutorialScene);
+            PlayerPrefs.SetInt("Saved", 1);
+            PlayerPrefs.Save();
+
+            //string tutorialScene = "TutorialMap";
+            //PlayerPrefs.SetString("savedScene", tutorialScene);
 
         }
         /*** End Debugging ***/
 
     }
 
+    // Saves the player's position
     public void SavePlayerPosition()
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
@@ -109,13 +114,14 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    // Loads the player's position (sets the timeToLoad to 1 so that the condition in "void Awake" can be met)
     public void LoadPlayerPosition()
     {
         PlayerPrefs.SetInt("TimeToLoad", 1);
         PlayerPrefs.Save();
     }
 
-    // This is only for loading the player's rotation after freezing UI
+    // This is only for loading the player's rotation after the freezing UI
     public void LoadPlayerRotation()
     {
         rY = player.transform.eulerAngles.y;
@@ -123,6 +129,7 @@ public class SaveManagerScript : MonoBehaviour
         player.transform.eulerAngles = new Vector3(0, rY, 0);
     }
 
+    // Saves the camera's position
     public void SaveCameraPosition()
     {
         if(SceneManager.GetActiveScene().name != "TutorialMap")
@@ -134,12 +141,14 @@ public class SaveManagerScript : MonoBehaviour
         }
     }
 
+    // Loads the camera's position
     public void LoadCameraPosition()
     {
         PlayerPrefs.SetInt("TimeToLoad", 1);
         PlayerPrefs.Save();
     }
 
+    // Saves the savedBlock's position - the block that's moved to the last tile on the bridge after every puzzle
     public void SaveBlockPosition()
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
@@ -152,12 +161,15 @@ public class SaveManagerScript : MonoBehaviour
         }
 
     }
+
+    // Loads the savedBlock's position
     public void LoadBlockPosition()
     {
         PlayerPrefs.SetInt("TimeToLoad", 1);
         PlayerPrefs.Save();
     }
 
+    // Saves the name of the scene
     public void SaveSceneName()
     {
         sceneName = SceneManager.GetActiveScene().name;
@@ -166,6 +178,7 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    // Creates a new save file
     public void CreateNewSaveFile()
     {
         Debug.Log("Updated Save File");
@@ -185,10 +198,13 @@ public class SaveManagerScript : MonoBehaviour
 
         PlayerPrefs.DeleteKey("TimeToLoad");
         PlayerPrefs.DeleteKey("Save");
-        //PlayerPrefs.DeleteKey("savedScene");
+        PlayerPrefs.DeleteKey("savedScene");
 
-        string tutorialScene = "TutorialMap";
-        PlayerPrefs.SetString("savedScene", tutorialScene);
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
+
+        //string tutorialScene = "TutorialMap";
+        //PlayerPrefs.SetString("savedScene", tutorialScene);
     }
 
 }

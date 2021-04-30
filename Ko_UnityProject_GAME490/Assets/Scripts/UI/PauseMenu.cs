@@ -29,6 +29,7 @@ public class PauseMenu : MonoBehaviour
     private EventSystem eventSystem;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
+    private TileMovementController playerScript;
 
     [Header("Bools")]
     public bool isOptionsMenu;
@@ -54,6 +55,7 @@ public class PauseMenu : MonoBehaviour
         eventSystem = FindObjectOfType<EventSystem>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        playerScript = FindObjectOfType<TileMovementController>();
     }
 
     // Start is called before the first frame update
@@ -62,7 +64,6 @@ public class PauseMenu : MonoBehaviour
         isChangingScenes = false;
         isChangingMenus = false;
         canPlayButtonSFX = true;
-        //StartCoroutine("DelayPauseMenuInput");
     }
 
     // Update is called once per frame
@@ -332,7 +333,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenSafetyMenuDelay_DS()
     {
         DisableMenuInputsPS();
-        gameHUDScript.CannotRestartPuzzle();
+        playerScript.canRestartPuzzle = false;
 
         yield return new WaitForSecondsRealtime(0.15f);
         PlaySafetyMenuSFX();
@@ -370,7 +371,7 @@ public class PauseMenu : MonoBehaviour
         safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the death screen is set active at the end of the animation via anim event      
 
         yield return new WaitForSecondsRealtime(0.2f);
-        gameHUDScript.CanRestartPuzzle();
+        playerScript.canRestartPuzzle = true;
         EnableMenuInputPS();
     }
 
@@ -431,14 +432,6 @@ public class PauseMenu : MonoBehaviour
 
         else if (sceneName == "TutorialMap")
             player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
-    }
-
-    // Cant pause until the scene fully fades in (to avoid layering issues in UI)
-    private IEnumerator DelayPauseMenuInput()
-    {
-        canPause = false;
-        yield return new WaitForSeconds(2.0f);
-        canPause = true;
     }
 
 }

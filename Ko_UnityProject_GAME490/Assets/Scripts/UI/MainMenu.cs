@@ -10,6 +10,7 @@ using System.IO;
 public class MainMenu : MonoBehaviour
 {
     public string levelToLoad;
+    private float animDurationMMB;
 
     [Header("Game Objects")]
     public GameObject optionsScreen;
@@ -41,6 +42,7 @@ public class MainMenu : MonoBehaviour
     public bool canFadeLogo;
     public bool isQuitingGame;
     public bool isSafetyMenu;
+    public bool canShowContinueButton = true;
     private bool hasPressedEnter;
     private bool isChangingMenus;
 
@@ -53,7 +55,8 @@ public class MainMenu : MonoBehaviour
     void Awake()
     {
         endCreditsScript = FindObjectOfType<EndCredits>();
-        DetermineLevelToLoad();
+        levelToLoad = PlayerPrefs.GetString("savedScene");
+        //DetermineLevelToLoad();
     }
 
     // Start is called before the first frame update
@@ -98,17 +101,15 @@ public class MainMenu : MonoBehaviour
         {
             StartCoroutine("CloseSafetyMenuDelay");
         }
-        
-        /*** Debugging: To load the FifthMap via main menu ***/
+
+        /*** For Debugging purposes ***/
         /*if(Input.GetKeyDown(KeyCode.P))
         {
             string fifthWorld = "FifthMap";
             PlayerPrefs.SetString("savedScene", fifthWorld);
-        }*/
-        /*** Debugging ends here ***/
+        }
 
-        /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.Delete))
+        if (Input.GetKeyDown(KeyCode.Delete))
         {
             SaveManager.DeleteGame();
         }*/
@@ -142,21 +143,25 @@ public class MainMenu : MonoBehaviour
         StartCoroutine("LoadLevelAsync");
     }
 
+    // Gets triggered by the options button
     public void OpenOptions()
     {
         StartCoroutine("OpenOptionsDelay");
     }
 
+    // Gets triggered by the close options button
     public void CloseOptions()
     {
         StartCoroutine("CloseOptionsDelay");
     }
 
+    // Gets triggered by the quit game button
     public void QuitGame()
     {
         StartCoroutine("QuitGameDelay");
     }
 
+    // Gets triggered by the credits button
     public void PlayCredits()
     {
         DisableMenuInputMM();
@@ -165,6 +170,7 @@ public class MainMenu : MonoBehaviour
         endCreditsScript.StartEndCreditsManually();
     }
 
+    // Gets triggered by the quit game button
     public void OpenSafetyMenu()
     {
         StartCoroutine("OpenSafetyMenuDelay");
@@ -182,6 +188,7 @@ public class MainMenu : MonoBehaviour
         StartCoroutine("CloseSafetyMenuDelay02");
     }
 
+    // Gets triggered by new game or continue button
     public void PopOut_MMB()
     {
         canFadeLogo = false;
@@ -199,7 +206,6 @@ public class MainMenu : MonoBehaviour
         }
 
     }
-
     public void SelectNewGameButton()
     {
         if (lastSelectedObject != newGameButton)
@@ -209,7 +215,6 @@ public class MainMenu : MonoBehaviour
         }
 
     }
- 
     public void SelectOptionsButton()
     {
         if (lastSelectedObject != optionsClosedButton)
@@ -219,7 +224,6 @@ public class MainMenu : MonoBehaviour
         }
 
     }
-
     public void SelectCreditsButton()
     {
         if (lastSelectedObject != creditsButton)
@@ -318,6 +322,9 @@ public class MainMenu : MonoBehaviour
 
         string tutorialScene = "TutorialMap";
         PlayerPrefs.SetString("savedScene", tutorialScene);
+
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
     }
 
     // Selects the credits button - ONLY used after credits have ended
@@ -327,16 +334,45 @@ public class MainMenu : MonoBehaviour
         eventSystem.SetSelectedGameObject(creditsButton);
     }
 
-    // Checks which scene to load when your save file is deleted/null
+    // Determines which scene to load - loads the tutorial scene if the save file is deleted/null
     private void DetermineLevelToLoad()
     {
         if (string.IsNullOrWhiteSpace(levelToLoad) == true)
         {
-            levelToLoad = "TutorialMap";
+            levelToLoad = "TutorialMap"; 
         }
         else if (string.IsNullOrWhiteSpace(levelToLoad) == false)
         {
             levelToLoad = PlayerPrefs.GetString("savedScene");
+        }
+    }
+
+    // Checks if the continue button can be active or not
+    private void SetMainMenuButtonsActive()
+    {
+        Vector3 newMenuButtonPos = new Vector3(0, 92f, 0);
+        mainMenuButtons.SetActive(true);
+
+        if (string.IsNullOrWhiteSpace(levelToLoad) == true)
+        {
+            animDurationMMB = 0.75f;
+            canShowContinueButton = false;        
+            continueFirstButton.SetActive(false);          
+            mainMenuButtons.transform.localPosition = newMenuButtonPos;
+
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(newGameButton);
+            //levelToLoad = "TutorialMap";
+        }
+        else if (string.IsNullOrWhiteSpace(levelToLoad) == false)
+        {
+            animDurationMMB = 0.86f;
+            canShowContinueButton = true;
+            continueFirstButton.SetActive(true);
+
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(continueFirstButton);
+            //levelToLoad = PlayerPrefs.GetString("savedScene");
         }
     }
 
@@ -362,21 +398,11 @@ public class MainMenu : MonoBehaviour
         lowPolySceneAnim.SetTrigger("MoveDown");
 
         yield return new WaitForSecondsRealtime(2.4f);
-        mainMenuButtons.SetActive(true);
-        // Clear selected object
-        EventSystem.current.SetSelectedGameObject(null);
-        // Set new selected object
-        EventSystem.current.SetSelectedGameObject(continueFirstButton);
+        SetMainMenuButtonsActive();
 
         yield return new WaitForSecondsRealtime(1.5f);
         EnableMenuInputMM();
         mainMenuButtonsAnim.speed = 2;
-    }
-
-    private IEnumerator StartGameDelay()
-    {
-        yield return new WaitForSecondsRealtime(0.15f);
-        StartCoroutine("LoadLevelAsync");
     }
 
     private IEnumerator OpenOptionsDelay()
@@ -388,7 +414,7 @@ public class MainMenu : MonoBehaviour
         canFadeLogo = false;
         mainMenuButtonsAnim.SetTrigger("MMB_PopOut"); // The main menu buttons are set inactive and the options menu is set active at the end of the animation via anim event
 
-        yield return new WaitForSecondsRealtime(0.85f);
+        yield return new WaitForSecondsRealtime(animDurationMMB);
         optionsScreen.SetActive(true);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsFirstButton);
@@ -421,7 +447,8 @@ public class MainMenu : MonoBehaviour
         isSafetyMenu = true;
         canFadeLogo = false;
 
-        yield return new WaitForSecondsRealtime(0.85f);
+        yield return new WaitForSecondsRealtime(animDurationMMB);
+        safetyMenu.SetActive(true);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
         EnableMenuInputMM();
@@ -492,10 +519,10 @@ public class MainMenu : MonoBehaviour
         StartCoroutine("DelayEnableInput");
     }
 
-    // Enables the input after the specified time
+    // Enables the input after the specified time - Used by the function above
     private IEnumerator DelayEnableInput()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSecondsRealtime(0.25f);
         EnableMenuInputMM();
     }
 

@@ -122,16 +122,16 @@ public class LevelManager : MonoBehaviour
         playerScript.SetPlayerBoolsFalse();
     }
 
-    // Plays the level complete sfx and sets gameobject inactive
+    // Plays the level complete sfx
     public void SetLevelCompletedEffects()
     {
-        if(!hasfinishedLevel)
+        if (!hasfinishedLevel)
         {
             audioSource.Play();
             hasfinishedLevel = true;
         }
-        // This is only for when the player leaves the fifth map
-        if(SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
+        // This is only for when the player finishes the fifth map - creates new save file
+        if (SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
         {
             saveMangerScript.CreateNewSaveFile();
             hasSavedFile = true;
@@ -153,4 +153,5 @@ public class LevelManager : MonoBehaviour
         if (loadingScreenSprites != null)
             SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
     }
+
 }

@@ -15,6 +15,7 @@ public class LevelFade : MonoBehaviour
     private LevelManager levelManager;
     private TileMovementController playerScript;
     private PlayerSounds playerSoundsScript;
+    private GameHUD gameHUDScript;
 
     // Start is called before the first frame update
     void Start()
@@ -127,6 +128,7 @@ public class LevelFade : MonoBehaviour
             playerScript = FindObjectOfType<TileMovementController>();
             pauseMenuScript = FindObjectOfType<PauseMenu>();
             playerSoundsScript = FindObjectOfType<PlayerSounds>();
+            gameHUDScript = FindObjectOfType<GameHUD>();
         }
         if (sceneName == "MainMenu")
         {

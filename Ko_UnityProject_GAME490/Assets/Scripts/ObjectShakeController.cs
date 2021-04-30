@@ -6,23 +6,20 @@ public class ObjectShakeController : MonoBehaviour
 {
     [SerializeField]                                                            
     public AudioClip[] clips;                                                     
-
     public static ObjectShakeController instance;                                 
-
-    private float shakeTimeRemaining, shakePower, shakeFadeTime, shakeRotation;   
-
     public float rotationMultiplier = 7.5f;                                       
-
     public GameObject particleEffect;                                             
 
-    private AudioSource audioSource;                                              
+    private AudioSource audioSource;
+
+    private float shakeTimeRemaining, shakePower, shakeFadeTime, shakeRotation;
 
     // Start is called before the first frame update
     void Start()
     {
         instance = this;                                                          
 
-        audioSource = GetComponent<AudioSource>();                                
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -52,8 +49,8 @@ public class ObjectShakeController : MonoBehaviour
             shakeRotation = Mathf.MoveTowards(shakeRotation, 0f, shakeFadeTime * rotationMultiplier * Time.deltaTime);
         }
 
-        transform.rotation = Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f));
-
+        if (transform.rotation != Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f)))
+            transform.rotation = Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f));
     }
 
     // Function for the shake itself (length is for how long the shake will last in seconds, power is the shake's intensity)

@@ -4,40 +4,56 @@ using UnityEngine;
 
 public class MainMenuAnimEvent : MonoBehaviour
 {
-    public Animator logoAnim;
+    private Animator logoAnim;
+    //public GameObject safetyMenu;
     //public GameObject optionsScreen;
-    public GameObject safetyMenu;
+
     private MainMenu mainMenuScript;
 
-    // Start is called before the first frame update
     void Awake()
     {
         mainMenuScript = FindObjectOfType<MainMenu>();
+        logoAnim = mainMenuScript.titleScreenLogoAnim;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    // Sets the main menu button canvas inactive if the continue button is active - for anim event
     public void SetInactiveMMB()
     {
-        gameObject.SetActive(false);
+        if (mainMenuScript.canShowContinueButton)
+        {            
+            /*if (mainMenuScript.isSafetyMenu)
+                safetyMenu.SetActive(true);
 
-        //if (mainMenuScript.isOptionsMenu)
-            //optionsScreen.SetActive(true);
+            if (mainMenuScript.isOptionsMenu)
+                optionsScreen.SetActive(true);*/
 
-        if (mainMenuScript.isSafetyMenu)
-            safetyMenu.SetActive(true);
+            gameObject.SetActive(false);
+        }
     }
 
+    // Sets the main menu button canvas inactive if the continue button is inactive - for anim event
+    public void SetInactiveMMB02()
+    {
+        if (!mainMenuScript.canShowContinueButton)
+        {
+            /*if (mainMenuScript.isSafetyMenu)
+                safetyMenu.SetActive(true);
+
+            if (mainMenuScript.isOptionsMenu)
+                optionsScreen.SetActive(true);*/
+
+            gameObject.SetActive(false);
+        }
+    }
+
+    // Checks if the game logo can fade in - for anim event
     public void FadeInLogo()
     {
-        if(mainMenuScript.canFadeLogo)
+        if (mainMenuScript.canFadeLogo)
             logoAnim.SetTrigger("TC_FadeIn");
     }
 
+    // Checks if the game logo can fade out - for anim event
     public void FadeOutLogo()
     {
         if (!mainMenuScript.canFadeLogo)

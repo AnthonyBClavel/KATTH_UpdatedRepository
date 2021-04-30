@@ -18,10 +18,12 @@ public class FidgetAnimControllerNPC : MonoBehaviour
     private bool canFidget = true;
 
     private CharacterDialogue characterDialogueScript;
+    private PauseMenu pauseMenuScript;
 
     void Awake()
     {
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Start is called before the first frame update
@@ -29,18 +31,13 @@ public class FidgetAnimControllerNPC : MonoBehaviour
     {
         animNPC = GetComponent<Animator>();
         idleAnimIndexNPC = 0;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        SetTimesToRepeat();
     }
 
     // Plays the fidget animation after the player's idle has repeated a certain amount of times
     public void AddToIdleIndex()
     {
-        if (animNPC.GetCurrentAnimatorStateInfo(0).IsName("Idle") && !inCharacterDialogue)
+        if (animNPC.GetCurrentAnimatorStateInfo(0).IsName("Idle") && !inCharacterDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.canPause)
         {
             if (idleAnimIndexNPC < timesToRepeatNPC)
                 idleAnimIndexNPC++;
@@ -66,16 +63,16 @@ public class FidgetAnimControllerNPC : MonoBehaviour
                     SetRadnomAnimIndexNPC();
 
                     if (fidgetIndexNPC == 0)
-                        animNPC.SetTrigger("Fidget01"); // Waiting
+                        animNPC.SetTrigger("Fidget01");
 
                     if (fidgetIndexNPC == 1)
-                        animNPC.SetTrigger("Fidget02"); // Searching
+                        animNPC.SetTrigger("Fidget02");
 
                     if (fidgetIndexNPC == 2)
-                        animNPC.SetTrigger("Fidget03"); // Stretch
+                        animNPC.SetTrigger("Fidget03");
 
                     if (fidgetIndexNPC == 3)
-                        animNPC.SetTrigger("Fidget04"); // Waiting
+                        animNPC.SetTrigger("Fidget04");
                 }
             }
 

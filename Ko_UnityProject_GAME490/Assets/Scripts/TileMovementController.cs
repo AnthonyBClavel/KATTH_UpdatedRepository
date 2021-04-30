@@ -33,13 +33,13 @@ public class TileMovementController : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject destroyedBlockParticle;
-    public GameObject invisibleBlock; 
 
     [Header("Scripts")]
     public TorchMeterStat torchMeterMoves;
     private LevelManager levelManagerScript;
     private TorchMeterScript torchMeterScript;
     private SaveManagerScript saveManagerScript;
+    private IceMaterialScript iceMaterialScript;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private PlayerSounds playerSoundsScript;
@@ -74,6 +74,7 @@ public class TileMovementController : MonoBehaviour
         levelManagerScript = FindObjectOfType<LevelManager>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        iceMaterialScript = FindObjectOfType<IceMaterialScript>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         cameraScript = FindObjectOfType<CameraController>();
@@ -254,7 +255,6 @@ public class TileMovementController : MonoBehaviour
                 else if (collider.tag == "Artifact") interactWithArtifact(collider);
             }
         }
-
         return false;
     }
 
@@ -268,8 +268,8 @@ public class TileMovementController : MonoBehaviour
         torchMeterMoves.CurrentVal--;
         Instantiate(destroyedBlockParticle, collider.gameObject.transform.position, collider.gameObject.transform.rotation);
         collider.gameObject.SetActive(false);
+
         isInteracting = true;
-        isWalking = false;
         CheckToPlayAnims();
     }
 
@@ -281,8 +281,8 @@ public class TileMovementController : MonoBehaviour
             Debug.Log("Turned On Generator");
             collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
             torchMeterMoves.CurrentVal--;
+
             isInteracting = true;
-            isWalking = false;
             CheckToPlayAnims();
         }
     }
@@ -295,12 +295,12 @@ public class TileMovementController : MonoBehaviour
             Debug.Log("Firestone has been used");
             torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
             Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);
+
             isInteracting = true;
+            CheckToPlayAnims();
         }
 
         collider.gameObject.GetComponentInChildren<Light>().enabled = false;
-        isWalking = false;
-        CheckToPlayAnims();
     }
 
     /***
@@ -322,28 +322,32 @@ public class TileMovementController : MonoBehaviour
         characterDialogueScript.nPCScript = nonPlayerCharacterScript;
         characterDialogueScript.nPCDialogueCheck = nonPlayerCharacterScript.nPCDialogueCheck;
         characterDialogueScript.talkingTo = nonPlayerCharacterScript.characterName;
-        characterDialogueScript.isInteractingWithNPC = true;      
+        characterDialogueScript.isInteractingWithNPC = true;
+        characterDialogueScript.setDialogueQuestions(nonPlayerCharacterScript.dialogueOptionsFile);
         characterDialogueScript.StartDialogue();
-        characterDialogueScript.setDialogueQuestions(nonPlayerCharacterScript.dialogueQuestionsFile);
 
         isInteracting = false;
-        isWalking = false;
         CheckToPlayAnims();
     }
 
     public void interactWithArtifact(Collider collider)
-    {
-        string name = collider.name;
+    {    
+        ArtifactScript artifactScript = collider.GetComponent<ArtifactScript>();
 
-        Debug.Log("Player has interacted with Artifact");
-        cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
-        collider.GetComponent<ArtifactScript>().SetArtifactDialogue();
-        characterDialogueScript.isInteractingWithArtifact = true;    
-        characterDialogueScript.StartDialogue();
+        if (!artifactScript.hasCollectedArtifact)
+        {
+            Debug.Log("Player has interacted with Artifact");
+            cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+            collider.GetComponent<ArtifactScript>().SetArtifactDialogue();
+            collider.GetComponent<ArtifactScript>().OpenChest();
+            characterDialogueScript.artifactScript = artifactScript;
+            characterDialogueScript.isInteractingWithArtifact = true;
+            characterDialogueScript.setDialogueQuestions(characterDialogueScript.artifactDialogueOptions);
+            characterDialogueScript.StartDialogue();
 
-        isInteracting = false;
-        isWalking = false;
-        CheckToPlayAnims();
+            isInteracting = true;
+            CheckToPlayAnims();
+        }
     }
 
     // Draws a ray forward and returns the collider if it hits, or null otherwise 
@@ -360,17 +364,21 @@ public class TileMovementController : MonoBehaviour
 
     // Checks to see if the next position is valid or not
     bool Valid()
-    {
-        isPushing = false;
+    {       
         Collider collider = getCollider();
-        if (collider == null) return true; // If there's no collider (no obstacles)
+        if (collider == null)
+        {
+            isWalking = false;
+            isPushing = false;
+            return true; // If there's no collider (no obstacles)
+        }
 
+        isWalking = false;
         isPushing = true;
         switch (collider.tag)
         {
             case ("StaticBlock"):
                 collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);
-                isWalking = false;
                 CheckToPlayAnims();
                 break;
 
@@ -378,57 +386,45 @@ public class TileMovementController : MonoBehaviour
                 collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);
                 collider.gameObject.GetComponentInChildren<CrystalsManager>().SetGlowActive();
                 collider.gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
-                isWalking = false;
-                isPushing = true;
                 CheckToPlayAnims();
                 break;
 
             case ("Obstacle"):
                 if (collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(currentDirection))
                     torchMeterMoves.CurrentVal--;
-                isWalking = false;
                 CheckToPlayAnims();
                 break;
 
             case ("DestroyableBlock"):
                 collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);
-                isWalking = false;
                 CheckToPlayAnims();
                 break;
-
-            case ("InvisibleBlock"):
-                isWalking = false;
-                isPushing = false;
-                break;
-
-            /*case ("FireStone"):
-                if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
-                {
-                    collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);
-                    isPushing = true;                  
-                }
-                else
-                    isPushing = false; 
-                
-                isWalking = false;
-                CheckToPlayAnims();
-                break;*/
-
-            /*case ("Generator"):
-                Debug.Log("Turned On Generator");
-                if(collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
-                collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
-                isWalking = false;
-                isInteracting = true;
-                CheckToPlayAnims();
-                break;*/
 
             default:
                 Debug.Log("Unrecognizable Tag");
-                isWalking = false;
                 isPushing = false;
                 CheckToPlayAnims();
                 break;
+
+                /*case ("FireStone"):
+                    if (collider.gameObject.GetComponentInChildren<Light>().enabled == true)
+                    {
+                        collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.2f, 0.25f);
+                        isPushing = true;                  
+                    }
+                    else
+                        isPushing = false; 
+
+                    CheckToPlayAnims();
+                    break;*/
+
+                /*case ("Generator"):
+                    Debug.Log("Turned On Generator");
+                    if(collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
+                    collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
+                    isInteracting = true;
+                    CheckToPlayAnims();
+                    break;*/
         }
         return false;
     }
@@ -455,7 +451,7 @@ public class TileMovementController : MonoBehaviour
             else if (tag == "EmptyBlock")
             {
                 // The player cannot walk over ditches - the areas where blocks can fall in
-                isWalking = false;
+                //isWalking = false;
                 return false;
             }
             else
@@ -465,7 +461,8 @@ public class TileMovementController : MonoBehaviour
             }
             return true;
         }
-        isWalking = false;
+        //isPushing = false;
+        //isWalking = false;
         return false;
     }
 
@@ -491,15 +488,25 @@ public class TileMovementController : MonoBehaviour
         RaycastHit hit;
         Debug.DrawRay(myAlertBubbleRay.origin, myAlertBubbleRay.direction, Color.blue);
 
-        if (Physics.Raycast(myAlertBubbleRay, out hit, rayLength))
+        if (Physics.Raycast(myAlertBubbleRay, out hit, rayLength) && !iceMaterialScript.isFrozen)
         {
             string tag = hit.collider.tag;
 
-            if (tag == "NPC" || tag == "Artifact")
+            if (tag == "NPC")
             {
                 characterDialogueScript.SetAlertBubbleActive();
                 return true;
-            }              
+            }        
+            else if (tag == "Artifact")
+            {
+                ArtifactScript artifactScript = hit.collider.GetComponent<ArtifactScript>();
+
+                if (!artifactScript.hasCollectedArtifact)
+                {
+                    characterDialogueScript.SetAlertBubbleActive();
+                    return true;
+                }
+            }
         }
         characterDialogueScript.SetAlertBubbleInactive();
         return false;
@@ -583,10 +590,10 @@ public class TileMovementController : MonoBehaviour
         // Disables the player's footstep sfx - ONLY disabled when the player transitions to another level/scene (on the end bridge)
         if (tag == "DisableFootsteps" && !hasDisabledFootsteps)
         {
-            //Debug.Log("Player Footsteps Have Been Disabled");
             playerSoundsScript.canPlayFootsteps = false;
             hasDisabledFootsteps = true;
         }
+
         // Finds the object with the bridge controller script
         if (tag == "BridgeController" && gameObject.transform.position == hit.collider.transform.position)
         {
@@ -597,6 +604,7 @@ public class TileMovementController : MonoBehaviour
             NextPuzzleViewCheck();
             return true;
         }
+
         // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position
         if (tag == "LastBridgeTile" && hasMovedPuzzleView)
         {
@@ -620,37 +628,8 @@ public class TileMovementController : MonoBehaviour
         string name = hit.collider.name;
 
         if (name == "BridgeBlock")
-        {
-            //string tag = hit.collider.tag;
-            // For the if statements below, the torch meter icon has to be invisible for the bridge blocks to instatiate the invisible blocks!
-            /*if (tag == "MoveCameraBlock" && !hasMovedPuzzleView && hasAlreadyPopedOut)
-            {
-                Debug.Log("Switched To Next Puzzle View");
-                main_camera.GetComponent<CameraController>().NextPuzzleView02();
-                main_camera.GetComponent<CameraController>().WindGush();
-                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
-                hasMovedPuzzleView = true;
-            }
-            if (tag == "InstantiateBlock" && isWalking)
-            {
-                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
-            }
-            if (tag == "ResetCameraBool" && hasAlreadyPopedOut && isWalking)
-            {
-                Instantiate(invisibleBlock, hit.collider.transform.position + new Vector3(0, 1, 0), hit.collider.transform.rotation);
-            }
-            if (tag == "ResetCameraBool" && hasMovedPuzzleView && hasAlreadyPopedOut)
-            {
-                hasMovedPuzzleView = false;
-            }
-            /*if (tag == "LastBridgeTile" && isWalking)
-            {
-                Debug.Log("Invisible Block Position has been saved");
-                saveManagerScript.savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
-                saveManagerScript.SaveBlockPosition();
-            }*/
             return true;
-        }
+
         return false;
     }
 
@@ -833,6 +812,13 @@ public class TileMovementController : MonoBehaviour
         currentState = newState;
     }
 
+    // Plays the interaction animation for Ko 
+    public void PlayInteractionAnim()
+    {
+        isInteracting = true;
+        CheckToPlayAnims();
+    }
+
     // Determines which animation state to play
     private void CheckToPlayAnims()
     {
@@ -844,6 +830,7 @@ public class TileMovementController : MonoBehaviour
             ChangeAnimationState("Interacting");
             SwooshSFX();
         }
+
         isPushing = false;
         isInteracting = false;
         playerFidgetScript.SetIdleIndexToZero();

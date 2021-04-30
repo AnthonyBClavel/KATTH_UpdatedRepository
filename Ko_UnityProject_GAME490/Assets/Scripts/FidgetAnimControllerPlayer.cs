@@ -7,7 +7,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     [Header("Player Variables")]
     private int idleAnimIndexPlayer;
     private int fidgetIndexPlayer;
-    private float timesToRepeatPlayer = 4;
+    private float timesToRepeatPlayer = 3;
 
     [Header("Character Animators")]
     private Animator animPlayer;
@@ -18,10 +18,12 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     private bool canFidget = true;
 
     private CharacterDialogue characterDialogueScript;
+    private PauseMenu pauseMenuScript;
 
     void Awake()
     {
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Start is called before the first frame update
@@ -29,12 +31,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     {
         animPlayer = GetComponent<Animator>();
         idleAnimIndexPlayer = 0;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        SetTimesToRepeat();
     }
 
     // Sets the idle index to zero
@@ -46,7 +43,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     // Plays the fidget animation after the player's idle has repeated a certain amount of times
     public void AddToIdleIndex()
     {
-        if (animPlayer.GetCurrentAnimatorStateInfo(0).IsName("Idle") && !inCharacterDialogue)
+        if (animPlayer.GetCurrentAnimatorStateInfo(0).IsName("Idle") && !inCharacterDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.canPause)
         { 
             if (idleAnimIndexPlayer < timesToRepeatPlayer)
                 idleAnimIndexPlayer++;
@@ -75,13 +72,13 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
                         animPlayer.SetTrigger("Fidget01"); // Strecth
 
                     if (fidgetIndexPlayer == 1)
-                        animPlayer.SetTrigger("Fidget02"); // LookATTorch
+                        animPlayer.SetTrigger("Fidget02"); // Look At Torch
 
                     if (fidgetIndexPlayer == 2)
-                        animPlayer.SetTrigger("Fidget03"); // ScratchHead
+                        animPlayer.SetTrigger("Fidget03"); // Scratch Head
 
                     if (fidgetIndexPlayer == 3)
-                        animPlayer.SetTrigger("Fidget04"); // JumpingJacks
+                        animPlayer.SetTrigger("Fidget04"); // Jumping Jacks
                 }
             }
      
@@ -113,10 +110,14 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     {
         if (animPlayer.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
         {
-            // Plays the greet anim if the bool is false and the npc isn't fidgeting - bool is set to false when dialogue ends
+            // Plays the greet anim if the canFidget bool is false and the npc isn't fidgeting - bool is set to false when dialogue ends
             if (!hasPlayedGreetAnimPlayer && inCharacterDialogue && characterDialogueScript.hasStartedDialoguePlayer)
             {
-                animPlayer.SetTrigger("Greet");
+                if (characterDialogueScript.isInteractingWithArtifact)
+                    animPlayer.SetTrigger("Fidget03");
+                else
+                    animPlayer.SetTrigger("Greet");
+
                 idleAnimIndexPlayer = 0;
                 SetTimesToRepeat();
                 canFidget = false;

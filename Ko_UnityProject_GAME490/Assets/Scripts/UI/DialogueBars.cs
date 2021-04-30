@@ -50,7 +50,7 @@ public class DialogueBars : MonoBehaviour
 
     void LateUpdate()
     {
-        if(canMoveBars)
+        if (canMoveBars)
         {
             if (hasMovedTopBar && topBar.transform.localPosition != topBarDestination)
                 topBar.transform.localPosition = Vector3.MoveTowards(topBar.transform.localPosition, topBarDestination, barSpeed * Time.deltaTime);

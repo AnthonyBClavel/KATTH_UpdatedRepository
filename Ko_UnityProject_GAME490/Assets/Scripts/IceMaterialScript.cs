@@ -7,6 +7,7 @@ public class IceMaterialScript : MonoBehaviour
 {
     public Material iceMaterial;
     public GameObject coldUI;
+    public bool isFrozen = false;
    
     private Image image;
     private float iceMaterialAlpha;
@@ -29,6 +30,8 @@ public class IceMaterialScript : MonoBehaviour
     // Increases the alpha of the ice material over time until it reaches its max value
     public IEnumerator FadeMaterialToFullAlpha()
     {
+        isFrozen = true;
+
         for (float i = 0f; i <= 1; i += 0.05f)
         {
             i = iceMaterialAlpha;
@@ -38,21 +41,25 @@ public class IceMaterialScript : MonoBehaviour
     }
 
     // Sets the alpha of the ice material back to 0 after a delay
-    public IEnumerator ResetPlayerMaterial()
+    /*public IEnumerator ResetPlayerMaterial()
     {
         yield return new WaitForSeconds(1.5f);
+        isFrozen = false;
         iceMaterialAlpha = 0f;
-    }
+    }*/
 
     // Sets the alpha of the ice material back to 0 immediately
     public void ResetPlayerMaterial02()
     {
+        isFrozen = false;
         iceMaterialAlpha = 0f;
     }
 
     // Increases the alpha of the Cold UI over time until it reaches its max value
     public IEnumerator IncreaseAlpha_ColdUI()
     {
+        isFrozen = true;
+
         for (float i = 0f; i <= 1; i += 0.02f)
         {
             i = coldUIAlpha;
@@ -62,15 +69,17 @@ public class IceMaterialScript : MonoBehaviour
     }
 
     // Sets the alpha of the Cold UI back to 0 after a delay
-    public IEnumerator ResetUIAlpha_ColdUI()
+    /*public IEnumerator ResetUIAlpha_ColdUI()
     {
         yield return new WaitForSeconds(1.5f);
+        isFrozen = false;
         coldUIAlpha = 0f;
-    }
+    }*/
 
     // Sets the alpha of the Cold UI back to 0 immediately
     public void ResetUIAlpha_ColdUI02()
     {
+        isFrozen = false;
         coldUIAlpha = 0f;
     }
 

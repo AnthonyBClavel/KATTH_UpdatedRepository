@@ -39,7 +39,6 @@ public class CameraController : MonoBehaviour
     private TileMovementController playerScript;
     private DialogueCameraViews dialogueCameraViewsScript;
 
-
     void Awake()
     {
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
@@ -107,7 +106,6 @@ public class CameraController : MonoBehaviour
                     transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
 
             }
-
             if (canMoveToDialogueViews)
             {
                 DialogueViewsCheck();
@@ -203,10 +201,17 @@ public class CameraController : MonoBehaviour
     // Updates the puzzle number in the GameHUD via Camera Script
     private void SetPuzzleNumber()
     {
-        if (SceneManager.GetActiveScene().name != "TutorialMap")
+        /*if (SceneManager.GetActiveScene().name != "TutorialMap")
             gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/10";
         else
-            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";
+            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";*/
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/7");
+        else
+            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/10");
+
+        gameHUDScript.PlayPuzzleNotificationCheck();
     }
 
     // For pausing the WindGushSFX when you pause the game on the bridge
