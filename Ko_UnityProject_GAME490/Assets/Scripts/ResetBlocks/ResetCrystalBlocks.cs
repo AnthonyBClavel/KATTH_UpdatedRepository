@@ -4,12 +4,20 @@ using UnityEngine;
 
 public class ResetCrystalBlocks : MonoBehaviour
 {
-    public AudioSource audioSource;
     private bool canPlaySFX;
+    private AudioSource chimeAudioSource;
+
+    private AudioLoops audioLoopsScript;
+
+    void Awake()
+    {
+        audioLoopsScript = FindObjectOfType<AudioLoops>();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        chimeAudioSource = audioLoopsScript.chimeSFX;
         canPlaySFX = false;
     }
 
@@ -48,7 +56,7 @@ public class ResetCrystalBlocks : MonoBehaviour
 
                 if (!canPlaySFX)
                 {
-                    audioSource.Play();
+                    chimeAudioSource.Play();
                     canPlaySFX = true;
                 }
             }

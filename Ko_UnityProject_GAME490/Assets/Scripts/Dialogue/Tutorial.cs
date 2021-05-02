@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Tutorial : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject dialogueManager;
-
     public TextAsset startupDialogue;
     public TextAsset pushDialogue;
     public TextAsset breakDialogue;
@@ -16,6 +13,7 @@ public class Tutorial : MonoBehaviour
     public TextAsset bridgeDialogue;
     public TextAsset torchMeterDialogue;
     public TextAsset deathDialogue;
+    private TextAsset currentDialogue;
 
     private bool hasPlayedStart = false;
     private bool hasPlayedPush = false;
@@ -30,8 +28,6 @@ public class Tutorial : MonoBehaviour
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
 
-    private TextAsset currentDialogue;
-
     void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
@@ -42,7 +38,7 @@ public class Tutorial : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     private void setDialogue(TextAsset dialogue)
@@ -103,7 +99,7 @@ public class Tutorial : MonoBehaviour
                         break;
                 }
 
-            else if (playerScript.onFirstOrLastTileBlock() && !hasPassedBridge)
+            else if (playerScript.onLastTileBlock() && !hasPassedBridge)
             {
                 setDialogue(bridgeDialogue);
                 currentDialogue = bridgeDialogue;
@@ -123,6 +119,7 @@ public class Tutorial : MonoBehaviour
         if (playerScript.hasDied)
         {
             playerScript.SetPlayerBoolsFalse();
+
             if (!dialogueManagerScript.inDialogue)
             {
                 setDialogue(deathDialogue);

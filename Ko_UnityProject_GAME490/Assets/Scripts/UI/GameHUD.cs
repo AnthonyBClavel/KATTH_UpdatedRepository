@@ -11,20 +11,20 @@ public class GameHUD : MonoBehaviour
     public bool canToggleHUD;
     public bool canDeathScreen;
     public bool isDeathScreen;
-    private bool isKeybindIcons;
     private bool isKeybindBubbles;
-    private bool isLevelInfo;
+    //private bool isKeybindIcons;
+    //private bool isLevelInfo;
 
     public bool hasPuzzleNotification = false;
     public bool hasArtifactNotification = false;
-    public bool canTogglePuzzleBubble = false;
-    public bool canToggleArtifactBubble = false;
-    public bool isPuzzleNotification = false;
-    public bool isArtifactNotification = false;
+    private bool canTogglePuzzleBubble = false;
+    private bool canToggleArtifactBubble = false;
+    private bool isPuzzleNotification = false;
+    private bool isArtifactNotification = false;
 
     [Header("Floats")]
-    public float bubbleSpeed; //1500
-    public float keybindBubbleSpeed; //2000
+    public float bubbleSpeed = 1500f; //1500
+    public float keybindBubbleSpeed = 2000f; //2000
     private float puzzleBubbleWidth;
     private float artifactBubbleWidth;
     private float notificationBubbleScale = 0.8f;
@@ -42,6 +42,7 @@ public class GameHUD : MonoBehaviour
     public GameObject artifactNotificationBubble;
     public GameObject puzzleKeybindBubble;
     public GameObject artifactKeybindBubble;
+    public GameObject notificationBubblesHolder;
 
     [Header("RectTransforms")]
     public RectTransform puzzleKeybindBubbleRectTrans;
@@ -85,23 +86,13 @@ public class GameHUD : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        puzzleBubbleOriginalPos = puzzleBubbleRectTrans.localPosition;
-        artifactBubbleOriginalPos = artifactBubbleRectTrans.localPosition;
-
-        puzzleKeybindBubbleOrigPos = puzzleKeybindBubbleRectTrans.localPosition;
-        artifactKeybindBubbleOrigPos = artifactKeybindBubbleRectTrans.localPosition;
-
-        puzzleKeybindBubbleDestination = new Vector3(puzzleKeybindBubbleRectTrans.localPosition.x + (100 * notificationBubbleScale), puzzleKeybindBubbleRectTrans.localPosition.y, 0);
-        artifactKeybindBubbleDestination = new Vector3(artifactKeybindBubbleRectTrans.localPosition.x - (100 * notificationBubbleScale), artifactKeybindBubbleRectTrans.localPosition.y, 0);
-
-        puzzleBubbleDestination = new Vector3(rightScreenPosX - 30, puzzleBubbleRectTrans.localPosition.y, 0);
-        artifactBubbleDestination = new Vector3(leftScreenPosX + 30, artifactBubbleRectTrans.localPosition.y, 0);
-
+        SetBubbleVectors();
         audioSource = GetComponent<AudioSource>();
+
         canDeathScreen = false; //
-        isKeybindIcons = false; //
-        isLevelInfo = false; //
         isKeybindBubbles = true;
+        //isKeybindIcons = false; //
+        //isLevelInfo = false; //
 
         Invoke("UpdateBubblesOriginalPos", 0.01f);
     }
@@ -111,38 +102,16 @@ public class GameHUD : MonoBehaviour
     {
         CheckWhenToToggle();
         CheckDeathScreenInput();
+        ToggleNotificationBubblesCheck();
 
         /*** For Debuging ***/
-        if (Input.GetKeyDown(KeyCode.I) && canToggleHUD)
+        /*if (Input.GetKeyDown(KeyCode.P))
         {
-            //isKeybindIcons = !isKeybindIcons;
-            //isLevelInfo = !isLevelInfo;
-            isKeybindBubbles = !isKeybindBubbles;
-            //canDeathScreen = !canDeathScreen;
+            //
         }
         /*** Debugging Ends Here **/
 
-
-        if (canToggleHUD)
-        {
-            if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification)
-            {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    hasPuzzleNotification = !hasPuzzleNotification;
-                }
-            }
-
-            if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification)
-            {
-                if (Input.GetKeyDown(KeyCode.Q))
-                {
-                    hasArtifactNotification = !hasArtifactNotification;
-                }
-            }
-        }
-
-        if (isKeybindIcons)
+        /*if (isKeybindIcons)
             keybindIcons.SetActive(true);
         if (!isKeybindIcons)
             keybindIcons.SetActive(false);
@@ -150,33 +119,40 @@ public class GameHUD : MonoBehaviour
         if (isLevelInfo)
             levelInfo.SetActive(true);
         if (!isLevelInfo)
-            levelInfo.SetActive(false);
-
-        if (isKeybindBubbles)
-        {
-            puzzleKeybindBubble.SetActive(true);
-            artifactKeybindBubble.SetActive(true);
-        }
-        if (!isKeybindBubbles)
-        {
-            puzzleKeybindBubble.SetActive(false);
-            artifactKeybindBubble.SetActive(false);
-        }
+            levelInfo.SetActive(false);*/
 
     }
 
     void LateUpdate()
     {
-        ArtifactNotificationCheck();
-        PuzzleNotificationCheck();
-        UpdateBubblesOriginalPos();
+        if (pauseMenuScript.isActiveAndEnabled)
+        {
+            ArtifactNotificationCheck();
+            PuzzleNotificationCheck();
+            UpdateBubblesOriginalPos();
+        }
     }
 
-    // Sets the int to the current amount of artifacts collected - this is called after the scene fully fades in
-    private void SetNumberOfCollectedArtifacts()
+    // Updates the artifact notification bubble's text with current amount of artifacts collected
+    public void SetNumberOfCollectedArtifacts()
     {
-        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") != 0 && PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15)
-            UpdateArtifactBubbleText(PlayerPrefs.GetInt("numberOfArtifactsCollected") + "/15");
+        int numberOfArtifactsCollected = PlayerPrefs.GetInt("numberOfArtifactsCollected");
+
+        if (numberOfArtifactsCollected != 0 && numberOfArtifactsCollected <= 15)
+            UpdateArtifactBubbleText(numberOfArtifactsCollected + "/15");
+    }
+
+    // Resets the script's bools so the notifcation bubbles can be toggled
+    public void EnableNotificationsToggle()
+    {
+        isPuzzleNotification = false;
+        isArtifactNotification = false;
+    }
+
+    public void DisableNotificationsToggle()
+    {
+        isPuzzleNotification = true;
+        isArtifactNotification = true;
     }
 
     // Sets the death screen active ONLY IF canDeathScreen true - this will be an options to toggle in the option screen
@@ -202,21 +178,49 @@ public class GameHUD : MonoBehaviour
             canToggleHUD = false;
     }
 
-    // Sets the original positions for the notification bubbles
-    public void UpdateBubblesOriginalPos()
+    // Check when the player can toggle the notification bubbles for puzzles and artifacts
+    private void ToggleNotificationBubblesCheck()
     {
-        if (puzzleBubbleWidth != puzzleBubbleRectTrans.rect.width)
-            puzzleBubbleWidth = puzzleBubbleRectTrans.rect.width;
+        if (canToggleHUD && notificationBubblesHolder.activeSelf)
+        {
+            // Toggle keybind aids for the notification bubbles
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                isKeybindBubbles = !isKeybindBubbles;
+                //isKeybindIcons = !isKeybindIcons;
+                //isLevelInfo = !isLevelInfo;
+                //canDeathScreen = !canDeathScreen;
+            }
 
-        if (artifactBubbleWidth != artifactBubbleRectTrans.rect.width)
-            artifactBubbleWidth = artifactBubbleRectTrans.rect.width;
+            // Toggle puzzle notification bubble
+            if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    hasPuzzleNotification = !hasPuzzleNotification;
+                }
+            }
 
-        // 35 was added/subracted from each x position to compensate for the bubble's twitch if the text gets updated out of the screen's bounds
-        if (puzzleBubbleOriginalPos != new Vector3(rightScreenPosX + (puzzleBubbleWidth * notificationBubbleScale) + 35, puzzleBubbleRectTrans.localPosition.y, 0))
-            puzzleBubbleOriginalPos = new Vector3(rightScreenPosX + (puzzleBubbleWidth * notificationBubbleScale) + 35, puzzleBubbleRectTrans.localPosition.y, 0);
+            // Toggle artifact notification bubble
+            if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification)
+            {
+                if (Input.GetKeyDown(KeyCode.Q))
+                {
+                    hasArtifactNotification = !hasArtifactNotification;
+                }
+            }
+        }
 
-        if (artifactBubbleOriginalPos != new Vector3(leftScreenPosX - (artifactBubbleWidth * notificationBubbleScale) - 35, artifactBubbleRectTrans.localPosition.y, 0))
-            artifactBubbleOriginalPos = new Vector3(leftScreenPosX - (artifactBubbleWidth * notificationBubbleScale) - 35, artifactBubbleRectTrans.localPosition.y, 0);
+        if (isKeybindBubbles)
+        {
+            puzzleKeybindBubble.SetActive(true);
+            artifactKeybindBubble.SetActive(true);
+        }
+        if (!isKeybindBubbles)
+        {
+            puzzleKeybindBubble.SetActive(false);
+            artifactKeybindBubble.SetActive(false);
+        }
     }
 
     public void PlayPuzzleNotificationCheck()
@@ -243,6 +247,39 @@ public class GameHUD : MonoBehaviour
     {
         artifactBubbleColorText.text = newArtifactBubbleText;
         artifactBubbleText.text = newArtifactBubbleText;
+    }
+
+    // Sets the original positions for the notification bubbles
+    private void UpdateBubblesOriginalPos()
+    {
+        if (puzzleBubbleWidth != puzzleBubbleRectTrans.rect.width)
+            puzzleBubbleWidth = puzzleBubbleRectTrans.rect.width;
+
+        if (artifactBubbleWidth != artifactBubbleRectTrans.rect.width)
+            artifactBubbleWidth = artifactBubbleRectTrans.rect.width;
+
+        // 35 was added/subracted from each x position to compensate for the bubble's twitch if the text gets updated out of the screen's bounds
+        if (puzzleBubbleOriginalPos != new Vector3(rightScreenPosX + (puzzleBubbleWidth * notificationBubbleScale) + 35, puzzleBubbleRectTrans.localPosition.y, 0))
+            puzzleBubbleOriginalPos = new Vector3(rightScreenPosX + (puzzleBubbleWidth * notificationBubbleScale) + 35, puzzleBubbleRectTrans.localPosition.y, 0);
+
+        if (artifactBubbleOriginalPos != new Vector3(leftScreenPosX - (artifactBubbleWidth * notificationBubbleScale) - 35, artifactBubbleRectTrans.localPosition.y, 0))
+            artifactBubbleOriginalPos = new Vector3(leftScreenPosX - (artifactBubbleWidth * notificationBubbleScale) - 35, artifactBubbleRectTrans.localPosition.y, 0);
+    }
+
+    // Sets the vector variable for the notification bubbles
+    private void SetBubbleVectors()
+    {
+        puzzleBubbleOriginalPos = puzzleBubbleRectTrans.localPosition;
+        artifactBubbleOriginalPos = artifactBubbleRectTrans.localPosition;
+
+        puzzleKeybindBubbleOrigPos = puzzleKeybindBubbleRectTrans.localPosition;
+        artifactKeybindBubbleOrigPos = artifactKeybindBubbleRectTrans.localPosition;
+
+        puzzleKeybindBubbleDestination = new Vector3(puzzleKeybindBubbleRectTrans.localPosition.x + (100 * notificationBubbleScale), puzzleKeybindBubbleRectTrans.localPosition.y, 0);
+        artifactKeybindBubbleDestination = new Vector3(artifactKeybindBubbleRectTrans.localPosition.x - (100 * notificationBubbleScale), artifactKeybindBubbleRectTrans.localPosition.y, 0);
+
+        puzzleBubbleDestination = new Vector3(rightScreenPosX - 30, puzzleBubbleRectTrans.localPosition.y, 0);
+        artifactBubbleDestination = new Vector3(leftScreenPosX + 30, artifactBubbleRectTrans.localPosition.y, 0);
     }
 
     // Plays the puzzle notification

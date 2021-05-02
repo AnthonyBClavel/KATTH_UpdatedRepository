@@ -4,13 +4,7 @@ using UnityEngine;
 
 public class DialogueBars : MonoBehaviour
 {
-    public GameObject topBar;
-    public GameObject bottomBar;
-
-    Vector3 originalTopBarPos;
-    Vector3 originalBottomBarPos;
-    Vector3 topBarDestination;
-    Vector3 bottomBarDestination;
+    public float barSpeed;
 
     public bool canMoveBars = true;
     private bool hasMovedTopBar = false;
@@ -18,7 +12,13 @@ public class DialogueBars : MonoBehaviour
     private bool hasTurnedOnHUD = true;
     private bool canTurnOnHUD = false;
 
-    public float barSpeed;
+    public GameObject topBar;
+    public GameObject bottomBar;
+
+    Vector3 originalTopBarPos;
+    Vector3 originalBottomBarPos;
+    Vector3 topBarDestination;
+    Vector3 bottomBarDestination;
 
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
@@ -40,12 +40,6 @@ public class DialogueBars : MonoBehaviour
 
         topBarDestination = new Vector3(0, 490, 0); //465.31f
         bottomBarDestination = new Vector3(0, -490, 0); //-465.31f
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //DialogueBarDebugging();
     }
 
     void LateUpdate()
@@ -71,33 +65,27 @@ public class DialogueBars : MonoBehaviour
     {
         hasMovedTopBar = !hasMovedTopBar;
         hasMovedBottomBar = !hasMovedBottomBar;
-        hasTurnedOnHUD = !hasTurnedOnHUD;
+        //hasTurnedOnHUD = !hasTurnedOnHUD;
     }
 
     // Sets all of the UI active
     public void TurnOnHUD()
     {
-        //Debug.Log("Has Turned On HUD");
         canTurnOnHUD = true;
-        gameHUDScript.gameObject.SetActive(true);
-        gameHUDScript.canTogglePuzzleBubble = true;
-        gameHUDScript.canToggleArtifactBubble = true;
-        gameHUDScript.isPuzzleNotification = false;
-        gameHUDScript.isArtifactNotification = false;
         torchMeterScript.gameObject.SetActive(true);
+        //gameHUDScript.gameObject.SetActive(true);
+        gameHUDScript.notificationBubblesHolder.SetActive(true);
+        gameHUDScript.EnableNotificationsToggle();
     }
 
     //Sets all of the UI inactive
     public void TurnOffHUD()
     {
-        //Debug.Log("Has Turned Off HUD");
         canTurnOnHUD = false;
-        gameHUDScript.canTogglePuzzleBubble = false;
-        gameHUDScript.canToggleArtifactBubble = false;
-        gameHUDScript.gameObject.SetActive(false);
         torchMeterScript.gameObject.SetActive(false);
+        //gameHUDScript.gameObject.SetActive(false);
+        gameHUDScript.notificationBubblesHolder.SetActive(false);
     }
-
 
     // Sets the dialogue bars to their final position - ONLY USED in the world intro script
     public void SetDialogueBars()

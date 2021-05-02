@@ -17,14 +17,14 @@ public class LevelManager : MonoBehaviour
     public GameObject loadingScreen, loadingIcon;
     public Sprite[] loadingScreenSprites;
 
+    private AudioSource audioSource;
+    private bool hasfinishedLevel;
+    private bool hasSavedFile;
+
     private TileMovementController playerScript;
     private SaveManagerScript saveMangerScript;
     private PlayerSounds playerSoundsScript;
     private PauseMenu pauseMenuScript;
-
-    private AudioSource audioSource;
-    private bool hasfinishedLevel;
-    private bool hasSavedFile;
 
     void Awake()
     {
@@ -37,17 +37,8 @@ public class LevelManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        hasfinishedLevel = false;
         audioSource = GetComponent<AudioSource>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.L))
-            DisablePlayer();*/
-        /*** End Debugging ***/
+        hasfinishedLevel = false;
     }
 
     // Loads the next level asynchronously as the loading screen is active 

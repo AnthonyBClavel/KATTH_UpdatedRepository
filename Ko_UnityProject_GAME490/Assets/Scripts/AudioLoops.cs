@@ -7,6 +7,7 @@ public class AudioLoops : MonoBehaviour
 {
     public GameObject BGM;
     public GameObject AmbienceLoop;
+    public AudioSource chimeSFX;
 
     private float loopingBGM;
     private float loopingAmbience;

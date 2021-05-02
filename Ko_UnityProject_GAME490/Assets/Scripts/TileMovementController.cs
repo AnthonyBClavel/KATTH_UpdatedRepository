@@ -6,33 +6,52 @@ using UnityEngine.SceneManagement;
 
 public class TileMovementController : MonoBehaviour
 {
-    public Camera main_camera;
-    public Animator Anim;
-    public GameObject edgeCheck;
-    private AudioSource audioSource;
-    private string currentState;
+    [Header("Bools")]
+    public bool isWalking;                                      
+    public bool hasDied = false;
+    public bool canMove = true;
+    public bool canInteract = true;
+    public bool canRestartPuzzle;                               // Determines when the player can restart puzzle
+    public bool canSetBoolsTrue;
+    private bool isPushing;                                     
+    private bool isInteracting;
+    private bool alreadyPlayedSFX;
+    private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
+    private bool hasMovedPuzzleView = false;                    // Determines if the camera can move to a new puzzle view  
+    private bool hasDisabledFootsteps = false;
+
+    float speed = 5f;                                           // The speed at which the object will move from its current position to the destination
+    float rayLength = 1f;                                       // The ray length for the tile movement
+    float rayLengthEdgeCheck = 1f;
+
+    public Vector3 playerDirection;
+    Vector3 nextPos, destination, direction;
 
     Vector3 up = Vector3.zero,                                  // Object look North
     right = new Vector3(0, 90, 0),                              // Object look East
     down = new Vector3(0, 180, 0),                              // Object look South
     left = new Vector3(0, 270, 0),                              // Object look West
-    currentDirection = Vector3.zero;                            // Default state
-    public Vector3 playerDirection;                             // Only used in Character Dialogue script
+    currentDirection = Vector3.zero;                            // Default state (North)
 
-    Vector3 nextPos, destination, direction;
+    public GameObject edgeCheck;
+    private GameObject dialogueViewsHolder;
+    private Animator playerAnim;
+    //private string currentState;
 
-    float speed = 5f;                                           // The speed at which the object will move from its current position to the destination
-    float rayLength = 1f;                                       // The ray length for the tile movement
-    float rayLengthEdgeCheck = 1f;                              // The ray length for the edge check
-
-    [Header("Sounds")]
-    public GameObject torchFireIgniteSFX;
-    public GameObject torchFireExtinguishSFX;
-    public GameObject freezingSFX;
+    [Header("Audio")]
     public AudioClip[] swooshClips;
+    private AudioSource audioSource;
 
     [Header("Prefabs")]
     public GameObject destroyedBlockParticle;
+    public GameObject torchFireIgniteSFX;
+    public GameObject torchFireExtinguishSFX;
+    public GameObject freezingSFX;
+
+    [Header("Save Slot Elements")]
+    public GameObject checkpoint;
+    public GameObject puzzle;
+    //public string sceneName;
 
     [Header("Scripts")]
     public TorchMeterStat torchMeterMoves;
@@ -43,28 +62,9 @@ public class TileMovementController : MonoBehaviour
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private PlayerSounds playerSoundsScript;
+    private DialogueCameraViews dialogueCameraViewsScript;
     private CameraController cameraScript;
     private FidgetAnimControllerPlayer playerFidgetScript;
-
-    [Header("Save Slot Elements")]
-    public GameObject checkpoint;
-    public GameObject puzzle;
-    //public string sceneName;
-
-    [Header("Bools")]
-    public bool isWalking;                                      // Determines when to play an object's animation
-    public bool hasDied = false;
-    public bool canMove = true;
-    public bool canInteract = true;
-    public bool canRestartPuzzle;                               // Determines when the player can press "R" (restart puzzle)
-    public bool canSetBoolsTrue;
-    private bool isPushing;                                     // Determines when the object can move
-    private bool isInteracting;
-    private bool alreadyPlayedSFX;
-    private bool hasAlreadyPopedOut;                            // Determines when the torch meter can scale in/out
-    private bool hasMovedPuzzleView = false;                    // Determines when the camera can switch puzzle views   
-    private bool hasStartedTutorial = false;
-    private bool hasDisabledFootsteps = false;
 
     void Awake()
     {
@@ -75,13 +75,17 @@ public class TileMovementController : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         iceMaterialScript = FindObjectOfType<IceMaterialScript>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
-        cameraScript = FindObjectOfType<CameraController>();
+        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
+        cameraScript = FindObjectOfType<CameraController>();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         saveManagerScript.LoadPlayerPosition(); //
         saveManagerScript.LoadBlockPosition(); //
+
+        dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
+        playerAnim = playerSoundsScript.GetComponent<Animator>();
     }
 
     void Start()
@@ -91,17 +95,17 @@ public class TileMovementController : MonoBehaviour
         {
             transform.position = new Vector3(save.getPosition()[0], save.getPosition()[1], save.getPosition()[2]);
             puzzle = GameObject.Find(save.getPuzzleName());
-            main_camera.GetComponent<CameraController>().currentIndex = save.getCameraIndex();
+            cameraScript.currentIndex = save.getCameraIndex();
         }
         else
         {
             //transform.position = new Vector3(0, 0, 0);
-            main_camera.GetComponent<CameraController>().currentIndex = 0;
+            cameraScript.currentIndex = 0;
             puzzle = GameObject.Find("Puzzle01");
         }*/
 
-        canSetBoolsTrue = true;
         audioSource = GetComponent<AudioSource>();
+        canSetBoolsTrue = true;
 
         currentDirection = up;
         nextPos = Vector3.forward; // The next block postion is equal to the object's forward axis (it will move along the direction it is facing)
@@ -119,9 +123,9 @@ public class TileMovementController : MonoBehaviour
         checkIfCompletedLevel();
         AlertBubbleCheck();
 
-        Anim.SetBool("isWalking", isWalking);
-        Anim.SetBool("isPushing", isPushing);
-        Anim.SetBool("isInteracting", isInteracting);
+        playerAnim.SetBool("isWalking", isWalking);
+        playerAnim.SetBool("isPushing", isPushing);
+        playerAnim.SetBool("isInteracting", isInteracting);
 
         /*** For Debugging purposes ***/
         /*if (Input.GetKeyDown(KeyCode.LeftBracket))
@@ -129,7 +133,9 @@ public class TileMovementController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.RightBracket))
             torchMeterMoves.CurrentVal++;
         /*** End Debugging ***/
-        if (torchMeterMoves.CurrentVal > 0) alreadyPlayedSFX = false;
+
+        if (torchMeterMoves.CurrentVal > 0 && alreadyPlayedSFX != false)
+            alreadyPlayedSFX = false;
     }
 
     /***
@@ -316,7 +322,7 @@ public class TileMovementController : MonoBehaviour
         NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
         FidgetAnimControllerNPC nPCFidgetScript = collider.GetComponentInChildren<FidgetAnimControllerNPC>();
 
-        cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+        dialogueViewsHolder.transform.position = collider.gameObject.transform.position;
         characterDialogueScript.fidgetAnimControllerNPC = nPCFidgetScript;
         characterDialogueScript.nPCScript = nonPlayerCharacterScript;
         characterDialogueScript.nPCDialogueCheck = nonPlayerCharacterScript.nPCDialogueCheck;
@@ -336,7 +342,7 @@ public class TileMovementController : MonoBehaviour
         if (!artifactScript.hasCollectedArtifact)
         {
             Debug.Log("Player has interacted with Artifact");
-            cameraScript.dialogueViews.transform.position = collider.gameObject.transform.position;
+            dialogueViewsHolder.transform.position = collider.gameObject.transform.position;
             collider.GetComponent<ArtifactScript>().SetArtifactDialogue();
             collider.GetComponent<ArtifactScript>().OpenChest();
             characterDialogueScript.artifactScript = artifactScript;
@@ -359,7 +365,6 @@ public class TileMovementController : MonoBehaviour
         if (Physics.Raycast(myRay, out hit, rayLength)) return hit.collider;
         return null;
     }
-
 
     // Checks to see if the next position is valid or not
     bool Valid()
@@ -529,7 +534,7 @@ public class TileMovementController : MonoBehaviour
 
         // Sets the new puzzle view
         //GameObject view = puzzle.transform.Find("View").gameObject;
-        //main_camera.GetComponent<CameraController>().NextPuzzleView(view.transform);
+        //cameraScript.NextPuzzleView(view.transform);
 
         // Sets the new torch meter value based on the checkpoint's value
         int newNumMovements = checkpoint.GetComponent<CheckpointManager>().getNumMovements();
@@ -546,7 +551,7 @@ public class TileMovementController : MonoBehaviour
             PopInTorchMeterCheck();
             saveManagerScript.SavePlayerPosition();
             saveManagerScript.SaveCameraPosition();
-            //main_camera.GetComponent<CameraController>().WindGush();
+            //cameraScript.WindGush();
         }
         return true;
     }
@@ -633,29 +638,20 @@ public class TileMovementController : MonoBehaviour
     }
 
     // Determines if the player on the last tile block in a puzzle - returns true if so, false otherwise - ONLY USED DURING TUTORIAL
-    public bool onFirstOrLastTileBlock()
+    public bool onLastTileBlock()
     {
-        if(SceneManager.GetActiveScene().name == "TutorialMap")
+        Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
+        RaycastHit hit;
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
+
+        Physics.Raycast(myRay, out hit, rayLength);
+        string name = hit.collider.name;
+
+        // Checks to see if the player has landed on the last green block in the first puzzle of tutorial
+        if (name == "LastTileBlockInPuzzle")
         {
-            Ray myRay = new Ray(transform.position + new Vector3(0, 0.5f, 0), Vector3.down);
-            RaycastHit hit;
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
-
-            Physics.Raycast(myRay, out hit, rayLength);
-            string name = hit.collider.name;
-
-            // Checks to see if the player has landed on the last green block in the first puzzle of tutorial
-            if (name == "PatchyGrassBlockTutorial")
-            {
-                canSetBoolsTrue = true;
-                return true;
-            }
-            // Checks to see if the player has landed on the first green block in the tutorial
-            if (name == "Checkpoint_GrassTiles" && !hasStartedTutorial)
-            {
-                hasStartedTutorial = true;
-                return true;             
-            }
+            canSetBoolsTrue = true;
+            return true;
         }
         return false;
     }
@@ -786,20 +782,20 @@ public class TileMovementController : MonoBehaviour
         }
     }
 
-    // Sets the destination to the first block in each world
+    // Sets the destination to the first block in each world - ONLY for when the player enters a new scene/zone
     public void WalkIntoScene()
     {
         destination = new Vector3(0, 0, 0);
     }
 
-    //Checks to see if the function for moving the camera has been called
+    // Checks if the camera can move to the next puzzle view
     private void NextPuzzleViewCheck()
     {
         if (!hasMovedPuzzleView)
         {
             Debug.Log("Switched To Next Puzzle View");
-            main_camera.GetComponent<CameraController>().NextPuzzleView02();
-            main_camera.GetComponent<CameraController>().WindGush();
+            cameraScript.NextPuzzleView02();
+            cameraScript.WindGush();
             hasMovedPuzzleView = true;
         }
     }
@@ -807,8 +803,8 @@ public class TileMovementController : MonoBehaviour
     // Plays a new animation state
     private void ChangeAnimationState(string newState)
     {
-        Anim.Play(newState);
-        currentState = newState;
+        playerAnim.Play(newState);
+        //currentState = newState;
     }
 
     // Plays the interaction animation for Ko 

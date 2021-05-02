@@ -5,8 +5,6 @@ using UnityEngine;
 public class ArtifactScript : MonoBehaviour
 {
     public string artifactName;
-    private string listOfArtifactNames;
-    private int numberOfArtifactsCollected;
 
     Vector3 up = Vector3.zero,
     right = new Vector3(0, 90, 0),
@@ -124,7 +122,7 @@ public class ArtifactScript : MonoBehaviour
     // Checks to see if the player has already collected the artifact
     public void CollectedArtifactsCheck()
     {
-        listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
+        string listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
 
         if (listOfArtifactNames.Contains(artifactName) && hasCollectedArtifact != true)
             hasCollectedArtifact = true;
@@ -132,24 +130,19 @@ public class ArtifactScript : MonoBehaviour
 
     // Saves the name of the artifact within the large string, and updates/plays the artifact notification
     public void SaveCollectedArtifact()
-    { 
-        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15 && hasCollectedArtifact)
+    {
+        int numberOfArtifactsCollected = PlayerPrefs.GetInt("numberOfArtifactsCollected");
+        string listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
+
+        if (numberOfArtifactsCollected < 15 && hasCollectedArtifact)
         {
-            gameHUDScript.UpdateArtifactBubbleText((PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1) + "/15");
+            gameHUDScript.UpdateArtifactBubbleText((numberOfArtifactsCollected + 1) + "/15");
             gameHUDScript.PlayArtifactNotificationCheck();
 
-            saveManagerScript.SaveCollectedArtifact(PlayerPrefs.GetString("listOfArtifacts") + artifactName);
+            saveManagerScript.SaveCollectedArtifact(listOfArtifactNames + artifactName);
             saveManagerScript.SaveNumberOfArtifactsCollected(PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1);
         }
     }
-
-    // Sets the int to the current amount of artifacts collected - this is called after the scene fully fades in
-    public void SetNumberOfCollectedArtifacts()
-    {
-        if (PlayerPrefs.GetInt("numberOfArtifactsCollected") != 0 && PlayerPrefs.GetInt("numberOfArtifactsCollected") < 15)
-            gameHUDScript.UpdateArtifactBubbleText(PlayerPrefs.GetInt("numberOfArtifactsCollected") + "/15");
-    }
-
 
     // Interacts with the artifact - transitions to the close up camera view of the artifact
     public void InspectArtifact()
@@ -331,8 +324,6 @@ public class ArtifactScript : MonoBehaviour
         HasCollectArtifactCheck();
         woodenChestAnim.SetTrigger("Close");
         yield return new WaitForSeconds(0.166f);
-        SetNumberOfCollectedArtifacts();
-        SaveCollectedArtifact();
         PlayCloseChestSFX();
     }
 

@@ -7,7 +7,6 @@ public class CameraController : MonoBehaviour
 {
     //public static CameraController instance;
 
-    public GameObject dialogueViews;
     public float transitonSpeed;
     public int currentIndex = 0;
 
@@ -98,7 +97,7 @@ public class CameraController : MonoBehaviour
     {
         if (!canMoveToArtifactView)
         {
-            if (canMoveCamera)
+            if (canMoveCamera && !canMoveToDialogueViews)
             {
                 currentView = levelViews[currentIndex];
 
@@ -106,7 +105,7 @@ public class CameraController : MonoBehaviour
                     transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
 
             }
-            if (canMoveToDialogueViews)
+            if (canMoveToDialogueViews && !canMoveCamera)
             {
                 DialogueViewsCheck();
 

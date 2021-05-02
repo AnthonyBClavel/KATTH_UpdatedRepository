@@ -38,11 +38,6 @@ public class PlayerSounds : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
-    void Update()
-    {
-       
-    }
-
     // Checks to see which tile the player is on and determines which array of audio clips to play
     public void TileCheck()
     {

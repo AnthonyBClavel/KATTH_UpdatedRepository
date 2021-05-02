@@ -8,17 +8,17 @@ public class SkipButton : MonoBehaviour
 {
     public Image content;
 
-    public float fillAmount;
-    public float fillSpeed;
-    public float maxFillAmount;
-    public float lerpSpeed;
+    public float fillAmount = 0f;
+    private float fillSpeed = 0.35f;
+    private float maxFillAmount = 1f;
+    private float lerpSpeed = 10f;
 
     public AudioClip skipTutorialSFX;
     public AudioClip barPopUpSFX;
 
     private bool canHoldButton;
     private bool hasSkippedTutorial;
-    private bool hasStartedHolding;
+    private bool isHoldingDownKey;
 
     private Animator skipButtonAnim;
     private AudioSource audioSource;
@@ -34,6 +34,16 @@ public class SkipButton : MonoBehaviour
         {
             fillAmount = Map(value, MaxValue);
         }
+    }
+
+    public void setMaxValue(float value)
+    {
+        MaxValue = value;
+    }
+
+    private float Map(float value, float max)
+    {
+        return value / max;
     }
 
     void Awake()
@@ -57,45 +67,66 @@ public class SkipButton : MonoBehaviour
     {
         SkipTutorialBar();
 
-        if (Input.GetKey(KeyCode.X) && fillAmount <= maxFillAmount && !hasSkippedTutorial && !pauseMenuScript.isPaused && canHoldButton)
-        {
-            fillAmount += Time.deltaTime * fillSpeed;
-
-            if (!hasStartedHolding)
-            {
-                skipButtonAnim.SetTrigger("Holding");
-                PlayPopUpSFX();
-
-                hasStartedHolding = true;     
-                pauseMenuScript.canPause = false;
-                playerScript.SetPlayerBoolsFalse();
-            }
-        }
-        else if (fillAmount >= maxFillAmount && !hasSkippedTutorial && !pauseMenuScript.isPaused)
+        if (fillAmount >= maxFillAmount && !hasSkippedTutorial)
         {
             Debug.Log("Tutorial Has Been Skipped");
-            content.fillAmount = maxFillAmount;
+
             skipButtonAnim.SetTrigger("NotHolding");
+            content.fillAmount = maxFillAmount;
             PlaySkipTutorialSFX();
 
-            levelManagerScript.DisablePlayer();//      
-
-            hasSkippedTutorial = true;
-            canHoldButton = false;//
-            pauseMenuScript.canPause = false;
             playerScript.SetPlayerBoolsFalse();
-        }
-        else if (Input.GetKeyUp(KeyCode.X) && !pauseMenuScript.isPaused && canHoldButton)
-        {
-            //hasSkippedTutorial = false;//
-            hasStartedHolding = false;
-            canHoldButton = false;
-            pauseMenuScript.canPause = true;
-            playerScript.SetPlayerBoolsTrue();
+            levelManagerScript.DisablePlayer();
 
-            skipButtonAnim.SetTrigger("NotHolding");
-            fillAmount = 0;
+            pauseMenuScript.canPause = false;
+            canHoldButton = false;
+            hasSkippedTutorial = true;
         }
+
+        if (!hasSkippedTutorial && !pauseMenuScript.isPaused && !pauseMenuScript.isChangingScenes && canHoldButton)
+        {
+            if (Input.GetKey(KeyCode.X) && fillAmount <= maxFillAmount)
+            {
+                fillAmount += Time.deltaTime * fillSpeed;
+
+                if (!isHoldingDownKey)
+                {
+                    skipButtonAnim.SetTrigger("Holding");
+                    PlayPopUpSFX();
+
+                    isHoldingDownKey = true;
+                    pauseMenuScript.canPause = false;
+                    playerScript.SetPlayerBoolsFalse();
+                }
+            }
+
+            else if (Input.GetKeyUp(KeyCode.X))
+            {
+                //hasSkippedTutorial = false;
+
+                skipButtonAnim.SetTrigger("NotHolding");
+                fillAmount = 0;
+
+                isHoldingDownKey = false;
+                canHoldButton = false;
+                pauseMenuScript.canPause = true;
+                playerScript.SetPlayerBoolsTrue();
+            }
+        }
+
+    }
+
+    // Triggers an animation if the bool is false - for an animation event
+    public void TransitionToIdle()
+    {
+        if (!hasSkippedTutorial)
+            skipButtonAnim.SetTrigger("BackToIdle");         
+    }
+
+    // Sets the canHoldButton bool to true - for an animation event
+    public void SetBoolTrue()
+    {
+        canHoldButton = true;
     }
 
     // Adjusts the fillAmount via linear interpolation
@@ -107,30 +138,7 @@ public class SkipButton : MonoBehaviour
         }
     }
 
-    private float Map(float value, float max)
-    {
-        return value / max;
-    }
-
-    public void setMaxValue(float value)
-    {
-        MaxValue = value;
-    }
-
-    // Triggers an animation if the bool is false - for an animation event
-    public void TransitionToIdle()
-    {
-        if(!hasSkippedTutorial)
-            skipButtonAnim.SetTrigger("BackToIdle");         
-    }
-
-    // Sets the canHoldButton bool to true - for an animation event
-    public void SetBoolTrue()
-    {
-        canHoldButton = true;
-    }
-
-    // Plays an SFX when the Skip Tutorial Bar is maxed
+    // Plays the skip tutorial sfx
     private void PlaySkipTutorialSFX()
     {
         audioSource.volume = 0.2f;
@@ -138,13 +146,12 @@ public class SkipButton : MonoBehaviour
         audioSource.PlayOneShot(skipTutorialSFX);
     }
 
-    // Plays an SFX when the Skip Tutorial Bar pops in
+    // Plays an skip tutorial pop up sfx
     private void PlayPopUpSFX()
     {
         audioSource.volume = 0.3f;
         audioSource.pitch = 1f;
         audioSource.PlayOneShot(barPopUpSFX);
     }
-
 
 }

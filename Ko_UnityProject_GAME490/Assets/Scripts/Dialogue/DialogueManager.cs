@@ -6,36 +6,47 @@ using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
-    public GameObject dialogue;
-    public GameObject continueTrigger;
-    public GameObject blackOverlay;
-    public GameObject skipTutorialButton;
-    public Canvas pauseMenuCanvas;
-
-    private GameHUD gameHUDScript;
-    private TileMovementController playerScript;
-
-    public TextMeshProUGUI textDisplay;
-    private string[] sentences;
-    private int index;
-
-    public float typingSpeed;
-    private float OGtypingSpeed;
-    public AudioSource charNoise;
-
     public bool hasStarted = false;
     public bool inDialogue = false;
     private bool hasEnteredTutorial = false;
+
+    public GameObject dialogueText;
+    public GameObject continueButton;
+    public GameObject blackOverlay;
+    private GameObject skipTutorialButton;
+    private GameObject gameHUD;
+
+    private TextMeshProUGUI textDisplay;
+    private AudioSource charNoise;
+
+    private string[] sentences;
+    public float typingSpeed;
+    private float OGtypingSpeed;
+    private int index;
+
+    private GameHUD gameHUDScript;
+    private TileMovementController playerScript;
+    private PauseMenu pauseMenuScript;
+    private SkipButton skipButtonScript;
 
     void Awake()
     {
         gameHUDScript = FindObjectOfType<GameHUD>();
         playerScript = FindObjectOfType<TileMovementController>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        skipButtonScript = FindObjectOfType<SkipButton>();
+
+        gameHUD = gameHUDScript.gameObject;
+        skipTutorialButton = skipButtonScript.gameObject;
     }
 
     void Start()
     {
+        textDisplay = dialogueText.GetComponent<TextMeshProUGUI>();
+        charNoise = GetComponent<AudioSource>();
+
         OGtypingSpeed = typingSpeed;
+
         //hasStarted = true;
     }
 
@@ -43,10 +54,10 @@ public class DialogueManager : MonoBehaviour
     {
         CheckToEnterTutorial();
 
-        if (playerScript.onFirstOrLastTileBlock() && !hasStarted)
+        if (playerScript.checkIfOnCheckpoint() && !hasStarted)
             hasStarted = true;
 
-        if (continueTrigger.activeSelf == true)
+        if (continueButton.activeSelf == true)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 nextSentence();
@@ -57,72 +68,6 @@ public class DialogueManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 typingSpeed /= 2;
         }       
-    }
-
-    // Begins the dialogue - call this whenever you want to display dialogue
-    public void startDialogue()
-    {
-        gameHUDScript.canTogglePuzzleBubble = false;
-        gameHUDScript.canToggleArtifactBubble = false;
-        gameHUDScript.gameObject.SetActive(false);
-        inDialogue = true;
-        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = false;
-        playerScript.SetPlayerBoolsFalse(); // Disabling player movement
-        typingSpeed = OGtypingSpeed;
-        textDisplay.text = "";
-        index = 0;
-        continueTrigger.SetActive(false);
-        skipTutorialButton.SetActive(false);     
-        blackOverlay.SetActive(true);
-        dialogue.SetActive(true);
-        StartCoroutine(Type());
-    }
-
-    
-    // Shows the text dialogue in the Dialogue Box
-    private IEnumerator Type()
-    {
-        yield return new WaitForSeconds(0.03f);
-
-        continueTrigger.SetActive(false); // Removes continue button until sentence is finished
-        foreach (char letter in sentences[index].ToCharArray())
-        {
-            textDisplay.text += letter;
-            charNoise.Play();
-            yield return new WaitForSeconds(typingSpeed); // Adds delay between characters
-        }
-        continueTrigger.SetActive(true); // Shows the continue button after the sentence is finished
-    }
-    
-    // Displays the next sentence
-    public void nextSentence()
-    {
-        typingSpeed = OGtypingSpeed;
-        if (index < sentences.Length - 1 && sentences[index+1] != "")
-        {
-            index++;
-            textDisplay.text = "";
-            StartCoroutine(Type());
-        }
-        else endDialogue();
-    }
-    
-    // Ends the dialogue - call this when the dialogue is finished
-    public void endDialogue()
-    {
-        gameHUDScript.gameObject.SetActive(true);
-        gameHUDScript.canTogglePuzzleBubble = true;
-        gameHUDScript.canToggleArtifactBubble = true;
-        gameHUDScript.isPuzzleNotification = false;
-        gameHUDScript.isArtifactNotification = false;
-        dialogue.SetActive(false);
-        continueTrigger.SetActive(false);
-        blackOverlay.SetActive(false);     
-        skipTutorialButton.SetActive(true);
-        pauseMenuCanvas.GetComponent<PauseMenu>().enabled = true;
-        playerScript.SetPlayerBoolsTrue();
-        playerScript.hasDied = false;
-        inDialogue = false;
     }
 
     // Sets the dialogue
@@ -136,18 +81,86 @@ public class DialogueManager : MonoBehaviour
         return textFile.text.Split("\n"[0]);
     }
 
+    // Begins the dialogue - call this whenever you want to display dialogue
+    public void startDialogue()
+    {
+        //gameHUD.SetActive(false);
+        gameHUDScript.DisableNotificationsToggle();
+        pauseMenuScript.enabled = false;
+        inDialogue = true;
+
+        playerScript.SetPlayerBoolsFalse(); // Disabling player movement
+        typingSpeed = OGtypingSpeed;
+        textDisplay.text = string.Empty;
+        index = 0;
+
+        continueButton.SetActive(false);
+        skipTutorialButton.SetActive(false);
+        blackOverlay.SetActive(true);
+        dialogueText.SetActive(true);
+        StartCoroutine("TypeDialogue");
+    }
+
+    // Displays the next sentence
+    private void nextSentence()
+    {
+        typingSpeed = OGtypingSpeed;
+
+        if (index < sentences.Length - 1 && sentences[index + 1] != string.Empty)
+        {
+            index++;
+            textDisplay.text = string.Empty;
+            StartCoroutine("TypeDialogue");
+        }
+        else endDialogue();
+    }
+    
+    // Ends the dialogue - call this when the dialogue is finished
+    private void endDialogue()
+    {
+        dialogueText.SetActive(false);
+        continueButton.SetActive(false);
+        blackOverlay.SetActive(false);
+        skipTutorialButton.SetActive(true);
+        //gameHUD.SetActive(true);
+
+        gameHUDScript.EnableNotificationsToggle();
+        playerScript.SetPlayerBoolsTrue();
+
+        playerScript.hasDied = false;
+        pauseMenuScript.enabled = true;
+        inDialogue = false;
+    }
+
     // Checks to see if the player has loaded into the tutorial zone
     private void CheckToEnterTutorial()
     {
         if (!hasEnteredTutorial)
         {
-            gameHUDScript.gameObject.SetActive(false);
+            //gameHUD.SetActive(false);
+            gameHUDScript.DisableNotificationsToggle();
             skipTutorialButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
             playerScript.WalkIntoScene();
             playerScript.canSetBoolsTrue = false;
             hasEnteredTutorial = true;
         }
+    }
+
+    // Shows the text dialogue in the dialogue Box
+    private IEnumerator TypeDialogue()
+    {
+        yield return new WaitForSeconds(0.03f);
+        continueButton.SetActive(false); // Removes continue button until sentence is finished
+
+        foreach (char letter in sentences[index].ToCharArray())
+        {
+            textDisplay.text += letter;
+            charNoise.Play();
+            yield return new WaitForSeconds(typingSpeed); // Adds delay between characters
+        }
+
+        continueButton.SetActive(true); // Shows the continue button after the sentence is finished
     }
 
 }

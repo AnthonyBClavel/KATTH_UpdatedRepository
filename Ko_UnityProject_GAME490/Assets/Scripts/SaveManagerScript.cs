@@ -69,7 +69,7 @@ public class SaveManagerScript : MonoBehaviour
     void Update()
     {
         /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("New Game created");
 

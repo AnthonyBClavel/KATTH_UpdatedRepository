@@ -62,12 +62,13 @@ public class MainMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        eventSystem = FindObjectOfType<EventSystem>();
+
         StartCoroutine("SetActiveDelay");
         canPlayButtonSFX = true;
         canFadeLogo = false;
         isChangingMenus = false;
         hasPressedEnter = false;
-        eventSystem = FindObjectOfType<EventSystem>();
 
         /*if (!SaveManager.hasSaveFile())
         {

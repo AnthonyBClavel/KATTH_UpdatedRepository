@@ -95,6 +95,7 @@ public class CharacterDialogue : MonoBehaviour
     private bool canAlertBubble = true;
     private bool hasMovedDialogueArrow = false;
     private bool canMoveDialogueArrow = false;
+    private bool canSpeedUpDialogue = false;
     //private bool hasSetIndex = false;
     //private bool hasLoadedInitialDialogue = false;
     //private bool hasPlayedOptionOne = false;
@@ -216,6 +217,9 @@ public class CharacterDialogue : MonoBehaviour
         AdjustDialogueOptionsBubbleCheck();
         DialogueArrowCheck();
 
+        AnimBubbleDelayCheck();
+        ContinueButtonCheck();
+
         //sentenceLength = whitePlayerText.text.Length;
 
         /*** For Debugging purposes ***/
@@ -246,9 +250,6 @@ public class CharacterDialogue : MonoBehaviour
             isInteractingWithNPC = false;
         }
         /*** End Debugging ***/
-
-        AnimBubbleDelayCheck();
-        ContinueButtonCheck();
     }
 
     void FixedUpdate()
@@ -257,6 +258,7 @@ public class CharacterDialogue : MonoBehaviour
         SetNPCBubblePosition();
         SetDialogueBubblePosition();
         SetAlertBubblePosition();
+
     }
 
     // Starts the dialogue with an npc
@@ -272,7 +274,7 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the alert bubble active
     public void SetAlertBubbleActive()
     {
-        if(!hasAlertBubble && canAlertBubble)
+        if (!hasAlertBubble && canAlertBubble)
         {
             playerAlertBubble.SetActive(true);
             hasAlertBubble = true;
@@ -364,11 +366,8 @@ public class CharacterDialogue : MonoBehaviour
                     }
                 }
 
-                else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2)
-                {
-                    //Debug.Log("Sped up text");
+                else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2 && canSpeedUpDialogue)
                     typingSpeed /= 2;
-                }
             }
         }
     }
@@ -440,6 +439,8 @@ public class CharacterDialogue : MonoBehaviour
     private void StartDialogueCheck()
     {
         WhoSpeaksFirstCheck();
+        typingSpeed = originalTypingSpeed;
+        canSpeedUpDialogue = false;
 
         if (isPlayerSpeaking)
             StartCoroutine("TypePlayerDialogue");
@@ -450,6 +451,9 @@ public class CharacterDialogue : MonoBehaviour
     // Determines the next dialogue sentence do be played
     private void NextDialogueSentenceCheck()
     {
+        typingSpeed = originalTypingSpeed;
+        canSpeedUpDialogue = false;
+
         if (playerDialogueSentences != null)
         {
             if (playerIndex < playerDialogueSentences.Length - 1 && playerDialogueSentences[playerIndex + 1] != string.Empty && isPlayerSpeaking)
@@ -664,6 +668,7 @@ public class CharacterDialogue : MonoBehaviour
                         playerScript.PlayInteractionAnim();
                         artifactScript.hasCollectedArtifact = true;
                         artifactScript.CloseChest();
+                        artifactScript.SaveCollectedArtifact();
                         StartCoroutine("EndDialogueDelay");
                         FadeOutDialogueMusic();
                         CloseDialogueOptionsBuble();
@@ -711,7 +716,6 @@ public class CharacterDialogue : MonoBehaviour
                         CloseDialogueOptionsBuble();
                     }
                 }
-
 
                 if (!hasMovedDialogueArrow)
                 {
@@ -1101,7 +1105,6 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the dialogue options bubble active
     public void OpenDialogueOptionsBubble()
     {
-        typingSpeed = originalTypingSpeed;
         StartCoroutine("SetDialogueArrowActiveDelay");
 
         if (!nPCScript.hasLoadedInitialDialogue && !isInteractingWithArtifact)
@@ -1138,7 +1141,6 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the dialogue options bubble inactive
     private void CloseDialogueOptionsBuble()
     {
-        typingSpeed = originalTypingSpeed;
         SetTextToUnselectedTextColor();
         dialogueOptionsBubble.SetActive(false);
         dialogueArrow.SetActive(false);
@@ -1429,7 +1431,6 @@ public class CharacterDialogue : MonoBehaviour
             fidgetAnimControllerPlayer.FidgetAnimCheck();                 
         }
 
-        typingSpeed = originalTypingSpeed;
         SetDialogueBubblePivot();
         nPCDialgueBubble.SetActive(false);
         playerDialgueBubble.SetActive(true);
@@ -1440,6 +1441,7 @@ public class CharacterDialogue : MonoBehaviour
         whitePlayerText.text = playerDialogueSentences[playerIndex];
         hasSetBubbleDefaultPosX = false;
         hasSetBubbleDefaultPosY = false;
+        canSpeedUpDialogue = true;
 
         foreach (char letter in playerDialogueSentences[playerIndex].ToCharArray())
         {
@@ -1450,7 +1452,6 @@ public class CharacterDialogue : MonoBehaviour
 
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
-        typingSpeed = originalTypingSpeed;
 
         //yield return new WaitForSeconds(sentenceDelay);
         //ContinueDialogueCheck();
@@ -1471,7 +1472,6 @@ public class CharacterDialogue : MonoBehaviour
             fidgetAnimControllerNPC.FidgetAnimCheck();
         }
 
-        typingSpeed = originalTypingSpeed;
         SetDialogueBubblePivot();
         playerDialgueBubble.SetActive(false);
         nPCDialgueBubble.SetActive(true);
@@ -1482,6 +1482,7 @@ public class CharacterDialogue : MonoBehaviour
         whiteNPCText.text = nPCDialogueSentences[nPCIndex];
         hasSetBubbleDefaultPosX = false;
         hasSetBubbleDefaultPosY = false;
+        canSpeedUpDialogue = true;
 
         foreach (char letter in nPCDialogueSentences[nPCIndex].ToCharArray())
         {
@@ -1492,7 +1493,6 @@ public class CharacterDialogue : MonoBehaviour
 
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
-        typingSpeed = originalTypingSpeed;
 
         //yield return new WaitForSeconds(sentenceDelay);
         //ContinueDialogueCheck();      
@@ -1500,10 +1500,7 @@ public class CharacterDialogue : MonoBehaviour
 
 
     //*** PRIORITIES ***
-
-    // Add a save feature to the collectable count for artifact chests
-    // Update Power point pictures
-    // rememebr to comment out code before building
+    // rememeber to comment out code before building
 
     // *** Extras ***
     // Polish the artifact interactive rotation thingy
@@ -1511,12 +1508,12 @@ public class CharacterDialogue : MonoBehaviour
     // Create a unique sfx to play for each npc to give them their own personality (charNoise)
 
     // *** EXTRA extras ***
-    // IMPLEMENT TOON SHADER!!! See how it looks with and without pixel effect
+    // IMPLEMENT TOON SHADER!!! See how it looks with and without pixel effect - try to make the game more colorful (cuz of monitor's poor color accuracy)
     // Make the tutorial button show up only if you completed the game at least once
-    // Set all bridges to gloabal illumination - colors are too dark, didn't notice due to monitors insufficient color accuracy - do so by moving bridge far away, then bake light
-    // Make the dialogue arrow shrink when you press enter and rescale it to normal size when you unpress enter
+    // Set all bridges to gloabal illumination - their colors are too dark, didn't notice due to monitors insufficient color accuracy - do so by moving bridge far away, then bake light
     // Look into making the dialogue arrow animation via code (tweaning)
     // Fix player movement script - Ko phasing through the blocks
-    // Make a on time dilaogue prompt for when the player is near the generator - give a hint that it can be turned on - for when we add moving bridges to fifth map
+    // Completley refine Ko's animation system, it's janky
+    // Make a on time dilaogue bubble prompt for when the player is near the generator - give a hint that it can be turned on - for when we add moving bridges to fifth map
 
 }

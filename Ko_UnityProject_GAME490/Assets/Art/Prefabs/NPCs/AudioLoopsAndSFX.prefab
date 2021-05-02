@@ -178,6 +178,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BGM: {fileID: 1851669528092506164}
   AmbienceLoop: {fileID: 1851669528965843605}
+  chimeSFX: {fileID: 4857338262530291353}
 --- !u!1 &1851669528965843605
 GameObject:
   m_ObjectHideFlags: 0
@@ -333,12 +334,12 @@ GameObject:
   - component: {fileID: 4857338262530291352}
   - component: {fileID: 4857338262530291353}
   m_Layer: 0
-  m_Name: TurnOnAllCrystals_SFX
+  m_Name: Chime_SFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4857338262530291352
 Transform:
   m_ObjectHideFlags: 0

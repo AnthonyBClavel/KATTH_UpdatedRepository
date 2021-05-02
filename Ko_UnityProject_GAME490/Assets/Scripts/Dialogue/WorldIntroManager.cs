@@ -7,26 +7,27 @@ using TMPro;
 
 public class WorldIntroManager : MonoBehaviour
 {
+    public bool hasPlayedIntro;
+    private bool canWorldIntro = false;
+
+    public float typingDelay = 0.03f;
+    private float cameraSpeed = 3f;
+    private string worldNameText;
+    private string currentText = string.Empty;
+
     public GameObject worldName;
     public GameObject blackOverlay;
-    public GameObject levelFade;
     public GameObject firstBlock;
-    public GameObject blackBars;
+    private GameObject levelFade;
     private GameObject pixelatedCamera;
 
     private Vector3 originalCameraPos;
     private Vector3 newCameraPosition;
     private Vector3 cameraDestination;
 
-    public TextMeshProUGUI textDisplay;
-    public AudioSource charNoise;
-
-    public bool hasPlayedIntro;
-    private bool canWorldIntro = false;
-    public float typingDelay = 0.03f;
-    private float cameraSpeed = 3f;
-    private string worldNameText;
-    private string currentText = "";
+    private AudioSource charNoise;
+    private TextMeshProUGUI textDisplay;
+    private Animator blackOverlayAnimator;
 
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
@@ -35,6 +36,7 @@ public class WorldIntroManager : MonoBehaviour
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
     private CameraController cameraScript;
+    private LevelFade levelFadeScript;
 
     void Awake()
     {
@@ -45,78 +47,90 @@ public class WorldIntroManager : MonoBehaviour
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         cameraScript = FindObjectOfType<CameraController>();
+        levelFadeScript = FindObjectOfType<LevelFade>();
+
         pixelatedCamera = cameraScript.gameObject;
+        levelFade = levelFadeScript.gameObject;     
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        SetCameraVariables();
+        levelFade.SetActive(false);
         dialogueBarScript.canMoveBars = true;
-        StartIntroCheck(); //MUST be called in start, not awake!
+        blackOverlayAnimator = blackOverlay.GetComponent<Animator>();
+        textDisplay = worldName.GetComponent<TextMeshProUGUI>();
+        charNoise = GetComponent<AudioSource>();
+
+        SetCameraVariables();        
+        StartIntroCheck(); // This MUST be called in start last, NOT in awake!
     }
 
     void LateUpdate()
     {
-        if(!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canWorldIntro)
+        if (!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canWorldIntro)
             pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, cameraSpeed * Time.deltaTime);
     }
 
     private IEnumerator ShowWorldName()
-    {   
-        cameraScript.canMoveCamera = false;
-        canWorldIntro = true;
-        pixelatedCamera.transform.position = newCameraPosition;
+    {
         dialogueBarScript.canMoveBars = false;
-        dialogueBarScript.SetDialogueBars();      
-        playerScript.SetPlayerBoolsFalse(); // Disable player movement      
-        pauseMenuScript.enabled = false;  
-        blackOverlay.SetActive(true);
-        worldName.SetActive(true);     
-        torchMeterScript.gameObject.SetActive(false);
-        gameHUDScript.gameObject.SetActive(false);
+        cameraScript.canMoveCamera = false;
+        pauseMenuScript.enabled = false;
+        canWorldIntro = true;
 
-        yield return new WaitForSeconds(2f);      
-        displayWorldName();
+        dialogueBarScript.SetDialogueBars();      
+        playerScript.SetPlayerBoolsFalse();   
+        
+        worldName.SetActive(true);
+        blackOverlay.SetActive(true);  
+        torchMeterScript.gameObject.SetActive(false);
+        gameHUDScript.notificationBubblesHolder.SetActive(false);
+        //gameHUDScript.gameObject.SetActive(false);
+
+        pixelatedCamera.transform.position = newCameraPosition;
+
+        yield return new WaitForSeconds(2f);
+        DisplayWorldName();
 
         for (int i = 0; i <= worldNameText.Length; i++)
         {
             currentText = worldNameText.Substring(0,i);
-            textDisplay.text = currentText;       
-            TypeWorldName();
+            textDisplay.text = currentText;
+
+            foreach (char letter in textDisplay.text)
+                charNoise.Play();
+
             yield return new WaitForSeconds(typingDelay);
         }
 
         yield return new WaitForSeconds(3f);
+        blackOverlayAnimator.SetTrigger("FadeOut_WI");
         worldName.SetActive(false);
-        blackOverlay.GetComponent<Animator>().SetTrigger("FadeOut_WI");
 
         yield return new WaitForSeconds(2f);
-        cameraScript.canMoveCamera = true;
-        canWorldIntro = false;
-        pixelatedCamera.transform.position = originalCameraPos;     
-        dialogueBarScript.ResetDialogueBars();
-        dialogueBarScript.canMoveBars = true;
         playerScript.WalkIntoScene();
-        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement - this is now enabled when the player hits a checkpoint
+        audioLoopsScript.FadeInAudioLoops();
+        dialogueBarScript.ResetDialogueBars();
+
+        dialogueBarScript.canMoveBars = true;
+        cameraScript.canMoveCamera = true;
         pauseMenuScript.enabled = true;
+        canWorldIntro = false;
+
+        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement - this is now enabled when the player hits a checkpoint
+        //torchMeterScript.SetFirstPuzzleValue();
+
         blackOverlay.SetActive(false); 
         levelFade.SetActive(true);
-        audioLoopsScript.FadeInAudioLoops();
         torchMeterScript.gameObject.SetActive(true);
-        //torchMeterScript.SetFirstPuzzleValue();
-        gameHUDScript.gameObject.SetActive(true);
-    }
-    
-    // Plays an SFX for every character in the world name
-    private void TypeWorldName()
-    {
-        foreach (char letter in textDisplay.text)
-        {
-            charNoise.Play();
-        }
+        gameHUDScript.notificationBubblesHolder.SetActive(true);
+        //gameHUDScript.gameObject.SetActive(true);
+
+        pixelatedCamera.transform.position = originalCameraPos;
     }
 
+    // Checks to see if the world intro can be started
     private void StartIntroCheck()
     {
         if (playerScript.gameObject.transform.position == firstBlock.transform.position)
@@ -131,6 +145,7 @@ public class WorldIntroManager : MonoBehaviour
         }
     }
 
+    // Sets the camera's original position and it's destination
     private void SetCameraVariables()
     {
         originalCameraPos = pixelatedCamera.transform.position;
@@ -150,8 +165,8 @@ public class WorldIntroManager : MonoBehaviour
         cameraDestination = new Vector3(newCameraPosition.x + 70f, newCameraPosition.y, newCameraPosition.z);
     }
 
-    // Sets the world name to a string
-    private void displayWorldName()
+    // Determines the world name to display
+    private void DisplayWorldName()
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
