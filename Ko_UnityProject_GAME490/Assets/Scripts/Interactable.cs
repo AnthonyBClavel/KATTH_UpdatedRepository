@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    public DialogueManager dialogueManager;
+    private TutorialDialogueManager tutorialDialogueManager;
     private string[] dialogue;
 
     /***
      * Interact function
      * Call when you want to interact with the NPC
      ***/
+
+    void Awake()
+    {
+        tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+    }
 
     public void Interact()
     {
@@ -24,12 +29,11 @@ public class Interactable : MonoBehaviour
         dialogue = child.GetComponent<Dialogue>().readTextFile();
         if (dialogue == null) return;
 
-        dialogueManager.setDialogue(dialogue);
-        dialogueManager.startDialogue();
+        tutorialDialogueManager.setDialogue(dialogue);
+        tutorialDialogueManager.startDialogue();
 
         if (transform.childCount > 1)
             GameObject.Destroy(child.gameObject);
     }
-
 
 }

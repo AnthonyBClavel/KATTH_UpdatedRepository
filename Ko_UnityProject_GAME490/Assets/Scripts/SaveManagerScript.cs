@@ -69,7 +69,7 @@ public class SaveManagerScript : MonoBehaviour
     void Update()
     {
         /*** For Debugging purposes ***/
-        if (Input.GetKeyDown(KeyCode.F))
+        /*if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("New Game created");
 
@@ -146,7 +146,7 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // Loads the camera's position
+    // Loads the collect artifacts 
     public void LoadCollectedArtifacts()
     {
         PlayerPrefs.SetInt("TimeToLoad", 1);
@@ -226,7 +226,7 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.DeleteKey("savedScene");
 
         //PlayerPrefs.DeleteKey("listOfArtifacts");
-        //PlayerPrefs.DeleteKey("numberOfArtifactsCollected"); // Check level manager...
+        //PlayerPrefs.DeleteKey("numberOfArtifactsCollected"); // handled in level manager ONLY...
 
         PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();

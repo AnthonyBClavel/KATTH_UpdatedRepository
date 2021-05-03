@@ -55,8 +55,7 @@ public class MainMenu : MonoBehaviour
     void Awake()
     {
         endCreditsScript = FindObjectOfType<EndCredits>();
-        levelToLoad = PlayerPrefs.GetString("savedScene");
-        //DetermineLevelToLoad();
+        
     }
 
     // Start is called before the first frame update
@@ -341,11 +340,13 @@ public class MainMenu : MonoBehaviour
     // Determines which scene to load - loads the tutorial scene if the save file is deleted/null
     private void DetermineLevelToLoad()
     {
-        if (string.IsNullOrWhiteSpace(levelToLoad) == true)
+        string savedScene = PlayerPrefs.GetString("savedScene");
+
+        if (savedScene == string.Empty)
         {
             levelToLoad = "TutorialMap"; 
         }
-        else if (string.IsNullOrWhiteSpace(levelToLoad) == false)
+        else if (savedScene != string.Empty)
         {
             levelToLoad = PlayerPrefs.GetString("savedScene");
         }
@@ -354,10 +355,11 @@ public class MainMenu : MonoBehaviour
     // Checks if the continue button can be active or not
     private void SetMainMenuButtonsActive()
     {
+        string savedScene = PlayerPrefs.GetString("savedScene");
         Vector3 newMenuButtonPos = new Vector3(0, 92f, 0);
         mainMenuButtons.SetActive(true);
 
-        if (string.IsNullOrWhiteSpace(levelToLoad) == true)
+        if (savedScene == string.Empty)
         {
             animDurationMMB = 0.75f;
             canShowContinueButton = false;        
@@ -366,9 +368,9 @@ public class MainMenu : MonoBehaviour
 
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(newGameButton);
-            //levelToLoad = "TutorialMap";
+            levelToLoad = "TutorialMap";
         }
-        else if (string.IsNullOrWhiteSpace(levelToLoad) == false)
+        else if (savedScene != string.Empty)
         {
             animDurationMMB = 0.86f;
             canShowContinueButton = true;
@@ -376,7 +378,7 @@ public class MainMenu : MonoBehaviour
 
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(continueFirstButton);
-            //levelToLoad = PlayerPrefs.GetString("savedScene");
+            levelToLoad = PlayerPrefs.GetString("savedScene");
         }
     }
 

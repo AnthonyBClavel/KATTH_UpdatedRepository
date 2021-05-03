@@ -10,13 +10,15 @@ public class IceMaterialScript : MonoBehaviour
     public Material iceMaterial;
 
     private Image coldUISprite;
-    private float iceMaterialAlpha;
+    private float iceMaterialAlpha = 0f;
     private float coldUIAlpha = 0f;
 
     // Start is called before the first frame update
     void Start()
     {
         coldUISprite = coldUI.GetComponent<Image>();
+        coldUISprite.color = new Color(1, 1, 1, coldUIAlpha);
+        iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
     }
 
     // Increases the alpha of the ice material over time until it reaches its max value

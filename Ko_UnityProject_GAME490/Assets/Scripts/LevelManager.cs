@@ -121,6 +121,7 @@ public class LevelManager : MonoBehaviour
             audioSource.Play();
             hasfinishedLevel = true;
         }
+
         // This is only for when the player finishes the fifth map - creates new save file
         if (SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
         {

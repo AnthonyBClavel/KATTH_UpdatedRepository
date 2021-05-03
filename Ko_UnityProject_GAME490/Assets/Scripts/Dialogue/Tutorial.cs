@@ -9,11 +9,16 @@ public class Tutorial : MonoBehaviour
     public TextAsset breakDialogue;
     public TextAsset holeDialogue;
     public TextAsset firestoneDialogue;
+    public TextAsset interactablesDialogue;
+    public TextAsset artifcatsDialogue;
+    public TextAsset finishedTutorialDialogue;
 
     public TextAsset bridgeDialogue;
     public TextAsset torchMeterDialogue;
     public TextAsset deathDialogue;
     private TextAsset currentDialogue;
+
+    private GameObject continueButtonCD;
 
     private bool hasPlayedStart = false;
     private bool hasPlayedPush = false;
@@ -21,18 +26,29 @@ public class Tutorial : MonoBehaviour
     private bool hasPlayedHole = false;
     private bool hasPlayedFirestone = false;
     private bool hasPassedBridge = false;
+    private bool hasPlayedInteractables = false;
+    private bool hasPlayedArtifacts = false;
+    private bool hasplayedFinishedTutorial = false;
     //private bool hasPlayedTorch = false;
     //private bool hasDied = false;
 
-    private DialogueManager dialogueManagerScript;
+    private TutorialDialogueManager tutorialDialogueManagerScript;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
+    private ArtifactScript artifactScript;
+    private SkipButton skipTurorialButtonScript;
+    private CharacterDialogue characterDialogueScript;
 
     void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        dialogueManagerScript = FindObjectOfType<DialogueManager>();
+        tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+        artifactScript = FindObjectOfType<ArtifactScript>();
+        skipTurorialButtonScript = FindObjectOfType<SkipButton>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+
+        continueButtonCD = characterDialogueScript.continueButton;
     }
 
     // Start is called before the first frame update
@@ -43,28 +59,21 @@ public class Tutorial : MonoBehaviour
 
     private void setDialogue(TextAsset dialogue)
     {
-        dialogueManagerScript.setDialogue(dialogueManagerScript.readTextFile(dialogue));
+        tutorialDialogueManagerScript.setDialogue(tutorialDialogueManagerScript.readTextFile(dialogue));
     }
 
     private void startDialogue()
     {
-        dialogueManagerScript.startDialogue();
+        tutorialDialogueManagerScript.startDialogue();
     }
 
     // Update is called once per frame
     void Update()
-    { 
-        if (dialogueManagerScript.hasStarted && !hasPlayedStart)
-        {
-            setDialogue(startupDialogue);
-            currentDialogue = startupDialogue;
-            startDialogue();
-            hasPlayedStart = true;
-        }
-
-        else if (!playerScript.isWalking && !pauseMenuScript.isChangingScenes)
+    {
+        if (!playerScript.isWalking && !pauseMenuScript.isChangingScenes)
         {
             Collider collider = playerScript.getCollider();
+
             if (collider != null)
                 switch (collider.tag)
                 {
@@ -99,28 +108,66 @@ public class Tutorial : MonoBehaviour
                         break;
                 }
 
-            else if (playerScript.onLastTileBlock() && !hasPassedBridge)
+            if (playerScript.checkIfOnCheckpoint())
             {
-                setDialogue(bridgeDialogue);
-                currentDialogue = bridgeDialogue;
-                startDialogue();
-                hasPassedBridge = true;
-            }
+                if (playerScript.puzzle.name == "Puzzle01" && !hasPlayedStart)
+                {
+                    setDialogue(startupDialogue);
+                    currentDialogue = startupDialogue;
+                    startDialogue();
+                    hasPlayedStart = true;
+                }
 
-            else if (playerScript.checkIfOnCheckpoint() && playerScript.puzzle.name == "Puzzle03" && !hasPlayedHole)
-            {
-                setDialogue(holeDialogue);
-                currentDialogue = holeDialogue;
-                startDialogue();
-                hasPlayedHole = true;
-            }
+                else if (playerScript.puzzle.name == "Puzzle03" && !hasPlayedHole)
+                {
+                    setDialogue(holeDialogue);
+                    currentDialogue = holeDialogue;
+                    startDialogue();
+                    hasPlayedHole = true;
+                }
+
+                else if (playerScript.puzzle.name == "Puzzle05" && !hasPlayedInteractables)
+                {
+                    setDialogue(interactablesDialogue);
+                    currentDialogue = interactablesDialogue;
+                    startDialogue();
+                    hasPlayedInteractables = true;
+                }
+
+                else if (playerScript.puzzle.name == "Puzzle06" && !hasplayedFinishedTutorial)
+                {
+                    setDialogue(finishedTutorialDialogue);
+                    currentDialogue = finishedTutorialDialogue;
+                    startDialogue();
+                    hasplayedFinishedTutorial = true;
+                }
+            }          
+        }
+
+        else if (playerScript.onLastTileBlock() && !hasPassedBridge)
+        {
+            setDialogue(bridgeDialogue);
+            currentDialogue = bridgeDialogue;
+            startDialogue();
+            hasPassedBridge = true;
+        }
+
+        if (artifactScript.isInspectingArtifact && !hasPlayedArtifacts)
+        {
+            setDialogue(artifcatsDialogue);
+            currentDialogue = artifcatsDialogue;
+            startDialogue();
+
+            continueButtonCD.SetActive(false);
+            artifactScript.canRotateArtifact = false;
+            hasPlayedArtifacts = true;
         }
 
         if (playerScript.hasDied)
         {
             playerScript.SetPlayerBoolsFalse();
 
-            if (!dialogueManagerScript.inDialogue)
+            if (!tutorialDialogueManagerScript.inDialogue)
             {
                 setDialogue(deathDialogue);
                 currentDialogue = deathDialogue;

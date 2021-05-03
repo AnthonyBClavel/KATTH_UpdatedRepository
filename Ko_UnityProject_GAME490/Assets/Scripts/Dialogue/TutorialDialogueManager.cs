@@ -4,17 +4,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class DialogueManager : MonoBehaviour
+public class TutorialDialogueManager : MonoBehaviour
 {
-    public bool hasStarted = false;
     public bool inDialogue = false;
     private bool hasEnteredTutorial = false;
 
     public GameObject dialogueText;
-    public GameObject continueButton;
+    public GameObject continueButtonDM;
     public GameObject blackOverlay;
     private GameObject skipTutorialButton;
     private GameObject gameHUD;
+    private GameObject continueButtonCD;
 
     private TextMeshProUGUI textDisplay;
     private AudioSource charNoise;
@@ -28,6 +28,7 @@ public class DialogueManager : MonoBehaviour
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
     private SkipButton skipButtonScript;
+    private ArtifactScript artifactScript;
 
     void Awake()
     {
@@ -35,9 +36,11 @@ public class DialogueManager : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         skipButtonScript = FindObjectOfType<SkipButton>();
+        artifactScript = FindObjectOfType<ArtifactScript>();
 
         gameHUD = gameHUDScript.gameObject;
         skipTutorialButton = skipButtonScript.gameObject;
+        continueButtonCD = FindObjectOfType<CharacterDialogue>().continueButton;
     }
 
     void Start()
@@ -45,19 +48,14 @@ public class DialogueManager : MonoBehaviour
         textDisplay = dialogueText.GetComponent<TextMeshProUGUI>();
         charNoise = GetComponent<AudioSource>();
 
-        OGtypingSpeed = typingSpeed;
-
-        //hasStarted = true;
+        OGtypingSpeed = typingSpeed;;
     }
 
     void LateUpdate()
     {
         CheckToEnterTutorial();
 
-        if (playerScript.checkIfOnCheckpoint() && !hasStarted)
-            hasStarted = true;
-
-        if (continueButton.activeSelf == true)
+        if (continueButtonDM.activeSelf == true)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
                 nextSentence();
@@ -84,7 +82,6 @@ public class DialogueManager : MonoBehaviour
     // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
-        //gameHUD.SetActive(false);
         gameHUDScript.DisableNotificationsToggle();
         pauseMenuScript.enabled = false;
         inDialogue = true;
@@ -94,7 +91,7 @@ public class DialogueManager : MonoBehaviour
         textDisplay.text = string.Empty;
         index = 0;
 
-        continueButton.SetActive(false);
+        continueButtonDM.SetActive(false);
         skipTutorialButton.SetActive(false);
         blackOverlay.SetActive(true);
         dialogueText.SetActive(true);
@@ -119,16 +116,26 @@ public class DialogueManager : MonoBehaviour
     private void endDialogue()
     {
         dialogueText.SetActive(false);
-        continueButton.SetActive(false);
+        continueButtonDM.SetActive(false);
         blackOverlay.SetActive(false);
-        skipTutorialButton.SetActive(true);
-        //gameHUD.SetActive(true);
-
-        gameHUDScript.EnableNotificationsToggle();
-        playerScript.SetPlayerBoolsTrue();
-
-        playerScript.hasDied = false;
         pauseMenuScript.enabled = true;
+
+        if (artifactScript.isInspectingArtifact)
+        {
+            artifactScript.canRotateArtifact = true;
+            continueButtonCD.SetActive(true);
+        }
+        else
+            EndTutorialDialogueManager();
+    }
+
+    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
+    public void EndTutorialDialogueManager()
+    {
+        skipTutorialButton.SetActive(true);
+        playerScript.SetPlayerBoolsTrue();
+        gameHUDScript.EnableNotificationsToggle();
+        playerScript.hasDied = false;
         inDialogue = false;
     }
 
@@ -137,7 +144,6 @@ public class DialogueManager : MonoBehaviour
     {
         if (!hasEnteredTutorial)
         {
-            //gameHUD.SetActive(false);
             gameHUDScript.DisableNotificationsToggle();
             skipTutorialButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
@@ -151,7 +157,7 @@ public class DialogueManager : MonoBehaviour
     private IEnumerator TypeDialogue()
     {
         yield return new WaitForSeconds(0.03f);
-        continueButton.SetActive(false); // Removes continue button until sentence is finished
+        continueButtonDM.SetActive(false); // Removes continue button until sentence is finished
 
         foreach (char letter in sentences[index].ToCharArray())
         {
@@ -160,7 +166,7 @@ public class DialogueManager : MonoBehaviour
             yield return new WaitForSeconds(typingSpeed); // Adds delay between characters
         }
 
-        continueButton.SetActive(true); // Shows the continue button after the sentence is finished
+        continueButtonDM.SetActive(true); // Shows the continue button after the sentence is finished
     }
 
 }

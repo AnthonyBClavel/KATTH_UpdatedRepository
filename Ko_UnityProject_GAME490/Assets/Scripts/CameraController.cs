@@ -73,11 +73,6 @@ public class CameraController : MonoBehaviour
         /*if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("Switch Puzzle View");                  
-            if(loopingClips != null)
-            {
-                theALSM.ChangeAmbientLoopingSFX(loopingClips[UnityEngine.Random.Range(0, loopingClips.Length)]);       
-            }
-
             WindGush();                                                                                               
             currentView = levelViews[currentIndex++];                                                               
         }
@@ -206,7 +201,7 @@ public class CameraController : MonoBehaviour
             gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";*/
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/7");
+            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/8");
         else
             gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/10");
 

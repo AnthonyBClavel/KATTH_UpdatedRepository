@@ -1,132 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3187371708721873308
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3187371708721873310}
-  - component: {fileID: 3187371708721873309}
-  m_Layer: 0
-  m_Name: ClickNoiseSFX
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3187371708721873310
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3187371708721873308}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
-  m_Children: []
-  m_Father: {fileID: 5896398295964774480}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &3187371708721873309
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3187371708721873308}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -895295930677450239, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 7365f196ca20f9e4086cee03ae3c662a, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &5896398293962980519
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,12 +103,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5896398295964774480}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 3250}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: 3526}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5896398294371921316
 GameObject:
@@ -437,8 +310,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -3250}
-  m_SizeDelta: {x: 0, y: 0.61535645}
+  m_AnchoredPosition: {x: 0, y: -3525.9998}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5896398294590499094
 CanvasRenderer:
@@ -544,8 +417,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Game Design\n\n\n\n\n\n\n\nAudio Design\n\nMusic \n\n\nProducer\n\nLogo
-    Design\n\nProgramming\n\n\n3D Art\n\n\n\n\n\nAnimation\n\n\n\n\nTechnical Art\n\n\n2D
-    Art\n\n\n\n\nConcept Art\n\n\n\n\nLevel Design\n\n\nUI Design\n\nTesting\n\n\n\nSpecial
+    Design\n\nNarrative\n\n\n\n\n\nProgramming\n\n\n3D Art\n\n\n\n\n\nAnimation\n\n\n\n\nTechnical
+    Art\n\n\n2D Art\n\n\n\n\nConcept Art\n\n\n\n\nLevel Design\n\n\nUI Design\n\n\nTesting\n\n\n\nSpecial
     Thanks\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d49ee4d69a42d2345ac113eb8fbc6d14, type: 2}
@@ -714,50 +587,9 @@ MonoBehaviour:
     Anthony
     Clavel
 
-    Kimberly Shifflett
-
-
-    Anthony Clavel
-
     Griffen LaTessa
 
-    Joseph
-    Chung
-
-    Matthew Hazelworth
-
-    Nicholas Hunter
-
-
-    Griffen LaTessa
-
-    Joseph
-    Chung
-
-    Matthew Hazelworth
-
-    Nicholas Hunter
-
-
-    Anthony Clavel
-
-    Kimberly
-    Shifflett
-
-
-    Anthony Clavel
-
     Joseph Chung
-
-    Lucas Pinney
-
-    Nicholas
-    Hunter
-
-
-    Joseph Chung
-
-    Lucas Pinney
 
     Matthew Hazelworth
 
@@ -771,22 +603,77 @@ MonoBehaviour:
 
 
     Anthony Clavel
+
+    Griffen
+    LaTessa
+
+    Joseph Chung
+
+    Matthew Hazelworth
+
+    Nicholas Hunter
+
+
+    Griffen
+    LaTessa
+
+    Joseph Chung
+
+    Matthew Hazelworth
+
+    Nicholas Hunter
 
 
     Anthony
     Clavel
+
+    Kimberly Shifflett
+
+
+    Anthony Clavel
+
+    Joseph Chung
+
+    Lucas
+    Pinney
+
+    Nicholas Hunter
+
+
+    Joseph Chung
+
+    Lucas Pinney
+
+    Matthew
+    Hazelworth
+
+    Nicholas Hunter
+
+
+    Anthony Clavel
+
+    Kimberly Shifflett
+
+
+    Anthony
+    Clavel
+
+    Lucas Pinney
+
+
+    Anthony Clavel
 
     Austin Burch
 
     Nathan Hahn
 
 
-    Austin Burch
+    Austin
+    Burch
 
     James Casey
 
-    Nathan
-    Hahn'
+    Nathan Hahn'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d49ee4d69a42d2345ac113eb8fbc6d14, type: 2}
   m_sharedMaterial: {fileID: 9050096897705464792, guid: d49ee4d69a42d2345ac113eb8fbc6d14, type: 2}
@@ -883,12 +770,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5896398295964774480}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 3296}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: 3572}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5896398295504967711
 GameObject:
@@ -1141,6 +1028,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5896398295964774480}
+  - component: {fileID: 8924420795343850724}
   - component: {fileID: 5896398295964774483}
   m_Layer: 5
   m_Name: EndCredits
@@ -1165,7 +1053,6 @@ RectTransform:
   - {fileID: 5896398294371921319}
   - {fileID: 5896398295504967710}
   - {fileID: 5896398294377416859}
-  - {fileID: 3187371708721873310}
   - {fileID: 5896398295496299032}
   - {fileID: 5896398294235471926}
   m_Father: {fileID: 0}
@@ -1176,6 +1063,102 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!82 &8924420795343850724
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896398295964774481}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -895295930677450239, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
+  m_audioClip: {fileID: 8300000, guid: 7365f196ca20f9e4086cee03ae3c662a, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &5896398295964774483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1188,6 +1171,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492149d6a17f92d44a8de83c509e335a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hasEndedCredits: 0
+  hasStartedCredits: 0
+  typingDelay: 0.03
+  scrollSpeed: 90
   messageText: {fileID: 5896398295655635370}
   firstFade: {fileID: 5896398295972517929}
   secondFade: {fileID: 5896398295504967711}
@@ -1196,11 +1183,6 @@ MonoBehaviour:
   endCreditsDestination: {fileID: 5896398294235471926}
   gameLogoDestination: {fileID: 5896398295496299032}
   endCreditsMusic: {fileID: 5896398294377416856}
-  charNoise: {fileID: 3187371708721873309}
-  hasEndedCredits: 0
-  hasStartedCredits: 0
-  typingDelay: 0.03
-  scrollSpeed: 3
 --- !u!1 &5896398295972517929
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DialogueBars : MonoBehaviour
 {
@@ -9,11 +10,10 @@ public class DialogueBars : MonoBehaviour
     public bool canMoveBars = true;
     private bool hasMovedTopBar = false;
     private bool hasMovedBottomBar = false;
-    private bool hasTurnedOnHUD = true;
-    private bool canTurnOnHUD = false;
 
     public GameObject topBar;
     public GameObject bottomBar;
+    private GameObject skipTutorialButton;
 
     Vector3 originalTopBarPos;
     Vector3 originalBottomBarPos;
@@ -22,11 +22,11 @@ public class DialogueBars : MonoBehaviour
 
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
+    private SkipButton skipButtonScript;
 
     void Awake()
     {
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
+        SetScripts();
     }
 
     // Start is called before the first frame update
@@ -65,26 +65,27 @@ public class DialogueBars : MonoBehaviour
     {
         hasMovedTopBar = !hasMovedTopBar;
         hasMovedBottomBar = !hasMovedBottomBar;
-        //hasTurnedOnHUD = !hasTurnedOnHUD;
     }
 
     // Sets all of the UI active
     public void TurnOnHUD()
     {
-        canTurnOnHUD = true;
         torchMeterScript.gameObject.SetActive(true);
-        //gameHUDScript.gameObject.SetActive(true);
         gameHUDScript.notificationBubblesHolder.SetActive(true);
         gameHUDScript.EnableNotificationsToggle();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            skipTutorialButton.SetActive(true);
     }
 
     //Sets all of the UI inactive
     public void TurnOffHUD()
     {
-        canTurnOnHUD = false;
         torchMeterScript.gameObject.SetActive(false);
-        //gameHUDScript.gameObject.SetActive(false);
         gameHUDScript.notificationBubblesHolder.SetActive(false);
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            skipTutorialButton.SetActive(false);
     }
 
     // Sets the dialogue bars to their final position - ONLY USED in the world intro script
@@ -107,19 +108,26 @@ public class DialogueBars : MonoBehaviour
         bottomBar.transform.localPosition = new Vector3(0, -620, 0);
     }
 
-    // Only used for debugging the dialogue bar script (this script)
+    // Sets the script to find
+    private void SetScripts()
+    {
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+        {
+            skipButtonScript = FindObjectOfType<SkipButton>();
+            skipTutorialButton = skipButtonScript.gameObject;
+        }
+    }
+
+    // Only used for debugging
     private void DialogueBarDebugging()
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
             ToggleDialogueBars();
         }
-
-        if (hasTurnedOnHUD && !canTurnOnHUD && canMoveBars)
-            TurnOnHUD();
-
-        if(!hasTurnedOnHUD && canTurnOnHUD && canMoveBars)
-            TurnOffHUD();
     }
 
 }

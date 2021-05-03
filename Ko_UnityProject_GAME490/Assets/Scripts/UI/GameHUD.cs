@@ -21,6 +21,8 @@ public class GameHUD : MonoBehaviour
     private bool canToggleArtifactBubble = false;
     private bool isPuzzleNotification = false;
     private bool isArtifactNotification = false;
+    private bool hasPlayedPuzzleNotif = false;
+    private bool hasPlayedArtifactNotif = false;
 
     [Header("Floats")]
     public float bubbleSpeed = 1500f; //1500
@@ -125,21 +127,37 @@ public class GameHUD : MonoBehaviour
 
     void LateUpdate()
     {
-        if (pauseMenuScript.isActiveAndEnabled)
-        {
-            ArtifactNotificationCheck();
-            PuzzleNotificationCheck();
-            UpdateBubblesOriginalPos();
-        }
+        //if (pauseMenuScript.isActiveAndEnabled)
+
+        ArtifactNotificationCheck();
+        PuzzleNotificationCheck();
+        UpdateBubblesOriginalPos();
     }
 
-    // Updates the artifact notification bubble's text with current amount of artifacts collected
-    public void SetNumberOfCollectedArtifacts()
+    // Updates the artifact's notification bubble with the current amount of artifacts collected
+    private void SetNumberOfCollectedArtifacts()
     {
         int numberOfArtifactsCollected = PlayerPrefs.GetInt("numberOfArtifactsCollected");
 
-        if (numberOfArtifactsCollected != 0 && numberOfArtifactsCollected <= 15)
-            UpdateArtifactBubbleText(numberOfArtifactsCollected + "/15");
+        if (numberOfArtifactsCollected <= 15)
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == "TutorialMap")
+            {
+                PlayerPrefs.DeleteKey("listOfArtifacts");
+                PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+                UpdateArtifactBubbleText("0/1");
+            }
+            else if (sceneName == "FirstMap")
+            {
+                PlayerPrefs.DeleteKey("listOfArtifacts");
+                PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+                UpdateArtifactBubbleText("0/15");
+            }
+            else
+                UpdateArtifactBubbleText(numberOfArtifactsCollected + "/15");
+
+        }       
     }
 
     // Resets the script's bools so the notifcation bubbles can be toggled
@@ -184,7 +202,7 @@ public class GameHUD : MonoBehaviour
         if (canToggleHUD && notificationBubblesHolder.activeSelf)
         {
             // Toggle keybind aids for the notification bubbles
-            if (Input.GetKeyDown(KeyCode.I))
+            if (Input.GetKeyDown(KeyCode.C))
             {
                 isKeybindBubbles = !isKeybindBubbles;
                 //isKeybindIcons = !isKeybindIcons;
@@ -193,7 +211,7 @@ public class GameHUD : MonoBehaviour
             }
 
             // Toggle puzzle notification bubble
-            if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification)
+            if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification && !hasPlayedPuzzleNotif)
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
@@ -202,7 +220,7 @@ public class GameHUD : MonoBehaviour
             }
 
             // Toggle artifact notification bubble
-            if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification)
+            if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification && !hasPlayedArtifactNotif)
             {
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
@@ -275,8 +293,8 @@ public class GameHUD : MonoBehaviour
         puzzleKeybindBubbleOrigPos = puzzleKeybindBubbleRectTrans.localPosition;
         artifactKeybindBubbleOrigPos = artifactKeybindBubbleRectTrans.localPosition;
 
-        puzzleKeybindBubbleDestination = new Vector3(puzzleKeybindBubbleRectTrans.localPosition.x + (100 * notificationBubbleScale), puzzleKeybindBubbleRectTrans.localPosition.y, 0);
-        artifactKeybindBubbleDestination = new Vector3(artifactKeybindBubbleRectTrans.localPosition.x - (100 * notificationBubbleScale), artifactKeybindBubbleRectTrans.localPosition.y, 0);
+        puzzleKeybindBubbleDestination = new Vector3(puzzleKeybindBubbleRectTrans.localPosition.x + (110 * notificationBubbleScale), puzzleKeybindBubbleRectTrans.localPosition.y, 0);
+        artifactKeybindBubbleDestination = new Vector3(artifactKeybindBubbleRectTrans.localPosition.x - (110 * notificationBubbleScale), artifactKeybindBubbleRectTrans.localPosition.y, 0);
 
         puzzleBubbleDestination = new Vector3(rightScreenPosX - 30, puzzleBubbleRectTrans.localPosition.y, 0);
         artifactBubbleDestination = new Vector3(leftScreenPosX + 30, artifactBubbleRectTrans.localPosition.y, 0);
@@ -291,6 +309,7 @@ public class GameHUD : MonoBehaviour
             {
                 Debug.Log("Has Played Puzzle Notification");
                 StartCoroutine("TriggerPuzzleNotification");
+                hasPlayedPuzzleNotif = true;
                 isPuzzleNotification = true;
             }
         }
@@ -305,6 +324,7 @@ public class GameHUD : MonoBehaviour
             {
                 Debug.Log("Has Played Artifact Notification");
                 StartCoroutine("TriggerArtifactNotification");
+                hasPlayedArtifactNotif = true;
                 isArtifactNotification = true;
             }
         }
@@ -434,6 +454,7 @@ public class GameHUD : MonoBehaviour
         hasPuzzleNotification = !hasPuzzleNotification;
         yield return new WaitForSeconds(3f);
         hasPuzzleNotification = !hasPuzzleNotification;
+        hasPlayedPuzzleNotif = false;
         isPuzzleNotification = false;
     }
 
@@ -443,6 +464,7 @@ public class GameHUD : MonoBehaviour
         hasArtifactNotification = !hasArtifactNotification;
         yield return new WaitForSeconds(3f);
         hasArtifactNotification = !hasArtifactNotification;
+        hasPlayedArtifactNotif = false;
         isArtifactNotification = false;
     }
 

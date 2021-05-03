@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ArtifactScript : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class ArtifactScript : MonoBehaviour
     public bool canTransitionFade = true;
     public bool hasInspectedArtifact = false;
     public bool hasCollectedArtifact = false;
-    private bool isInspectingArtifact = false;
+    public bool isInspectingArtifact = false;
 
     [Header("Transforms")]
     public Transform artifactHolder;
@@ -58,15 +59,11 @@ public class ArtifactScript : MonoBehaviour
     private TileMovementController playerScript;
     private GameHUD gameHUDScript;
     private SaveManagerScript saveManagerScript;
+    private TutorialDialogueManager tutorialDialogueManager;
 
     void Awake()
     {
-        cameraScript = FindObjectOfType<CameraController>();
-        playerTransform = FindObjectOfType<TileMovementController>().gameObject.transform;
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
+        SetScripts();
 
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         saveManagerScript.LoadCollectedArtifacts();
@@ -136,9 +133,12 @@ public class ArtifactScript : MonoBehaviour
 
         if (numberOfArtifactsCollected < 15 && hasCollectedArtifact)
         {
-            gameHUDScript.UpdateArtifactBubbleText((numberOfArtifactsCollected + 1) + "/15");
-            gameHUDScript.PlayArtifactNotificationCheck();
+            if (SceneManager.GetActiveScene().name == "TutorialMap")
+                gameHUDScript.UpdateArtifactBubbleText((numberOfArtifactsCollected + 1) + "/1");
+            else
+                gameHUDScript.UpdateArtifactBubbleText((numberOfArtifactsCollected + 1) + "/15");
 
+            gameHUDScript.PlayArtifactNotificationCheck();
             saveManagerScript.SaveCollectedArtifact(listOfArtifactNames + artifactName);
             saveManagerScript.SaveNumberOfArtifactsCollected(PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1);
         }
@@ -180,7 +180,7 @@ public class ArtifactScript : MonoBehaviour
     // Checks when the artifact can be rotated/reseted 
     private void RotateArtifactCheck()
     {
-        if (Input.GetKeyDown(KeyCode.R) && canRotateArtifact)
+        if (Input.GetKeyDown(KeyCode.R) && canRotateArtifact && !pauseMenuScript.isChangingScenes)
         {
             if (isInspectingArtifact)
                 SetInspectingRotation();
@@ -191,7 +191,7 @@ public class ArtifactScript : MonoBehaviour
         }
     }
 
-    // Sets the rotation of the wooden crate so that it faces the player
+    // Sets the rotation of the wooden chest so that it faces the player
     private void SetChestRotation()
     {
         if (playerScript.playerDirection == up)
@@ -288,7 +288,7 @@ public class ArtifactScript : MonoBehaviour
     // Checks to see if the artifact can move with the arrow keys
     private void MoveObjectWithKeysCheck()
     {
-        if (canRotateArtifact && !Input.GetMouseButton(0))
+        if (canRotateArtifact && !Input.GetMouseButton(0) && !pauseMenuScript.isChangingScenes)
         {
             horizontalAxis = Input.GetAxis("Horizontal") * rotationSpeedWithKeys * Time.deltaTime;
             verticalAxis = Input.GetAxis("Vertical") * rotationSpeedWithKeys * Time.deltaTime;
@@ -301,7 +301,7 @@ public class ArtifactScript : MonoBehaviour
     // Checks to see if the artifact can move with the mouse
     private void MoveObjectWithMouseCheck()
     {
-        if (canRotateArtifact && Input.GetMouseButton(0))
+        if (canRotateArtifact && Input.GetMouseButton(0) && !pauseMenuScript.isChangingScenes)
         {
             horizontalAxis = Input.GetAxis("Mouse X") * rotationSpeedWithMouse * Time.deltaTime;
             verticalAxis = Input.GetAxis("Mouse Y") * rotationSpeedWithMouse * Time.deltaTime;
@@ -318,9 +318,27 @@ public class ArtifactScript : MonoBehaviour
             artifactObject.SetActive(false);
     }
 
-    // Triggers the sequence that closes the woodencrate
+    // Sets the scripts to find
+    private void SetScripts()
+    {
+        cameraScript = FindObjectOfType<CameraController>();
+        playerTransform = FindObjectOfType<TileMovementController>().gameObject.transform;
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+    }
+
+    // Triggers the sequence that closes the wooden chest
     private IEnumerator CloseWoodenChestSequence()
     {
+        // Checks to see if the artifact was in the tutorial - ends the tutorial dialogue properly if so
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            tutorialDialogueManager.EndTutorialDialogueManager();
+
         HasCollectArtifactCheck();
         woodenChestAnim.SetTrigger("Close");
         yield return new WaitForSeconds(0.166f);

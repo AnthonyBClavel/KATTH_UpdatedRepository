@@ -107,7 +107,7 @@ public class PauseMenu : MonoBehaviour
         pauseScreen.SetActive(false);
         isPaused = false;
 
-        player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
+        playerScript.SetPlayerBoolsTrue();
     }*/
 
     public void Pause()
@@ -118,7 +118,7 @@ public class PauseMenu : MonoBehaviour
         pauseScreen.SetActive(true);
         pauseScreenBG.SetActive(true);
         GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
-        player.GetComponent<TileMovementController>().SetPlayerBoolsFalse();
+        playerScript.SetPlayerBoolsFalse();
 
         EnableMenuInputPS();
         // Clear selected object
@@ -234,6 +234,13 @@ public class PauseMenu : MonoBehaviour
     }
     /*** On Pointer Enter functions end here ***/
 
+    // Plays the sfx for opening the safety menu in the death screen
+    private void PlaySafetyMenuSFX()
+    {
+        audioSourceUI.volume = 0.35f;
+        audioSourceUI.pitch = 1f;
+        audioSourceUI.PlayOneShot(safetyMenuSFX);
+    }
 
     // Loads the next scene asynchronously while the loading screen is active
     private IEnumerator LoadMainAsync()
@@ -275,8 +282,10 @@ public class PauseMenu : MonoBehaviour
         optionsScreen.SetActive(false);
         safetyMenu.SetActive(false);
         Time.timeScale = 1f;
-        SetPlayerBoolsTrueCheck();
-        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Only use this line for building project without NPCs
+
+        if (characterDialogueScript.canStartDialogue)  // Only set to true when the player isn't interacting with artifact or npc
+            playerScript.SetPlayerBoolsTrue();
+        //playerScript.SetPlayerBoolsTrue();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isChangingMenus = false;
@@ -385,6 +394,13 @@ public class PauseMenu : MonoBehaviour
         safetyMenuAnim.SetTrigger("SM_PopOut");         
     }
 
+    /*private IEnumerator QuitToMainDelay()
+    {
+        yield return new WaitForSecondsRealtime(0.15f);
+        Time.timeScale = 1f;
+        StartCoroutine("LoadMainAsync");
+    }*/
+
     private void EnableMenuInputPS()
     {
         canPlayButtonSFX = true;
@@ -405,33 +421,6 @@ public class PauseMenu : MonoBehaviour
         //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
         //pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
         //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-    }
-
-    /*private IEnumerator QuitToMainDelay()
-    {
-        yield return new WaitForSecondsRealtime(0.15f);
-        Time.timeScale = 1f;
-        StartCoroutine("LoadMainAsync");
-    }*/
-
-    // Plays the sfx for opening the safety menu in the death screen
-    private void PlaySafetyMenuSFX()
-    {
-        audioSourceUI.volume = 0.35f;
-        audioSourceUI.pitch = 1f;
-        audioSourceUI.PlayOneShot(safetyMenuSFX);
-    }
-
-    // Checks to see if the player's bool can be set to true - cannot be true while interacting with an npc
-    private void SetPlayerBoolsTrueCheck()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (characterDialogueScript.canStartDialogue && sceneName != "TutorialMap")
-            player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
-
-        else if (sceneName == "TutorialMap")
-            player.GetComponent<TileMovementController>().SetPlayerBoolsTrue();
     }
 
 }

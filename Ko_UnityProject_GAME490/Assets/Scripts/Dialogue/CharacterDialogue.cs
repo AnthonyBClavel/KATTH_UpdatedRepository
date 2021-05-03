@@ -1223,6 +1223,9 @@ public class CharacterDialogue : MonoBehaviour
         else if (talkingTo == "VillageExplorer02")
             nPCDialogueText.color = new Color32(155, 162, 125, 255);
 
+        else if (talkingTo == "BabyMammoth")
+            nPCDialogueText.color = new Color32(196, 146, 102, 255);
+
         else
             nPCDialogueText.color = Color.black;
     }
@@ -1362,7 +1365,7 @@ public class CharacterDialogue : MonoBehaviour
         canAlertBubble = false;
         cameraScript.canMoveCamera = false;
         cameraScript.canMoveToDialogueViews = true;
-        cameraScript.hasCheckedDialogueViews = false;       
+        cameraScript.hasCheckedDialogueViews = false;
 
         SetDialogueBarsCheck();
         dialogueBarsScript.TurnOffHUD();
@@ -1422,6 +1425,9 @@ public class CharacterDialogue : MonoBehaviour
         if (fidgetAnimControllerPlayer.inCharacterDialogue != true)
             fidgetAnimControllerPlayer.inCharacterDialogue = true;
 
+        if (fidgetAnimControllerNPC.inCharacterDialogue != true)
+            fidgetAnimControllerNPC.inCharacterDialogue = true;
+
         if (canPlayBubbleAnim && playerDialgueBubble.activeSelf)
             playerBubbleAnim.SetTrigger("NextSentence");
         else
@@ -1462,6 +1468,9 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (fidgetAnimControllerNPC.inCharacterDialogue != true)
             fidgetAnimControllerNPC.inCharacterDialogue = true;
+
+        if (fidgetAnimControllerPlayer.inCharacterDialogue != true)
+            fidgetAnimControllerPlayer.inCharacterDialogue = true;
 
         if (canPlayBubbleAnim && nPCDialgueBubble.activeSelf)
             nPCBubbleAnim.SetTrigger("NextSentence");
@@ -1504,16 +1513,18 @@ public class CharacterDialogue : MonoBehaviour
 
     // *** Extras ***
     // Polish the artifact interactive rotation thingy
-    // Update Credits?! Add Luke to UI design, and crate a narrative section
-    // Create a unique sfx to play for each npc to give them their own personality (charNoise)
+    // Add more to tutorial (an npc and a artifact)
+    // Make the notifcation still move (not toggle) when even when in dialogue for tutorial
 
     // *** EXTRA extras ***
+    // Create a unique sfx to play for each npc to give them their own personality (charNoise)
     // IMPLEMENT TOON SHADER!!! See how it looks with and without pixel effect - try to make the game more colorful (cuz of monitor's poor color accuracy)
-    // Make the tutorial button show up only if you completed the game at least once
+    // Make the tutorial button show up only if you completed the game
     // Set all bridges to gloabal illumination - their colors are too dark, didn't notice due to monitors insufficient color accuracy - do so by moving bridge far away, then bake light
     // Look into making the dialogue arrow animation via code (tweaning)
+    // Refine UI code - Unity's is a bit janky, refine everything to what makes more sense - check notes for further details
     // Fix player movement script - Ko phasing through the blocks
-    // Completley refine Ko's animation system, it's janky
-    // Make a on time dilaogue bubble prompt for when the player is near the generator - give a hint that it can be turned on - for when we add moving bridges to fifth map
+    // Completley refine Ko's animation system - it's janky atm (I want it to be super smooth/refined, no jitters, no anim skips, etc)
+    // Make a on-time dilaogue bubble prompt for when the player is near the generator - give a hint that it can be turned on - for when we add moving bridges to fifth map
 
 }

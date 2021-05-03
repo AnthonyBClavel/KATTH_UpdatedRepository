@@ -7,25 +7,6 @@ using TMPro;
 
 public class EndCredits : MonoBehaviour
 {
-    public TextMeshProUGUI messageText;
-    private Image image;
-
-    [Header("GameObjects")]
-    public GameObject firstFade;
-    public GameObject secondFade;
-    public GameObject endCredits;
-    public GameObject gameLogo;
-
-    [Header("Destinations")]
-    public Transform endCreditsDestination;
-    public Transform gameLogoDestination;
-    Vector3 gameLogoFirstPosition;
-    Vector3 endCreditsFirstPosition;
-
-    [Header("Audio")]
-    public GameObject endCreditsMusic;
-    public AudioSource charNoise;
-
     [Header("Bools")]
     public bool hasEndedCredits;
     public bool hasStartedCredits;
@@ -41,9 +22,28 @@ public class EndCredits : MonoBehaviour
     private float creditsBGM = 0.4f;
     private float charNoiseAudio = 1f;
     private float logoAlpha = 0f;
-    //public float endCreditsPositionY;
     private string endCreditsMessage;
-    private string currentText = "";
+    private string currentText = string.Empty;
+
+    [Header("UI Elements")]
+    public TextMeshProUGUI messageText;
+    private Image gameLogoImage;
+
+    [Header("GameObjects")]
+    public GameObject firstFade;
+    public GameObject secondFade;
+    public GameObject endCredits;
+    public GameObject gameLogo;
+
+    [Header("Destinations")]
+    public Transform endCreditsDestination;
+    public Transform gameLogoDestination;
+    private Vector3 gameLogoFirstPosition;
+    private Vector3 endCreditsFirstPosition;
+
+    [Header("Audio")]
+    public GameObject endCreditsMusic;
+    private AudioSource charNoise;
 
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
@@ -60,7 +60,8 @@ public class EndCredits : MonoBehaviour
     {      
         gameLogoFirstPosition = gameLogo.transform.localPosition;
         endCreditsFirstPosition = endCredits.transform.localPosition;
-        image = gameLogo.GetComponent<Image>();
+        gameLogoImage = gameLogo.GetComponent<Image>();
+        charNoise = GetComponent<AudioSource>();
         endCreditsMusic.GetComponent<AudioSource>().volume = creditsBGM;
         hasEndedCredits = false;
         hasStartedCredits = false;
@@ -72,19 +73,17 @@ public class EndCredits : MonoBehaviour
     }
 
     void Update()
-    { 
-        image.color = new Color(1, 1, 1, logoAlpha);
-
+    {        
         StartEndCreditsCheck();
-        //CheckIfCanMove();
-        CheckToStopMove();
+        StopMovingCreditsCheck();
         SpeedUpCreditsCheck();
         CanSkipCreditsCheck();
+        //canMoveCreditsCheck();
     }
 
     void LateUpdate()
     {
-        CheckIfCanMove();
+        canMoveCreditsCheck();
     }
 
     // Calls the function that starts the credits - for the credits button in the main menu
@@ -110,7 +109,7 @@ public class EndCredits : MonoBehaviour
         endCreditsMusic.SetActive(false);
         //charNoise.volume = 1f;
         logoAlpha = 0f;
-        messageText.text = "";
+        messageText.text = string.Empty;
         gameLogo.transform.localPosition = gameLogoFirstPosition;
         endCredits.transform.localPosition = endCreditsFirstPosition;
         mainMenuMusicScript.FadeInMusicVolume();
@@ -151,7 +150,7 @@ public class EndCredits : MonoBehaviour
     }
 
     // Checks if the logo and the credits can start moving
-    private void CheckIfCanMove()
+    private void canMoveCreditsCheck()
     {
         if (canMoveGameLogo)
             gameLogo.transform.localPosition = Vector3.MoveTowards(gameLogo.transform.localPosition, gameLogoDestination.localPosition, scrollSpeed * Time.deltaTime);
@@ -160,7 +159,7 @@ public class EndCredits : MonoBehaviour
     }
 
     // Checks when the logo and credits should stop moving - when the team logo is centered on the screen
-    private void CheckToStopMove()
+    private void StopMovingCreditsCheck()
     {
         if (endCredits.transform.localPosition == endCreditsDestination.localPosition && !hasPlayedEndMessage)
         {
@@ -209,7 +208,11 @@ public class EndCredits : MonoBehaviour
         {
             currentText = endCreditsMessage.Substring(0, i);
             messageText.text = currentText;
-            TypeEndCreditsText();
+
+            foreach (char letter in messageText.text)
+            {
+                charNoise.Play();
+            }
             yield return new WaitForSeconds(typingDelay);
         }
 
@@ -231,17 +234,9 @@ public class EndCredits : MonoBehaviour
         secondFade.SetActive(true);
         charNoiseAudio = 1f;
         StartCoroutine("FadeOutCharNoise");
+
         yield return new WaitForSeconds(1f);      
         StartCoroutine("FadeOutMusicEC");     
-    }
-
-    // Plays an SFX for every character in the end credits message
-    private void TypeEndCreditsText()
-    {
-        foreach (char letter in messageText.text)
-        {
-            charNoise.Play();
-        }
     }
 
     // Increases the alpha of the game logo over time until it reaches its max value
@@ -251,6 +246,7 @@ public class EndCredits : MonoBehaviour
         {
             i = logoAlpha;
             logoAlpha += 0.015f;
+            gameLogoImage.color = new Color(1, 1, 1, logoAlpha);
             yield return new WaitForSeconds(0.02f);
         }
     }
@@ -317,7 +313,6 @@ public class EndCredits : MonoBehaviour
             else
                 scrollSpeed = 90f;
         }
-
     }
 
     // Checks to see if the credits can be skipped - can only skip in the main menu

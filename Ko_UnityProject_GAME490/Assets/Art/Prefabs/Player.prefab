@@ -6271,10 +6271,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8893811602064672361}
   - component: {fileID: 543118122}
+  - component: {fileID: 543118119}
   - component: {fileID: 8893811602064672363}
   - component: {fileID: 1763956048}
   - component: {fileID: 543118121}
-  - component: {fileID: 543118119}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -6313,73 +6313,6 @@ CapsuleCollider:
   m_Height: 1.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.75, z: 0}
---- !u!114 &8893811602064672363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  main_camera: {fileID: 0}
-  Anim: {fileID: 750727275}
-  edgeCheck: {fileID: 8893811600782353687}
-  playerDirection: {x: 0, y: 0, z: 0}
-  torchFireIgniteSFX: {fileID: 1950995079059036893, guid: 71822733051d59840b947397874af246, type: 3}
-  torchFireExtinguishSFX: {fileID: 1950995079059036893, guid: 04c6088dcc58f3b4b94e5d2a233c8515, type: 3}
-  freezingSFX: {fileID: 1028282897880530357, guid: 74d2d5378f8082145bb5862900818e50, type: 3}
-  swooshClips:
-  - {fileID: 8300000, guid: 7771b40b5a934c644bd672b980864fe6, type: 3}
-  - {fileID: 8300000, guid: 01d60e3e47df58742bf44bb82d6429e4, type: 3}
-  - {fileID: 8300000, guid: e66041e20879ed5428a8530a8f59eba0, type: 3}
-  - {fileID: 8300000, guid: 10ce609321f415749af228abb54b4270, type: 3}
-  destroyedBlockParticle: {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
-  torchMeterMoves:
-    bar: {fileID: 0}
-    maxValue: 11
-    currentValue: 11
-  checkpoint: {fileID: 0}
-  puzzle: {fileID: 0}
-  isWalking: 0
-  hasDied: 0
-  canMove: 1
-  canInteract: 1
-  canRestartPuzzle: 0
-  canSetBoolsTrue: 0
---- !u!114 &1763956048
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d14539c657026045b1ccfbd439e7984, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  iceMaterial: {fileID: 2100000, guid: 086cbcb2816b05248881f62fb9c37428, type: 2}
-  coldUI: {fileID: 0}
-  isFrozen: 0
---- !u!114 &543118121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db15bad1509b6894187d317bd35e417f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  materials:
-  - {fileID: 2100000, guid: d194c5b3b10109d4ab8da59e5db4163d, type: 2}
-  thePlayer: {fileID: 8893811602064672361}
 --- !u!82 &543118119
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6476,6 +6409,71 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8893811602064672363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893811602064672366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isWalking: 0
+  hasDied: 0
+  canMove: 1
+  canInteract: 1
+  canRestartPuzzle: 0
+  canSetBoolsTrue: 0
+  playerDirection: {x: 0, y: 0, z: 0}
+  edgeCheck: {fileID: 8893811600782353687}
+  swooshClips:
+  - {fileID: 8300000, guid: 7771b40b5a934c644bd672b980864fe6, type: 3}
+  - {fileID: 8300000, guid: 01d60e3e47df58742bf44bb82d6429e4, type: 3}
+  - {fileID: 8300000, guid: e66041e20879ed5428a8530a8f59eba0, type: 3}
+  - {fileID: 8300000, guid: 10ce609321f415749af228abb54b4270, type: 3}
+  destroyedBlockParticle: {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
+  torchFireIgniteSFX: {fileID: 1950995079059036893, guid: 71822733051d59840b947397874af246, type: 3}
+  torchFireExtinguishSFX: {fileID: 1950995079059036893, guid: 04c6088dcc58f3b4b94e5d2a233c8515, type: 3}
+  freezingSFX: {fileID: 1028282897880530357, guid: 74d2d5378f8082145bb5862900818e50, type: 3}
+  checkpoint: {fileID: 0}
+  puzzle: {fileID: 0}
+  torchMeterMoves:
+    bar: {fileID: 0}
+    maxValue: 11
+    currentValue: 11
+--- !u!114 &1763956048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893811602064672366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d14539c657026045b1ccfbd439e7984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isFrozen: 0
+  coldUI: {fileID: 0}
+  iceMaterial: {fileID: 2100000, guid: 086cbcb2816b05248881f62fb9c37428, type: 2}
+--- !u!114 &543118121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893811602064672366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db15bad1509b6894187d317bd35e417f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 2100000, guid: d194c5b3b10109d4ab8da59e5db4163d, type: 2}
+  thePlayer: {fileID: 8893811602064672361}
 --- !u!1 &8903292719559576860
 GameObject:
   m_ObjectHideFlags: 0
