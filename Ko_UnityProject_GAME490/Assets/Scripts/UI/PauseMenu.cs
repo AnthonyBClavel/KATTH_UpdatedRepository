@@ -165,23 +165,6 @@ public class PauseMenu : MonoBehaviour
         StartCoroutine("CloseSafetyMenuDelay02");
     }
 
-    /*private SaveSlot makeSaveSlot()
-    {
-        string sceneName = player.GetComponent<TileMovementV2>().sceneName;
-
-        Vector3 position = player.GetComponent<TileMovementV2>().checkpoint.transform.position;
-        float x = position.x;
-        float y = position.y;
-        float z = position.z;
-        float[] playerPosition = { x, y, z };
-
-        string puzzleName = player.GetComponent<TileMovementV2>().puzzle.name;
-
-        int currCameraIndex = player.GetComponent<TileMovementV2>().main_camera.GetComponent<CameraController>().currentIndex;
-
-        return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
-    }*/
-
 
     /*** On Pointer Enter functions start here ***/
     public void SelectResumeButton()
@@ -259,7 +242,7 @@ public class PauseMenu : MonoBehaviour
                 loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     loadingText.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);
@@ -407,9 +390,6 @@ public class PauseMenu : MonoBehaviour
         isChangingMenus = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
         gameObject.GetComponent<GraphicRaycaster>().enabled = true;
-        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-        //pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
-        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     private void DisableMenuInputsPS()
@@ -418,9 +398,6 @@ public class PauseMenu : MonoBehaviour
         isChangingMenus = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
         gameObject.GetComponent<GraphicRaycaster>().enabled = false;
-        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
-        //pauseScreen.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
-        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
     }
 
 }

@@ -347,7 +347,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.enabled)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 if (continueButton.activeSelf)
                 {
@@ -602,7 +602,7 @@ public class CharacterDialogue : MonoBehaviour
 
             if (dialogueOptionsIndex == 0)
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     if (!isInteractingWithArtifact)
                     {
@@ -644,7 +644,7 @@ public class CharacterDialogue : MonoBehaviour
 
             else if (dialogueOptionsIndex == 1)
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     if (!isInteractingWithArtifact)
                     {
@@ -690,7 +690,7 @@ public class CharacterDialogue : MonoBehaviour
 
             else if (dialogueOptionsIndex == 2)
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     if (!isInteractingWithArtifact)
                     {

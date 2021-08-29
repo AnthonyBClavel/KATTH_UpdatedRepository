@@ -64,9 +64,6 @@ public class ArtifactScript : MonoBehaviour
     void Awake()
     {
         SetScripts();
-
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        saveManagerScript.LoadCollectedArtifacts();
     }
 
     // Start is called before the first frame update
@@ -327,6 +324,7 @@ public class ArtifactScript : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();

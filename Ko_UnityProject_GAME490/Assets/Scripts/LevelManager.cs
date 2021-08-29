@@ -22,13 +22,11 @@ public class LevelManager : MonoBehaviour
     private bool hasSavedFile;
 
     private TileMovementController playerScript;
-    private SaveManagerScript saveMangerScript;
     private PlayerSounds playerSoundsScript;
     private PauseMenu pauseMenuScript;
 
     void Awake()
     {
-        saveMangerScript = FindObjectOfType<SaveManagerScript>();
         playerScript = FindObjectOfType<TileMovementController>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
@@ -60,9 +58,9 @@ public class LevelManager : MonoBehaviour
                 loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
-                    saveMangerScript.CreateNewSaveFile();
+                    CreateNewSaveFile();
 
                     loadingScreen.GetComponent<Image>().color = Color.black;
                     loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
@@ -125,9 +123,9 @@ public class LevelManager : MonoBehaviour
         // This is only for when the player finishes the fifth map - creates new save file
         if (SceneManager.GetActiveScene().name == "FifthMap" && !hasSavedFile)
         {
-            PlayerPrefs.DeleteKey("listOfArtifacts");
-            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-            saveMangerScript.CreateNewSaveFile();
+            //PlayerPrefs.DeleteKey("listOfArtifacts");
+            //PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+            CreateNewSaveFile();
             hasSavedFile = true;
         }           
     }
@@ -146,6 +144,27 @@ public class LevelManager : MonoBehaviour
     {
         if (loadingScreenSprites != null)
             SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+    }
+
+    // Creates a new save file
+    private void CreateNewSaveFile()
+    {
+        Debug.Log("Updated Save File");
+
+        PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_z");
+        PlayerPrefs.DeleteKey("r_y");
+        PlayerPrefs.DeleteKey("cameraIndex");
+
+        PlayerPrefs.DeleteKey("TimeToLoad");
+        PlayerPrefs.DeleteKey("Save");
+        PlayerPrefs.DeleteKey("savedScene");
+
+        PlayerPrefs.DeleteKey("listOfArtifacts");
+        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+
+        PlayerPrefs.SetInt("Saved", 1);
+        PlayerPrefs.Save();
     }
 
 }

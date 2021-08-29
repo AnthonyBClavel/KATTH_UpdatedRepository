@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
-    //public static CameraController instance;
-
     public float transitonSpeed;
     public int currentIndex = 0;
 
@@ -32,7 +30,6 @@ public class CameraController : MonoBehaviour
     private AudioClip lastWindGushClip;
 
     private AmbientLoopingSFXManager theALSM;
-    private SaveManagerScript saveManagerScript;
     private GameHUD gameHUDScript;
     private GeneratorScript generatorScript;
     private TileMovementController playerScript;
@@ -40,23 +37,12 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        saveManagerScript.LoadCameraPosition();
-
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
-
-        CheckForGenScript();
+        SetScripts();
     }
 
     // Start is called before the first frame update
     void Start()
-    {
-        //instance = this;
-        //gameObject.transform.position = levelViews[currentIndex].transform.position;
-         
+    {       
         audioSource = GetComponent<AudioSource>();
         SetCameraPosition();
         SetPuzzleNumber();
@@ -110,52 +96,35 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    // Sets the camera's position to the position of an object in the levelViews array
     public void SetCameraPosition()
     {
         if (canMoveCamera)
             gameObject.transform.position = levelViews[currentIndex].transform.position;
     }
 
+    // Moves the camera to the next puzzle view and updates the puzzle bubble notification
     public void NextPuzzleView02()
     {
-        //Debug.Log("Switch Puzzle View");
+        //Debug.Log("Next Puzzle View Activated");
         currentView = levelViews[currentIndex++];
         SetPuzzleNumber();
 
+        // Turns of the generator's light (if applicable)
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
             generatorScript.TurnOffEmisionAndVolume();
         }
-       
+
+        // Resets the camera to the first puzzle view (if applicable)
         if (currentIndex >= levelViews.Length)
         {
-            Debug.Log("Reset to Frist Puzzle View");
+            Debug.Log("Reset to First Puzzle View");
             currentIndex = 0;
         }
     }
 
-    // Shifts the camera to the next puzzle view
-    public void NextPuzzleView(Transform newView)
-    {
-        //Debug.Log("Switch Puzzle View");
-        currentView = newView;
-    }
-
-    // We'll use this function below in the future when we want to travel between puzzles
-    public void PreviousPuzzleView02()
-    {
-        //Debug.Log("Switch To Previous Puzzle View");
-        currentView = levelViews[currentIndex--];
-    }
-
-    // Plays a random wind gush sfx from an audio clip array
-    public void WindGush()                                                                                            
-    {
-        theALSM.ChangeAmbientLoopingSFX();
-        PlayWindGushSFX();
-    }
-
-    // Checks to see what dialogue view the camera should move to
+    // Checks to see which dialogue view the camera should move to
     private void DialogueViewsCheck()
     {
         if (!hasCheckedDialogueViews)
@@ -176,8 +145,26 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Plays a new wind gush sfx that different from the one that was previously played
-    private void PlayWindGushSFX()
+    // Updates the puzzle number in the puzzle bubble notification
+    private void SetPuzzleNumber()
+    {
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/8");
+        else
+            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/10");
+
+        gameHUDScript.PlayPuzzleNotificationCheck();
+    }
+
+    // Plays a random WindGushSFX and changes the looping ambient sfx
+    public void PlayWindGushSFX()
+    {
+        PlayNewWindGushSFX();      
+        theALSM.ChangeAmbientLoopingSFX();
+    }
+
+    // Plays a new WindGushSFX that's different from the one that was previously played
+    private void PlayNewWindGushSFX()
     {
         int attempts = 3;
         AudioClip newWindGushClip = clips[Random.Range(0, clips.Length)];
@@ -192,32 +179,18 @@ public class CameraController : MonoBehaviour
         audioSource.PlayOneShot(newWindGushClip);
     }
 
-    // Updates the puzzle number in the GameHUD via Camera Script
-    private void SetPuzzleNumber()
-    {
-        /*if (SceneManager.GetActiveScene().name != "TutorialMap")
-            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/10";
-        else
-            gameHUDScript.puzzleNumber.text = "Puzzle: " + (currentIndex + 1) + "/7";*/
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/8");
-        else
-            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/10");
-
-        gameHUDScript.PlayPuzzleNotificationCheck();
-    }
-
-    // For pausing the WindGushSFX when you pause the game on the bridge
+    // Pauses the WindGushSFX when you pause the game on the bridge - Optional
     private void CheckIfPaused()
     {
-        if (FindObjectOfType<PauseMenu>().isPaused && !hasPaused)
+        PauseMenu pauseMenuScript = FindObjectOfType<PauseMenu>();
+
+        if (pauseMenuScript.isPaused && !hasPaused)
         {
             Debug.Log("Wind Gush SFX has been paused");
             audioSource.Pause();
             hasPaused = true;
         }
-        else if (!FindObjectOfType<PauseMenu>().isPaused && hasPaused)
+        else if (pauseMenuScript.isPaused && hasPaused)
         {
             Debug.Log("Wind Gush SFX has resumed");
             audioSource.UnPause();
@@ -225,9 +198,14 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    // Checks to see if it can find the generator script
-    private void CheckForGenScript()
+    // Checks which scripts to set
+    private void SetScripts()
     {
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
+        
         if (SceneManager.GetActiveScene().name == "FifthMap")
             generatorScript = FindObjectOfType<GeneratorScript>();
     }

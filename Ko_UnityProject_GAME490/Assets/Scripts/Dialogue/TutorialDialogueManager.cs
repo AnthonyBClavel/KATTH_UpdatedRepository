@@ -29,6 +29,7 @@ public class TutorialDialogueManager : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private SkipButton skipButtonScript;
     private ArtifactScript artifactScript;
+    private CharacterDialogue characterDialogueScript;
 
     void Awake()
     {
@@ -37,10 +38,11 @@ public class TutorialDialogueManager : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         skipButtonScript = FindObjectOfType<SkipButton>();
         artifactScript = FindObjectOfType<ArtifactScript>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
 
         gameHUD = gameHUDScript.gameObject;
         skipTutorialButton = skipButtonScript.gameObject;
-        continueButtonCD = FindObjectOfType<CharacterDialogue>().continueButton;
+        continueButtonCD = characterDialogueScript.continueButton;
     }
 
     void Start()
@@ -57,13 +59,13 @@ public class TutorialDialogueManager : MonoBehaviour
 
         if (continueButtonDM.activeSelf == true)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 nextSentence();
         }
 
         else if (typingSpeed > OGtypingSpeed / 2)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 typingSpeed /= 2;
         }       
     }
@@ -133,10 +135,12 @@ public class TutorialDialogueManager : MonoBehaviour
     public void EndTutorialDialogueManager()
     {
         skipTutorialButton.SetActive(true);
-        playerScript.SetPlayerBoolsTrue();
         gameHUDScript.EnableNotificationsToggle();
         playerScript.hasDied = false;
         inDialogue = false;
+
+        if (characterDialogueScript.canStartDialogue)
+            playerScript.SetPlayerBoolsTrue();
     }
 
     // Checks to see if the player has loaded into the tutorial zone

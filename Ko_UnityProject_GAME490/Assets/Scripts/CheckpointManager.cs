@@ -7,9 +7,13 @@ public class CheckpointManager : MonoBehaviour
 {
     public int numMovements;
 
-    private GameObject player;
+    [Header("0 = up, 90 = right, 180 = down, 270 = left")]
+    public int playerDirection;
 
+    private GameObject player;
     private Animator playerAnimator;
+
+    float rayLengthLBT = 1f;
 
     Vector3 p; // Player position for debugging
     Vector3 blockPosition; // Block position
@@ -49,7 +53,6 @@ public class CheckpointManager : MonoBehaviour
             Debug.Log("Player Position: " + p);
         }
         /*** End Debugging ***/
-
     }
 
     // Returns the number of movements for the checkpoint
@@ -117,7 +120,7 @@ public class CheckpointManager : MonoBehaviour
         return hit;
     }
 
-    // Determines what coroutines should play if the death screen should be activated
+    // Determines what coroutines should play if the death screen should is activated
     /*private void DetermineIceMatCoroutines()
     {
         if (gameHUDScript.canDeathScreen && SceneManager.GetActiveScene().name != "TutorialMap")
@@ -165,6 +168,92 @@ public class CheckpointManager : MonoBehaviour
         iceMaterialScript.ResetPlayerMaterial02();
         iceMaterialScript.ResetUIAlpha_ColdUI02();
     }
+
+    public bool LastBridgeTileCheck()
+    {
+        //Debug.Log("Checks for last bridge tile");
+
+        Ray myRayLBT01 = new Ray(transform.position + new Vector3(1, 0.5f, 0), Vector3.down);
+        Ray myRayLBT02 = new Ray(transform.position + new Vector3(-1, 0.5f, 0), Vector3.down);
+        Ray myRayLBT03 = new Ray(transform.position + new Vector3(0, 0.5f, 1), Vector3.down);
+        Ray myRayLBT04 = new Ray(transform.position + new Vector3(0, 0.5f, -1), Vector3.down);
+
+        RaycastHit hit;
+
+        Debug.DrawRay(myRayLBT01.origin, myRayLBT01.direction, Color.green);
+        Debug.DrawRay(myRayLBT02.origin, myRayLBT02.direction, Color.red);
+        Debug.DrawRay(myRayLBT03.origin, myRayLBT03.direction, Color.blue);
+        Debug.DrawRay(myRayLBT04.origin, myRayLBT04.direction, Color.yellow);
+
+        GameObject savedInvisibleBlock = FindObjectOfType<SaveManagerScript>().savedInvisibleBlock;
+
+        if (Physics.Raycast(myRayLBT01, out hit, rayLengthLBT))
+        {
+            GameObject lastBridgeTile = hit.collider.gameObject;
+            float lastBridgeTileX = lastBridgeTile.transform.position.x;
+            float lastBridgeTileZ = lastBridgeTile.transform.position.z;
+            string tag = lastBridgeTile.tag;
+
+            if (tag == "LastBridgeTile")
+            {
+                Debug.Log("Detected ONE");
+
+                savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
+                return true;
+            }
+        }
+
+        if (Physics.Raycast(myRayLBT02, out hit, rayLengthLBT))
+        {
+            GameObject lastBridgeTile = hit.collider.gameObject;
+            float lastBridgeTileX = lastBridgeTile.transform.position.x;
+            float lastBridgeTileZ = lastBridgeTile.transform.position.z;
+            string tag = lastBridgeTile.tag;
+
+            if (tag == "LastBridgeTile")
+            {
+                Debug.Log("Detected TWO");
+
+                savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
+                return true;
+            }
+        }
+
+        if (Physics.Raycast(myRayLBT03, out hit, rayLengthLBT))
+        {
+            GameObject lastBridgeTile = hit.collider.gameObject;
+            float lastBridgeTileX = lastBridgeTile.transform.position.x;
+            float lastBridgeTileZ = lastBridgeTile.transform.position.z;
+            string tag = lastBridgeTile.tag;
+
+            if (tag == "LastBridgeTile")
+            {
+                Debug.Log("Detected THREE");
+
+                savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
+                return true;
+            }
+        }
+
+        if (Physics.Raycast(myRayLBT04, out hit, rayLengthLBT))
+        {
+            GameObject lastBridgeTile = hit.collider.gameObject;
+            float lastBridgeTileX = lastBridgeTile.transform.position.x;
+            float lastBridgeTileZ = lastBridgeTile.transform.position.z;
+            string tag = lastBridgeTile.tag;
+
+            if (tag == "LastBridgeTile")
+            {
+                Debug.Log("Detected FOUR");
+
+                savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
 
 }

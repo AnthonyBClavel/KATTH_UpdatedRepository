@@ -5,28 +5,18 @@ using UnityEngine;
 public class BridgeMovementController : MonoBehaviour
 {
     public GameObject blockToMoveTo;
+
+    [Header("0 = up, 90 = right, 180 = down, 270 = left")]
     public int newDirection;
 
     private TileMovementController playerScript;
 
-    private void Awake()
+    void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-
+    // Sets a destination for the player to move towards
     public void MoveToNextBlock()
     {
         playerScript.setDestination(blockToMoveTo.transform.position);

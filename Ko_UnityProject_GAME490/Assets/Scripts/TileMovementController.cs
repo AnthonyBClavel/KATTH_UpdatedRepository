@@ -79,10 +79,7 @@ public class TileMovementController : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
         cameraScript = FindObjectOfType<CameraController>();
-
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        saveManagerScript.LoadPlayerPosition(); //
-        saveManagerScript.LoadBlockPosition(); //
 
         dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
         playerAnim = playerSoundsScript.GetComponent<Animator>();
@@ -90,20 +87,6 @@ public class TileMovementController : MonoBehaviour
 
     void Start()
     {
-        /*SaveSlot save = SaveManager.LoadGame();
-        if (save != null)
-        {
-            transform.position = new Vector3(save.getPosition()[0], save.getPosition()[1], save.getPosition()[2]);
-            puzzle = GameObject.Find(save.getPuzzleName());
-            cameraScript.currentIndex = save.getCameraIndex();
-        }
-        else
-        {
-            //transform.position = new Vector3(0, 0, 0);
-            cameraScript.currentIndex = 0;
-            puzzle = GameObject.Find("Puzzle01");
-        }*/
-
         audioSource = GetComponent<AudioSource>();
         canSetBoolsTrue = true;
 
@@ -119,6 +102,7 @@ public class TileMovementController : MonoBehaviour
             playerDirection = currentDirection;
 
         Move();
+        checkIfOnCheckpoint();
         checkIfOnBridgeController();
         checkIfCompletedLevel();
         AlertBubbleCheck();
@@ -152,7 +136,7 @@ public class TileMovementController : MonoBehaviour
         if (Vector3.Distance(destination, transform.position) <= 0.00001f)
         {
             isWalking = false;
-            checkIfOnCheckpoint();
+            //checkIfOnCheckpoint();
             //checkIfOnBridgeController();
             //checkIfCompletedLevel();
 
@@ -249,7 +233,7 @@ public class TileMovementController : MonoBehaviour
         // Hit Return to interact/break block
         if (canInteract)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 Collider collider = getCollider();
                 if (collider == null) return false;
@@ -420,9 +404,9 @@ public class TileMovementController : MonoBehaviour
                         isPushing = false; 
 
                     CheckToPlayAnims();
-                    break;*/
+                    break;
 
-                /*case ("Generator"):
+                case ("Generator"):
                     Debug.Log("Turned On Generator");
                     if(collider.gameObject.GetComponent<GeneratorScript>().canInteract == true) torchMeterMoves.CurrentVal--;
                     collider.gameObject.GetComponentInChildren<GeneratorScript>().TurnOnGenerator();
@@ -528,30 +512,28 @@ public class TileMovementController : MonoBehaviour
 
         if (tag != "Checkpoint") return false; // If we did not hit a checkpoint
 
-        //SaveManager.SaveGame(makeSaveSlot());
         checkpoint = hit.collider.gameObject;
+        CheckpointManager checkpointManagerScript = checkpoint.GetComponent<CheckpointManager>();
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
-        // Sets the new puzzle view
-        //GameObject view = puzzle.transform.Find("View").gameObject;
-        //cameraScript.NextPuzzleView(view.transform);
-
         // Sets the new torch meter value based on the checkpoint's value
-        int newNumMovements = checkpoint.GetComponent<CheckpointManager>().getNumMovements();
+        int newNumMovements = checkpointManagerScript.getNumMovements();
         torchMeterMoves.setMaxValue(newNumMovements);    
 
         // If this is the first time we visited this checkpoint
-        if (!checkpoint.GetComponent<CheckpointManager>().hitCheckpoint())
+        if (!checkpointManagerScript.hitCheckpoint())
         {
             if (canSetBoolsTrue)
                 SetPlayerBoolsTrue(); //Enable Player Movement
 
-            checkpoint.GetComponent<CheckpointManager>().setCheckpoint();
+            checkpointManagerScript.setCheckpoint();
+            checkpointManagerScript.LastBridgeTileCheck();
             ResetTorchMeter();
             PopInTorchMeterCheck();
-            saveManagerScript.SavePlayerPosition();
+            saveManagerScript.SavePlayerPosition(checkpoint);
+            saveManagerScript.SavePlayerRotation();
             saveManagerScript.SaveCameraPosition();
-            //cameraScript.WindGush();
+            hasMovedPuzzleView = false;
         }
         return true;
     }
@@ -573,7 +555,6 @@ public class TileMovementController : MonoBehaviour
                 levelManagerScript.gameObject.GetComponent<BridgeMovementController>().MoveToNextBlock();
                 levelManagerScript.DisablePlayer();
                 levelManagerScript.SetLevelCompletedEffects();
-                //SaveManager.DeleteGame();
                 return true;
             }
         }
@@ -609,14 +590,14 @@ public class TileMovementController : MonoBehaviour
             return true;
         }
 
-        // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position
-        if (tag == "LastBridgeTile" && hasMovedPuzzleView)
+        // Sets the savedInvisibleBlock's position the last tile on a bridge and saves its position - OLD VERSION
+        /*if (tag == "LastBridgeTile" && hasMovedPuzzleView)
         {
             Debug.Log("Invisible Block Position has been saved");
             saveManagerScript.savedInvisibleBlock.transform.position = hit.collider.transform.position + new Vector3(0, 1, 0);
             saveManagerScript.SaveBlockPosition();
             hasMovedPuzzleView = false;
-        }
+        }*/
 
         return false;
     }
@@ -795,7 +776,7 @@ public class TileMovementController : MonoBehaviour
         {
             Debug.Log("Switched To Next Puzzle View");
             cameraScript.NextPuzzleView02();
-            cameraScript.WindGush();
+            cameraScript.PlayWindGushSFX();
             hasMovedPuzzleView = true;
         }
     }
@@ -844,21 +825,5 @@ public class TileMovementController : MonoBehaviour
     {
         return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
     }
-
-    /*private SaveSlot makeSaveSlot()
-    {
-        Vector3 position = transform.position;
-        float x = position.x;
-        float y = position.y;
-        float z = position.z;
-        float[] playerPosition = { x, y, z };
-
-        string puzzleName = puzzle.name;
-
-        int currCameraIndex = main_camera.GetComponent<CameraController>().currentIndex;
-
-        return new SaveSlot(sceneName, playerPosition, puzzleName, currCameraIndex);
-    }*/
-
 
 }

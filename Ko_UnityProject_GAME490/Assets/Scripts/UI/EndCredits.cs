@@ -89,7 +89,7 @@ public class EndCredits : MonoBehaviour
     // Calls the function that starts the credits - for the credits button in the main menu
     public void StartEndCreditsManually()
     {
-        if(!hasStartedCredits)
+        if (!hasStartedCredits)
         {
             StartCoroutine("StartEndCredits");
             hasStartedCredits = true;
@@ -308,7 +308,7 @@ public class EndCredits : MonoBehaviour
 
         if (canSpeedUpCredits)
         {
-            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Space))
+            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.KeypadEnter))
                 scrollSpeed = 270f;
             else
                 scrollSpeed = 90f;

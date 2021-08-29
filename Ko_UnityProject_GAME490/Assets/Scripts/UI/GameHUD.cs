@@ -148,15 +148,8 @@ public class GameHUD : MonoBehaviour
                 PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
                 UpdateArtifactBubbleText("0/1");
             }
-            else if (sceneName == "FirstMap")
-            {
-                PlayerPrefs.DeleteKey("listOfArtifacts");
-                PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-                UpdateArtifactBubbleText("0/15");
-            }
             else
                 UpdateArtifactBubbleText(numberOfArtifactsCollected + "/15");
-
         }       
     }
 

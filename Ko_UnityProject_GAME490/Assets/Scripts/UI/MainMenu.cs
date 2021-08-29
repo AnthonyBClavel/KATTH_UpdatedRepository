@@ -54,8 +54,7 @@ public class MainMenu : MonoBehaviour
 
     void Awake()
     {
-        endCreditsScript = FindObjectOfType<EndCredits>();
-        
+        endCreditsScript = FindObjectOfType<EndCredits>();      
     }
 
     // Start is called before the first frame update
@@ -68,11 +67,6 @@ public class MainMenu : MonoBehaviour
         canFadeLogo = false;
         isChangingMenus = false;
         hasPressedEnter = false;
-
-        /*if (!SaveManager.hasSaveFile())
-        {
-            continueFirstButton.SetActive(false);
-        }*/
     }
 
     // Update is called once per frame
@@ -83,7 +77,7 @@ public class MainMenu : MonoBehaviour
         // If enter is already pressed once, you cannot call this function again
         if (!hasPressedEnter && pressEnterText.activeSelf)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 OpenMainMenu();
                 Instantiate(PressEnterSFX, transform.position, transform.rotation);
@@ -101,19 +95,6 @@ public class MainMenu : MonoBehaviour
         {
             StartCoroutine("CloseSafetyMenuDelay");
         }
-
-        /*** For Debugging purposes ***/
-        /*if(Input.GetKeyDown(KeyCode.P))
-        {
-            string fifthWorld = "FifthMap";
-            PlayerPrefs.SetString("savedScene", fifthWorld);
-        }
-        /*
-        if (Input.GetKeyDown(KeyCode.Delete))
-        {
-            SaveManager.DeleteGame();
-        }*/
-        /*** End Debugging ***/
     }
 
     public void OpenMainMenu()
@@ -123,17 +104,6 @@ public class MainMenu : MonoBehaviour
 
     public void ContinueGame()
     {
-        /*SaveSlot save = SaveManager.LoadGame();
-        if(save == null)
-        {
-            Debug.Log("No save to load");
-            return;
-        }
-        if (save.getSceneName() != null && !string.IsNullOrEmpty(save.getSceneName()))
-            levelToLoad = save.getSceneName();
-        else
-            SaveManager.DeleteGame();*/
-
         StartCoroutine("LoadLevelAsync"); 
     }
 
@@ -282,7 +252,7 @@ public class MainMenu : MonoBehaviour
                 loadingText.text = "Press SPACE to Continue";
                 loadingIcon.SetActive(false);
 
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     loadingScreen.GetComponent<Image>().color = Color.black;
                     loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
@@ -306,14 +276,6 @@ public class MainMenu : MonoBehaviour
         PlayerPrefs.DeleteKey("p_x");
         PlayerPrefs.DeleteKey("p_z");
         PlayerPrefs.DeleteKey("r_y");
-
-        PlayerPrefs.DeleteKey("b_x");
-        PlayerPrefs.DeleteKey("b_y");
-        PlayerPrefs.DeleteKey("b_z");
-
-        PlayerPrefs.DeleteKey("pc_x");
-        PlayerPrefs.DeleteKey("pc_y");
-        PlayerPrefs.DeleteKey("pc_z");
         PlayerPrefs.DeleteKey("cameraIndex");
 
         PlayerPrefs.DeleteKey("TimeToLoad");
@@ -458,6 +420,7 @@ public class MainMenu : MonoBehaviour
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
         EnableMenuInputMM();
+        //EnableInputDelay();
     }
 
     // For closing the safety menu when you press "no"
@@ -503,9 +466,6 @@ public class MainMenu : MonoBehaviour
         isChangingMenus = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
         gameObject.GetComponent<GraphicRaycaster>().enabled = true;
-        //mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = true;
-        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = true;
-        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
     public void DisableMenuInputMM()
@@ -514,9 +474,6 @@ public class MainMenu : MonoBehaviour
         isChangingMenus = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
         gameObject.GetComponent<GraphicRaycaster>().enabled = false;
-        //mainMenuButtons.GetComponent<CanvasGroup>().blocksRaycasts = false;
-        //optionsScreen.GetComponent<CanvasGroup>().blocksRaycasts = false;
-        //safetyMenu.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
 
     // Enables the input after a delay - ONLY used after credits have ended
@@ -547,6 +504,5 @@ public class MainMenu : MonoBehaviour
         else
             loadingScreen.GetComponent<Image>().sprite = newLoadingScreenImg;
     }
-
 
 }
