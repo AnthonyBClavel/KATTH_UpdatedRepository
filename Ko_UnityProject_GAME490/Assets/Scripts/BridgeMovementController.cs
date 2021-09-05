@@ -5,6 +5,7 @@ using UnityEngine;
 public class BridgeMovementController : MonoBehaviour
 {
     public GameObject blockToMoveTo;
+    public bool hasSteppedOnTile = false;
 
     [Header("0 = up, 90 = right, 180 = down, 270 = left")]
     public int newDirection;

@@ -8,62 +8,30 @@ using TMPro;
 
 public class OptionsMenu : MonoBehaviour
 {
-    public Toggle fullScreenTog, vsyncTog;
-
-    public ResItem[] resolutions;
-    public int selectedResolution;
-    public TextMeshProUGUI resolutionLabel;
-
     public AudioMixer theMixer;
-    public Slider masterSlider, musicSlider, sfxSlider;
+
+    [Header("Sliders")]
+    public Slider masterSlider;
+    public Slider musicSlider;
+    public Slider sfxSlider;
+
+    [Header("Toggles")]
+    public Toggle fullScreenTog;
+    public Toggle vsyncTog;
+
+    [Header("Resolution")]
+    public TextMeshProUGUI resolutionLabel;
+    public ResItem[] resolutions;
+    private int selectedResolution;
 
     // Start is called before the first frame update
     void Start()
     {
         fullScreenTog.isOn = Screen.fullScreen;
 
-        if(QualitySettings.vSyncCount == 0)
-        {
-            vsyncTog.isOn = false;
-        }
-        else
-        {
-            vsyncTog.isOn = true;
-        }
-
-        // Search for resolution in the list
-        bool foundRes = false;
-        for(int i = 0; i < resolutions.Length; i++)
-        {
-            if(Screen.width == resolutions[i].horizontal && Screen.height == resolutions[i].vertical)
-            {
-                foundRes = true;
-                selectedResolution = i;
-                UpdateResLabel();
-            }
-        }
-
-        if(!foundRes)
-            resolutionLabel.text = Screen.width.ToString() + " x " + Screen.height.ToString();
-
-        if (PlayerPrefs.HasKey("MasterVol"))
-        {
-            //theMixer.SetFloat("MasterVol", PlayerPrefs.GetFloat("MasterVol"));
-            masterSlider.value = PlayerPrefs.GetFloat("MasterVol");
-        }
-            
-        if (PlayerPrefs.HasKey("MusicVol"))
-        {
-            //theMixer.SetFloat("MusicVol", PlayerPrefs.GetFloat("MusicVol"));
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVol");
-        }          
-
-        if (PlayerPrefs.HasKey("SFXVol"))
-        {
-            //theMixer.SetFloat("SFXVol", PlayerPrefs.GetFloat("SFXVol"));
-            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol");
-        }
-            
+        SetVSyncCheck();
+        SetResolutionCheck();
+        SetVolumeSliders();
     }
 
     // Update is called once per frame
@@ -75,7 +43,8 @@ public class OptionsMenu : MonoBehaviour
     public void ResLeft()
     {
         selectedResolution--;
-        if(selectedResolution < 0)
+
+        if (selectedResolution < 0)
             selectedResolution = 0;
 
         UpdateResLabel();
@@ -84,6 +53,7 @@ public class OptionsMenu : MonoBehaviour
     public void ResRight()
     {
         selectedResolution++;
+
         if (selectedResolution > resolutions.Length - 1) 
             selectedResolution = resolutions.Length - 1;
 
@@ -98,18 +68,14 @@ public class OptionsMenu : MonoBehaviour
     public void ApplyGraphics()
     {
         if (vsyncTog.isOn)
-        {
             QualitySettings.vSyncCount = 1;
-        }
         else
-        {
             QualitySettings.vSyncCount = 0;
-        }
 
         // Set resolution
         Screen.SetResolution(resolutions[selectedResolution].horizontal, resolutions[selectedResolution].vertical, fullScreenTog.isOn);
 
-        Debug.Log("Graphic Settings Applied");
+        Debug.Log("Applied Graphic Settings");
     }
 
     public void SetMasterVol()
@@ -119,7 +85,6 @@ public class OptionsMenu : MonoBehaviour
         theMixer.SetFloat("MasterVol", Mathf.Log10(mastersliderValue) * 22);
 
         PlayerPrefs.SetFloat("MasterVol", mastersliderValue);
-
     }
 
     public void SetMusicVol()
@@ -138,6 +103,47 @@ public class OptionsMenu : MonoBehaviour
         theMixer.SetFloat("SFXVol", Mathf.Log10(sfxVolumeSlider) * 22);
 
         PlayerPrefs.SetFloat("SFXVol", sfxVolumeSlider);
+    }
+
+    // Sets the volume sliders
+    private void SetVolumeSliders()
+    {
+        if (PlayerPrefs.HasKey("MasterVol"))
+            masterSlider.value = PlayerPrefs.GetFloat("MasterVol");
+
+        if (PlayerPrefs.HasKey("MusicVol"))
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVol");
+
+        if (PlayerPrefs.HasKey("SFXVol"))
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol");
+    }
+
+    // Checks if vsync is on or off
+    private void SetVSyncCheck()
+    {
+        if (QualitySettings.vSyncCount == 0)
+            vsyncTog.isOn = false;
+        else
+            vsyncTog.isOn = true;
+    }
+
+    // Searches for a resolution in the list - sets current unlisted resolution otherwise
+    private void SetResolutionCheck()
+    {
+        bool foundRes = false;
+
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            if (Screen.width == resolutions[i].horizontal && Screen.height == resolutions[i].vertical)
+            {
+                foundRes = true;
+                selectedResolution = i;
+                UpdateResLabel();
+            }
+        }
+
+        if (!foundRes)
+            resolutionLabel.text = Screen.width.ToString() + " x " + Screen.height.ToString();
     }
 
 }

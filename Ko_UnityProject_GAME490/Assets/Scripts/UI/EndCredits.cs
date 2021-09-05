@@ -47,7 +47,7 @@ public class EndCredits : MonoBehaviour
 
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
-    private TorchMeterScript torchMeterScript;
+    private AudioManager audioManagerScript;
     private MainMenuMusicScript mainMenuMusicScript;
 
     void Awake()
@@ -123,7 +123,7 @@ public class EndCredits : MonoBehaviour
         {
             audioLoopsScript = FindObjectOfType<AudioLoops>();
             playerScript = FindObjectOfType<TileMovementController>();
-            torchMeterScript = FindObjectOfType<TorchMeterScript>();
+            audioManagerScript = FindObjectOfType<AudioManager>();
         }
         else
             mainMenuMusicScript = FindObjectOfType<MainMenuMusicScript>();
@@ -134,7 +134,7 @@ public class EndCredits : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            if (playerScript.checkIfCompletedLevel() && !hasStartedCredits)
+            if (playerScript.bridge.name == "EndBridge" && !hasStartedCredits)
             {
                 StartCoroutine("StartEndCredits");
                 hasStartedCredits = true;
@@ -289,7 +289,7 @@ public class EndCredits : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
             audioLoopsScript.FadeOutAudioLoops();
-            torchMeterScript.audioSource.volume = 0f;
+            audioManagerScript.loopingFireSFX.volume = 0f;
         }
     }
 

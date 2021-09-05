@@ -118,7 +118,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForBridgeTiles()
     {
-        if (name == "BridgeBlock" || tag == "BridgeController" || tag == "LastBridgeTile" || tag == "WoodTiles")
+        if (name == "BridgeBlock" || tag == "WoodTiles")
         {
             audioSource.volume = 0.8f; //0.75f
             audioSource.pitch = 0.9f;
@@ -128,7 +128,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForCrateTiles()
     {
-        if (tag == "Obstacle")
+        if (tag == "PushableBlock")
         {
             audioSource.volume = 0.4f; //0.34f
             audioSource.pitch = 1.0f;

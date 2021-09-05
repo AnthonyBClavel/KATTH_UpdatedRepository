@@ -198,17 +198,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuScene: MainMenuWIP
   optionsScreen: {fileID: 600883894626313328}
-  pauseMenu: {fileID: 8796842615780021692}
+  safetyMenu: {fileID: 0}
+  pauseScreen: {fileID: 0}
+  pauseScreenBG: {fileID: 0}
   player: {fileID: 0}
   pauseFirstButton: {fileID: 5091888118446162297}
   optionsFirstButton: {fileID: 600883893219336974}
   optionsClosedButton: {fileID: 5091888119916223553}
   mainMenuButton: {fileID: 5091888120256355552}
-  pauseScreenAnim: {fileID: 8796842615780021683}
+  safetyFirstButton: {fileID: 0}
+  safetySecondButton: {fileID: 0}
+  pauseScreenAnim: {fileID: 0}
+  pauseScreenBgAnim: {fileID: 0}
+  optionsScreenAnim: {fileID: 0}
+  safetyMenuAnim: {fileID: 0}
+  deathScreenAnim: {fileID: 0}
   isOptionsMenu: 0
+  isChangingScenes: 0
+  canPause: 0
+  isSafetyMenu: 0
+  canPlayButtonSFX: 0
+  isPaused: 0
+  isChangingMenus: 0
   loadingScreen: {fileID: 5703358675901330761}
   loadingIcon: {fileID: 437684959635122876}
   loadingText: {fileID: 5703358673892172010}
+  safetyMenuSFX: {fileID: 0}
+  buttonClickSFX: {fileID: 0}
+  buttonSelectSFX: {fileID: 0}
+  audioSourceUI: {fileID: 0}
 --- !u!82 &8796842614977203008
 AudioSource:
   m_ObjectHideFlags: 0
@@ -322,7 +340,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8796842615248115040
 RectTransform:
   m_ObjectHideFlags: 0
@@ -477,7 +495,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8796842616157131438
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1431,14 +1449,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
---- !u!1 &8796842615780021692 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 498697661233441815, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
-  m_PrefabInstance: {fileID: 9006938813002758571}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &8796842615780021683 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 498697661233441816, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
+--- !u!224 &8796842615780021681 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 498697661233441818, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
   m_PrefabInstance: {fileID: 9006938813002758571}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &5091888118446162297 stripped
@@ -1454,10 +1467,5 @@ GameObject:
 --- !u!1 &5091888120256355552 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4203290451834070347, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
-  m_PrefabInstance: {fileID: 9006938813002758571}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &8796842615780021681 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 498697661233441818, guid: 2325721a9a1ed8c4b94b5fa3a24cf66c, type: 3}
   m_PrefabInstance: {fileID: 9006938813002758571}
   m_PrefabAsset: {fileID: 0}

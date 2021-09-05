@@ -5,14 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class DialogueBars : MonoBehaviour
 {
-    public float barSpeed;
-
     public bool canMoveBars = true;
     private bool hasMovedTopBar = false;
     private bool hasMovedBottomBar = false;
 
-    public GameObject topBar;
-    public GameObject bottomBar;
+    private float blackBarsSpeed;
+
+    private GameObject topBar;
+    private GameObject bottomBar;
     private GameObject skipTutorialButton;
 
     Vector3 originalTopBarPos;
@@ -23,10 +23,13 @@ public class DialogueBars : MonoBehaviour
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
     private SkipButton skipButtonScript;
+    private GameManager gameManagerScript;
+    private SaveManagerScript saveManagerScript;
 
     void Awake()
     {
         SetScripts();
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -44,19 +47,21 @@ public class DialogueBars : MonoBehaviour
 
     void LateUpdate()
     {
+        BlackBarsDebuggingCheck();
+
         if (canMoveBars)
         {
             if (hasMovedTopBar && topBar.transform.localPosition != topBarDestination)
-                topBar.transform.localPosition = Vector3.MoveTowards(topBar.transform.localPosition, topBarDestination, barSpeed * Time.deltaTime);
+                topBar.transform.localPosition = Vector3.MoveTowards(topBar.transform.localPosition, topBarDestination, blackBarsSpeed * Time.deltaTime);
 
             if (hasMovedBottomBar && bottomBar.transform.localPosition != bottomBarDestination)
-                bottomBar.transform.localPosition = Vector3.MoveTowards(bottomBar.transform.localPosition, bottomBarDestination, barSpeed * Time.deltaTime);
+                bottomBar.transform.localPosition = Vector3.MoveTowards(bottomBar.transform.localPosition, bottomBarDestination, blackBarsSpeed * Time.deltaTime);
 
             if (!hasMovedTopBar && topBar.transform.localPosition != originalTopBarPos)
-                topBar.transform.localPosition = Vector3.MoveTowards(topBar.transform.localPosition, originalTopBarPos, barSpeed * Time.deltaTime);        
+                topBar.transform.localPosition = Vector3.MoveTowards(topBar.transform.localPosition, originalTopBarPos, blackBarsSpeed * Time.deltaTime);        
             
             if (!hasMovedBottomBar && bottomBar.transform.localPosition != originalBottomBarPos)
-                bottomBar.transform.localPosition = Vector3.MoveTowards(bottomBar.transform.localPosition, originalBottomBarPos, barSpeed * Time.deltaTime);
+                bottomBar.transform.localPosition = Vector3.MoveTowards(bottomBar.transform.localPosition, originalBottomBarPos, blackBarsSpeed * Time.deltaTime);
         }
     }
 
@@ -113,6 +118,8 @@ public class DialogueBars : MonoBehaviour
     {
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
         {
@@ -121,13 +128,28 @@ public class DialogueBars : MonoBehaviour
         }
     }
 
-    // Only used for debugging
-    private void DialogueBarDebugging()
+    // Sets private variables, objects, and components
+    private void SetElements()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
         {
-            ToggleDialogueBars();
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "TopBar")
+                topBar = child.gameObject;
+            if (child.name == "BottomBar")
+                bottomBar = child.gameObject;
         }
+
+        blackBarsSpeed = gameManagerScript.blackBarsSpeed;
+    }
+
+    // Toggles the Black Bars - For Debugging Purposes ONLY
+    private void BlackBarsDebuggingCheck()
+    {
+        if (Input.GetKeyDown(KeyCode.P) && saveManagerScript.isDebugging)
+            ToggleDialogueBars();
     }
 
 }

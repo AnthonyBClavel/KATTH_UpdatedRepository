@@ -13,19 +13,13 @@ public class SafetyMenuAnimEvent : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        if(SceneManager.GetActiveScene().name == "MainMenu")
-           mainMenuScript = FindObjectOfType<MainMenu>();
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+            mainMenuScript = FindObjectOfType<MainMenu>();
         else
         {
             gameHUDScript = FindObjectOfType<GameHUD>();
             pauseMenuScript = FindObjectOfType<PauseMenu>();
         }            
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     // For an animation event in the saftey menu
@@ -41,16 +35,32 @@ public class SafetyMenuAnimEvent : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
-            if (!pauseMenuScript.isChangingScenes /*&& !gameHUDScript.isDeathScreen*/)
+            if (!pauseMenuScript.isChangingScenes)
+            {
+                if (!gameHUDScript.isDeathScreen)
+                    mainCanvas.SetActive(true);
+
+                if (gameHUDScript.isDeathScreen)
+                {
+                    gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
+                    gameHUDScript.safetyMenuText.SetActive(true);
+                    pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
+                }
+            }
+        }
+
+        /*if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            if (!pauseMenuScript.isChangingScenes && !gameHUDScript.isDeathScreen)
                 mainCanvas.SetActive(true);
-            /*if (!pauseMenuScript.isChangingScenes && gameHUDScript.isDeathScreen)
+
+            if (!pauseMenuScript.isChangingScenes && gameHUDScript.isDeathScreen)
             {
                 gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
                 gameHUDScript.safetyMenuText.SetActive(true);
                 pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
-            }*/            
-        }
-
+            }           
+        }*/
     }
     
 }

@@ -4,19 +4,40 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Why are you reading this o_0? THIS SCRIPT IS EMPTY! (for now)...
+    [Header("Floats")]
+    public float typingDelay = 0.03f;
+    public float blackBarsSpeed = 400f;
 
-    // Start is called before the first frame update    
+    [Header("Game Objects")]
+    public GameObject firstBlock;
+
+    [Header("Materials")]
+    public Material grassMaterial;
+    public Material iceMaterial;
+
+    [Header("HUD Elements")]
+    public GameObject frostedBorder;
+
+    [Header("Transform Arrays")]
+    public Transform[] puzzleViews;
+    public Transform[] checkpoints;
+
+
+    void Awake()
+    {
+
+    }
+    
+    // Start is called before the first frame update
     void Start()
     {
-        
+       
     }
 
-    // Update is called once per frame
-    void Update()
+    // Sets certain elements for other scripts - MUST BE CALLED IN AWAKE()
+    private void SetElements()
     {
         
     }
-
 
 }

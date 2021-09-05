@@ -315,7 +315,7 @@ public class ArtifactScript : MonoBehaviour
             artifactObject.SetActive(false);
     }
 
-    // Sets the scripts to find
+    // Determines which scripts to find
     private void SetScripts()
     {
         cameraScript = FindObjectOfType<CameraController>();

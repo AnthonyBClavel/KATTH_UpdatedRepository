@@ -76,13 +76,16 @@ public class GameHUD : MonoBehaviour
 
     private PauseMenu pauseMenuScript;
     private TileMovementController playerScript;
+    private TorchMeterScript torchMeterScript;
 
     void Awake()
     {
-        CheckWorld();
-        SetNumberOfCollectedArtifacts();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+
+        CheckWorld();
+        SetNumberOfCollectedArtifacts();
     }
 
     // Start is called before the first frame update
@@ -142,6 +145,7 @@ public class GameHUD : MonoBehaviour
         if (numberOfArtifactsCollected <= 15)
         {
             string sceneName = SceneManager.GetActiveScene().name;
+
             if (sceneName == "TutorialMap")
             {
                 PlayerPrefs.DeleteKey("listOfArtifacts");
@@ -198,6 +202,7 @@ public class GameHUD : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 isKeybindBubbles = !isKeybindBubbles;
+                torchMeterScript.isTorchMeterCheck();
                 //isKeybindIcons = !isKeybindIcons;
                 //isLevelInfo = !isLevelInfo;
                 //canDeathScreen = !canDeathScreen;

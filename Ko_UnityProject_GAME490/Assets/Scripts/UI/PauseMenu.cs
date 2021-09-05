@@ -144,7 +144,7 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenSafetyMenu()
     {
-        if(gameHUDScript.isDeathScreen)
+        if (gameHUDScript.isDeathScreen)
             StartCoroutine("OpenSafetyMenuDelay_DS");
         else
             StartCoroutine("OpenSafetyMenuDelay");
@@ -164,7 +164,6 @@ public class PauseMenu : MonoBehaviour
     {
         StartCoroutine("CloseSafetyMenuDelay02");
     }
-
 
     /*** On Pointer Enter functions start here ***/
     public void SelectResumeButton()

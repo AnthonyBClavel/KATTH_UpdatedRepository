@@ -20,13 +20,16 @@ public class SaveManagerScript : MonoBehaviour
     [Space(20)]
     public bool isDebugging;
     public int puzzleNumber;
-    public Transform[] checkpoints;
+    private Transform[] checkpoints;
+
+    private GameManager gameManagerScript;
 
     // Start is called before the first frame update
     void Awake()
-    {
-        LoadAllPlayerPrefs();
-        SaveSceneName(); 
+    {      
+        SaveSceneName();
+        SetCheckpoints();
+        LoadAllPlayerPrefs();       
 
         if (PlayerPrefs.GetInt("Saved") == 1 && PlayerPrefs.GetInt("TimeToLoad") == 1 && SceneManager.GetActiveScene().name != "TutorialMap" && !isDebugging)
         {
@@ -79,9 +82,10 @@ public class SaveManagerScript : MonoBehaviour
     }
 
     // Saves the player's rotation
-    public void SavePlayerRotation()
+    public void SavePlayerRotation(float playerRotation)
     {
-        PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
+        PlayerPrefs.SetFloat("r_y", playerRotation);
+        //PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
 
         PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
@@ -124,19 +128,19 @@ public class SaveManagerScript : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // Loads ALL of the saved values within the PlayerPrefs
-    private void LoadAllPlayerPrefs()
-    {
-        PlayerPrefs.SetInt("TimeToLoad", 1);
-        PlayerPrefs.Save();
-    }
-
     // Loads the player's initial rotation for when a puzzle is restarted/failed - the rotation the player was in after stepping on the first block of a puzzle
     public void LoadPlayerRotation()
     {
         rY = player.transform.eulerAngles.y;
         rY = PlayerPrefs.GetFloat("r_y");
         player.transform.eulerAngles = new Vector3(0, rY, 0);
+    }
+
+    // Loads ALL of the saved values within the PlayerPrefs
+    private void LoadAllPlayerPrefs()
+    {
+        PlayerPrefs.SetInt("TimeToLoad", 1);
+        PlayerPrefs.Save();
     }
 
     // Checks if the player is on the first puzzle - if a new save file has been created
@@ -151,6 +155,13 @@ public class SaveManagerScript : MonoBehaviour
             player.transform.position = new Vector3(0, 0, -5);
     }
 
+    // Sets the checkpoints array
+    private void SetCheckpoints()
+    {
+        gameManagerScript = FindObjectOfType<GameManager>();
+        checkpoints = gameManagerScript.checkpoints;
+    }
+
     // Loads a puzzle - For Debugging Purposes ONLY
     private void SetPuzzleToLoad()
     {
@@ -161,15 +172,11 @@ public class SaveManagerScript : MonoBehaviour
                 Debug.Log("Loaded Debug");
 
                 Transform checkpointTransform = checkpoints[puzzleNumber - 1];
-                CheckpointManager checkpointManagerScript = checkpointTransform.GetComponent<CheckpointManager>();
                 CameraController cameraScript = pixelatedCamera.GetComponent<CameraController>();
 
                 // Sets the player's position to loaded checkpoint's position
                 player.transform.position = new Vector3(checkpointTransform.position.x, 0, checkpointTransform.position.z);
                 cameraScript.currentIndex = puzzleNumber - 1;
-
-                // Sets the player's initial rotation accordingly for each puzzle - rotation is determined in each CheckpointManger's script component
-                player.transform.eulerAngles = new Vector3(0, checkpointManagerScript.playerDirection, 0);
             }
         }     
     }

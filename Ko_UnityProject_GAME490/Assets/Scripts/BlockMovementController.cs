@@ -102,7 +102,7 @@ public class BlockMovementController : MonoBehaviour
         if (Physics.Raycast(myRay, out hit, rayLength))                                                                         
         {
             string tag = hit.collider.tag;
-            if (tag == "Obstacle" || tag == "StaticBlock" || tag == "DestroyableBlock" || tag == "FireStone" || tag == "Generator" || tag == "InvisibleBlock" || tag == "Crystal" || tag == "NPC") 
+            if (tag == "PushableBlock" || tag == "StaticBlock" || tag == "DestroyableBlock" || tag == "Firestone" || tag == "Generator" || tag == "InvisibleBlock" || tag == "Crystal" || tag == "NPC") 
             {
                 PlayCantPushSFX();                                                                 
                 return false;                                                                                                  
