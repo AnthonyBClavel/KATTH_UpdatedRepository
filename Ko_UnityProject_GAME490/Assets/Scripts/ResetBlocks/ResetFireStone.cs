@@ -19,7 +19,7 @@ public class ResetFireStone : MonoBehaviour
     // Re-enables the firestone's light immediately
     public void resetFirestone()
     {
-        Debug.Log("FireStone light enabled");
+        Debug.Log("Firestone light enabled");
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.GetComponentInChildren<Light>().enabled = true;
@@ -30,7 +30,7 @@ public class ResetFireStone : MonoBehaviour
     public IEnumerator resetFirestoneWithDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        Debug.Log("FireStone light enabled");
+        Debug.Log("Firestone light enabled");
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.GetComponentInChildren<Light>().enabled = true;

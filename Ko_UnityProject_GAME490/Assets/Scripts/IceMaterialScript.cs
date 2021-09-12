@@ -13,17 +13,20 @@ public class IceMaterialScript : MonoBehaviour
 
     private float iceMaterialAlpha = 0f;
     private float frostedBorderAlpha = 0f;
+
     private GameManager gameManagerScript;
+    private GameHUD gameHUDScript;
 
     void Awake()
     {
         gameManagerScript = FindObjectOfType<GameManager>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        frostedBorder = gameManagerScript.frostedBorder;
         iceMaterial = gameManagerScript.iceMaterial;
         frostedBorderSprite = frostedBorder.GetComponent<Image>();
 
@@ -75,6 +78,18 @@ public class IceMaterialScript : MonoBehaviour
         }
     }
 
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "FrostedBorder")
+                frostedBorder = child;
+        }
+    }
 
     // Sets the ice material's alpha back to zero after a delay
     /*public IEnumerator ResetIceMaterial02()

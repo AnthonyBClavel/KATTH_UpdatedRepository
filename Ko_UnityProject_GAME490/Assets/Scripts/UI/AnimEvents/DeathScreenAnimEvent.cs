@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class DeathScreenAnimEvent : MonoBehaviour
 {
+
     private PauseMenu pauseMenuScript;
     private GameHUD gameHUDScript;
 
@@ -14,6 +15,8 @@ public class DeathScreenAnimEvent : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name != "TutorialMap")
             gameHUDScript = FindObjectOfType<GameHUD>();
+
+        SetElements();  
     }
 
     // Start is called before the first frame update
@@ -31,13 +34,20 @@ public class DeathScreenAnimEvent : MonoBehaviour
     public void SetSafetyMenuActive()
     {
         if (pauseMenuScript.isSafetyMenu && !gameHUDScript.isDeathScreen)
-            pauseMenuScript.safetyMenu.SetActive(true);
+            //pauseMenuScript.safetyMenu.SetActive(true);
         if (pauseMenuScript.isSafetyMenu && gameHUDScript.isDeathScreen)
         {
-            pauseMenuScript.safetyMenu.SetActive(true);
-            gameHUDScript.safetyMenuText.SetActive(false);
-            gameHUDScript.safetyMenuDeathScreenText.SetActive(true);
+            //pauseMenuScript.safetyMenu.SetActive(true);
+            //gameHUDScript.safetyMenuText.SetActive(false);
+            //gameHUDScriptsafetyMenuDeathScreenText.SetActive(true);
         }
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+
+
     }
 
 }

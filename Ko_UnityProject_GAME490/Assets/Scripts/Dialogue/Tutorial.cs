@@ -48,7 +48,7 @@ public class Tutorial : MonoBehaviour
         skipTurorialButtonScript = FindObjectOfType<SkipButton>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
 
-        continueButtonCD = characterDialogueScript.continueButton;
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -174,7 +174,19 @@ public class Tutorial : MonoBehaviour
                 startDialogue();
             }
         }
+    }
 
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        {
+            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "ContinueButton")
+                continueButtonCD = child;
+        }
     }
 
 }

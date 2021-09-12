@@ -7,51 +7,45 @@ public class ArtifactScript : MonoBehaviour
 {
     public string artifactName;
 
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
-    private Vector3 originalChestRotation;
-
     [Header("Bools")]
-    public bool hasFinsihedTransition = false;
     public bool canRotateArtifact = false;
     public bool canTransitionFade = true;
     public bool hasInspectedArtifact = false;
     public bool hasCollectedArtifact = false;
     public bool isInspectingArtifact = false;
 
-    [Header("Transforms")]
-    public Transform artifactHolder;
-    public Transform artifactTransform;
-    private Transform playerTransform;
-    private Transform pixelatedCamera;
-    private GameObject artifactObject;
-
-    [Header("Variables")]
-    public float rotationSpeedWithKeys;
-    public float rotationSpeedWithMouse;
+    private float rotationSpeedWithKeys; // 200f
+    private float rotationSpeedWithMouse; // 500f
     private float horizontalAxis;
     private float verticalAxis;
     private int lastArtifactIndex;
 
-    private Vector3 originalArtifactHolderRotation;
-    private Vector3 originalArtifactRotation;
+    private Animator woodenChestAnim;
+    private GameObject WoodenChestHolder;
+    private GameObject artifactHolder;
+    private GameObject artifactRotationHolder;
+    private GameObject dialogueArrow;
+    private GameObject transitionFade;
+    private GameObject continueButton;
+    private GameObject dialogueOptionsBubble;
+    private GameObject player;
+    private GameObject pixelatedCamera;
+
+    private Vector3 wchOriginalRotation; // wch = wooden chest holder
+    private Vector3 ahOriginalRotation; // ah = artifact holder
+    private Vector3 arhOriginalRotation; //arh = artifact rotation holder
     private Vector3 inspectingArtifactRotation;
-    private Vector3 cameraOrigPosition;
-    private Vector3 cameraOrigrotation;
+    private Vector3 cameraOriginalPosition;
+    private Vector3 cameraOriginalRotation;
 
-    [Header("Animator And GameObject")]
-    public Animator woodenChestAnim;
-    public GameObject WoodenCrateHolder;
-
-    [Header("Audio")]
-    public AudioClip chestOpeningThumpSFX;
-    public AudioClip chestClosingThumpSFX;
-    private AudioSource audioSource;
+    Vector3 up = Vector3.zero,
+    right = new Vector3(0, 90, 0),
+    down = new Vector3(0, 180, 0),
+    left = new Vector3(0, 270, 0);
 
     [Header("Artifact Dialogue Array")]
     public TextAsset[] artifactDialogueFiles;
+    public TextAsset dialogueOptionsFile;
 
     private CameraController cameraScript;
     private CharacterDialogue characterDialogueScript;
@@ -60,69 +54,46 @@ public class ArtifactScript : MonoBehaviour
     private GameHUD gameHUDScript;
     private SaveManagerScript saveManagerScript;
     private TutorialDialogueManager tutorialDialogueManager;
+    private AudioManager audioManagerScript;
+    private GameManager gameManagerScript;
+    private NotificationBubbles notificationBubblesScript;
 
     void Awake()
     {
         SetScripts();
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        CollectedArtifactsCheck();
-
-        pixelatedCamera = cameraScript.gameObject.GetComponent<Transform>();
-        originalArtifactHolderRotation = artifactHolder.eulerAngles;
-
-        originalArtifactRotation = artifactTransform.localEulerAngles;
-        inspectingArtifactRotation = new Vector3(-20, -180, 0);
-
-        audioSource = GetComponent<AudioSource>();
-        artifactObject = artifactTransform.gameObject;
-        originalChestRotation = WoodenCrateHolder.transform.localEulerAngles;
+        HasCollectedArtifactCheck();
     }
-
 
     // Update is called once per frame
     void Update()
     {
-        RotateArtifactCheck();
+        ResetArtifactRotationCheck();
+        DebuggingCheck();
     }
 
     void FixedUpdate()
     {
-        /*if (Input.GetKey(KeyCode.W))
-            artifact.eulerAngles = new Vector3(artifact.eulerAngles.x + rotationSpeed, artifact.eulerAngles.y, 0);
-        if (Input.GetKey(KeyCode.S))
-            artifact.eulerAngles = new Vector3(artifact.eulerAngles.x - rotationSpeed, artifact.eulerAngles.y, 0);
-        if (Input.GetKey(KeyCode.A))
-            artifact.eulerAngles = new Vector3(artifact.eulerAngles.x, artifact.eulerAngles.y + rotationSpeed, 0);
-        if (Input.GetKey(KeyCode.D))
-            artifact.eulerAngles = new Vector3(artifact.eulerAngles.x, artifact.eulerAngles.y - rotationSpeed, 0);*/
-
-        //float horizontalAxis = Input.GetAxis("Horizontal");
-        //float verticalAxis = Input.GetAxis("Vertical");
-        //Vector3 currEulerAngles = transform.localEulerAngles;
-
-        //currEulerAngles.y += -horizontalAxis * rotationSpeed * Time.deltaTime;
-        //currEulerAngles.x += verticalAxis * rotationSpeed * Time.deltaTime;
-
-        //transform.localRotation = Quaternion.Euler(currEulerAngles);
-
-        MoveObjectWithKeysCheck();
-        MoveObjectWithMouseCheck();
+        CanRotateArtifactCheck();
     }
 
-    // Checks to see if the player has already collected the artifact
-    public void CollectedArtifactsCheck()
+    // Updates all artifact elements in the character dialogue script - also starts dialogue
+    public void SetVariablesForCharacterDialogueScript()
     {
-        string listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
-
-        if (listOfArtifactNames.Contains(artifactName) && hasCollectedArtifact != true)
-            hasCollectedArtifact = true;
+        characterDialogueScript.UpdateScriptForArtifact(this);
+        SetArtifactDialogue();
+        OpenChest();
+        characterDialogueScript.isInteractingWithArtifact = true;
+        characterDialogueScript.setDialogueQuestions(dialogueOptionsFile);
+        characterDialogueScript.StartDialogue();
     }
 
-    // Saves the name of the artifact within the large string, and updates/plays the artifact notification
+    // Saves/adds the name of the artifact to a string and updates/plays the artifact notification
     public void SaveCollectedArtifact()
     {
         int numberOfArtifactsCollected = PlayerPrefs.GetInt("numberOfArtifactsCollected");
@@ -135,47 +106,57 @@ public class ArtifactScript : MonoBehaviour
             else
                 gameHUDScript.UpdateArtifactBubbleText((numberOfArtifactsCollected + 1) + "/15");
 
-            gameHUDScript.PlayArtifactNotificationCheck();
-            saveManagerScript.SaveCollectedArtifact(listOfArtifactNames + artifactName);
-            saveManagerScript.SaveNumberOfArtifactsCollected(PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1);
+            notificationBubblesScript.PlayArtifactNotificationCheck();
+            saveManagerScript.SaveCollectedArtifact(listOfArtifactNames + artifactName); // Adds the name of the artifact to the saved string
+            saveManagerScript.SaveNumberOfArtifactsCollected(PlayerPrefs.GetInt("numberOfArtifactsCollected") + 1); // Adds 1 to the saved int
         }
     }
 
-    // Interacts with the artifact - transitions to the close up camera view of the artifact
+    // Transitions to the close up view of the artifact
     public void InspectArtifact()
     {
         if (canTransitionFade)
         {
-            StartCoroutine("TransitionToArtifactView");
+            StartCoroutine("TransitionToArtifactCameraView");
             canTransitionFade = false;
         }
     }
 
-    // Stops inspecting the artifact - transitions back to the previous camera view
+    // Transitions back to the previous camera view
     public void StopInspectingArtifact()
     {
         if (canTransitionFade)
         {
-            StartCoroutine("TransitionOutOfArtifactView");
+            StartCoroutine("TransitionToPreviousCameraView");
             canTransitionFade = false;
         }
     }
 
-    // Opens the wooden chest
-    public void OpenChest()
-    {
-        PlayOpenChestSFX();
-        woodenChestAnim.SetTrigger("Open");
-    }
-
-    // closes the wooden chest
+    // Closes the wooden chest
     public void CloseChest()
     {
         StartCoroutine("CloseWoodenChestSequence");
     }
 
-    // Checks when the artifact can be rotated/reseted 
-    private void RotateArtifactCheck()
+    // Opens the wooden chest
+    private void OpenChest()
+    {
+        audioManagerScript.PlayOpeningChestSFX();
+        woodenChestAnim.SetTrigger("Open");
+    }
+
+    // Checks if the artifact has been collected
+    private void HasCollectedArtifactCheck()
+    {
+        string listOfArtifactNames = PlayerPrefs.GetString("listOfArtifacts");
+
+        // If the string doesn't contain the name of the artifact...
+        if (listOfArtifactNames.Contains(artifactName) && hasCollectedArtifact != true)
+            hasCollectedArtifact = true;
+    }
+
+    // Checks if the player can reset the artifact's rotation
+    private void ResetArtifactRotationCheck()
     {
         if (Input.GetKeyDown(KeyCode.R) && canRotateArtifact && !pauseMenuScript.isChangingScenes)
         {
@@ -183,29 +164,73 @@ public class ArtifactScript : MonoBehaviour
                 SetInspectingRotation();
             else
                 SetDefaultRotation();
-
-            //transform.rotation = Quaternion.identity;
         }
     }
 
-    // Sets the rotation of the wooden chest so that it faces the player
+    // Rotates the wooden chest towards the player
     private void SetChestRotation()
     {
         if (playerScript.playerDirection == up)
-            WoodenCrateHolder.transform.localEulerAngles = down;
+            WoodenChestHolder.transform.localEulerAngles = down;
 
         if (playerScript.playerDirection == left)
-            WoodenCrateHolder.transform.localEulerAngles = right;
+            WoodenChestHolder.transform.localEulerAngles = right;
 
         if (playerScript.playerDirection == down)
-            WoodenCrateHolder.transform.localEulerAngles = up;
+            WoodenChestHolder.transform.localEulerAngles = up;
 
         if (playerScript.playerDirection == right)
-            WoodenCrateHolder.transform.localEulerAngles = left;
+            WoodenChestHolder.transform.localEulerAngles = left;
     }
 
-    // Sets the new set of dialogue for the artifact
-    public void SetArtifactDialogue()
+    // Sets the artifact camera view - sets the camera's position and rotation to the player's
+    private void SetArtifactCameraView()
+    {
+        cameraOriginalPosition = pixelatedCamera.transform.position;
+        cameraOriginalRotation = pixelatedCamera.transform.eulerAngles;
+
+        isInspectingArtifact = true;
+        cameraScript.canMoveToArtifactView = true;
+
+        pixelatedCamera.transform.position = player.transform.localPosition + new Vector3(0, 2.15f, 0); // Sets the camera slighty above the player
+        pixelatedCamera.transform.eulerAngles = new Vector3(pixelatedCamera.transform.eulerAngles.x, player.transform.localEulerAngles.y, pixelatedCamera.transform.eulerAngles.z);
+
+        SetInspectingRotation();
+        canRotateArtifact = true;
+    }
+
+    // Sets the camera back to it's previous position and rotation
+    private void ResetCameraView()
+    {
+        //Debug.Log("Has Reset Camera View");
+        pixelatedCamera.transform.position = cameraOriginalPosition;
+        pixelatedCamera.transform.eulerAngles = cameraOriginalRotation;
+
+        isInspectingArtifact = false;
+        cameraScript.canMoveToArtifactView = false;
+
+        SetDefaultRotation();
+        canRotateArtifact = false;
+    }
+
+    // Rotates the artifact to look at the camera
+    private void SetInspectingRotation()
+    {
+        artifactHolder.transform.LookAt(pixelatedCamera.transform);
+        artifactRotationHolder.transform.localRotation = Quaternion.Euler(inspectingArtifactRotation);
+    }
+
+    // Resets the artifact to its default rotation
+    private void SetDefaultRotation()
+    {
+        if (artifactHolder.transform.eulerAngles != ahOriginalRotation)
+            artifactHolder.transform.eulerAngles = ahOriginalRotation;
+
+        artifactRotationHolder.transform.localRotation = Quaternion.Euler(arhOriginalRotation);
+    }
+
+    // Sets the artifact dialogue - randomly slected and different from the one previously played
+    private void SetArtifactDialogue()
     {
         int attempts = 3;
         int newArtifactIndex = UnityEngine.Random.Range(0, artifactDialogueFiles.Length);
@@ -220,167 +245,178 @@ public class ArtifactScript : MonoBehaviour
         characterDialogueScript.setPlayerDialogue(artifactDialogueFiles[newArtifactIndex]);
     }
 
-    // Sets the camera to look at the artifact up close
-    public void SetNewCameraView()
+    // Checks if the artifact can be rotated
+    private void CanRotateArtifactCheck()
     {
-        cameraOrigPosition = pixelatedCamera.position;
-        cameraOrigrotation = pixelatedCamera.eulerAngles;
-
-        isInspectingArtifact = true;
-        cameraScript.canMoveToArtifactView = true;
-
-        pixelatedCamera.position = playerTransform.localPosition + new Vector3(0, 2.15f, 0);
-        pixelatedCamera.eulerAngles = new Vector3(pixelatedCamera.transform.eulerAngles.x, playerTransform.localEulerAngles.y, pixelatedCamera.transform.eulerAngles.z);
-
-        SetInspectingRotation();
-        canRotateArtifact = true;
-    }
-    
-    // Sets the camera back to it's previous position and rotation
-    public void ResetCameraView()
-    {
-        Debug.Log("Has Reseted Camera View");
-        pixelatedCamera.position = cameraOrigPosition;
-        pixelatedCamera.eulerAngles = cameraOrigrotation;
-
-        isInspectingArtifact = false;
-        cameraScript.canMoveToArtifactView = false;
-
-        SetDefaultRotation();
-        canRotateArtifact = false;
-    }
-
-    // Rotates the artifact to look at the new camera view
-    private void SetInspectingRotation()
-    {
-        artifactHolder.LookAt(pixelatedCamera);
-        artifactTransform.localRotation = Quaternion.Euler(inspectingArtifactRotation);
-    }
-
-    // Resets the artifact to its default rotation
-    private void SetDefaultRotation()
-    {
-        if (artifactHolder.eulerAngles != originalArtifactHolderRotation)
-            artifactHolder.eulerAngles = originalArtifactHolderRotation;
-
-        artifactTransform.localRotation = Quaternion.Euler(originalArtifactRotation);
-    }
-
-    // Plays the sfx for opening the chest
-    private void PlayOpenChestSFX()
-    {
-        //audioSource.volume = 0.65f;
-        //audioSource.pitch = 1f;
-        audioSource.PlayOneShot(chestOpeningThumpSFX);
-    }
-
-    // Plays the sfx for closing the chest
-    private void PlayCloseChestSFX()
-    {
-        //audioSource.volume = 0.65f;
-        //audioSource.pitch = 1f;
-        audioSource.PlayOneShot(chestClosingThumpSFX);
-    }
-
-    // Checks to see if the artifact can move with the arrow keys
-    private void MoveObjectWithKeysCheck()
-    {
-        if (canRotateArtifact && !Input.GetMouseButton(0) && !pauseMenuScript.isChangingScenes)
+        if (canRotateArtifact && !pauseMenuScript.isChangingScenes)
         {
-            horizontalAxis = Input.GetAxis("Horizontal") * rotationSpeedWithKeys * Time.deltaTime;
-            verticalAxis = Input.GetAxis("Vertical") * rotationSpeedWithKeys * Time.deltaTime;
+            // Rotation via keys
+            if (!Input.GetMouseButton(0))
+            {
+                horizontalAxis = Input.GetAxis("Horizontal") * rotationSpeedWithKeys * Time.deltaTime;
+                verticalAxis = Input.GetAxis("Vertical") * rotationSpeedWithKeys * Time.deltaTime;
 
-            artifactTransform.Rotate(Vector3.up, -horizontalAxis);
-            artifactTransform.Rotate(Vector3.right, verticalAxis);
+                artifactRotationHolder.transform.Rotate(Vector3.up, -horizontalAxis);
+                artifactRotationHolder.transform.Rotate(Vector3.right, verticalAxis);
+            }
+            // Rotation via mouse
+            if (Input.GetMouseButton(0))
+            {
+                horizontalAxis = Input.GetAxis("Mouse X") * rotationSpeedWithMouse * Time.deltaTime;
+                verticalAxis = Input.GetAxis("Mouse Y") * rotationSpeedWithMouse * Time.deltaTime;
+
+                artifactRotationHolder.transform.Rotate(Vector3.up, -horizontalAxis);
+                artifactRotationHolder.transform.Rotate(Vector3.right, verticalAxis);
+            }
         }
     }
 
-    // Checks to see if the artifact can move with the mouse
-    private void MoveObjectWithMouseCheck()
-    {
-        if (canRotateArtifact && Input.GetMouseButton(0) && !pauseMenuScript.isChangingScenes)
-        {
-            horizontalAxis = Input.GetAxis("Mouse X") * rotationSpeedWithMouse * Time.deltaTime;
-            verticalAxis = Input.GetAxis("Mouse Y") * rotationSpeedWithMouse * Time.deltaTime;
-
-            artifactTransform.Rotate(Vector3.up, -horizontalAxis);
-            artifactTransform.Rotate(Vector3.right, verticalAxis);
-        }
-    }
-
-    // Sets the artifact inactive - for when the player collects it
-    private void HasCollectArtifactCheck()
+    // Sets the artifact inactive when the player collects it
+    private void SetArtifactInactiveCheck()
     {
         if (hasCollectedArtifact)
-            artifactObject.SetActive(false);
-    }
-
-    // Determines which scripts to find
-    private void SetScripts()
-    {
-        cameraScript = FindObjectOfType<CameraController>();
-        playerTransform = FindObjectOfType<TileMovementController>().gameObject.transform;
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+            artifactRotationHolder.SetActive(false);
     }
 
     // Triggers the sequence that closes the wooden chest
     private IEnumerator CloseWoodenChestSequence()
     {
-        // Checks to see if the artifact was in the tutorial - ends the tutorial dialogue properly if so
+        // Checks if the artifact was in the tutorial - ends the tutorial dialogue properly if so
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             tutorialDialogueManager.EndTutorialDialogueManager();
 
-        HasCollectArtifactCheck();
+        SetArtifactInactiveCheck();
         woodenChestAnim.SetTrigger("Close");
         yield return new WaitForSeconds(0.166f);
-        PlayCloseChestSFX();
+        audioManagerScript.PlayClosingChestSFX();
     }
 
-    // Transitions the the close up camera view of the artifact
-    private IEnumerator TransitionToArtifactView()
+    // Transitions the artifact camera view
+    private IEnumerator TransitionToArtifactCameraView()
     {
-        characterDialogueScript.dialogueArrow.SetActive(false);
-        characterDialogueScript.fadeTransition.SetActive(true);
+        dialogueArrow.SetActive(false);
+        transitionFade.SetActive(true);
         pauseMenuScript.canPause = false;
 
         yield return new WaitForSeconds(1f);
-        SetNewCameraView();
+        SetArtifactCameraView();
         SetChestRotation();
         characterDialogueScript.ChangeContinueButtonText("Go Back");
-        characterDialogueScript.continueButton.SetActive(true);
+        continueButton.SetActive(true);
 
         yield return new WaitForSeconds(1f);
         pauseMenuScript.canPause = true;
-        characterDialogueScript.fadeTransition.SetActive(false);
+        transitionFade.SetActive(false);
         characterDialogueScript.hasTransitionedToArtifactView = true;
         canTransitionFade = true;
     }
 
-    // Transitions back to the previous camera view
-    private IEnumerator TransitionOutOfArtifactView()
+    // Transitions to the camera's previous position and rotation
+    private IEnumerator TransitionToPreviousCameraView()
     {
-        characterDialogueScript.fadeTransition.SetActive(true);
+        transitionFade.SetActive(true);
         pauseMenuScript.canPause = false;
 
         yield return new WaitForSeconds(1f);
         ResetCameraView();
-        WoodenCrateHolder.transform.localEulerAngles = originalChestRotation;
+        WoodenChestHolder.transform.localEulerAngles = wchOriginalRotation;
 
         yield return new WaitForSeconds(0.5f);
-        if (!characterDialogueScript.dialogueOptionsBubble.activeSelf)
+        if (!dialogueOptionsBubble.activeSelf)
             characterDialogueScript.OpenDialogueOptionsBubble();
 
         yield return new WaitForSeconds(0.5f);
         pauseMenuScript.canPause = true;
-        characterDialogueScript.fadeTransition.SetActive(false);
+        transitionFade.SetActive(false);
         canTransitionFade = true;
     }
 
+    // Sets the scripst to use
+    private void SetScripts()
+    {
+        cameraScript = FindObjectOfType<CameraController>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "WoodenChestHolder")
+            {
+                WoodenChestHolder = child;
+                woodenChestAnim = child.GetComponentInChildren<Animator>();
+            }
+                
+            if (child.name == "ArtifactHolder")
+            {
+                artifactHolder = child;
+
+                for (int k = 0; k < artifactHolder.transform.childCount; k++)
+                {
+                    GameObject child02 = artifactHolder.transform.GetChild(k).gameObject;
+
+                    if (child02.name == "ArtifactRotationHolder")
+                        artifactRotationHolder = child02;
+                }
+            }           
+        }
+
+        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        {
+            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "ContinueButton")
+                continueButton = child;
+            if (child.name == "TransitionFade")
+                transitionFade = child;
+        }
+
+        for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
+        {
+            GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "DialogueOptionsBubble")
+                dialogueOptionsBubble = child;
+        }
+
+        player = playerScript.gameObject;
+        pixelatedCamera = cameraScript.gameObject;
+        dialogueArrow = characterDialogueScript.dialogueArrow;
+
+        wchOriginalRotation = WoodenChestHolder.transform.localEulerAngles;
+        ahOriginalRotation = artifactHolder.transform.eulerAngles;
+        arhOriginalRotation = artifactRotationHolder.transform.localEulerAngles;
+        inspectingArtifactRotation = new Vector3(-20, -180, 0);
+
+        rotationSpeedWithKeys = gameManagerScript.rotationWithKeys;
+        rotationSpeedWithMouse = gameManagerScript.rotationWithMouse;
+    }
+
+    // Updates the rotation speeds for the artifact inputs - For Debugging Purposes ONLY
+    private void DebuggingCheck()
+    {
+        if (gameManagerScript.isDebugging)
+        {
+            if (rotationSpeedWithKeys != gameManagerScript.rotationWithKeys)
+                rotationSpeedWithKeys = gameManagerScript.rotationWithKeys;
+
+            if (rotationSpeedWithMouse != gameManagerScript.rotationWithMouse)
+                rotationSpeedWithMouse = gameManagerScript.rotationWithMouse;
+        }
+    }
 }

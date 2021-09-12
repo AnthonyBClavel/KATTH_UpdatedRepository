@@ -13,12 +13,12 @@ public class TileMovementController : MonoBehaviour
     public bool canInteract = true;
     public bool canRestartPuzzle;
     public bool canSetBoolsTrue;
+    public bool hasFinishedZone = false;
     private bool isPushing;                                     
     private bool isInteracting;
     private bool alreadyPlayedSFX;
     private bool hasAlreadyPopedOut;
     private bool hasMovedPuzzleView = false; 
-    private bool hasFinishedZone = false;
     private bool canCheckForNextTile = true;
     private bool canTorchMeter = true;
 
@@ -40,12 +40,6 @@ public class TileMovementController : MonoBehaviour
     private GameObject previousBridgeTile;
     private Animator playerAnim;
 
-    private AudioClip[] swooshClips;
-    private AudioSource swooshSFX;
-    private AudioSource torchFireIgniteSFX;
-    private AudioSource torchFireExtinguishSFX;
-    private AudioSource freezingSFX;
-
     [Header("Particles")]
     public GameObject destroyedBlockParticle;
     public ParticleSystem torchFireParticle;
@@ -58,7 +52,6 @@ public class TileMovementController : MonoBehaviour
 
     [Header("Scripts")]
     public TorchMeterStat torchMeterMoves;
-    private LevelManager levelManagerScript;
     private TorchMeterScript torchMeterScript;
     private SaveManagerScript saveManagerScript;
     private IceMaterialScript iceMaterialScript;
@@ -69,27 +62,13 @@ public class TileMovementController : MonoBehaviour
     private CameraController cameraScript;
     private FidgetAnimControllerPlayer playerFidgetScript;
     private AudioManager audioManagerScript;
+    private GameManager gameManagerScript;
 
     void Awake()
     {
-        //torchMeterMoves.Initialize();
+        //torchMeterMoves.Initialize(); // Initialized in the torch meter script
 
-        levelManagerScript = FindObjectOfType<LevelManager>();
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        iceMaterialScript = FindObjectOfType<IceMaterialScript>();
-        playerSoundsScript = FindObjectOfType<PlayerSounds>();
-        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
-        cameraScript = FindObjectOfType<CameraController>();
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-
-
-        dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
-        playerAnim = playerSoundsScript.GetComponent<Animator>();
-
+        SetScripts();
         SetElemenets();
     }
 
@@ -146,8 +125,8 @@ public class TileMovementController : MonoBehaviour
                 else
                     resetPuzzleWithDelay();
 
-                torchFireExtinguishSFX.Play();
-                freezingSFX.Play();
+                audioManagerScript.PlayTorchFireExtinguishSFX();
+                audioManagerScript.PlayFreezeingSFX();
                 alreadyPlayedSFX = true;
             }
         }
@@ -184,7 +163,7 @@ public class TileMovementController : MonoBehaviour
     // Updates the keyboard input - returns true if input is recieved, false otherwise
     bool updateKeyboardInput()
     {
-        /*** Movement inputs start here ***/
+        /*** Movement inputs START here ***/
         if (canMove)
         {
             // Move North
@@ -219,7 +198,7 @@ public class TileMovementController : MonoBehaviour
                 return true;
             }
         }
-        /*** Movement inputs end here ***/
+        /*** Movement inputs END here ***/
 
         // Hit R to reset puzzle
         if (Input.GetKeyDown(KeyCode.R)) resetPuzzle();
@@ -280,7 +259,7 @@ public class TileMovementController : MonoBehaviour
                 break;
 
             default:
-                Debug.Log("Unrecognizable Tag");
+                //Debug.Log("Unrecognizable Tag");
                 isPushing = false;
                 CheckToPlayAnims();
                 break;
@@ -302,7 +281,7 @@ public class TileMovementController : MonoBehaviour
     // Sets the object inactive - "destroys" the block
     public void destroyBlock(Collider collider)
     {
-        Debug.Log("Destroyed Block");
+        //Debug.Log("Destroyed Block");
         GameObject destroyableBlock = collider.gameObject;
 
         SubractFromTorchMeter();
@@ -320,7 +299,7 @@ public class TileMovementController : MonoBehaviour
 
         if (generatorScript.canInteract == true)
         {
-            Debug.Log("Turned On Generator");
+            //Debug.Log("Turned On Generator");
             generatorScript.TurnOnGenerator();
             SubractFromTorchMeter();
 
@@ -336,9 +315,9 @@ public class TileMovementController : MonoBehaviour
 
         if (firestoneLight.enabled == true)
         {
-            Debug.Log("Has Interacted With Firestone");
+            //Debug.Log("Has Interacted With Firestone");
             torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
-            torchFireIgniteSFX.Play();
+            audioManagerScript.PlayTorchFireIgniteSFX();
 
             isInteracting = true;
             CheckToPlayAnims();
@@ -350,18 +329,11 @@ public class TileMovementController : MonoBehaviour
     // Calls the scripts and functions to begin/trigger the NPC dialogue
     public void interactWithNPC(Collider collider)
     {
-        Debug.Log("Player has interacted with NPC");
+        //Debug.Log("Player has interacted with NPC");
         NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
-        FidgetAnimControllerNPC nPCFidgetScript = collider.GetComponentInChildren<FidgetAnimControllerNPC>();
 
-        dialogueViewsHolder.transform.position = collider.gameObject.transform.position;
-        characterDialogueScript.fidgetAnimControllerNPC = nPCFidgetScript;
-        characterDialogueScript.nPCScript = nonPlayerCharacterScript;
-        characterDialogueScript.nPCDialogueCheck = nonPlayerCharacterScript.nPCDialogueCheck;
-        characterDialogueScript.talkingTo = nonPlayerCharacterScript.characterName;
-        characterDialogueScript.isInteractingWithNPC = true;
-        characterDialogueScript.setDialogueQuestions(nonPlayerCharacterScript.dialogueOptionsFile);
-        characterDialogueScript.StartDialogue();
+        dialogueViewsHolder.transform.position = collider.transform.position;
+        nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
 
         isInteracting = false;
         CheckToPlayAnims();
@@ -374,14 +346,9 @@ public class TileMovementController : MonoBehaviour
 
         if (!artifactScript.hasCollectedArtifact)
         {
-            Debug.Log("Player has interacted with Artifact");
-            dialogueViewsHolder.transform.position = collider.gameObject.transform.position;
-            collider.GetComponent<ArtifactScript>().SetArtifactDialogue();
-            collider.GetComponent<ArtifactScript>().OpenChest();
-            characterDialogueScript.artifactScript = artifactScript;
-            characterDialogueScript.isInteractingWithArtifact = true;
-            characterDialogueScript.setDialogueQuestions(characterDialogueScript.artifactDialogueOptions);
-            characterDialogueScript.StartDialogue();
+            //Debug.Log("Player has interacted with Artifact");
+            dialogueViewsHolder.transform.position = collider.transform.position;
+            artifactScript.SetVariablesForCharacterDialogueScript();
 
             isInteracting = true;
             CheckToPlayAnims();
@@ -411,7 +378,7 @@ public class TileMovementController : MonoBehaviour
         Physics.Raycast(myRay, out hit, rayLength);
         string name = hit.collider.name;
 
-        if (name == "BridgeBlock")
+        if (name == "BridgeTile")
             return true;
 
         return false;
@@ -508,7 +475,7 @@ public class TileMovementController : MonoBehaviour
         string tag = currentBridgeTile.tag;
         string name = currentBridgeTile.name;
 
-        if (name == "BridgeBlock")
+        if (name == "BridgeTile")
         {
             // Torch meter pops out when the player gets on a bridge
             PopOutTorchMeterCheck();
@@ -524,15 +491,15 @@ public class TileMovementController : MonoBehaviour
                 if (!hasFinishedZone)
                 {
                     //ResetTorchMeter();
-                    levelManagerScript.DisablePlayer();
-                    levelManagerScript.SetLevelCompletedEffects();
+                    audioManagerScript.PlayChimeSFX();
+                    gameManagerScript.FinishedZoneCheck();
                     hasFinishedZone = true;
                 }
 
                 // Disables the SFX for the player's footsteps - ONLY disabled when transitioning to another zone/scene
                 if (bridgeTileCount == 8 && playerSoundsScript.canPlayFootsteps != false)
                 {
-                    Debug.Log("Disabled Footsteps SFX");
+                    //Debug.Log("Disabled Footsteps SFX");
                     playerSoundsScript.canPlayFootsteps = false;
                 }
 
@@ -561,9 +528,9 @@ public class TileMovementController : MonoBehaviour
                         string name02 = nextBridgeTile.name;
                         string tag02 = nextBridgeTile.tag;
 
-                        if (name02 == "BridgeBlock" && nextBridgeTile != previousBridgeTile || tag02 == "Checkpoint")
+                        if (name02 == "BridgeTile" && nextBridgeTile != previousBridgeTile || tag02 == "Checkpoint")
                         {
-                            Debug.Log("Next Tile Found");
+                            //Debug.Log("Next Tile Found");
                             destination = nextBridgeTile.transform.position;
 
                             float playerRotation = nextBridgeTileCheck.transform.eulerAngles.y;
@@ -571,7 +538,7 @@ public class TileMovementController : MonoBehaviour
                         }
                     }
 
-                    Debug.Log("Bridge Tile Not Found");
+                    //Debug.Log("Bridge Tile Not Found");
                     i = rayDirection;
                     rayDirection += 90;
                     nextBridgeTileCheck.transform.localEulerAngles = new Vector3(0, rayDirection, 0);
@@ -771,7 +738,7 @@ public class TileMovementController : MonoBehaviour
     {
         if (bridge.name != "EndBridge" && !hasMovedPuzzleView) // Make sure the parent object for the final bridge is called "EndBridge"
         {
-            Debug.Log("Switched To Next Puzzle View");
+            //Debug.Log("Next Puzzle View Activated");
             cameraScript.NextPuzzleView();
             hasMovedPuzzleView = true;
         }
@@ -799,7 +766,7 @@ public class TileMovementController : MonoBehaviour
         else if (isInteracting)
         {
             ChangeAnimationState("Interacting");
-            SwooshSFX();
+            audioManagerScript.PlaySwooshSFX();
         }
 
         isPushing = false;
@@ -807,45 +774,44 @@ public class TileMovementController : MonoBehaviour
         playerFidgetScript.SetIdleIndexToZero();
     }
 
-    // Plays a random SwooshSFX
-    private void SwooshSFX()
+    // Sets the scripts to use
+    private void SetScripts()
     {
-        AudioClip swooshClips = GetRandomSwooshSFX();
-        swooshSFX.volume = 0.36f;
-        swooshSFX.PlayOneShot(swooshClips);
-    }
-
-    // Gets a random audio clip - SwooshSFX
-    private AudioClip GetRandomSwooshSFX()
-    {
-        return swooshClips[UnityEngine.Random.Range(0, swooshClips.Length)];
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        iceMaterialScript = FindObjectOfType<IceMaterialScript>();
+        playerSoundsScript = FindObjectOfType<PlayerSounds>();
+        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
+        cameraScript = FindObjectOfType<CameraController>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
     }
 
     // Sets private variables, objects, and components
     private void SetElemenets()
     {
-        torchFireExtinguishSFX = audioManagerScript.torchFireExtinguishSFX;
-        torchFireIgniteSFX = audioManagerScript.torchFireIgniteSFX;
-        freezingSFX = audioManagerScript.freezingSFX;
-        swooshSFX = audioManagerScript.swooshSFX;
-        swooshClips = audioManagerScript.swooshClips;
-
         // Sets the game objects by looking at names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
 
             if (child.name == "EdgeCheck")
-                edgeCheck = child.gameObject;
+                edgeCheck = child;
             if (child.name == "NextBridgeTileCheck")
-                nextBridgeTileCheck = child.gameObject;
+                nextBridgeTileCheck = child;
         }
+
+        dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
+        playerAnim = playerSoundsScript.GetComponent<Animator>();
     }
 
     // Enables debugging for the torch meter - For Debugging Purposes ONLY
     private void TorchMeterDebugingCheck()
     {
-        if (saveManagerScript.isDebugging)
+        if (gameManagerScript.isDebugging)
         {
             if (Input.GetKeyDown(KeyCode.LeftBracket))
                 torchMeterMoves.CurrentVal--;

@@ -6,9 +6,11 @@ using UnityEngine.SceneManagement;
 public class CheckpointManager : MonoBehaviour
 {
     public int numMovements;
-    public GameObject bridgeTileCheck;
 
+    private GameObject bridgeTileCheck;
     private GameObject player;
+    private GameObject savedInvisibleBlock;
+    private GameObject deathScreen;
     private Animator playerAnimator;
 
     private float rayLengthLBT = 1f;
@@ -22,15 +24,9 @@ public class CheckpointManager : MonoBehaviour
     private PauseMenu pauseMenuScript;
 
     void Awake()
-    {   
-        iceMaterialScript = FindObjectOfType<IceMaterialScript>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-
-        player = playerScript.gameObject;
-        playerAnimator = playerScript.GetComponentInChildren<Animator>();
+    {
+        SetScript();
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -56,7 +52,6 @@ public class CheckpointManager : MonoBehaviour
     // Checks for the closet bridge tile and sets the savedInvisibleBlock's position to that bridge tile
     public bool LastBridgeTileCheck()
     {
-        GameObject savedInvisibleBlock = saveManagerScript.savedInvisibleBlock;
         int rayDirection = 0;
 
         for (int i = 0; i <= 270; i += 90)
@@ -71,8 +66,9 @@ public class CheckpointManager : MonoBehaviour
                 float lastBridgeTileX = lastBridgeTile.transform.position.x;
                 float lastBridgeTileZ = lastBridgeTile.transform.position.z;
                 string name = lastBridgeTile.name;
+                string tag = lastBridgeTile.tag;
 
-                if (name == "BridgeBlock")
+                if (name == "BridgeTile" || tag == "BridgeTile")
                 {
                     //Debug.Log("BridgeBlock Found");
                     playerScript.bridge = lastBridgeTile.transform.parent.gameObject;
@@ -115,7 +111,7 @@ public class CheckpointManager : MonoBehaviour
         playerScript.setDestination(checkpointPosition);
         playerScript.ResetTorchMeter();
 
-        gameHUDScript.deathScreen.SetActive(false);
+        deathScreen.SetActive(false);
         ResetIceMatAlphas();
     }
 
@@ -175,6 +171,48 @@ public class CheckpointManager : MonoBehaviour
     {
         iceMaterialScript.ResetIceMaterial();
         iceMaterialScript.ResetFrostedBorderAlpha();
+    }
+
+    // Sets the scripts to use
+    private void SetScript()
+    {
+        iceMaterialScript = FindObjectOfType<IceMaterialScript>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "BridgeTileCheck")
+                bridgeTileCheck = child;
+        }
+
+        for (int i = 0; i < saveManagerScript.transform.childCount; i++)
+        {
+            GameObject child = saveManagerScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "SavedInvisibleBlock")
+                savedInvisibleBlock = child;
+        }
+
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "OptionalDeathScreen")
+                deathScreen = child;
+        }
+
+        player = playerScript.gameObject;
+        playerAnimator = playerScript.GetComponentInChildren<Animator>();
     }
 
 }

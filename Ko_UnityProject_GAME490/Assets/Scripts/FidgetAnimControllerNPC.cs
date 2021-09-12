@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class FidgetAnimControllerNPC : MonoBehaviour
 {
+    [Header("Bools")]
+    public bool inCharacterDialogue = false;
+    public bool hasPlayedGreetAnimNPC = false;
+    private bool canFidget = true;
+
     [Header("NPC Variables")]
     private int idleAnimIndexNPC;
     private int fidgetIndexNPC;
@@ -11,11 +16,7 @@ public class FidgetAnimControllerNPC : MonoBehaviour
 
     [Header("Character Animators")]
     private Animator animNPC;
-
-    [Header("Bools")]
-    public bool inCharacterDialogue = false;
-    public bool hasPlayedGreetAnimNPC = false;
-    private bool canFidget = true;
+    private GameObject dialogueOptionsBubble;
 
     private CharacterDialogue characterDialogueScript;
     private PauseMenu pauseMenuScript;
@@ -24,6 +25,8 @@ public class FidgetAnimControllerNPC : MonoBehaviour
     {
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -56,7 +59,7 @@ public class FidgetAnimControllerNPC : MonoBehaviour
         {
             if (!inCharacterDialogue)
             {
-                if (characterDialogueScript.dialogueOptionsBubble.activeSelf)
+                if (dialogueOptionsBubble.activeSelf)
                         animNPC.SetTrigger("Fidget01");
                 else
                 {
@@ -169,6 +172,19 @@ public class FidgetAnimControllerNPC : MonoBehaviour
 
             timesToRepeatNPC = newTimesToRepeatNPC;
         }
-
     }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
+        {
+            GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "DialogueOptionsBubble")
+                dialogueOptionsBubble = child;
+        }
+    }
+
 }

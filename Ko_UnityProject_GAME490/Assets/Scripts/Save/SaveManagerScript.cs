@@ -5,10 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class SaveManagerScript : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject savedInvisibleBlock;
-    public GameObject pixelatedCamera;
-
+    private GameObject player;
+    private GameObject savedInvisibleBlock;
     private string sceneName;
 
     // Floats for saving the player's position
@@ -16,22 +14,17 @@ public class SaveManagerScript : MonoBehaviour
     private float pZ;
     private float rY;
 
-    [Header("Debugging Elements")]
-    [Space(20)]
-    public bool isDebugging;
-    public int puzzleNumber;
-    private Transform[] checkpoints;
-
+    private CameraController cameraScript;
     private GameManager gameManagerScript;
 
     // Start is called before the first frame update
     void Awake()
     {      
         SaveSceneName();
-        SetCheckpoints();
+        SetElements();
         LoadAllPlayerPrefs();       
 
-        if (PlayerPrefs.GetInt("Saved") == 1 && PlayerPrefs.GetInt("TimeToLoad") == 1 && SceneManager.GetActiveScene().name != "TutorialMap" && !isDebugging)
+        if (PlayerPrefs.GetInt("Saved") == 1 && PlayerPrefs.GetInt("TimeToLoad") == 1 && SceneManager.GetActiveScene().name != "TutorialMap" && !gameManagerScript.isDebugging)
         {
             Debug.Log("Save Loaded Successfully");          
 
@@ -46,24 +39,19 @@ public class SaveManagerScript : MonoBehaviour
             player.transform.position = new Vector3(pX, 0, pZ);
             player.transform.eulerAngles = new Vector3(0, rY, 0);
 
-            pixelatedCamera.GetComponent<CameraController>().currentIndex = PlayerPrefs.GetInt("cameraIndex");
+            //cameraScript.cameraIndex = PlayerPrefs.GetInt("cameraIndex");
+            cameraScript.LoadSavedCameraIndex();
             OnFirstPuzzleCheck();
 
             PlayerPrefs.SetInt("TimeToLoad", 0);
             PlayerPrefs.Save();
         }     
 
-        if (isDebugging)
+        if (gameManagerScript.isDebugging)
         {
             SetPuzzleToLoad();
             OnFirstPuzzleCheck();
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        CreateNewSaveFileCheck();
     }
 
     // Saves the player's position
@@ -96,7 +84,8 @@ public class SaveManagerScript : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
-            PlayerPrefs.SetInt("cameraIndex", pixelatedCamera.GetComponent<CameraController>().currentIndex);
+            //PlayerPrefs.SetInt("cameraIndex", cameraScript.cameraIndex);
+            PlayerPrefs.SetInt("cameraIndex", cameraScript.ReturnCameraIndex());
 
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
@@ -155,54 +144,41 @@ public class SaveManagerScript : MonoBehaviour
             player.transform.position = new Vector3(0, 0, -5);
     }
 
-    // Sets the checkpoints array
-    private void SetCheckpoints()
-    {
-        gameManagerScript = FindObjectOfType<GameManager>();
-        checkpoints = gameManagerScript.checkpoints;
-    }
-
     // Loads a puzzle - For Debugging Purposes ONLY
     private void SetPuzzleToLoad()
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
-            if (puzzleNumber >= 1 && puzzleNumber <= checkpoints.Length)
+            int puzzleNumber = gameManagerScript.puzzleNumber;
+
+            if (puzzleNumber >= 1 && puzzleNumber <= gameManagerScript.checkpoints.Length)
             {
                 Debug.Log("Loaded Debug");
-
-                Transform checkpointTransform = checkpoints[puzzleNumber - 1];
-                CameraController cameraScript = pixelatedCamera.GetComponent<CameraController>();
+                Transform checkpointTransform = gameManagerScript.checkpoints[puzzleNumber - 1];
 
                 // Sets the player's position to loaded checkpoint's position
                 player.transform.position = new Vector3(checkpointTransform.position.x, 0, checkpointTransform.position.z);
-                cameraScript.currentIndex = puzzleNumber - 1;
+                //cameraScript.cameraIndex = puzzleNumber - 1;
+                cameraScript.SetCameraIndex(puzzleNumber - 1);
             }
         }     
     }
 
-    // Checks if a new save file can be created - For Debugging Purposes ONLY
-    private void CreateNewSaveFileCheck()
+    // Sets private variables, objects, and components
+    private void SetElements()
     {
-        if (Input.GetKeyDown(KeyCode.F) && isDebugging)
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
         {
-            Debug.Log("New Game created");
+            GameObject child = transform.GetChild(i).gameObject;
 
-            PlayerPrefs.DeleteKey("p_x");
-            PlayerPrefs.DeleteKey("p_z");
-            PlayerPrefs.DeleteKey("r_y");
-            PlayerPrefs.DeleteKey("cameraIndex");
-
-            PlayerPrefs.DeleteKey("TimeToLoad");
-            PlayerPrefs.DeleteKey("Save");
-            PlayerPrefs.DeleteKey("savedScene");
-
-            PlayerPrefs.DeleteKey("listOfArtifacts");
-            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-
-            PlayerPrefs.SetInt("Saved", 1);
-            PlayerPrefs.Save();
+            if (child.name == "SavedInvisibleBlock")
+                savedInvisibleBlock = child;
         }
+
+        gameManagerScript = FindObjectOfType<GameManager>();
+        cameraScript = FindObjectOfType<CameraController>();
+        player = FindObjectOfType<TileMovementController>().gameObject;
     }
 
 }

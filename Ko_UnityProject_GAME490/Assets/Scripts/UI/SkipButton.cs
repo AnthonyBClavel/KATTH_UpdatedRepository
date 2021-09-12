@@ -22,7 +22,7 @@ public class SkipButton : MonoBehaviour
 
     private Animator skipButtonAnim;
     private AudioSource audioSource;
-    private LevelManager levelManagerScript;
+    private GameManager gameManagerScript;
     private PauseMenu pauseMenuScript;
     private TileMovementController playerScript;
 
@@ -48,7 +48,7 @@ public class SkipButton : MonoBehaviour
 
     void Awake()
     {
-        levelManagerScript = FindObjectOfType<LevelManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
     }
@@ -75,8 +75,8 @@ public class SkipButton : MonoBehaviour
             content.fillAmount = maxFillAmount;
             PlaySkipTutorialSFX();
 
-            playerScript.SetPlayerBoolsFalse();
-            levelManagerScript.DisablePlayer();
+            //playerScript.SetPlayerBoolsFalse(); // PlayerBools are set to flase in line below
+            gameManagerScript.FinishedZoneCheck();
 
             pauseMenuScript.canPause = false;
             canHoldButton = false;

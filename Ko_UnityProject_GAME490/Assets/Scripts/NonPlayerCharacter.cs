@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class NonPlayerCharacter : MonoBehaviour
 {
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
-
     public string characterName;
 
     [Header("Bools")]
@@ -16,10 +11,14 @@ public class NonPlayerCharacter : MonoBehaviour
     public bool hasPlayedOptionTwo = false;
     public bool hasLoadedInitialDialogue = false;
 
-    [Header("NPC Character")]
-    public GameObject nPC;
-    public Transform nPCDialogueCheck;
+    private GameObject characterHolder;
+    private GameObject nPCDialogueCheck;
     private Vector3 originalRotation;
+
+    Vector3 up = Vector3.zero,
+    right = new Vector3(0, 90, 0),
+    down = new Vector3(0, 180, 0),
+    left = new Vector3(0, 270, 0);
 
     [Header("NPC Dialogue Array")]
     public TextAsset[] nPCDialogueFiles;
@@ -27,38 +26,81 @@ public class NonPlayerCharacter : MonoBehaviour
     public TextAsset dialogueOptionsFile;
 
     private TileMovementController playerScript;
+    private CharacterDialogue characterDialogueScript;
+    private FidgetAnimControllerNPC fidgeControllerScriptNPC;
 
     void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        originalRotation = nPC.transform.localEulerAngles;
+        originalRotation = characterHolder.transform.localEulerAngles;
     }
 
-    // Rotates the npc so that it faces the player
+    // Updates all npc elements in the character dialogue script - also starts dialogue
+    public void SetVariablesForCharacterDialogueScript()
+    {
+        characterDialogueScript.UpdateDialogueCheckForNPC(nPCDialogueCheck);
+        characterDialogueScript.UpdateScriptForNPC(this);
+        characterDialogueScript.UpdateFidgetScriptForNPC(fidgeControllerScriptNPC);
+
+        characterDialogueScript.UpdateNonPlayerCharacterName(characterName);
+        characterDialogueScript.isInteractingWithNPC = true;
+        characterDialogueScript.setDialogueQuestions(dialogueOptionsFile);
+
+        characterDialogueScript.StartDialogue();
+    }
+
+    // Rotates the npc towards the player
     public void SetRotationNPC()
     {
         if (playerScript.playerDirection == up)
-            nPC.transform.localEulerAngles = down;
+            characterHolder.transform.localEulerAngles = down;
 
         if (playerScript.playerDirection == left)
-            nPC.transform.localEulerAngles = right;
+            characterHolder.transform.localEulerAngles = right;
 
         if (playerScript.playerDirection == down)
-            nPC.transform.localEulerAngles = up;
+            characterHolder.transform.localEulerAngles = up;
 
         if (playerScript.playerDirection == right)
-            nPC.transform.localEulerAngles = left;
+            characterHolder.transform.localEulerAngles = left;
     }
 
     // Sets the npc back to its original rotation
     public void ResetRotationNPC()
     {
-        nPC.transform.localEulerAngles = originalRotation;
+        characterHolder.transform.localEulerAngles = originalRotation;
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at the names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "CharacterHolder")
+            {
+                characterHolder = child;
+                fidgeControllerScriptNPC = characterHolder.GetComponent<FidgetAnimControllerNPC>();
+
+                for (int j = 0; j < characterHolder.transform.childCount; j++)
+                {
+                    GameObject child02 = characterHolder.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "DialogueCheck")
+                        nPCDialogueCheck = child02;
+                }
+            }
+        }
     }
 
 }

@@ -10,8 +10,8 @@ public class WorldIntroManager : MonoBehaviour
     public bool hasPlayedIntro;
     private bool canWorldIntro = false;
 
-    private float typingDelay;
-    private float cameraSpeed = 3f;
+    private float typingSpeed; // 3f
+    private float introCameraSpeed; // 3f
 
     private string zoneNameText;
     private string currentText = string.Empty;
@@ -21,10 +21,11 @@ public class WorldIntroManager : MonoBehaviour
     private GameObject firstBlock;
     private GameObject levelFade;
     private GameObject pixelatedCamera;
+    private GameObject notificationBubblesHolder;
 
     private TextMeshProUGUI zoneTextComponent;
-    private AudioSource charNoiseSFX;
     private Animator blackOverlayAnimator;
+    private AudioSource charNoiseSFX;
 
     private Vector3 originalCameraPos;
     private Vector3 newCameraPosition;
@@ -33,7 +34,7 @@ public class WorldIntroManager : MonoBehaviour
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private DialogueBars dialogueBarScript;
+    private BlackBars blackBarsScript;
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
     private CameraController cameraScript;
@@ -51,7 +52,6 @@ public class WorldIntroManager : MonoBehaviour
     void Start()
     {
         levelFade.SetActive(false);
-        dialogueBarScript.canMoveBars = true;
 
         SetCameraVectors(); 
         StartIntroCheck(); // MUST be called last in start, NOT in awake!
@@ -59,47 +59,10 @@ public class WorldIntroManager : MonoBehaviour
 
     void LateUpdate()
     {
+        DebuggingCheck();
+
         if (!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canWorldIntro)
-            pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, cameraSpeed * Time.deltaTime);
-    }
-
-    // Sets the scripts to use
-    private void SetScripts()
-    {
-        audioLoopsScript = FindObjectOfType<AudioLoops>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        dialogueBarScript = FindObjectOfType<DialogueBars>();
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        cameraScript = FindObjectOfType<CameraController>();
-        levelFadeScript = FindObjectOfType<LevelFade>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-    }
-
-    // Sets private variables, objects, and components
-    private void SetElements()
-    {
-        // Sets the game objects by looking at names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            if (child.name == "ZoneName")
-                zoneName = child.gameObject;
-            if (child.name == "BlackOverlay")
-                blackOverlay = child.gameObject;
-        }
-
-        blackOverlayAnimator = blackOverlay.GetComponent<Animator>();
-        zoneTextComponent = zoneName.GetComponent<TextMeshProUGUI>();
-
-        pixelatedCamera = cameraScript.gameObject;
-        levelFade = levelFadeScript.gameObject;
-        charNoiseSFX = audioManagerScript.charNoiseSFX;
-        firstBlock = gameManagerScript.firstBlock;
-        typingDelay = gameManagerScript.typingDelay;
+            pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, introCameraSpeed * Time.deltaTime);
     }
 
     // Sets the camera's original position, new position, and it's destination
@@ -156,18 +119,17 @@ public class WorldIntroManager : MonoBehaviour
 
     private IEnumerator ShowWorldName()
     {
-        dialogueBarScript.canMoveBars = false;
         cameraScript.canMoveCamera = false;
         pauseMenuScript.enabled = false;
         canWorldIntro = true;
 
-        dialogueBarScript.SetDialogueBars();
+        blackBarsScript.TurnOnBlackBars();
         playerScript.SetPlayerBoolsFalse();
 
         zoneName.SetActive(true);
         blackOverlay.SetActive(true);
         torchMeterScript.TurnOffTorchMeter();
-        gameHUDScript.notificationBubblesHolder.SetActive(false);
+        notificationBubblesHolder.SetActive(false);
         //gameHUDScript.gameObject.SetActive(false);
 
         pixelatedCamera.transform.position = newCameraPosition;
@@ -183,7 +145,7 @@ public class WorldIntroManager : MonoBehaviour
             foreach (char letter in zoneTextComponent.text)
                 charNoiseSFX.Play();
 
-            yield return new WaitForSeconds(typingDelay);
+            yield return new WaitForSeconds(typingSpeed);
         }
 
         yield return new WaitForSeconds(3f);
@@ -193,9 +155,8 @@ public class WorldIntroManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
         playerScript.WalkIntoScene();
         audioLoopsScript.FadeInAudioLoops();
-        dialogueBarScript.ResetDialogueBars();
+        blackBarsScript.TurnOffBlackBars();
 
-        dialogueBarScript.canMoveBars = true;
         cameraScript.canMoveCamera = true;
         pauseMenuScript.enabled = true;
         canWorldIntro = false;
@@ -206,10 +167,71 @@ public class WorldIntroManager : MonoBehaviour
         blackOverlay.SetActive(false);
         levelFade.SetActive(true);
         torchMeterScript.TurnOnTorchMeter();
-        gameHUDScript.notificationBubblesHolder.SetActive(true);
+        notificationBubblesHolder.SetActive(true);
         //gameHUDScript.gameObject.SetActive(true);
 
         pixelatedCamera.transform.position = originalCameraPos;
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        audioLoopsScript = FindObjectOfType<AudioLoops>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        blackBarsScript = FindObjectOfType<BlackBars>();
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        cameraScript = FindObjectOfType<CameraController>();
+        levelFadeScript = FindObjectOfType<LevelFade>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "ZoneName")
+                zoneName = child;
+            if (child.name == "BlackOverlay")
+                blackOverlay = child;
+        }
+
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "NotificationBubblesHolder")
+                notificationBubblesHolder = child;
+        }
+
+        blackOverlayAnimator = blackOverlay.GetComponent<Animator>();
+        zoneTextComponent = zoneName.GetComponent<TextMeshProUGUI>();
+
+        pixelatedCamera = cameraScript.gameObject;
+        levelFade = levelFadeScript.gameObject;
+        charNoiseSFX = audioManagerScript.charNoiseSFX;
+        firstBlock = gameManagerScript.firstBlock;
+        typingSpeed = gameManagerScript.typingSpeed;
+        introCameraSpeed = gameManagerScript.introCameraSpeed;
+    }
+
+    // Updates the typing delay and intro camera speed - For Debuging Purposes ONLY
+    private void DebuggingCheck()
+    {
+        if (gameManagerScript.isDebugging)
+        {
+            if (typingSpeed != gameManagerScript.typingSpeed)
+                typingSpeed = gameManagerScript.typingSpeed;
+
+            if (introCameraSpeed != gameManagerScript.introCameraSpeed)
+                introCameraSpeed = gameManagerScript.introCameraSpeed;
+        }
     }
 
 }

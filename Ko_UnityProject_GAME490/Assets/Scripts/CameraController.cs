@@ -5,9 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
-    public float transitonSpeed;
-    public int currentIndex = 0;
+    private int cameraIndex;
+    private float cameraSpeed; // 3f
 
+    [Header("Bools")]
     public bool canMoveCamera = true;
     public bool canMoveToDialogueViews = false;
     public bool canMoveToArtifactView = false;
@@ -18,32 +19,28 @@ public class CameraController : MonoBehaviour
     right = new Vector3(0, 90, 0),
     down = new Vector3(0, 180, 0),
     left = new Vector3(0, 270, 0);
-                                                     
-    public AudioClip[] windGushClips;
+    
     private Transform[] puzzleViews;
-
-    Transform currentView;
-    private AudioSource audioSource;
-    private AudioClip lastWindGushClip;
+    private Transform currentView;
 
     private AmbientLoopingSFXManager theALSM;
     private GameHUD gameHUDScript;
     private GeneratorScript generatorScript;
     private TileMovementController playerScript;
     private DialogueCameraViews dialogueCameraViewsScript;
-    private SaveManagerScript saveManagerScript;
     private GameManager gameManagerScript;
+    private AudioManager audioManagerScript;
+    private NotificationBubbles notificationBubblesScript;
 
     void Awake()
     {
         SetScripts();
-        SetPuzzleViews();
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {       
-        audioSource = GetComponent<AudioSource>();
         SetCameraPosition();
         SetPuzzleNumber();
     }
@@ -61,10 +58,11 @@ public class CameraController : MonoBehaviour
         {
             if (canMoveCamera && !canMoveToDialogueViews)
             {
-                currentView = puzzleViews[currentIndex];
+                if (currentView != puzzleViews[cameraIndex])
+                    currentView = puzzleViews[cameraIndex];
 
                 if (transform.position != currentView.position)
-                    transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+                    transform.position = Vector3.Lerp(transform.position, currentView.position, cameraSpeed * Time.deltaTime);
 
             }
             if (canMoveToDialogueViews && !canMoveCamera)
@@ -72,32 +70,53 @@ public class CameraController : MonoBehaviour
                 DialogueViewsCheck();
 
                 if (transform.position != currentView.position)
-                    transform.position = Vector3.Lerp(transform.position, currentView.position, Time.deltaTime * transitonSpeed);
+                    transform.position = Vector3.Lerp(transform.position, currentView.position, cameraSpeed * Time.deltaTime);
             }
         }
     }
 
-    // Sets the camera's position to a puzzle view - determined by currentIndex
-    public void SetCameraPosition()
+    /*** Functions for save manager START here ***/
+    // Sets the cameraIndex to the saved cameraIndex
+    public void LoadSavedCameraIndex()
     {
-        if (canMoveCamera)
-            transform.position = puzzleViews[currentIndex].transform.position;
+        cameraIndex = PlayerPrefs.GetInt("cameraIndex");
     }
+
+    // Sets the cameraIndex - for save manager script ONLY
+    public void SetCameraIndex(int index)
+    {
+        cameraIndex = index;
+    }
+
+    // returns the value of the cameraIndex
+    public int ReturnCameraIndex()
+    {
+        return cameraIndex;
+    }
+    /*** Functions for save manager END here ***/
 
     // Moves the camera to the next puzzle view
     public void NextPuzzleView()
     {
-        if (currentIndex < puzzleViews.Length - 1)
+        if (cameraIndex < puzzleViews.Length - 1)
         {
             //Debug.Log("Next Puzzle View Activated");
-            currentView = puzzleViews[currentIndex++];
+            currentView = puzzleViews[cameraIndex++];
             SetPuzzleNumber();
             PlayWindGushSFX();
+            audioManagerScript.PlayWindGushSFX();
 
             // Turns off the generator's light (if applicable)
             if (SceneManager.GetActiveScene().name == "FifthMap")
                 generatorScript.TurnOffEmisionAndVolume();
         }         
+    }
+
+    // Sets the camera's position to a puzzle view - determined by currentIndex
+    private void SetCameraPosition()
+    {
+        if (canMoveCamera)
+            transform.position = puzzleViews[cameraIndex].transform.position;
     }
 
     // Checks which dialogue view the camera should move to - for character/artifact dialogue
@@ -125,34 +144,17 @@ public class CameraController : MonoBehaviour
     private void SetPuzzleNumber()
     {
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/8");
+            gameHUDScript.UpdatePuzzleBubbleText((cameraIndex + 1) + "/8");
         else
-            gameHUDScript.UpdatePuzzleBubbleText((currentIndex + 1) + "/10");
+            gameHUDScript.UpdatePuzzleBubbleText((cameraIndex + 1) + "/10");
 
-        gameHUDScript.PlayPuzzleNotificationCheck();
+        notificationBubblesScript.PlayPuzzleNotificationCheck();
     }
 
     // Plays a WindGushSFX and changes the ambient looping SFX
-    public void PlayWindGushSFX()
+    private void PlayWindGushSFX()
     {
-        PlayNewWindGushSFX();      
         theALSM.ChangeAmbientLoopingSFX();
-    }
-
-    // Plays a new WindGushSFX - different from the one previously played
-    private void PlayNewWindGushSFX()
-    {
-        int attempts = 3;
-        AudioClip newWindGushClip = windGushClips[Random.Range(0, windGushClips.Length)];
-
-        while (newWindGushClip == lastWindGushClip && attempts > 0)
-        {
-            newWindGushClip = windGushClips[Random.Range(0, windGushClips.Length)];
-            attempts--;
-        }
-
-        lastWindGushClip = newWindGushClip;
-        audioSource.PlayOneShot(newWindGushClip);
     }
 
     // Pauses the WindGushSFX if you pause the game on a bridge - OPTIONAL (not currenlty used)
@@ -163,21 +165,22 @@ public class CameraController : MonoBehaviour
         if (pauseMenuScript.isPaused && !hasPaused)
         {
             Debug.Log("Wind Gush SFX has been paused");
-            audioSource.Pause();
+            //audioSource.Pause();
             hasPaused = true;
         }
         else if (pauseMenuScript.isPaused && hasPaused)
         {
             Debug.Log("Wind Gush SFX has resumed");
-            audioSource.UnPause();
+            //audioSource.UnPause();
             hasPaused = false;
         }
     }
 
-    // Sets the puzzle views array
-    private void SetPuzzleViews()
+    // Sets the puzzle views array and camera transition speed
+    private void SetElements()
     {
         puzzleViews = gameManagerScript.puzzleViews;
+        cameraSpeed = gameManagerScript.cameraSpeed;
     }
 
     // Determines which scripts to find
@@ -187,8 +190,9 @@ public class CameraController : MonoBehaviour
         theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
         playerScript = FindObjectOfType<TileMovementController>();
         dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
         gameManagerScript = FindObjectOfType<GameManager>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
 
         if (SceneManager.GetActiveScene().name == "FifthMap")
             generatorScript = FindObjectOfType<GeneratorScript>();
@@ -197,17 +201,21 @@ public class CameraController : MonoBehaviour
     // Enables debugging for the puzzle views - For Debugging Purposes ONLY
     private void PuzzleViewsDebuggingCheck()
     {
-        if (saveManagerScript.isDebugging)
+        if (gameManagerScript.isDebugging)
         {
             if (Input.GetKeyDown(KeyCode.Backslash))
             {
                 PlayWindGushSFX();
-                currentView = puzzleViews[currentIndex++];
+                audioManagerScript.PlayWindGushSFX();
+                currentView = puzzleViews[cameraIndex++];
 
                 // Sets the camera back to the first puzzle view
-                if (currentIndex > puzzleViews.Length - 1)
-                    currentIndex = 0;
+                if (cameraIndex > puzzleViews.Length - 1)
+                    cameraIndex = 0;
             }
+
+            if (cameraSpeed != gameManagerScript.cameraSpeed)
+                cameraSpeed = gameManagerScript.cameraSpeed;
         }
     }
 

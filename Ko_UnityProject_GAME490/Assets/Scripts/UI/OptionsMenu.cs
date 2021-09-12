@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
-using System.Xml.Serialization;
 using TMPro;
 
 public class OptionsMenu : MonoBehaviour
@@ -19,9 +19,9 @@ public class OptionsMenu : MonoBehaviour
     public Toggle fullScreenTog;
     public Toggle vsyncTog;
 
-    [Header("Resolution")]
+    [Header("Resolution Elements")]
     public TextMeshProUGUI resolutionLabel;
-    public ResItem[] resolutions;
+    public ResItem[] resolutions;  // Reolutions: (540 X 960), (720 x 1280), (1080 x 1920)
     private int selectedResolution;
 
     // Start is called before the first frame update

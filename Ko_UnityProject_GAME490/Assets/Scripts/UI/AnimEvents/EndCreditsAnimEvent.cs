@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class EndCreditsAnimEvent : MonoBehaviour
 {
-    private PauseMenu pauseMenuScript;
+    private GameManager gameManagerScript;
     private EndCredits endCreditsScript;
     private MainMenu mainMenuScript;
 
@@ -31,7 +31,7 @@ public class EndCreditsAnimEvent : MonoBehaviour
     {
         if (endCreditsScript.hasEndedCredits)
         {
-            if(SceneManager.GetActiveScene().name == "FifthMap")
+            if (SceneManager.GetActiveScene().name == "FifthMap")
                 StartCoroutine("QuitToMainDelay");
             else
                 endCreditsScript.ResetEndCredits();
@@ -57,7 +57,7 @@ public class EndCreditsAnimEvent : MonoBehaviour
     private void SetScriptsCheck()
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
-            pauseMenuScript = FindObjectOfType<PauseMenu>();
+            gameManagerScript = FindObjectOfType<GameManager>();
         else
             mainMenuScript = FindObjectOfType<MainMenu>();
 
@@ -68,6 +68,6 @@ public class EndCreditsAnimEvent : MonoBehaviour
     private IEnumerator QuitToMainDelay()
     {
         yield return new WaitForSeconds(1.5f);
-        pauseMenuScript.QuitToMain();
+        gameManagerScript.LoadNextSceneCheck();
     }
 }

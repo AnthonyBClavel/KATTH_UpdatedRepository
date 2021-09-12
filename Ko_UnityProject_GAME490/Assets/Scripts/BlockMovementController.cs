@@ -121,9 +121,9 @@ public class BlockMovementController : MonoBehaviour
 
         if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
         {
-            string tag = hit.collider.name;
+            string name = hit.collider.name;
             // Prevents block from moving onto a bridge tile
-            if (tag == "BridgeBlock")
+            if (name == "BridgeTile")
             {
                 PlayCantPushSFX();
                 return false;

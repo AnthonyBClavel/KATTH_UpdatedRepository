@@ -43,7 +43,7 @@ public class EndCredits : MonoBehaviour
 
     [Header("Audio")]
     public GameObject endCreditsMusic;
-    private AudioSource charNoise;
+    private AudioSource charNoiseSFX;
 
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
@@ -53,15 +53,15 @@ public class EndCredits : MonoBehaviour
     void Awake()
     {
         SetScriptsCheck();
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
-    {      
+    {
         gameLogoFirstPosition = gameLogo.transform.localPosition;
         endCreditsFirstPosition = endCredits.transform.localPosition;
         gameLogoImage = gameLogo.GetComponent<Image>();
-        charNoise = GetComponent<AudioSource>();
         endCreditsMusic.GetComponent<AudioSource>().volume = creditsBGM;
         hasEndedCredits = false;
         hasStartedCredits = false;
@@ -175,7 +175,7 @@ public class EndCredits : MonoBehaviour
     {
         firstFade.SetActive(true);
         CheckToFadeMainMenuAudio();
-        charNoise.volume = 1f;
+        charNoiseSFX.volume = 1f;
 
         yield return new WaitForSeconds(2f);
         CheckToFadeLoopAudio();
@@ -211,7 +211,7 @@ public class EndCredits : MonoBehaviour
 
             foreach (char letter in messageText.text)
             {
-                charNoise.Play();
+                charNoiseSFX.Play();
             }
             yield return new WaitForSeconds(typingDelay);
         }
@@ -270,7 +270,7 @@ public class EndCredits : MonoBehaviour
         {
             j = charNoiseAudio;
             charNoiseAudio -= 0.02f;
-            charNoise.volume = charNoiseAudio;
+            charNoiseSFX.volume = charNoiseAudio;
             yield return new WaitForSeconds(0.025f);
         }
     }
@@ -335,6 +335,12 @@ public class EndCredits : MonoBehaviour
 
         hasEndedCredits = false;
         hasPlayedEndMessage = false;
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        charNoiseSFX = audioManagerScript.charNoiseSFX;
     }
 
 }

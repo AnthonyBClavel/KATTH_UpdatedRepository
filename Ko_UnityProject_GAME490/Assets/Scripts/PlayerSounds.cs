@@ -78,7 +78,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForSnowTiles()
     {
-        if (tag == "SnowTiles" || name == "SnowCheckpoint" || name == "Checkpoint_SnowTiles" || name == "SnowTileBlock" || name == "BarrenLandsBlock" || name == "Checkpoint_BarrenLandsTiles")
+        if (tag == "SnowTile" || name == "Checkpoint_SnowTile" || name == "Checkpoint_SnowTile02")
         {
             audioSource.volume = 0.7f;
             audioSource.pitch = 1.0f;
@@ -88,7 +88,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForGrassTiles()
     {
-        if (tag == "GrassTiles" || name == "GrassCheckpoint" || name == "Checkpoint_GrassTiles" || name == "PatchyGrassBlock")
+        if (tag == "GrassTile" || name == "Checkpoint_GrassTile")
         {
             audioSource.volume = 0.7f;
             audioSource.pitch = 1.0f;
@@ -98,7 +98,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForStoneTiles()
     {
-        if (tag == "StoneTiles" || name == "CaveCheckpoint" || name == "Checkpoint_CaveTiles" || name == "CaveBlock")
+        if (tag == "StoneTile" || name == "Checkpoint_StoneTile")
         {
             audioSource.volume = 0.55f; //0.5f
             audioSource.pitch = 1.2f;
@@ -108,7 +108,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForMetalTiles()
     {
-        if (tag == "MetalTiles" || name == "MetalCheckpoint" || name == "Checkpoint_MetalTiles" || name == "PowerStationBlock")
+        if (tag == "MetalTile" || name == "Checkpoint_MetalTile")
         {
             audioSource.volume = 1.0f;
             audioSource.pitch = 1.0f;
@@ -118,7 +118,7 @@ public class PlayerSounds : MonoBehaviour
 
     private void CheckForBridgeTiles()
     {
-        if (name == "BridgeBlock" || tag == "WoodTiles")
+        if (tag == "BridgeTile" || name == "BridgeTile")
         {
             audioSource.volume = 0.8f; //0.75f
             audioSource.pitch = 0.9f;

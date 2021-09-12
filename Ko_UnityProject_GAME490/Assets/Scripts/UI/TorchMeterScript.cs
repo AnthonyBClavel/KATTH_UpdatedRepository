@@ -8,10 +8,14 @@ using TMPro;
 
 public class TorchMeterScript : MonoBehaviour  
 {
-    private Color32 fullBarColor = new Color32(255, 130, 188, 255);
-    private Color32 lowBarColor = new Color32(254, 104, 174, 255);
-    private Color32 fullAlpha = new Color32(255, 255, 255, 255);
-    private Color32 zeroAlpha = new Color32(255, 255, 255, 0);
+    private bool isTorchMeter = true;
+    private float lerpSpeed = 2f;
+    private float fillAmount;
+
+    private Animator torchAnim;
+    private AudioSource loopingFireSFX;
+    private ParticleSystem torchFireParticle;
+    private ParticleSystem.MainModule torchFireMain;
 
     private TextMeshProUGUI valueText;
     private Image mask;
@@ -20,14 +24,10 @@ public class TorchMeterScript : MonoBehaviour
     private Image torchIcon;
     private Image bar;
 
-    private float lerpSpeed = 2f;
-    private float fillAmount;
-    private bool isTorchMeter = true;
-
-    private Animator torchAnim;
-    private AudioSource loopingFireSFX;
-    private ParticleSystem torchFireParticle;
-    private ParticleSystem.MainModule torchFireMain;
+    private Color32 fullBarColor = new Color32(255, 130, 188, 255);
+    private Color32 lowBarColor = new Color32(254, 104, 174, 255);
+    private Color32 fullAlpha = new Color32(255, 255, 255, 255);
+    private Color32 zeroAlpha = new Color32(255, 255, 255, 0);
 
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
@@ -52,9 +52,6 @@ public class TorchMeterScript : MonoBehaviour
         audioManagerScript = FindObjectOfType<AudioManager>();
         playerScript = FindObjectOfType<TileMovementController>();
 
-        loopingFireSFX = audioManagerScript.loopingFireSFX;
-        torchFireParticle = playerScript.torchFireParticle;
-        torchFireMain = torchFireParticle.main;
         SetElements();
     }
 
@@ -174,6 +171,9 @@ public class TorchMeterScript : MonoBehaviour
 
         bar = GetComponent<Image>();
         torchAnim = GetComponent<Animator>();
+        torchFireParticle = playerScript.torchFireParticle;
+        torchFireMain = torchFireParticle.main;
+        loopingFireSFX = audioManagerScript.loopingFireSFX;
         playerScript.torchMeterMoves.Initialize();
     }
 
@@ -199,7 +199,7 @@ public class TorchMeterScript : MonoBehaviour
         }
     }
 
-    // Sets the correct initial torch meter moves for the first puzzle
+    // Sets the initial torch meter moves for the first puzzle in each zone
     /*public void SetFirstPuzzleValue()
     {
         string sceneName = SceneManager.GetActiveScene().name;
@@ -217,5 +217,5 @@ public class TorchMeterScript : MonoBehaviour
         else if (sceneName == "TutorialMap")
             valueText.text = "8";
     }*/
-
+    
 }

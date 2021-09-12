@@ -147,7 +147,7 @@ GameObject:
   - component: {fileID: 7158649879382425964}
   - component: {fileID: 7158649879382425965}
   m_Layer: 5
-  m_Name: WhiteText_NPC
+  m_Name: BubbleColorText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -453,7 +453,7 @@ GameObject:
   - component: {fileID: 7158649879698524640}
   - component: {fileID: 7158649879698524641}
   m_Layer: 5
-  m_Name: DialogueOption3
+  m_Name: DialogueOptionThree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -810,7 +810,7 @@ GameObject:
   - component: {fileID: 7158649879869387643}
   - component: {fileID: 7158649879869387640}
   m_Layer: 5
-  m_Name: DialogueOption2
+  m_Name: DialogueOptionTwo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1143,7 +1143,7 @@ GameObject:
   - component: {fileID: 7158649879987938652}
   - component: {fileID: 7158649879987938653}
   m_Layer: 5
-  m_Name: DialogueOption1
+  m_Name: DialogueOptionOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1888,7 +1888,7 @@ GameObject:
   - component: {fileID: 7158649880605845083}
   - component: {fileID: 7158649880605845080}
   m_Layer: 5
-  m_Name: BubbleText_Player
+  m_Name: ForegroundText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2022,7 +2022,7 @@ GameObject:
   - component: {fileID: 7158649880667845023}
   - component: {fileID: 7158649880667845020}
   m_Layer: 5
-  m_Name: WhiteText_Player
+  m_Name: BubbleColorText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2229,7 +2229,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7158649880881595488}
-  - component: {fileID: 7158649880881595490}
   - component: {fileID: 7158649880881595491}
   m_Layer: 5
   m_Name: CharacterDialogueHolder
@@ -2261,102 +2260,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!82 &7158649880881595490
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7158649880881595489}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -895295930677450239, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
-  m_Volume: 0.2
-  m_Pitch: 0.6
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &7158649880881595491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2369,9 +2272,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd9b388d864118148a0f032440bad984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  talkingTo: 
-  typingSpeed: 0.03
-  sentenceDelay: 1
   isPlayerSpeaking: 1
   canPlayBubbleAnim: 0
   canStartDialogue: 1
@@ -2381,41 +2281,9 @@ MonoBehaviour:
   isInteractingWithArtifact: 0
   hasTransitionedToArtifactView: 0
   hasSelectedDialogueOption: 0
-  dialogueMusicTracks:
-  - {fileID: 8300000, guid: 73dd35802a8a35940af6ae37f86376be, type: 3}
-  - {fileID: 8300000, guid: 73dd35802a8a35940af6ae37f86376be, type: 3}
-  - {fileID: 8300000, guid: 73dd35802a8a35940af6ae37f86376be, type: 3}
-  dialogueMusic: {fileID: 0}
-  charNoise: {fileID: 0}
-  dialoguePopUpSFX: {fileID: 8300000, guid: bf9d07c7017da5543a143b58834f6468, type: 3}
-  dialogueArrowSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
-  playerBubbleAnim: {fileID: 7158649880388704870}
-  nPCBubbleAnim: {fileID: 7158649879461398343}
-  dialogueOptionsBubbleAnim: {fileID: 7158649880946681024}
-  whitePlayerText: {fileID: 7158649880667845020}
-  whiteNPCText: {fileID: 7158649879382425965}
-  playerDialogueText: {fileID: 7158649880605845080}
-  nPCDialogueText: {fileID: 7158649881030539689}
-  playerDialgueBubble: {fileID: 7158649879842779136}
-  nPCDialgueBubble: {fileID: 7158649879426108848}
-  dialogueOptionsBubble: {fileID: 7158649880991550739}
-  playerAlertBubble: {fileID: 7158649879165730187}
-  continueButton: {fileID: 0}
-  fadeTransition: {fileID: 0}
-  dialogueCamera: {fileID: 0}
   dialogueArrow: {fileID: 7158649880957733392}
-  dialogueOptionOne: {fileID: 7158649879987938651}
-  dialogueOptionTwo: {fileID: 7158649879869387622}
-  dialogueOptionThree: {fileID: 7158649879698524655}
-  playerDialogueCheck: {fileID: 0}
-  nPCDialogueCheck: {fileID: 0}
-  playerSpeechBubbleHolder: {fileID: 7158649879411856651}
-  nPCSpeechBubbleHolder: {fileID: 7158649880118467604}
-  dialogueOptionsHolder: {fileID: 7158649879338933976}
-  artifactDialogueOptions: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  nPCScript: {fileID: 0}
-  fidgetAnimControllerNPC: {fileID: 0}
-  artifactScript: {fileID: 0}
+  playerBubbleColorText: {fileID: 7158649880667845020}
+  nPCBubbleColorText: {fileID: 7158649879382425965}
 --- !u!1 &7158649880946681038
 GameObject:
   m_ObjectHideFlags: 0
@@ -2483,7 +2351,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7158649880957733395}
   - component: {fileID: 7158649880957733394}
-  - component: {fileID: 7158649880957733397}
   m_Layer: 5
   m_Name: DialogueArrow
   m_TagString: Untagged
@@ -2531,25 +2398,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!95 &7158649880957733397
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7158649880957733392}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 17c98865c1fe35544a986977d6efd797, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &7158649880991550739
 GameObject:
   m_ObjectHideFlags: 0
@@ -2598,7 +2446,7 @@ GameObject:
   - component: {fileID: 7158649881030539688}
   - component: {fileID: 7158649881030539689}
   m_Layer: 5
-  m_Name: BubbleText_NPC
+  m_Name: ForegroundText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

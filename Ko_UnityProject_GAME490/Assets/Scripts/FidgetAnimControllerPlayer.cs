@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class FidgetAnimControllerPlayer : MonoBehaviour
 {
+    [Header("Bools")]
+    public bool inCharacterDialogue = false;
+    public bool hasPlayedGreetAnimPlayer = false;
+    private bool canFidget = true;
+
     [Header("Player Variables")]
     private int idleAnimIndexPlayer;
     private int fidgetIndexPlayer;
@@ -11,11 +16,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
 
     [Header("Character Animators")]
     private Animator animPlayer;
-
-    [Header("Bools")]
-    public bool inCharacterDialogue = false;
-    public bool hasPlayedGreetAnimPlayer = false;
-    private bool canFidget = true;
+    private GameObject dialogueOptionsBubble;
 
     private CharacterDialogue characterDialogueScript;
     private PauseMenu pauseMenuScript;
@@ -24,6 +25,8 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
     {
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -62,7 +65,7 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
         {
             if (!inCharacterDialogue)
             {
-                if (characterDialogueScript.dialogueOptionsBubble.activeSelf)
+                if (dialogueOptionsBubble.activeSelf)
                     animPlayer.SetTrigger("Fidget03");                   
                 else
                 {
@@ -178,6 +181,19 @@ public class FidgetAnimControllerPlayer : MonoBehaviour
             }
 
             timesToRepeatPlayer = newTimesToRepeatPlayer;
+        }
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
+        {
+            GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "DialogueOptionsBubble")
+                dialogueOptionsBubble = child;
         }
     }
 

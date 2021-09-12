@@ -8,54 +8,48 @@ using TMPro;
 
 public class PauseMenu : MonoBehaviour
 {
-    public string mainMenuScene;
+    [Header("Bools")]
+    public bool canPause;
+    public bool isPaused;
+    public bool isOptionsMenu;
+    public bool isSafetyMenu;
+    public bool isChangingMenus;
+    public bool isChangingScenes;
+    private bool canPlayButtonSFX;
 
     [Header("Pause Menu Elements")]
-    public GameObject optionsScreen;
-    public GameObject safetyMenu;
-    public GameObject pauseScreen;
-    public GameObject pauseScreenBG;
-    public GameObject player;
-    public GameObject pauseFirstButton, optionsFirstButton, optionsClosedButton, mainMenuButton, safetyFirstButton, safetySecondButton;
+    private GameObject pauseMenuButtons;
+    private GameObject safetyMenuButtons;
+    private GameObject optionsMenu;
+    private GameObject safetyMenu;
+    private GameObject pauseMenu;
+    private GameObject pauseMenuBG;
+    private GameObject pauseFirstButton;
+    private GameObject optionsClosedButton;
+    private GameObject mainMenuButton;
+    private GameObject safetyFirstButton;
+    private GameObject safetySecondButton;
+    private GameObject safetyMenuText;
+    private GameObject safetyMenuDeathScreenText;
+    //private GameObject optionsFirstButton;
 
-    [Header("Animators")]
-    public Animator pauseScreenAnim;
-    public Animator pauseScreenBgAnim;
-    public Animator optionsScreenAnim;
-    public Animator safetyMenuAnim;
-    public Animator deathScreenAnim;
+    private Animator pauseMenuAnim;
+    private Animator pauseMenuBGAnim;
+    private Animator optionsMenuAnim;
+    private Animator safetyMenuAnim;
+    private Animator deathScreenAnim;
 
     private GameObject lastSelectedObject;
     private EventSystem eventSystem;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private TileMovementController playerScript;
-
-    [Header("Bools")]
-    public bool isOptionsMenu;
-    public bool isChangingScenes;
-    public bool canPause;
-    public bool isSafetyMenu;
-    public bool canPlayButtonSFX;
-    public bool isPaused;
-    public bool isChangingMenus;
-
-    [Header("Loading Screen Elements")]
-    public GameObject loadingScreen, loadingIcon;
-    public TextMeshProUGUI loadingText;
-
-    [Header("Audio")]
-    public AudioClip safetyMenuSFX;
-    public AudioClip buttonClickSFX;
-    public AudioClip buttonSelectSFX;
-    public AudioSource audioSourceUI;
+    private AudioManager audioManagerScript;
 
     void Awake()
     {
-        eventSystem = FindObjectOfType<EventSystem>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        playerScript = FindObjectOfType<TileMovementController>();
+        SetScripts();
+        SetElements();
     }
 
     // Start is called before the first frame update
@@ -63,85 +57,58 @@ public class PauseMenu : MonoBehaviour
     {
         isChangingScenes = false;
         isChangingMenus = false;
-        canPlayButtonSFX = true;
+
+        eventSystem.SetSelectedGameObject(null);
+        eventSystem.SetSelectedGameObject(pauseFirstButton);
     }
 
     // Update is called once per frame
     void Update()
-    {     
-        lastSelectedObject = eventSystem.currentSelectedGameObject;
-
-        // Open or close the pause menu with ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && !isOptionsMenu && !isChangingScenes && !isSafetyMenu && !isChangingMenus)
-        {
-            if (isPaused)
-            {
-                Resume();
-            }
-            else if (!isPaused && canPause)
-            {
-                Pause();
-            }
-        }
-        // Close the options menu by pressing ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu && !isChangingMenus)
-        {
-            StartCoroutine("CloseOptionsDelay");
-        }
-        // Close safety menu by pressing ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && isSafetyMenu && !isChangingMenus)
-        {
-            StartCoroutine("CloseSafetyMenuDelay");
-        }
+    {
+        LastSelectedButtonCheck();
+        PressingESC();
     }
 
+    // Resumes the game
     public void Resume()
     {
         StartCoroutine("ResumeDelay");
     }
 
-    /*public void ResumeImmediately()
-    {
-        Time.timeScale = 1f;
-        optionsScreen.SetActive(false);
-        pauseScreen.SetActive(false);
-        isPaused = false;
-
-        playerScript.SetPlayerBoolsTrue();
-    }*/
-
+    // Pauses the game
     public void Pause()
-    {
-        //StopCoroutine("ResumeDelay");      
+    {   
         Time.timeScale = 0f;
         isPaused = true;
-        pauseScreen.SetActive(true);
-        pauseScreenBG.SetActive(true);
-        GetComponent<AudioSource>().PlayOneShot(buttonSelectSFX);
+        pauseMenu.SetActive(true);
+        pauseMenuBG.SetActive(true);
         playerScript.SetPlayerBoolsFalse();
+        audioManagerScript.PlayButtonSelectSFX();
 
+        eventSystem.SetSelectedGameObject(null); // Clear last selected object then...
+        eventSystem.SetSelectedGameObject(pauseFirstButton); // Set new selected object
         EnableMenuInputPS();
-        // Clear selected object
-        eventSystem.SetSelectedGameObject(null);
-        // Set new selected object
-        eventSystem.SetSelectedGameObject(pauseFirstButton);
     }
 
+    // Opens the options menu
     public void OpenOptions()
     {
         StartCoroutine("OpenOptionsDelay");
     }
 
+    // Closes the options menu
     public void CloseOptions()
     {
         StartCoroutine("CloseOptionsDelay");
     }
 
-    public void QuitToMain()
+    // Load the main menu scene
+    /*public void QuitToMain()
     {
-        StartCoroutine("LoadMainAsync");
-    }
+        gameManagerScript.LoadNextSceneCheck();
+    }*/
 
+    // Opens the safety menu
     public void OpenSafetyMenu()
     {
         if (gameHUDScript.isDeathScreen)
@@ -150,7 +117,7 @@ public class PauseMenu : MonoBehaviour
             StartCoroutine("OpenSafetyMenuDelay");
     }
 
-    // For closing the saftey menu when you press "No"
+    // Closes the saftey menu (after pressing "no" button)
     public void CloseSafetyMenu()
     {
         if (gameHUDScript.isDeathScreen)         
@@ -159,13 +126,13 @@ public class PauseMenu : MonoBehaviour
             StartCoroutine("CloseSafetyMenuDelay");
     }
 
-    // For closing the saftey menu when you press "Yes"
+    // Closes the saftey menu (after pressing "yes" button)
     public void CloseSafetyMenu02()
     {
         StartCoroutine("CloseSafetyMenuDelay02");
     }
 
-    /*** On Pointer Enter functions start here ***/
+    /*** "On Pointer Enter" functions start here ***/
     public void SelectResumeButton()
     {
         if (lastSelectedObject != pauseFirstButton)
@@ -173,9 +140,7 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             eventSystem.SetSelectedGameObject(pauseFirstButton);
         }
-
     }
-
     public void SelectOptionsButton()
     {
         if (lastSelectedObject != optionsClosedButton)
@@ -183,9 +148,7 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             eventSystem.SetSelectedGameObject(optionsClosedButton);
         }
-
     }
-
     public void SelectMainMenuButton()
     {
         if (lastSelectedObject != mainMenuButton)
@@ -193,9 +156,7 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             eventSystem.SetSelectedGameObject(mainMenuButton);
         }
-
     }
-
     public void SelectYesButton()
     {
         if (lastSelectedObject != safetyFirstButton)
@@ -203,7 +164,6 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             eventSystem.SetSelectedGameObject(safetyFirstButton);
         }
-
     }
     public void SelectNoButton()
     {
@@ -212,44 +172,41 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             eventSystem.SetSelectedGameObject(safetySecondButton);
         }
-
     }
-    /*** On Pointer Enter functions end here ***/
+    /*** "On Pointer Enter" functions end here ***/
 
-    // Plays the sfx for opening the safety menu in the death screen
-    private void PlaySafetyMenuSFX()
+    // Checks when to pause/resume game - also sets alternate method for closing options and saftey menu
+    private void PressingESC()
     {
-        audioSourceUI.volume = 0.35f;
-        audioSourceUI.pitch = 1f;
-        audioSourceUI.PlayOneShot(safetyMenuSFX);
-    }
-
-    // Loads the next scene asynchronously while the loading screen is active
-    private IEnumerator LoadMainAsync()
-    {
-        //yield return new WaitForSecondsRealtime(0.15f);
-        Time.timeScale = 1f;
-
-        loadingScreen.SetActive(true);
-
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(mainMenuScene);
-
-        while (!asyncLoad.isDone)
+        // Pressing ESC...
+        if (Input.GetKeyDown(KeyCode.Escape) && !isChangingMenus)
         {
-            if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
+            // Opens/closes the pause menu (pause/resume game)
+            if (!isOptionsMenu && !isSafetyMenu && !isChangingScenes)
             {
-                loadingText.text = "Press SPACE to Continue";
-                loadingIcon.SetActive(false);
-
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    loadingText.gameObject.SetActive(false);
-                    loadingIcon.gameObject.SetActive(false);
-
-                    asyncLoad.allowSceneActivation = true;
-                }
+                if (isPaused)
+                    Resume();
+                else if (!isPaused && canPause)
+                    Pause();
             }
-            yield return null;
+            // Closes the options menu
+            if (isOptionsMenu)
+                StartCoroutine("CloseOptionsDelay");
+            // Closes the safety menu
+            if (isSafetyMenu)
+                StartCoroutine("CloseSafetyMenuDelay");
+        }
+    }
+
+    // Checks for the last selected button and when to play the button selected sfx
+    private void LastSelectedButtonCheck()
+    {
+        if (lastSelectedObject != eventSystem.currentSelectedGameObject)
+        {
+            if (canPlayButtonSFX && !isOptionsMenu)
+                audioManagerScript.PlayButtonSelectSFX();
+
+            lastSelectedObject = eventSystem.currentSelectedGameObject;
         }
     }
 
@@ -258,82 +215,100 @@ public class PauseMenu : MonoBehaviour
     {
         DisableMenuInputsPS();
 
-        yield return new WaitForSecondsRealtime(0.15f);      
-        pauseScreenAnim.SetTrigger("PS_PopOut");
-        pauseScreenBgAnim.SetTrigger("PS_FadeOut");     
-        optionsScreen.SetActive(false);
+        yield return new WaitForSecondsRealtime(0.15f);
+        pauseMenuAnim.SetTrigger("PS_PopOut");
+        pauseMenuBGAnim.SetTrigger("PS_FadeOut");
+        optionsMenu.SetActive(false);
         safetyMenu.SetActive(false);
         Time.timeScale = 1f;
 
-        if (characterDialogueScript.canStartDialogue)  // Only set to true when the player isn't interacting with artifact or npc
+        if (characterDialogueScript.canStartDialogue)  // When the player isn't interacting with an npc/artifact
             playerScript.SetPlayerBoolsTrue();
-        //playerScript.SetPlayerBoolsTrue();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isChangingMenus = false;
         isPaused = false;
-        pauseScreen.SetActive(false);
-        pauseScreenBG.SetActive(false);        
+        pauseMenu.SetActive(false);
+        pauseMenuBG.SetActive(false);        
     }
 
+    // For opening the otpions menu
     private IEnumerator OpenOptionsDelay()
     {
         DisableMenuInputsPS();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
-        pauseScreenAnim.SetTrigger("PS_PopOut"); // The pause menu is set inactive and the options menu is set active at the end of the animation via anim event        
+        pauseMenuAnim.SetTrigger("PS_PopOut"); 
+        
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "PS_PopOut" animation
+        pauseMenu.SetActive(false);
+        optionsMenu.SetActive(true);
 
-        yield return new WaitForSecondsRealtime(0.2f);
-        optionsScreen.SetActive(true);     
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(optionsFirstButton);
+        //eventSystem.SetSelectedGameObject(null);
+        //eventSystem.SetSelectedGameObject(optionsFirstButton);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the option menu's pop in animation
         EnableMenuInputPS();
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false; //
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
     }
 
+    // For closing the options menu
     private IEnumerator CloseOptionsDelay()
     {
         DisableMenuInputsPS();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = false;
-        optionsScreenAnim.SetTrigger("OS_PopOut");       
+        optionsMenuAnim.SetTrigger("OS_PopOut");
 
-        yield return new WaitForSecondsRealtime(0.2f);     
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "OS_PopOut" animation
+        optionsMenu.SetActive(false);
+        pauseMenu.SetActive(true);
+
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(optionsClosedButton);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the pause menu's pop in animation   
         EnableMenuInputPS();
     }
 
+    // For opening the saftey menu 
     private IEnumerator OpenSafetyMenuDelay()
     {
         DisableMenuInputsPS();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = true;
-        pauseScreenAnim.SetTrigger("PS_PopOut");  // The pause menu is set inactive and the safety menu is set active at the end of the animation via anim event
+        pauseMenuAnim.SetTrigger("PS_PopOut");
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "PS_PopOut" animation
+        pauseMenu.SetActive(false);
+        safetyMenu.SetActive(true);
+
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the safety menu's pop in animation
         EnableMenuInputPS();
     }
-    
-    // *** For opening the saftey menu while the death screen is active ***
+
+    // For opening the saftey menu (while death screen is active)
     private IEnumerator OpenSafetyMenuDelay_DS()
     {
         DisableMenuInputsPS();
         playerScript.canRestartPuzzle = false;
 
         yield return new WaitForSecondsRealtime(0.15f);
-        PlaySafetyMenuSFX();
+        audioManagerScript.PlayPopUpSFX();
         isSafetyMenu = true;
-        deathScreenAnim.SetTrigger("DS_PopOut");  // The death screen is set inactive and the safety menu is set active at the end of the animation via anim event
+        deathScreenAnim.SetTrigger("DS_PopOut");
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "DS_PopOut" animation
+        safetyMenu.SetActive(true);
+        safetyMenuText.SetActive(false);
+        safetyMenuDeathScreenText.SetActive(true);
+
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(safetyFirstButton);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the safety menu's pop in animation
         EnableMenuInputPS();
     }
 
@@ -344,24 +319,38 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the pause menu is set active at the end of the animation via anim event     
+        safetyMenuAnim.SetTrigger("SM_PopOut");  
+        
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
+        safetyMenu.SetActive(false);
+        if (!isChangingScenes)
+            pauseMenu.SetActive(true);
 
-        yield return new WaitForSecondsRealtime(0.2f);
         eventSystem.SetSelectedGameObject(null);
         eventSystem.SetSelectedGameObject(mainMenuButton);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the pause menu's pop in animation
         EnableMenuInputPS();
     }
 
-    // *** For closing the safety menu when you press "no" while the death screen is active ***
+    // For closing the safety menu when you press "no" (while death screen is active)
     private IEnumerator CloseSafetyMenuDelay_DS()
     {
         DisableMenuInputsPS();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the death screen is set active at the end of the animation via anim event      
+        safetyMenuAnim.SetTrigger("SM_PopOut");
+                                                
+        yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
+        safetyMenu.SetActive(false);
+        if (!isChangingScenes)
+        {
+            safetyMenuDeathScreenText.SetActive(false);
+            safetyMenuText.SetActive(true);
+            deathScreenAnim.SetTrigger("DS_PopIn");
+        }
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return new WaitForSecondsRealtime(0.1f); // At the end of the death screen's pop in animation
         playerScript.canRestartPuzzle = true;
         EnableMenuInputPS();
     }
@@ -373,22 +362,136 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut");         
+        safetyMenuAnim.SetTrigger("SM_PopOut");        
     }
 
-    /*private IEnumerator QuitToMainDelay()
+    // Sets the scripts to use
+    private void SetScripts()
     {
-        yield return new WaitForSecondsRealtime(0.15f);
-        Time.timeScale = 1f;
-        StartCoroutine("LoadMainAsync");
-    }*/
+        eventSystem = FindObjectOfType<EventSystem>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "PauseMenuHolder")
+            {
+                GameObject pauseMenuHolder = child;
+
+                for (int j = 0; j < pauseMenuHolder.transform.childCount; j++)
+                {
+                    GameObject child02 = pauseMenuHolder.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "PauseMenuBG")
+                        pauseMenuBG = child02;
+
+                    if (child02.name == "PauseMenu")
+                    {
+                        pauseMenu = child02;
+
+                        for (int k = 0; k < pauseMenu.transform.childCount; k++)
+                        {
+                            GameObject child03 = pauseMenu.transform.GetChild(k).gameObject;
+
+                            if (child03.name == "ButtonHolder")
+                                pauseMenuButtons = child03;
+                        }
+                    }                     
+                }
+            }
+
+            if (child.name == "SafetyMenu")
+            {
+                safetyMenu = child;
+
+                for (int h = 0; h < safetyMenu.transform.childCount; h++)
+                {
+                    GameObject child04 = safetyMenu.transform.GetChild(h).gameObject;
+
+                    if (child04.name == "SafetyMenuAnim")
+                    {
+                        GameObject safteyMenuAnim = child04;
+
+                        for (int g = 0; g < safteyMenuAnim.transform.childCount; g++)
+                        {
+                            GameObject child05 = safteyMenuAnim.transform.GetChild(g).gameObject;
+
+                            if (child05.name == "SafetyMenuRegularText")
+                                safetyMenuText = child05;
+                            if (child05.name == "SafetyMenuDeathScreenText")
+                                safetyMenuDeathScreenText = child05;
+                            if (child05.name == "ButtonHolder")
+                                safetyMenuButtons = child05;
+                        }
+                    }
+                }
+            }
+
+            if (child.name == "OptionsMenuHolder")
+            {
+                GameObject optionsMenuHolder = child;
+
+                for (int f = 0; f < optionsMenuHolder.transform.childCount; f++)
+                {
+                    GameObject child06 = optionsMenuHolder.transform.GetChild(f).gameObject;
+
+                    if (child06.name == "OptionsMenu")
+                        optionsMenu = child06;
+                }
+            }
+        }
+
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "OptionalDeathScreen")
+                deathScreenAnim = child.GetComponent<Animator>();
+        }
+
+        for (int i = 0; i < pauseMenuButtons.transform.childCount; i++)
+        {
+            GameObject child = pauseMenuButtons.transform.GetChild(i).gameObject;
+
+            if (child.name == "ResumeButton")
+                pauseFirstButton = child;
+            if (child.name == "OptionsButton")
+                optionsClosedButton = child;
+            if (child.name == "MainMenuButton")
+                mainMenuButton = child;
+        }
+
+        for (int i = 0; i < safetyMenuButtons.transform.childCount; i++)
+        {
+            GameObject child = safetyMenuButtons.transform.GetChild(i).gameObject;
+
+            if (child.name == "YesButton")
+                safetyFirstButton = child;
+            if (child.name == "NoButton")
+                safetySecondButton = child;
+        }
+
+        pauseMenuAnim = pauseMenu.GetComponent<Animator>();
+        pauseMenuBGAnim = pauseMenuBG.GetComponent<Animator>();
+        optionsMenuAnim = optionsMenu.GetComponent<Animator>();
+        safetyMenuAnim = safetyMenu.GetComponent<Animator>();
+    }
 
     private void EnableMenuInputPS()
     {
         canPlayButtonSFX = true;
         isChangingMenus = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        gameObject.GetComponent<GraphicRaycaster>().enabled = true;
+        GetComponent<GraphicRaycaster>().enabled = true;
     }
 
     private void DisableMenuInputsPS()
@@ -396,7 +499,7 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = false;
         isChangingMenus = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        gameObject.GetComponent<GraphicRaycaster>().enabled = false;
+        GetComponent<GraphicRaycaster>().enabled = false;
     }
 
 }

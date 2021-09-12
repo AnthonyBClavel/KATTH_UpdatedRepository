@@ -12,10 +12,9 @@ public class LevelFade : MonoBehaviour
 
     private MainMenu mainMenuScript;                                  
     private PauseMenu pauseMenuScript;
-    private LevelManager levelManager;
     private TileMovementController playerScript;
     private PlayerSounds playerSoundsScript;
-    //private ArtifactScript artifactScript;
+    private GameManager gameManagerScript;
 
     // Start is called before the first frame update
     void Start()
@@ -30,9 +29,6 @@ public class LevelFade : MonoBehaviour
         {
             pauseMenuScript.canPause = true; // Might need to refine later - works in tutorial because pause menu script component is disabled during dialogue
             playerSoundsScript.canCheckBridgeTiles = true; // This is only false when the player enters and leaves a scene
-
-            /*if (SceneManager.GetActiveScene().name != "TutorialMap")
-                artifactScript.SetNumberOfCollectedArtifacts();*/
         }         
     }
 
@@ -72,7 +68,6 @@ public class LevelFade : MonoBehaviour
     // Triggers the "FadeOutToNextLevel" animation (fade)
     public void FadeOutToNextLevel()
     {
-        pauseMenuScript.isChangingScenes = true;
         animator.SetTrigger("FadeOutNextLevel");
     }
 
@@ -97,28 +92,26 @@ public class LevelFade : MonoBehaviour
     // Calls the "QuitToMain" function in the pause menu
     public void OnFadeCompleteForPause()                       
     {
-        pauseMenuScript.QuitToMain();                                
+        //pauseMenuScript.QuitToMain();
+        gameManagerScript.LoadNextSceneCheck();
     }
 
     // Calls the "LoadNextLevel" coroutine in the pause menu
     public void OnFadeCompleteForLevel()
     {
-        levelManager.StartCoroutine("LoadNextLevelAsync");
+        gameManagerScript.LoadNextSceneCheck();
     }
-
 
     // Re-enables all inputs
     public void enableMenuInputs()
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        //gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = true;
     }
 
     // Disables all inputs
     public void disableMenuInputs()
     {
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;      
-        //gameCanvas.GetComponentInChildren<CanvasGroup>().blocksRaycasts = false;
     }
 
     private void SetScripts()
@@ -127,13 +120,10 @@ public class LevelFade : MonoBehaviour
 
         if (sceneName != "MainMenu")
         {
-            levelManager = FindObjectOfType<LevelManager>();
             playerScript = FindObjectOfType<TileMovementController>();
             pauseMenuScript = FindObjectOfType<PauseMenu>();
             playerSoundsScript = FindObjectOfType<PlayerSounds>();
-
-            /*if (sceneName != "TutorialMap")
-                artifactScript = FindObjectOfType<ArtifactScript>();*/
+            gameManagerScript = FindObjectOfType<GameManager>();
         }
         if (sceneName == "MainMenu")
         {
