@@ -29,6 +29,7 @@ public class TutorialDialogueManager : MonoBehaviour
     private ArtifactScript artifactScript;
     private CharacterDialogue characterDialogueScript;
     private NotificationBubbles notificationBubblesScript;
+    private GameHUD gameHUDScript;
 
     void Awake()
     {
@@ -38,6 +39,7 @@ public class TutorialDialogueManager : MonoBehaviour
         artifactScript = FindObjectOfType<ArtifactScript>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
 
         skipTutorialButton = skipButtonScript.gameObject;
         SetElements();
@@ -175,9 +177,9 @@ public class TutorialDialogueManager : MonoBehaviour
     private void SetElements()
     {
         // Sets the game objects by looking at names of children
-        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
         {
-            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "ContinueButton")
                 continueButtonCD = child;

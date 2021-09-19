@@ -24,8 +24,6 @@ public class ArtifactScript : MonoBehaviour
     private GameObject WoodenChestHolder;
     private GameObject artifactHolder;
     private GameObject artifactRotationHolder;
-    private GameObject dialogueArrow;
-    private GameObject transitionFade;
     private GameObject continueButton;
     private GameObject dialogueOptionsBubble;
     private GameObject player;
@@ -33,7 +31,7 @@ public class ArtifactScript : MonoBehaviour
 
     private Vector3 wchOriginalRotation; // wch = wooden chest holder
     private Vector3 ahOriginalRotation; // ah = artifact holder
-    private Vector3 arhOriginalRotation; //arh = artifact rotation holder
+    private Vector3 arhOriginalRotation; // arh = artifact rotation holder
     private Vector3 inspectingArtifactRotation;
     private Vector3 cameraOriginalPosition;
     private Vector3 cameraOriginalRotation;
@@ -57,6 +55,7 @@ public class ArtifactScript : MonoBehaviour
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
     private NotificationBubbles notificationBubblesScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -294,19 +293,16 @@ public class ArtifactScript : MonoBehaviour
     // Transitions the artifact camera view
     private IEnumerator TransitionToArtifactCameraView()
     {
-        dialogueArrow.SetActive(false);
-        transitionFade.SetActive(true);
-        pauseMenuScript.canPause = false;
+        transitionFadeScript.PlayTransitionFade();
+        float duration = transitionFadeScript.fadeInAndOut / 2;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(duration);
         SetArtifactCameraView();
         SetChestRotation();
         characterDialogueScript.ChangeContinueButtonText("Go Back");
         continueButton.SetActive(true);
 
-        yield return new WaitForSeconds(1f);
-        pauseMenuScript.canPause = true;
-        transitionFade.SetActive(false);
+        yield return new WaitForSeconds(duration);
         characterDialogueScript.hasTransitionedToArtifactView = true;
         canTransitionFade = true;
     }
@@ -314,20 +310,18 @@ public class ArtifactScript : MonoBehaviour
     // Transitions to the camera's previous position and rotation
     private IEnumerator TransitionToPreviousCameraView()
     {
-        transitionFade.SetActive(true);
-        pauseMenuScript.canPause = false;
+        transitionFadeScript.PlayTransitionFade();
+        float duration = transitionFadeScript.fadeInAndOut / 2;
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(duration);
         ResetCameraView();
         WoodenChestHolder.transform.localEulerAngles = wchOriginalRotation;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(duration / 2);
         if (!dialogueOptionsBubble.activeSelf)
             characterDialogueScript.OpenDialogueOptionsBubble();
 
-        yield return new WaitForSeconds(0.5f);
-        pauseMenuScript.canPause = true;
-        transitionFade.SetActive(false);
+        yield return new WaitForSeconds(duration / 2);
         canTransitionFade = true;
     }
 
@@ -343,6 +337,7 @@ public class ArtifactScript : MonoBehaviour
         audioManagerScript = FindObjectOfType<AudioManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
@@ -376,14 +371,12 @@ public class ArtifactScript : MonoBehaviour
             }           
         }
 
-        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
         {
-            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "ContinueButton")
                 continueButton = child;
-            if (child.name == "TransitionFade")
-                transitionFade = child;
         }
 
         for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
@@ -396,7 +389,6 @@ public class ArtifactScript : MonoBehaviour
 
         player = playerScript.gameObject;
         pixelatedCamera = cameraScript.gameObject;
-        dialogueArrow = characterDialogueScript.dialogueArrow;
 
         wchOriginalRotation = WoodenChestHolder.transform.localEulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;

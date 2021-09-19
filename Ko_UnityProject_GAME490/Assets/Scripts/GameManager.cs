@@ -18,9 +18,6 @@ public class GameManager : MonoBehaviour
 
     private string levelToLoad;
 
-    [Header("Game Objects")]
-    public GameObject firstBlock;
-
     [Header("Materials")]
     public Material grassMaterial;
     public Material iceMaterial;
@@ -42,6 +39,7 @@ public class GameManager : MonoBehaviour
     private PlayerSounds playerSoundsScript;
     private PauseMenu pauseMenuScript;
     private TipsManager tipsManagerScript;
+    private TransitionFade transitionFadeScript;
 
     [Header("Debugging Elements")]
     public bool isDebugging;
@@ -85,12 +83,13 @@ public class GameManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
-        pauseMenuScript.isChangingScenes = true;
-        playerSoundsScript.canCheckBridgeTiles = false;
-        playerScript.SetPlayerBoolsFalse();
+        //pauseMenuScript.isChangingScenes = true;
+        //playerSoundsScript.canCheckBridgeTiles = false;
+        //playerScript.SetPlayerBoolsFalse();
 
         if (currentScene != "FifthMap")
-            FindObjectOfType<LevelFade>().FadeOutToNextLevel();
+            transitionFadeScript.GameFadeOut();
+            //FindObjectOfType<LevelFade>().FadeOutToNextLevel();
 
         // Creates new save file - ONLY delete artifact saves here
         if (currentScene == "FifthMap" || currentScene == "TutorialMap")
@@ -175,6 +174,7 @@ public class GameManager : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         playerSoundsScript = FindObjectOfType<PlayerSounds>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components

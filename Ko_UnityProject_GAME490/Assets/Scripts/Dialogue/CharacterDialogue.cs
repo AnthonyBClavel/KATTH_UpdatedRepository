@@ -85,7 +85,7 @@ public class CharacterDialogue : MonoBehaviour
     private float dob_LocalPosY;
 
     [Header("GameObjects")]
-    public GameObject dialogueArrow;
+    private GameObject dialogueArrowHolder;
     private GameObject dialogueOptionOne;
     private GameObject dialogueOptionTwo;
     private GameObject dialogueOptionThree;
@@ -234,29 +234,40 @@ public class CharacterDialogue : MonoBehaviour
         SetAlertBubblePosition();
     }
 
-    public void UpdateDialogueCheckForNPC(GameObject dialogueCheck)
+    // Assigns a new game object to the nPCDialogueCheck
+    public void UpdateDialogueCheckForNPC(GameObject newGameObject)
     {
-        nPCDialogueCheck = dialogueCheck;
+        nPCDialogueCheck = newGameObject;
     }
 
+    // Assigns a new script to the npc script
     public void UpdateScriptForNPC(NonPlayerCharacter newScript)
     {
         nPCScript = newScript;
     }
 
+    // Assigns a new script to the fidget controller script (NPC)
     public void UpdateFidgetScriptForNPC(FidgetAnimControllerNPC newScript)
     {
         fidgetControllerScriptNPC = newScript;
     }
 
-    public void UpdateNonPlayerCharacterName(string newName)
+    // Assigns a new string to the nPCName
+    public void UpdateNonPlayerCharacterName(string newString)
     {
-        nPCName = newName;
+        nPCName = newString;
     }
 
+    // Assigns a new script to the artifact Script
     public void UpdateScriptForArtifact(ArtifactScript newScript)
     {
         artifactScript = newScript;
+    }
+
+    // Returns the game object for the dialogue holder - used in dialogue arrow script ONLY
+    public GameObject ReturnDialogueArrowHolder()
+    {
+        return dialogueArrowHolder;
     }
 
     // Starts the dialogue with an npc
@@ -567,7 +578,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see when the dialogue arrow can be move and execute functions
     private void DialogueArrowCheck()
     {
-        if (dialogueArrow.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && artifactScript.canTransitionFade)
+        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && artifactScript.canTransitionFade)
         {
             if (dialogueOptionsIndex != 0)
             {
@@ -629,8 +640,8 @@ public class CharacterDialogue : MonoBehaviour
 
                 if (!hasMovedDialogueArrow)
                 {
-                    dialogueArrow.transform.SetParent(dialogueOptionOne.transform);
-                    dialogueArrow.transform.localPosition = dialogueArrowDefaultPos;
+                    dialogueArrowHolder.transform.SetParent(dialogueOptionOne.transform);
+                    dialogueArrowHolder.transform.localPosition = dialogueArrowDefaultPos;
 
                     optionOneText.color = selectedTextColor;
                     optionTwoText.color = unselectedTextColor;
@@ -675,8 +686,8 @@ public class CharacterDialogue : MonoBehaviour
 
                 if (!hasMovedDialogueArrow)
                 {
-                    dialogueArrow.transform.SetParent(dialogueOptionTwo.transform);
-                    dialogueArrow.transform.localPosition = dialogueArrowDefaultPos;
+                    dialogueArrowHolder.transform.SetParent(dialogueOptionTwo.transform);
+                    dialogueArrowHolder.transform.localPosition = dialogueArrowDefaultPos;
 
                     optionOneText.color = unselectedTextColor;
                     optionTwoText.color = selectedTextColor;
@@ -717,8 +728,8 @@ public class CharacterDialogue : MonoBehaviour
 
                 if (!hasMovedDialogueArrow)
                 {
-                    dialogueArrow.transform.SetParent(dialogueOptionThree.transform);
-                    dialogueArrow.transform.localPosition = dialogueArrowDefaultPos;
+                    dialogueArrowHolder.transform.SetParent(dialogueOptionThree.transform);
+                    dialogueArrowHolder.transform.localPosition = dialogueArrowDefaultPos;
 
                     optionOneText.color = unselectedTextColor;
                     optionTwoText.color = unselectedTextColor;
@@ -1141,7 +1152,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         SetTextToUnselectedTextColor();
         dialogueOptionsBubble.SetActive(false);
-        dialogueArrow.SetActive(false);
+        dialogueArrowHolder.SetActive(false);
         dialogueOptionOne.SetActive(false);
         dialogueOptionTwo.SetActive(false);
         dialogueOptionThree.SetActive(false);
@@ -1319,7 +1330,7 @@ public class CharacterDialogue : MonoBehaviour
     private IEnumerator SetDialogueArrowActiveDelay()
     {
         yield return new WaitForSeconds(0.25f);
-        dialogueArrow.SetActive(true);
+        dialogueArrowHolder.SetActive(true);
         audioManagerScript.PlayDialogueArrowSFX();
         hasMovedDialogueArrow = false;
 
@@ -1350,8 +1361,8 @@ public class CharacterDialogue : MonoBehaviour
     // Ends the dialogue (you can interact with npc again after a small delay)
     private IEnumerator EndDialogueDelay()
     {
-        dialogueArrow.transform.SetParent(dialogueOptionOne.transform);
-        dialogueArrow.transform.localPosition = dialogueArrowDefaultPos;
+        dialogueArrowHolder.transform.SetParent(dialogueOptionOne.transform);
+        dialogueArrowHolder.transform.localPosition = dialogueArrowDefaultPos;
 
         dialogueOptionsIndex = 0;
         playerIndex = 0;
@@ -1509,9 +1520,9 @@ public class CharacterDialogue : MonoBehaviour
                 dialogueOptionsBubble = child;
                 dialogueOptionsBubbleAnim = dialogueOptionsBubble.GetComponentInChildren<Animator>();
 
-                for (int h = 0; h < dialogueOptionsBubbleAnim.transform.childCount; h++)
+                for (int j = 0; j < dialogueOptionsBubbleAnim.transform.childCount; j++)
                 {
-                    RectTransform rectTransform = dialogueOptionsBubbleAnim.transform.GetChild(h).GetComponent<RectTransform>();
+                    RectTransform rectTransform = dialogueOptionsBubbleAnim.transform.GetChild(j).GetComponent<RectTransform>();
 
                     if (rectTransform.name == "SpeechBubbleHolder")
                     {
@@ -1523,7 +1534,18 @@ public class CharacterDialogue : MonoBehaviour
                             GameObject child02 = dialogueOptionsHolder.transform.GetChild(k).gameObject;
 
                             if (child02.name == "DialogueOptionOne")
+                            {
                                 dialogueOptionOne = child02;
+
+                                for (int l = 0; l < dialogueOptionOne.transform.childCount; l++)
+                                {
+                                    GameObject child03 = dialogueOptionOne.transform.GetChild(l).gameObject;
+
+                                    if (child03.name == "DialogueArrowHolder")
+                                        dialogueArrowHolder = child03;
+                                }
+                            }
+                               
                             if (child02.name == "DialogueOptionTwo")
                                 dialogueOptionTwo = child02;
                             if (child02.name == "DialogueOptionThree")
@@ -1562,12 +1584,12 @@ public class CharacterDialogue : MonoBehaviour
                 playerAlertBubble = child;
         }
 
-        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
         {
-            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "ContinueButton")
-                continueButton = child;;
+                continueButton = child;
         }
 
         for (int i = 0; i < cameraScript.transform.childCount; i++)
@@ -1610,9 +1632,9 @@ public class CharacterDialogue : MonoBehaviour
             {
                 GameObject characterHolder = child;
 
-                for (int j = 0; j < characterHolder.transform.childCount; j++)
+                for (int e = 0; e < characterHolder.transform.childCount; e++)
                 {
-                    GameObject child02 = characterHolder.transform.GetChild(j).gameObject;
+                    GameObject child02 = characterHolder.transform.GetChild(e).gameObject;
 
                     if (child02.name == "DialogueCheck")
                         nPCDialogueCheck = child02;

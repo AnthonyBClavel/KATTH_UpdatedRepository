@@ -5,10 +5,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
-public class WorldIntroManager : MonoBehaviour
+public class IntroManager : MonoBehaviour
 {
-    public bool hasPlayedIntro;
-    private bool canWorldIntro = false;
+    private bool canStartIntro = false;
 
     private float typingSpeed; // 3f
     private float introCameraSpeed; // 3f
@@ -17,14 +16,10 @@ public class WorldIntroManager : MonoBehaviour
     private string currentText = string.Empty;
 
     private GameObject zoneName;
-    private GameObject blackOverlay;
-    private GameObject firstBlock;
-    private GameObject levelFade;
     private GameObject pixelatedCamera;
     private GameObject notificationBubblesHolder;
 
     private TextMeshProUGUI zoneTextComponent;
-    private Animator blackOverlayAnimator;
     private AudioSource charNoiseSFX;
 
     private Vector3 originalCameraPos;
@@ -33,14 +28,13 @@ public class WorldIntroManager : MonoBehaviour
 
     private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
-    private PauseMenu pauseMenuScript;
     private BlackBars blackBarsScript;
     private TorchMeterScript torchMeterScript;
     private GameHUD gameHUDScript;
     private CameraController cameraScript;
-    private LevelFade levelFadeScript;
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -51,17 +45,15 @@ public class WorldIntroManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        levelFade.SetActive(false);
-
-        SetCameraVectors(); 
-        StartIntroCheck(); // MUST be called last in start, NOT in awake!
+        SetCameraVectors();
+        StartIntroCheck(); // MUST be called LAST in start(), NOT in awake()!
     }
 
     void LateUpdate()
     {
         DebuggingCheck();
 
-        if (!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canWorldIntro)
+        if (!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canStartIntro)
             pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, introCameraSpeed * Time.deltaTime);
     }
 
@@ -85,8 +77,8 @@ public class WorldIntroManager : MonoBehaviour
         cameraDestination = new Vector3(newCameraPosition.x + 70f, newCameraPosition.y, newCameraPosition.z);
     }
 
-    // Determines the world name to display
-    private void DisplayWorldName()
+    // Determines the zone name to display
+    private void DisplayZoneName()
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
@@ -102,40 +94,40 @@ public class WorldIntroManager : MonoBehaviour
             zoneNameText = "Zone 5: Power Station";
     }
 
-    // Checks to see if the world intro can be started
+    // Checks if the zone intro can start - only occurs at the begging of each zone (1st puzzle)
     private void StartIntroCheck()
     {
-        if (playerScript.gameObject.transform.position == firstBlock.transform.position)
-        {
-            StartCoroutine("ShowWorldName");
+        if (!playerScript.checkIfOnCheckpoint())
+        {           
+            StartCoroutine("StartZoneIntro");
             audioLoopsScript.SetAudioLoopsToZero();
         }
         else
         {
-            levelFade.SetActive(true);
+            //Debug.Log("Did not start intro");
+            //levelFade.SetActive(true);
             audioLoopsScript.SetAudioLoopsToDefault();
         }
     }
 
-    private IEnumerator ShowWorldName()
+    // Sets up and starts the zone intro
+    private IEnumerator StartZoneIntro()
     {
         cameraScript.canMoveCamera = false;
-        pauseMenuScript.enabled = false;
-        canWorldIntro = true;
+        canStartIntro = true;
 
         blackBarsScript.TurnOnBlackBars();
         playerScript.SetPlayerBoolsFalse();
 
         zoneName.SetActive(true);
-        blackOverlay.SetActive(true);
+        transitionFadeScript.IntroFadeIn();
         torchMeterScript.TurnOffTorchMeter();
         notificationBubblesHolder.SetActive(false);
-        //gameHUDScript.gameObject.SetActive(false);
 
         pixelatedCamera.transform.position = newCameraPosition;
 
-        yield return new WaitForSeconds(2f);
-        DisplayWorldName();
+        yield return new WaitForSeconds(transitionFadeScript.introFadeIn);
+        DisplayZoneName();
 
         for (int i = 0; i <= zoneNameText.Length; i++)
         {
@@ -149,26 +141,19 @@ public class WorldIntroManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(3f);
-        blackOverlayAnimator.SetTrigger("FadeOut_WI");
+        transitionFadeScript.IntroFadeOut();
         zoneName.SetActive(false);
 
-        yield return new WaitForSeconds(2f);
-        playerScript.WalkIntoScene();
+        yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
         audioLoopsScript.FadeInAudioLoops();
         blackBarsScript.TurnOffBlackBars();
 
         cameraScript.canMoveCamera = true;
-        pauseMenuScript.enabled = true;
-        canWorldIntro = false;
+        canStartIntro = false;
 
-        //player.GetComponent<TileMovementController>().SetPlayerBoolsTrue(); // Enable player movement - this is now enabled when the player hits a checkpoint
-        //torchMeterScript.SetFirstPuzzleValue();
-
-        blackOverlay.SetActive(false);
-        levelFade.SetActive(true);
+        transitionFadeScript.GameFadeIn();
         torchMeterScript.TurnOnTorchMeter();
         notificationBubblesHolder.SetActive(true);
-        //gameHUDScript.gameObject.SetActive(true);
 
         pixelatedCamera.transform.position = originalCameraPos;
     }
@@ -178,14 +163,13 @@ public class WorldIntroManager : MonoBehaviour
     {
         audioLoopsScript = FindObjectOfType<AudioLoops>();
         playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
         blackBarsScript = FindObjectOfType<BlackBars>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         cameraScript = FindObjectOfType<CameraController>();
-        levelFadeScript = FindObjectOfType<LevelFade>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
@@ -198,8 +182,6 @@ public class WorldIntroManager : MonoBehaviour
 
             if (child.name == "ZoneName")
                 zoneName = child;
-            if (child.name == "BlackOverlay")
-                blackOverlay = child;
         }
 
         for (int i = 0; i < gameHUDScript.transform.childCount; i++)
@@ -210,13 +192,10 @@ public class WorldIntroManager : MonoBehaviour
                 notificationBubblesHolder = child;
         }
 
-        blackOverlayAnimator = blackOverlay.GetComponent<Animator>();
         zoneTextComponent = zoneName.GetComponent<TextMeshProUGUI>();
 
         pixelatedCamera = cameraScript.gameObject;
-        levelFade = levelFadeScript.gameObject;
         charNoiseSFX = audioManagerScript.charNoiseSFX;
-        firstBlock = gameManagerScript.firstBlock;
         typingSpeed = gameManagerScript.typingSpeed;
         introCameraSpeed = gameManagerScript.introCameraSpeed;
     }

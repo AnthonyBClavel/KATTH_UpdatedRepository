@@ -16,6 +16,8 @@ public class PauseMenu : MonoBehaviour
     public bool isChangingMenus;
     public bool isChangingScenes;
     private bool canPlayButtonSFX;
+    private bool hasPressedESC;
+    private bool hasPlayedSelectedSFX;
 
     [Header("Pause Menu Elements")]
     private GameObject pauseMenuButtons;
@@ -45,6 +47,7 @@ public class PauseMenu : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -57,9 +60,6 @@ public class PauseMenu : MonoBehaviour
     {
         isChangingScenes = false;
         isChangingMenus = false;
-
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(pauseFirstButton);
     }
 
     // Update is called once per frame
@@ -80,10 +80,10 @@ public class PauseMenu : MonoBehaviour
     {   
         Time.timeScale = 0f;
         isPaused = true;
+        hasPlayedSelectedSFX = false;
         pauseMenu.SetActive(true);
         pauseMenuBG.SetActive(true);
         playerScript.SetPlayerBoolsFalse();
-        audioManagerScript.PlayButtonSelectSFX();
 
         eventSystem.SetSelectedGameObject(null); // Clear last selected object then...
         eventSystem.SetSelectedGameObject(pauseFirstButton); // Set new selected object
@@ -175,6 +175,25 @@ public class PauseMenu : MonoBehaviour
     }
     /*** "On Pointer Enter" functions end here ***/
 
+    // Checks for the last selected button AND when to play the button selected sfx
+    private void LastSelectedButtonCheck()
+    {
+        if (lastSelectedObject != eventSystem.currentSelectedGameObject)
+        {
+            if (canPlayButtonSFX && !isOptionsMenu)
+            {
+                audioManagerScript.PlayButtonSelectSFX();
+                hasPlayedSelectedSFX = true;
+            }
+            lastSelectedObject = eventSystem.currentSelectedGameObject;
+        }
+        else if (lastSelectedObject == pauseFirstButton && !hasPlayedSelectedSFX)
+        {
+            audioManagerScript.PlayButtonSelectSFX();
+            hasPlayedSelectedSFX = true;
+        }
+    }
+
     // Checks when to pause/resume game - also sets alternate method for closing options and saftey menu
     private void PressingESC()
     {
@@ -185,28 +204,25 @@ public class PauseMenu : MonoBehaviour
             if (!isOptionsMenu && !isSafetyMenu && !isChangingScenes)
             {
                 if (isPaused)
+                {
+                    hasPressedESC = true;
                     Resume();
+                }                
                 else if (!isPaused && canPause)
                     Pause();
             }
             // Closes the options menu
             if (isOptionsMenu)
+            {
+                hasPressedESC = true;
                 StartCoroutine("CloseOptionsDelay");
+            }
             // Closes the safety menu
             if (isSafetyMenu)
-                StartCoroutine("CloseSafetyMenuDelay");
-        }
-    }
-
-    // Checks for the last selected button and when to play the button selected sfx
-    private void LastSelectedButtonCheck()
-    {
-        if (lastSelectedObject != eventSystem.currentSelectedGameObject)
-        {
-            if (canPlayButtonSFX && !isOptionsMenu)
-                audioManagerScript.PlayButtonSelectSFX();
-
-            lastSelectedObject = eventSystem.currentSelectedGameObject;
+            {
+                hasPressedESC = true;
+                CloseSafetyMenu();
+            }
         }
     }
 
@@ -214,6 +230,9 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator ResumeDelay()
     {
         DisableMenuInputsPS();
+
+        if (!hasPressedESC)
+            audioManagerScript.PlayButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         pauseMenuAnim.SetTrigger("PS_PopOut");
@@ -232,10 +251,11 @@ public class PauseMenu : MonoBehaviour
         pauseMenuBG.SetActive(false);        
     }
 
-    // For opening the otpions menu
+    // For opening the options menu
     private IEnumerator OpenOptionsDelay()
     {
         DisableMenuInputsPS();
+        audioManagerScript.PlayButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
@@ -275,6 +295,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenSafetyMenuDelay()
     {
         DisableMenuInputsPS();
+        audioManagerScript.PlayButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = true;
@@ -317,6 +338,9 @@ public class PauseMenu : MonoBehaviour
     {
         DisableMenuInputsPS();
 
+        if (!hasPressedESC)
+            audioManagerScript.PlayButtonClickSFX();
+
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
         safetyMenuAnim.SetTrigger("SM_PopOut");  
@@ -336,6 +360,9 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator CloseSafetyMenuDelay_DS()
     {
         DisableMenuInputsPS();
+
+        if (!hasPressedESC)
+            audioManagerScript.PlayButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -359,6 +386,8 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator CloseSafetyMenuDelay02()
     {
         DisableMenuInputsPS();
+        transitionFadeScript.GameFadeOut();
+        audioManagerScript.PlayButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -373,6 +402,7 @@ public class PauseMenu : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
@@ -490,6 +520,7 @@ public class PauseMenu : MonoBehaviour
     {
         canPlayButtonSFX = true;
         isChangingMenus = false;
+        hasPressedESC = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
         GetComponent<GraphicRaycaster>().enabled = true;
     }

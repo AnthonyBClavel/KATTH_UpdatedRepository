@@ -421,7 +421,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -438,14 +438,14 @@ PrefabInstance:
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 6204848907565294206}
+      objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: MenuSounds, Assembly-CSharp
+      value: PauseMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: SetHasClickedToTrue
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
@@ -453,7 +453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
@@ -586,17 +586,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5761691020569368438, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
   m_PrefabInstance: {fileID: 2397268898813672560}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6204848907565294206 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8599837241814490638, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
-  m_PrefabInstance: {fileID: 2397268898813672560}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e7c71c8ef13e02488efe6f39174a23d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &2397268899683369538
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -606,7 +595,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -614,11 +603,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: LevelFade, Assembly-CSharp
+      value: PauseMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: FadeOutOfLevel
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -638,16 +627,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: CloseSafetyMenu02
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 6204848906690305100}
+      objectReference: {fileID: 0}
     - target: {fileID: 3051954626609062778, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
       value: MenuSounds, Assembly-CSharp
@@ -797,14 +786,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5761691020569368438, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
   m_PrefabInstance: {fileID: 2397268899683369538}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6204848906690305100 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8599837241814490638, guid: b9988321bb5b2264eaf8728b68fe6599, type: 3}
-  m_PrefabInstance: {fileID: 2397268899683369538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e7c71c8ef13e02488efe6f39174a23d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -155,8 +155,7 @@ public class GameHUD : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Q) && !pauseMenuScript.isSafetyMenu)
                 pauseMenuScript.OpenSafetyMenu();
 
-            if (Input.GetKeyDown(KeyCode.Escape) && pauseMenuScript.isSafetyMenu)
-                pauseMenuScript.CloseSafetyMenu();
+            // Note: restarting puzzle is done via playerScript
         }
     }
 

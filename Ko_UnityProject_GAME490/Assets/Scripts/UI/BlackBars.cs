@@ -7,6 +7,7 @@ public class BlackBars : MonoBehaviour
 {
     private bool canMoveBars = true;
     private bool hasMovedBars = false;
+    private bool hasSetVectors = false;
 
     public float blackBarsSpeed = 400f;
     public float blackBarsDistance = 130f;
@@ -34,11 +35,7 @@ public class BlackBars : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        topBarOriginalPosition = topBar.transform.localPosition;
-        bottomBarOriginalPosition = bottomBar.transform.localPosition;
-
-        topBarDestination = new Vector3(topBarOriginalPosition.x, topBarOriginalPosition.y - blackBarsDistance, topBarOriginalPosition.z);
-        bottomBarDestination = new Vector3(bottomBarOriginalPosition.x, bottomBarOriginalPosition.y + blackBarsDistance, bottomBarOriginalPosition.z);
+        SetVectorsCheck();
     }
 
     void LateUpdate()
@@ -64,6 +61,7 @@ public class BlackBars : MonoBehaviour
     {
         canMoveBars = false;
 
+        SetVectorsCheck();
         topBar.transform.localPosition = topBarDestination;
         bottomBar.transform.localPosition = bottomBarDestination;
     }
@@ -101,6 +99,22 @@ public class BlackBars : MonoBehaviour
                 if (bottomBar.transform.localPosition != bottomBarDestination)
                     bottomBar.transform.localPosition = Vector3.MoveTowards(bottomBar.transform.localPosition, bottomBarDestination, blackBarsSpeed * Time.deltaTime);
             }
+        }
+    }
+
+    // Sets the original positions and destinations
+    private void SetVectorsCheck()
+    {
+        // Has a check since intro script calls the TurnOnBlackBars() function BEFORE setting vector variables - Unity bug
+        if (!hasSetVectors)
+        {
+            topBarOriginalPosition = topBar.transform.localPosition;
+            bottomBarOriginalPosition = bottomBar.transform.localPosition;
+
+            topBarDestination = new Vector3(topBarOriginalPosition.x, topBarOriginalPosition.y - blackBarsDistance, topBarOriginalPosition.z);
+            bottomBarDestination = new Vector3(bottomBarOriginalPosition.x, bottomBarOriginalPosition.y + blackBarsDistance, bottomBarOriginalPosition.z);
+
+            hasSetVectors = true;
         }
     }
 

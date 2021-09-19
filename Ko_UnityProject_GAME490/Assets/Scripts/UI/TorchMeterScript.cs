@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class TorchMeterScript : MonoBehaviour  
@@ -199,23 +198,4 @@ public class TorchMeterScript : MonoBehaviour
         }
     }
 
-    // Sets the initial torch meter moves for the first puzzle in each zone
-    /*public void SetFirstPuzzleValue()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName == "FirstMap")
-            valueText.text = "7";
-        else if (sceneName == "SecondMap")
-            valueText.text = "6";
-        else if (sceneName == "ThirdMap")
-            valueText.text = "11";
-        else if (sceneName == "FourthMap")
-            valueText.text = "13";
-        else if (sceneName == "FifthMap")
-            valueText.text = "15";
-        else if (sceneName == "TutorialMap")
-            valueText.text = "8";
-    }*/
-    
 }

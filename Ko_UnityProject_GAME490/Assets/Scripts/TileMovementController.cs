@@ -411,6 +411,9 @@ public class TileMovementController : MonoBehaviour
             if (canSetBoolsTrue)
                 SetPlayerBoolsTrue(); //Enable Player Movement
 
+            if (!playerSoundsScript.canCheckBridgeTiles)
+                playerSoundsScript.canCheckBridgeTiles = true;
+
             bridgeTileCount = 0;
             checkpointManagerScript.setCheckpoint();
             checkpointManagerScript.LastBridgeTileCheck(); // Player's rotation is also saved in this function
@@ -506,11 +509,10 @@ public class TileMovementController : MonoBehaviour
                 // Doesn't look for the next bridge tile - ONLY occurs when the player is at the end of the final bridge (EndBridge)
                 if (bridgeTileCount == bridgeTileParentObject.transform.childCount)
                     canCheckForNextTile = false;
-
             }
 
             // Looks for the next bridge tile and sets it as the destination
-            if (transform.position == currentBridgeTile.transform.position && bridge.name != "EntryBridge" && canCheckForNextTile) // Make sure the parent object for the first bridge is called "EntryBridge"
+            if (transform.position == currentBridgeTile.transform.position && canCheckForNextTile && cameraScript.canMoveCamera) // Note: camera doesnt move during zone intro
             {
                 isWalking = true;
                 bridgeTileCount++;
@@ -731,12 +733,14 @@ public class TileMovementController : MonoBehaviour
     public void WalkIntoScene()
     {
         destination = new Vector3(0, 0, 0);
+        //destination = gameManagerScript.checkpoints[0].position;
     }
 
     // Checks if the camera can move to the next puzzle view - does not move if on final puzzle
     private void NextPuzzleViewCheck()
     {
-        if (bridge.name != "EndBridge" && !hasMovedPuzzleView) // Make sure the parent object for the final bridge is called "EndBridge"
+        // Make sure the parent objects for the first and last bridge are correct (first bridge = "EntryBridge", last bridge = "EndBridge")
+        if (bridge.name != "EndBridge" && bridge.name != "EntryBridge" && !hasMovedPuzzleView)
         {
             //Debug.Log("Next Puzzle View Activated");
             cameraScript.NextPuzzleView();
