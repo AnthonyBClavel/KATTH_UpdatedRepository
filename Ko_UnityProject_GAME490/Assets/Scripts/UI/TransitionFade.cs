@@ -6,10 +6,15 @@ using UnityEngine.UI;
 public class TransitionFade : MonoBehaviour
 {
     [Header("Fade Durations (in seconds)")]
+    [Range(0.1f, 5.0f)]
     public float gameFadeIn = 2f;
+    [Range(0.1f, 5.0f)]
     public float gameFadeOut = 2f;
+    [Range(0.1f, 5.0f)]
     public float introFadeIn = 2f;
+    [Range(0.1f, 5.0f)]
     public float introFadeOut = 2f;
+    [Range(0.1f, 10.0f)]
     public float fadeInAndOut = 2f;
 
     private Image transitionFade;

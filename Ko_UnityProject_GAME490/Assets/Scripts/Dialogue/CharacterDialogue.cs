@@ -507,7 +507,7 @@ public class CharacterDialogue : MonoBehaviour
 
         if (playerDialogueSentences[playerIndex].Contains("LOAD DIALOGUE OPTIONS"))
         {
-            Debug.Log("The opened dialogue options");
+            Debug.Log("Opened dialogue options");
             StopCoroutine("TypePlayerDialogue");
             StopCoroutine("TypeNPCDialogue");
             OpenDialogueOptionsBubble();

@@ -6,6 +6,7 @@ public class DialogueArrow : MonoBehaviour
 {
     [Range(0.1f, 2.0f)]
     public float animLength = 1f;
+    [Range(1f, 90f)]
     public float animDistance = 15f;
 
     private bool canPlayAnim = true;
