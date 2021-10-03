@@ -279,7 +279,7 @@ public class KimsTileMovement : MonoBehaviour
             if (hit.collider.tag == "StaticBlock" && canPush && Input.GetKeyDown(KeyCode.LeftShift))                                            //if the ray hits an object tagged "StaticBlock" and etc... (hold down correct WASD key and then press left shift to try and push static block)  
             {
                 Debug.Log("Cannot Push Static Block");                                                                                          //sends a debug message to the console (just for debugging purposes)
-                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);                               //calls the function from the script of the parent object's child                                 
+                //hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.25f, 0.25f);                               //calls the function from the script of the parent object's child                                 
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
             }
@@ -287,7 +287,7 @@ public class KimsTileMovement : MonoBehaviour
             if (hit.collider.tag == "DestroyableBlock" && canPush && Input.GetKeyDown(KeyCode.LeftShift))                                       //if the ray hits an object tagged "DestroyableBlock" and etc... (hold down correct WASD key and then press left shift to try and push destroyable block)
             {
                 Debug.Log("Cannot Push Breakable Block");                                                                                       //sends a debug message to the console (just for debugging purposes)
-                hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.1f, 0.25f);                                //calls the function from the script of the hit object's child                                 
+                //hit.collider.gameObject.GetComponentInChildren<ObjectShakeController>().StartShake(0.1f, 0.25f);                                //calls the function from the script of the hit object's child                                 
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
             }

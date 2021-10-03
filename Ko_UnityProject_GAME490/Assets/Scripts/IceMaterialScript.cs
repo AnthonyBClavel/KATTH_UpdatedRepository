@@ -5,14 +5,14 @@ using UnityEngine.UI;
 
 public class IceMaterialScript : MonoBehaviour
 {
-    public bool isFrozen = false;
-
-    private GameObject frostedBorder;
     private Material iceMaterial;
-    private Image frostedBorderSprite;
+    private Image frostedBorderImage;
 
-    private float iceMaterialAlpha = 0f;
-    private float frostedBorderAlpha = 0f;
+    private float fullAlpha = 1f;
+    private float zeroAlpha = 0f;
+
+    private Color fullAlphaColor;
+    private Color zeroAlphaColor;
 
     private GameManager gameManagerScript;
     private GameHUD gameHUDScript;
@@ -27,55 +27,58 @@ public class IceMaterialScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        iceMaterial = gameManagerScript.iceMaterial;
-        frostedBorderSprite = frostedBorder.GetComponent<Image>();
+        fullAlphaColor = new Color(1, 1, 1, fullAlpha);
+        zeroAlphaColor = new Color(1, 1, 1, zeroAlpha);
 
-        frostedBorderSprite.color = new Color(1, 1, 1, frostedBorderAlpha);
-        iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
+        frostedBorderImage.color = zeroAlphaColor;
+        iceMaterial.SetFloat("Vector1_FCC70E1D", zeroAlpha);
     }
 
-    // Sets the alpha of the ice material back to zero
-    public void ResetIceMaterial()
+    // Sets the ice material and frosted border's alpha back to zero
+    public void ResetIceAlphas()
     {
-        isFrozen = false;
-        iceMaterialAlpha = 0f;
-        iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
+        iceMaterial.SetFloat("Vector1_FCC70E1D", zeroAlpha);
+        frostedBorderImage.color = zeroAlphaColor;
     }
 
-    // Sets the frosted border's alpha back to zero
-    public void ResetFrostedBorderAlpha()
+    public void LerpIceAlphas()
     {
-        isFrozen = false;
-        frostedBorderAlpha = 0f;
-        frostedBorderSprite.color = new Color(1, 1, 1, frostedBorderAlpha);
+        StartCoroutine(LerpMaterialAlpha(iceMaterial, fullAlpha));
+        StartCoroutine(LerpImageAlpha(frostedBorderImage, fullAlphaColor));
     }
 
-    // Increases the ice material's alpha over time until it reaches its max value
-    public IEnumerator IncreaseIceMaterialAlpha()
+    // Lerps the alpha of a material, over a specific duration (endAlpha = alpha to lerp to, duration = seconds)
+    private IEnumerator LerpMaterialAlpha(Material material, float endAlpha)
     {
-        isFrozen = true;
+        float time = 0;
+        float lerpDuration = gameManagerScript.resetPuzzleDelay - 0.5f;
+        float startAlpha = material.GetFloat("Vector1_FCC70E1D");
 
-        for (float i = 0f; i <= 1; i += 0.05f)
+        while (time < lerpDuration)
         {
-            i = iceMaterialAlpha;
-            iceMaterialAlpha += 0.05f;
-            iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
-            yield return new WaitForSeconds(0.05f);
+            iceMaterial.SetFloat("Vector1_FCC70E1D", Mathf.Lerp(startAlpha, endAlpha, time / lerpDuration));
+            time += Time.deltaTime;
+            yield return null;
         }
+
+        iceMaterial.SetFloat("Vector1_FCC70E1D", endAlpha);
     }
 
-    // Increases the frosted border's alpha over time until it reaches its max value
-    public IEnumerator IncreaseFrostedBorderAlpha()
+    // Lerps the alpha of a UI Image, over a specific duration (endColor = alpha to lerp to, duration = seconds)
+    private IEnumerator LerpImageAlpha(Image image, Color endColor)
     {
-        isFrozen = true;
+        float time = 0;
+        float lerpDuration = gameManagerScript.resetPuzzleDelay - 0.5f;
+        Color startColor = image.color;
 
-        for (float i = 0f; i <= 1; i += 0.02f)
+        while (time < lerpDuration)
         {
-            i = frostedBorderAlpha;
-            frostedBorderAlpha += 0.025f;
-            frostedBorderSprite.color = new Color(1, 1, 1, frostedBorderAlpha);
-            yield return new WaitForSeconds(0.02f);
+            image.color = Color.Lerp(startColor, endColor, time / lerpDuration);
+            time += Time.deltaTime;
+            yield return null;
         }
+
+        image.color = endColor;
     }
 
     // Sets private variables, objects, and components
@@ -87,26 +90,10 @@ public class IceMaterialScript : MonoBehaviour
             GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
 
             if (child.name == "FrostedBorder")
-                frostedBorder = child;
+                frostedBorderImage = child.GetComponent<Image>();
         }
+
+        iceMaterial = gameManagerScript.iceMaterial;
     }
-
-    // Sets the ice material's alpha back to zero after a delay
-    /*public IEnumerator ResetIceMaterial02()
-    {
-        yield return new WaitForSeconds(1.5f);
-        isFrozen = false;
-        iceMaterialAlpha = 0f;
-        iceMaterial.SetFloat("Vector1_FCC70E1D", iceMaterialAlpha);
-    }*/
-
-    // Sets the frosted border's alpha back to zero after a delay
-    /*public IEnumerator ResetFrostedBorderAlpha02()
-    {
-        yield return new WaitForSeconds(1.5f);
-        isFrozen = false;
-        frostedBorderAlpha = 0f;
-        frostedBorderSprite.color = new Color(1, 1, 1, frostedBorderAlpha);
-    }*/
 
 }

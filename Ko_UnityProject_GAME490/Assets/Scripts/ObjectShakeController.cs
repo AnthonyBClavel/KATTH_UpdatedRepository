@@ -4,61 +4,147 @@ using UnityEngine;
 
 public class ObjectShakeController : MonoBehaviour
 {
-    [SerializeField]                                                            
-    public AudioClip[] clips;                                                     
-    public static ObjectShakeController instance;                                 
-    public float rotationMultiplier = 7.5f;                                       
-    public GameObject particleEffect;                                             
+    [Header("Floats")]
+    [Range(0, 20f)]
+    public float rotationMultiplier = 7.5f;
 
-    private AudioSource audioSource;
+    [Header("Rocks")]
+    [Range(0, 3f)]
+    public float rockShakePower = 0.25f;
+    [Range(0, 3f)]
+    public float rockShakeDuration = 0.2f;
 
-    private float shakeTimeRemaining, shakePower, shakeFadeTime, shakeRotation;
+    [Header("Trees")]
+    [Range(0, 3f)]
+    public float treeShakePower = 0.25f;
+    [Range(0, 3f)]
+    public float treeShakeDuration = 0.25f;
 
-    // Start is called before the first frame update
-    void Start()
+    [Header("Crystals")]
+    [Range(0, 3f)]
+    public float crystalShakePower = 0.25f;
+    [Range(0, 3f)]
+    public float crystalShakeDuration = 0.25f;
+
+    [Header("Barrel")]
+    [Range(0, 3f)]
+    public float barrelShakePower = 0.25f;
+    [Range(0, 3f)]
+    public float barrelShakeDuration = 0.25f;
+
+    [Header("Particle Effects")]
+    public GameObject treeHitParticle;
+    public GameObject snowTreeHitParticle;
+
+    private ParticleSystem.MainModule treeHitparticleSystem;
+    private GameObject lastTree;
+
+    private IEnumerator shakeTreeCoroutine;
+    private IEnumerator shakeSnowTreeCoroutine;
+    private IEnumerator shakeCrystalCoroutine;
+    private IEnumerator shakeBarrelCoroutine;
+    private IEnumerator shakeRockCoroutine;
+
+    void Awake()
     {
-        instance = this;                                                          
-
-        audioSource = GetComponent<AudioSource>();
+        treeHitparticleSystem = treeHitParticle.GetComponent<ParticleSystem>().main;
     }
 
-    // Update is called once per frame
-    void Update()
+    // Resets/calls the coroutine to shake an object
+    public void ShakeObject(GameObject objectToShake)
     {
-        /*** For Debugging purposes ***/
-        /*if(Input.GetKeyDown(KeyCode.K))
-            StartShake(0.5f, 1f);*/
-        /*** End Debugging ***/
-    }
-
-    private void LateUpdate()
-    {
-        // Determines the shake...
-        if (shakeTimeRemaining > 0)                                                                                         
+        if (objectToShake.name == "Tree")
         {
-            shakeTimeRemaining -= Time.deltaTime;
+            if (shakeTreeCoroutine != null)
+                StopCoroutine(shakeTreeCoroutine);
 
-            float xAmount = Random.Range(-1f, 1f) * shakePower;
-            float yAmount = Random.Range(-1f, 1f) * shakePower;
+            // Gets the color of the shader material by acquiring the reference name of the color component in the tree shader
+            if (objectToShake != lastTree)
+            {
+                GameObject treeTop = objectToShake.transform.GetChild(0).gameObject;
+                Color treeColor = treeTop.GetComponent<MeshRenderer>().material.GetColor("Color_6566A18B");
+                treeHitparticleSystem.startColor = treeColor;
+                lastTree = objectToShake;
+            }
 
-            /* Ignore this line below, unless you want the object to move to a random/new position after it shakes */
-            //transform.position += new Vector3(xAmount, yAmount, 0);                                                       
-
-            shakePower = Mathf.MoveTowards(shakePower, 0f, shakeFadeTime * Time.deltaTime);
-
-            shakeRotation = Mathf.MoveTowards(shakeRotation, 0f, shakeFadeTime * rotationMultiplier * Time.deltaTime);
+            Instantiate(treeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            shakeTreeCoroutine = StartShake(objectToShake, treeShakePower, treeShakeDuration);
+            StartCoroutine(shakeTreeCoroutine);
         }
 
-        if (transform.rotation != Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f)))
-            transform.rotation = Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f));
+        else if (objectToShake.name == "SnowTree" || objectToShake.name == "BarrenTree")
+        {
+            if (shakeSnowTreeCoroutine != null)
+                StopCoroutine(shakeSnowTreeCoroutine);
+
+            Instantiate(snowTreeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            shakeSnowTreeCoroutine = StartShake(objectToShake, treeShakePower, treeShakeDuration);
+            StartCoroutine(shakeSnowTreeCoroutine);
+        }
+
+        else if (objectToShake.name == "Crystal")
+        {
+            if (shakeCrystalCoroutine != null)
+                StopCoroutine(shakeCrystalCoroutine);
+
+            shakeCrystalCoroutine = StartShake(objectToShake, crystalShakePower, crystalShakeDuration);
+            StartCoroutine(shakeCrystalCoroutine);
+        }
+
+        else if (objectToShake.name == "GasBarrel")
+        {
+            if (shakeBarrelCoroutine != null)
+                StopCoroutine(shakeBarrelCoroutine);
+
+            shakeBarrelCoroutine = StartShake(objectToShake, barrelShakePower, barrelShakeDuration);
+            StartCoroutine(shakeBarrelCoroutine);
+        }
+
+        else if (objectToShake.name == "Rock")
+        {
+            if (shakeRockCoroutine != null)
+                StopCoroutine(shakeRockCoroutine);
+
+            shakeRockCoroutine = StartShake(objectToShake, rockShakePower, rockShakeDuration);
+            StartCoroutine(shakeRockCoroutine);
+        }
+
+    }
+
+    // Shakes the rotation of an object over a period of time (duration = seconds)
+    private IEnumerator StartShake(GameObject objectToShake, float power, float duration)
+    {
+        float time = 0;
+        float shakePower = power;
+        float shakeFadeTime = power / duration;
+        float shakeRotation = power * rotationMultiplier;
+
+        while (time < duration)
+        {
+            // Ignore commented lines below unless needed - moves objectToShake to a random/new position after it shakes
+            //float xAmount = Random.Range(-1f, 1f) * shakePower;
+            //float yAmount = Random.Range(-1f, 1f) * shakePower;
+            //objectToShake.transform.position += new Vector3(xAmount, yAmount, 0);
+
+            shakePower = Mathf.MoveTowards(shakePower, 0f, shakeFadeTime * Time.deltaTime);
+            shakeRotation = Mathf.MoveTowards(shakeRotation, 0f, shakeFadeTime * rotationMultiplier * Time.deltaTime);
+
+            if (objectToShake.transform.rotation != Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f)))
+                objectToShake.transform.rotation = Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f));
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        objectToShake.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
     // Function for the shake itself (length is for how long the shake will last in seconds, power is the shake's intensity)
-    public void StartShake(float length, float power)                                                                       
+    /*public void StartShake(GameObject objectToShake, float length, float power)
     {
-        StaticBlockSFX();                                                                                                   
+        //StaticBlockSFX();                                                                                                   
 
-        Instantiate(particleEffect, gameObject.transform.position, gameObject.transform.rotation);                          
+        //Instantiate(particleEffect, objectToShake.transform.position, objectToShake.transform.rotation);                          
 
         shakeTimeRemaining = length;
         shakePower = power;
@@ -66,19 +152,6 @@ public class ObjectShakeController : MonoBehaviour
         shakeFadeTime = power / length;
 
         shakeRotation = power * rotationMultiplier;
-    }
-
-    // Plays the random audio clip it aquired
-    private void StaticBlockSFX()                                                                                           
-    {
-        AudioClip clips = GetRandomClip();                                                                                   
-        audioSource.PlayOneShot(clips);                                                                                      
-    }
-
-    // Gets a random audio clip from its respective array
-    private AudioClip GetRandomClip()                                                                                        
-    {
-        return clips[UnityEngine.Random.Range(0, clips.Length)];                                                             
-    }
+    }*/
 
 }

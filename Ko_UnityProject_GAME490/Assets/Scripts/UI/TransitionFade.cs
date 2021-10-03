@@ -20,6 +20,8 @@ public class TransitionFade : MonoBehaviour
     private Image transitionFade;
     private Image zoneIntroBlackOverlay;
 
+    private IEnumerator transitionFadeCoroutine;
+
     private Color32 zeroAlpha = new Color(0, 0, 0, 0);
     private Color32 halfAlpha = new Color(0, 0, 0, 0.5f);
     private Color32 fullAlpha = new Color(0, 0, 0, 1);
@@ -27,7 +29,6 @@ public class TransitionFade : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private IntroManager introManagerScript;
     private TileMovementController playerScript;
-    private PlayerSounds playerSoundsScript;
     private GameHUD gameHUDScript;
     private GameManager gameManagerScript;
 
@@ -36,7 +37,6 @@ public class TransitionFade : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         introManagerScript = FindObjectOfType<IntroManager>();
         playerScript = FindObjectOfType<TileMovementController>();
-        playerSoundsScript = FindObjectOfType<PlayerSounds>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         gameManagerScript = FindObjectOfType<GameManager>();
 
@@ -86,7 +86,6 @@ public class TransitionFade : MonoBehaviour
     public void GameFadeOut()
     {
         pauseMenuScript.isChangingScenes = true;
-        playerSoundsScript.canCheckBridgeTiles = false;
         //playerScript.canSetBoolsTrue = false;
         playerScript.SetPlayerBoolsFalse();
         DisableMenuInputs();
@@ -116,7 +115,13 @@ public class TransitionFade : MonoBehaviour
     public void PlayTransitionFade()
     {
         transitionFade.color = zeroAlpha;
-        StartCoroutine(LerpTransitionFade(fadeInAndOut));
+        //StartCoroutine(LerpTransitionFade(fadeInAndOut));
+
+        if (transitionFadeCoroutine != null)
+            StopCoroutine(transitionFadeCoroutine);
+
+        transitionFadeCoroutine = LerpTransitionFade(fadeInAndOut);
+        StartCoroutine(transitionFadeCoroutine);
     }
 
     // Lerps the color of the image to another, over a specific duration (endValue = color to lerp to, duration = seconds)

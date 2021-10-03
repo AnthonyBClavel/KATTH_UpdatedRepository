@@ -7,8 +7,6 @@ using TMPro;
 
 public class IntroManager : MonoBehaviour
 {
-    private bool canStartIntro = false;
-
     private float typingSpeed; // 3f
     private float introCameraSpeed; // 3f
 
@@ -26,7 +24,6 @@ public class IntroManager : MonoBehaviour
     private Vector3 newCameraPosition;
     private Vector3 cameraDestination;
 
-    private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
     private BlackBars blackBarsScript;
     private TorchMeterScript torchMeterScript;
@@ -49,12 +46,10 @@ public class IntroManager : MonoBehaviour
         StartIntroCheck(); // MUST be called LAST in start(), NOT in awake()!
     }
 
-    void LateUpdate()
+    // Update is called once per frame
+    void Update()
     {
         DebuggingCheck();
-
-        if (!cameraScript.canMoveCamera && !cameraScript.canMoveToDialogueViews && canStartIntro)
-            pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, introCameraSpeed * Time.deltaTime);
     }
 
     // Sets the camera's original position, new position, and it's destination
@@ -100,22 +95,29 @@ public class IntroManager : MonoBehaviour
         if (!playerScript.checkIfOnCheckpoint())
         {           
             StartCoroutine("StartZoneIntro");
-            audioLoopsScript.SetAudioLoopsToZero();
         }
         else
         {
             //Debug.Log("Did not start intro");
-            //levelFade.SetActive(true);
-            audioLoopsScript.SetAudioLoopsToDefault();
+            gameObject.SetActive(false);
         }
+    }
+
+    // Moves the position of the camera towards a new position (endPosition = position to move towards)
+    private IEnumerator MoveCamera(Vector3 endPosition)
+    {
+        while (pixelatedCamera.transform.position != endPosition)
+        {
+            pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, endPosition, introCameraSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        pixelatedCamera.transform.position = endPosition;
     }
 
     // Sets up and starts the zone intro
     private IEnumerator StartZoneIntro()
     {
-        cameraScript.canMoveCamera = false;
-        canStartIntro = true;
-
         blackBarsScript.TurnOnBlackBars();
         playerScript.SetPlayerBoolsFalse();
 
@@ -125,6 +127,7 @@ public class IntroManager : MonoBehaviour
         notificationBubblesHolder.SetActive(false);
 
         pixelatedCamera.transform.position = newCameraPosition;
+        StartCoroutine(MoveCamera(cameraDestination));
 
         yield return new WaitForSeconds(transitionFadeScript.introFadeIn);
         DisplayZoneName();
@@ -145,23 +148,22 @@ public class IntroManager : MonoBehaviour
         zoneName.SetActive(false);
 
         yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
-        audioLoopsScript.FadeInAudioLoops();
+        audioManagerScript.FadeInBackgroundMusic();
+        audioManagerScript.FadeInLoopingAmbientSFX();
         blackBarsScript.TurnOffBlackBars();
-
-        cameraScript.canMoveCamera = true;
-        canStartIntro = false;
 
         transitionFadeScript.GameFadeIn();
         torchMeterScript.TurnOnTorchMeter();
         notificationBubblesHolder.SetActive(true);
 
+        StopAllCoroutines();
         pixelatedCamera.transform.position = originalCameraPos;
+        gameObject.SetActive(false);
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
-        audioLoopsScript = FindObjectOfType<AudioLoops>();
         playerScript = FindObjectOfType<TileMovementController>();
         blackBarsScript = FindObjectOfType<BlackBars>();
         torchMeterScript = FindObjectOfType<TorchMeterScript>();

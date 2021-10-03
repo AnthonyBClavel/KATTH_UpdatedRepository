@@ -17,8 +17,8 @@ public class CharacterDialogue : MonoBehaviour
     public bool isPlayerSpeaking;
     public bool canPlayBubbleAnim = false;
     public bool canStartDialogue = true;
-    public bool hasStartedDialoguePlayer = false;
-    public bool hasStartedDialogueNPC = false;
+    public bool hasStartedPlayerDialogue = false;
+    public bool hasStartedNPCDialogue = false;
     public bool isInteractingWithNPC = false;
     public bool isInteractingWithArtifact = false;
     public bool hasTransitionedToArtifactView = false;
@@ -118,9 +118,6 @@ public class CharacterDialogue : MonoBehaviour
     private Vector2 movePivotLeft;
 
     private AudioSource charNoiseSFX;
-    private AudioSource dialogueMusicAS;
-    private float dialogueMusicVol = 0f; 
-
     private Animator playerBubbleAnim;
     private Animator nPCBubbleAnim;
     private Animator dialogueOptionsBubbleAnim;
@@ -147,12 +144,11 @@ public class CharacterDialogue : MonoBehaviour
 
     private ArtifactScript artifactScript;
     private NonPlayerCharacter nPCScript;
-    private FidgetAnimControllerNPC fidgetControllerScriptNPC;
+    private NPCFidgetController nPCFidgetScript;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private AudioLoops audioLoopsScript;
     private CameraController cameraScript;
-    private FidgetAnimControllerPlayer fidgetControllerScriptPlayer;
+    private PlayerFidgetController playerFidgetScript;
     private GameManager gameManagerScript;
     private AudioManager audioManagerScript;
     private BlackBars blackBarsScript;
@@ -247,9 +243,9 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     // Assigns a new script to the fidget controller script (NPC)
-    public void UpdateFidgetScriptForNPC(FidgetAnimControllerNPC newScript)
+    public void UpdateFidgetScriptForNPC(NPCFidgetController newScript)
     {
-        fidgetControllerScriptNPC = newScript;
+        nPCFidgetScript = newScript;
     }
 
     // Assigns a new string to the nPCName
@@ -354,7 +350,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks for when the player can load the next dialogue sentence
     private void ContinueButtonCheck()
     {
-        if (!pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.enabled)
+        if (!pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.canPause && pauseMenuScript.enabled)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
@@ -368,7 +364,7 @@ public class CharacterDialogue : MonoBehaviour
                         hasTransitionedToArtifactView = false;
                     }
 
-                    if (hasStartedDialoguePlayer || hasStartedDialogueNPC)
+                    if (hasStartedPlayerDialogue || hasStartedNPCDialogue)
                     {
                         ContinueDialogueCheck();
                         continueButton.SetActive(false);
@@ -467,7 +463,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             if (playerIndex < playerDialogueSentences.Length - 1 && playerDialogueSentences[playerIndex + 1] != string.Empty && isPlayerSpeaking)
             {
-                if (hasStartedDialoguePlayer)
+                if (hasStartedPlayerDialogue)
                     playerIndex++;
 
                 if (!playerDialogueSentences[playerIndex].Contains("END DIALOGUE") && !playerDialogueSentences[playerIndex].Contains("LOAD DIALOGUE OPTIONS"))
@@ -479,7 +475,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             if (nPCIndex < nPCDialogueSentences.Length - 1 && nPCDialogueSentences[nPCIndex + 1] != string.Empty && !isPlayerSpeaking)
             {
-                if (hasStartedDialogueNPC)
+                if (hasStartedNPCDialogue)
                     nPCIndex++;
 
                 if (!nPCDialogueSentences[nPCIndex].Contains("END DIALOGUE") && !playerDialogueSentences[playerIndex].Contains("LOAD DIALOGUE OPTIONS"))
@@ -532,7 +528,7 @@ public class CharacterDialogue : MonoBehaviour
             hasSetDialogueBars = true;
         }
 
-        else if (hasSetDialogueBars && !hasStartedDialoguePlayer || hasSetDialogueBars && !hasStartedDialogueNPC)
+        else if (hasSetDialogueBars && !hasStartedPlayerDialogue || hasSetDialogueBars && !hasStartedNPCDialogue)
         {
             blackBarsScript.MoveBlackBarsOut();
             hasSetDialogueBars = false;
@@ -578,7 +574,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see when the dialogue arrow can be move and execute functions
     private void DialogueArrowCheck()
     {
-        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && artifactScript.canTransitionFade)
+        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.canPause)
         {
             if (dialogueOptionsIndex != 0)
             {
@@ -676,8 +672,8 @@ public class CharacterDialogue : MonoBehaviour
                     {
                         playerScript.PlayInteractionAnim();
                         artifactScript.hasCollectedArtifact = true;
-                        artifactScript.CloseChest();
                         artifactScript.SaveCollectedArtifact();
+                        artifactScript.CloseChest();
                         StartCoroutine("EndDialogueDelay");
                         FadeOutDialogueMusic();
                         CloseDialogueOptionsBuble();
@@ -1139,12 +1135,10 @@ public class CharacterDialogue : MonoBehaviour
         PlayDialogueBubbleSFXCheck();
         hasSetBubbleDefaultPosX = false;
         hasSetBubbleDefaultPosY = false;
-        hasStartedDialoguePlayer = false;
-        hasStartedDialogueNPC = false;
+        hasStartedPlayerDialogue = false;
+        hasStartedNPCDialogue = false;
         canMoveDialogueArrow = true;
-        fidgetControllerScriptNPC.inCharacterDialogue = false;
-        fidgetControllerScriptPlayer.inCharacterDialogue = false;
-        fidgetControllerScriptPlayer.FidgetAnimCheck();
+        playerFidgetScript.FidgetAnimationCheck();
     }
 
     // Sets the dialogue options bubble inactive
@@ -1208,31 +1202,6 @@ public class CharacterDialogue : MonoBehaviour
         }
     }
 
-    // Sets the text color for each npc
-    private void SetDialogueTextColor()
-    {
-        if (nPCName == "VillageElder")
-            nPCForegroundText.color = new Color32(58, 78, 112, 255);
-
-        else if (nPCName == "Fisherman")
-            nPCForegroundText.color = new Color32(194, 130, 104, 255);
-
-        else if (nPCName == "VillageExplorer01")
-            nPCForegroundText.color = new Color32(115, 106, 142, 255);
-
-        else if (nPCName == "FriendlyGhost")
-            nPCForegroundText.color = new Color32(96, 182, 124, 255);
-
-        else if (nPCName == "VillageExplorer02")
-            nPCForegroundText.color = new Color32(155, 162, 125, 255);
-
-        else if (nPCName == "BabyMammoth")
-            nPCForegroundText.color = new Color32(196, 146, 102, 255);
-
-        else
-            nPCForegroundText.color = Color.black;
-    }
-
     // Sets values for all vectors
     private void SetVectors()
     {
@@ -1258,50 +1227,15 @@ public class CharacterDialogue : MonoBehaviour
     // Fades in the dialogue music
     private void FadeInDialogueMusic()
     {
-        StopCoroutine("FadeOutDialogueMusicTrack");
-        StartCoroutine("FadeInDialogueMusicTrack");
-        audioLoopsScript.FadeOutBGMLoop();
+        audioManagerScript.FadeInDialogueMusic();
+        audioManagerScript.FadeOutBackgroundMusic();
     }
 
     // Fades out the dialogue music
     private void FadeOutDialogueMusic()
     {
-        StopCoroutine("FadeInDialogueMusicTrack");
-        StartCoroutine("FadeOutDialogueMusicTrack");
-        audioLoopsScript.FadeInBGMLoop();
-    }
-
-    // Increases the dialogue music over time until it reaches its max value
-    private IEnumerator FadeInDialogueMusicTrack()
-    {
-        dialogueMusicVol = 0.0f;
-        dialogueMusicAS.volume = dialogueMusicVol;
-        audioManagerScript.ChangeDialogueMusic();
-
-        for (float i = 0f; i <= 0.8f; i += 0.02f)
-        {
-            i = dialogueMusicVol;
-            dialogueMusicVol += 0.02f;
-            dialogueMusicAS.volume = dialogueMusicVol;
-            yield return new WaitForSeconds(0.025f);
-        }
-    }
-
-    // Decreases the dialogue music volume over time until it reaches its min value
-    private IEnumerator FadeOutDialogueMusicTrack()
-    {
-        dialogueMusicVol = 0.8f;
-        dialogueMusicAS.volume = dialogueMusicVol;
-
-        for (float i = 0.8f; i >= 0f; i -= 0.02f)
-        {
-            i = dialogueMusicVol;
-            dialogueMusicVol -= 0.02f;
-            dialogueMusicAS.volume = dialogueMusicVol;
-            yield return new WaitForSeconds(0.025f);
-        }
-
-        dialogueMusicAS.Stop();
+        audioManagerScript.FadeOutDialogueMusic();
+        audioManagerScript.FadeInBackgroundMusic();
     }
 
     // Sets the correct dialogue files for the player, npc, artifacts, and dialogue bubble
@@ -1310,7 +1244,7 @@ public class CharacterDialogue : MonoBehaviour
         if (isInteractingWithNPC)
         {
             nPCScript.SetRotationNPC();
-            SetDialogueTextColor();
+            nPCForegroundText.color = nPCScript.ReturnTextColor();
 
             if (!nPCScript.hasLoadedInitialDialogue)
             {
@@ -1346,9 +1280,7 @@ public class CharacterDialogue : MonoBehaviour
         playerAlertBubble.SetActive(false);
         canCheckBubbleBounds = true;
         canAlertBubble = false;
-        cameraScript.canMoveCamera = false;
-        cameraScript.canMoveToDialogueViews = true;
-        cameraScript.hasCheckedDialogueViews = false;
+        cameraScript.LerpCameraToDialogueView();
 
         SetDialogueBarsCheck();
         gameHUDScript.TurnOffHUD();
@@ -1370,8 +1302,8 @@ public class CharacterDialogue : MonoBehaviour
 
         playerDialgueBubble.SetActive(false);
         nPCDialgueBubble.SetActive(false);
-        hasStartedDialoguePlayer = false;
-        hasStartedDialogueNPC = false;
+        hasStartedPlayerDialogue = false;
+        hasStartedNPCDialogue = false;
         canPlayBubbleAnim = false;
         canStartDialogue = false;
         hasSetPivot = false;
@@ -1381,10 +1313,7 @@ public class CharacterDialogue : MonoBehaviour
         isInteractingWithNPC = false;
         isInteractingWithArtifact = false;
         hasSelectedDialogueOption = false;
-        cameraScript.canMoveCamera = true;
-        cameraScript.canMoveToDialogueViews = false;
-        fidgetControllerScriptNPC.inCharacterDialogue = false;
-        fidgetControllerScriptPlayer.inCharacterDialogue = false;
+        cameraScript.LerpCameraToCurrentPuzzleView();
 
         EmptyTextComponents();
         SetDialogueBarsCheck();
@@ -1394,8 +1323,8 @@ public class CharacterDialogue : MonoBehaviour
         yield return new WaitForSeconds(0.4f);
         canAlertBubble = true;
         yield return new WaitForSeconds(0.1f);
-        fidgetControllerScriptNPC.hasPlayedGreetAnimNPC = false;
-        fidgetControllerScriptPlayer.hasPlayedGreetAnimPlayer = false;
+        nPCFidgetScript.ResetInitialFidgetBool();
+        playerFidgetScript.ResetInitialFidgetBool();
         playerScript.SetPlayerBoolsTrue();
         canCheckBubbleBounds = false;
         hasPlayedPopUpSFX = false;
@@ -1405,19 +1334,13 @@ public class CharacterDialogue : MonoBehaviour
     // Types the next sentence for the player
     private IEnumerator TypePlayerDialogue()
     {
-        if (fidgetControllerScriptPlayer.inCharacterDialogue != true)
-            fidgetControllerScriptPlayer.inCharacterDialogue = true;
-
-        if (fidgetControllerScriptNPC.inCharacterDialogue != true)
-            fidgetControllerScriptNPC.inCharacterDialogue = true;
-
         if (canPlayBubbleAnim && playerDialgueBubble.activeSelf)
             playerBubbleAnim.SetTrigger("NextSentence");
         else
         {
             canPlayBubbleAnim = true;
-            hasStartedDialoguePlayer = true;
-            fidgetControllerScriptPlayer.FidgetAnimCheck();                 
+            hasStartedPlayerDialogue = true;
+            playerFidgetScript.FidgetAnimationCheck();                 
         }
 
         SetDialogueBubblePivot();
@@ -1449,19 +1372,13 @@ public class CharacterDialogue : MonoBehaviour
     // Types the next sentence for the npc
     private IEnumerator TypeNPCDialogue()
     {
-        if (fidgetControllerScriptNPC.inCharacterDialogue != true)
-            fidgetControllerScriptNPC.inCharacterDialogue = true;
-
-        if (fidgetControllerScriptPlayer.inCharacterDialogue != true)
-            fidgetControllerScriptPlayer.inCharacterDialogue = true;
-
         if (canPlayBubbleAnim && nPCDialgueBubble.activeSelf)
             nPCBubbleAnim.SetTrigger("NextSentence");
         else
         {
             canPlayBubbleAnim = true;
-            hasStartedDialogueNPC = true;
-            fidgetControllerScriptNPC.FidgetAnimCheck();
+            hasStartedNPCDialogue = true;
+            nPCFidgetScript.FidgetAnimationCheck();
         }
 
         SetDialogueBubblePivot();
@@ -1496,10 +1413,9 @@ public class CharacterDialogue : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         nPCScript = FindObjectOfType<NonPlayerCharacter>();
-        audioLoopsScript = FindObjectOfType<AudioLoops>();
         cameraScript = FindObjectOfType<CameraController>();
-        fidgetControllerScriptNPC = FindObjectOfType<FidgetAnimControllerNPC>();
-        fidgetControllerScriptPlayer = FindObjectOfType<FidgetAnimControllerPlayer>();
+        nPCFidgetScript = FindObjectOfType<NPCFidgetController>();
+        playerFidgetScript = FindObjectOfType<PlayerFidgetController>();
         artifactScript = FindObjectOfType<ArtifactScript>();
         gameManagerScript = FindObjectOfType<GameManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
@@ -1628,21 +1544,10 @@ public class CharacterDialogue : MonoBehaviour
         {
             GameObject child = nPCScript.transform.GetChild(i).gameObject;
 
-            if (child.name == "CharacterHolder")
-            {
-                GameObject characterHolder = child;
-
-                for (int e = 0; e < characterHolder.transform.childCount; e++)
-                {
-                    GameObject child02 = characterHolder.transform.GetChild(e).gameObject;
-
-                    if (child02.name == "DialogueCheck")
-                        nPCDialogueCheck = child02;
-                }               
-            }            
+            if (child.name == "DialogueCheck")
+                nPCDialogueCheck = child;                      
         }
 
-        dialogueMusicAS = audioManagerScript.dialogueMusic;
         charNoiseSFX = audioManagerScript.charNoiseSFX;
         typingSpeed = gameManagerScript.typingSpeed;
         originalTypingSpeed = gameManagerScript.typingSpeed;

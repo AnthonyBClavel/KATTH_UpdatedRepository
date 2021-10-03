@@ -9,10 +9,19 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     [Header("Floats")]
+    [Range(0.005f, 0.1f)]
     public float typingSpeed = 0.03f;
+    [Range(0.5f, 3f)]
     public float sentenceSpeed = 1f;
+    [Range(1f, 10f)]
     public float cameraSpeed = 3f;
+    [Range(1f, 10f)]
     public float introCameraSpeed = 3f;
+    [Range(0.5f, 10f)]
+    public float resetPuzzleDelay = 1.5f;
+    [Range(0.5f, 10f)]
+    public float fadeAudioLength = 2f;
+
     public float rotationWithKeys = 200f;
     public float rotationWithMouse = 500f;
 
@@ -36,7 +45,6 @@ public class GameManager : MonoBehaviour
     private Image loadingScreenImage;
 
     private TileMovementController playerScript;
-    private PlayerSounds playerSoundsScript;
     private PauseMenu pauseMenuScript;
     private TipsManager tipsManagerScript;
     private TransitionFade transitionFadeScript;
@@ -83,13 +91,8 @@ public class GameManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
-        //pauseMenuScript.isChangingScenes = true;
-        //playerSoundsScript.canCheckBridgeTiles = false;
-        //playerScript.SetPlayerBoolsFalse();
-
         if (currentScene != "FifthMap")
             transitionFadeScript.GameFadeOut();
-            //FindObjectOfType<LevelFade>().FadeOutToNextLevel();
 
         // Creates new save file - ONLY delete artifact saves here
         if (currentScene == "FifthMap" || currentScene == "TutorialMap")
@@ -172,7 +175,6 @@ public class GameManager : MonoBehaviour
     private void SetScripts()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        playerSoundsScript = FindObjectOfType<PlayerSounds>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }

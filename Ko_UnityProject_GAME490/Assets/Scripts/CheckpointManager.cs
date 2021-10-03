@@ -96,8 +96,8 @@ public class CheckpointManager : MonoBehaviour
     public void resetPlayerPosition()
     {
         gameHUDScript.SetDeathScreenInactive();
-        ResetPlayer();
-        ResetIceMatAlphas();   
+        ResetPlayer();  
+        iceMaterialScript.ResetIceAlphas();
     }
 
     // Resets the player's position, animation, rotation, torch meter, and Cold UI elements - ONLY USE THIS after pressing "yes" in the death screen's safety menu 
@@ -112,13 +112,13 @@ public class CheckpointManager : MonoBehaviour
         playerScript.ResetTorchMeter();
 
         deathScreen.SetActive(false);
-        ResetIceMatAlphas();
+        iceMaterialScript.ResetIceAlphas();
     }
 
     // Resets the player's position and other elements after a certain amount of seconds
     public IEnumerator resetPlayerPositionWithDelay(float seconds)
     {
-        StartIceMatCoroutines();
+        iceMaterialScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.canPause = false;
@@ -133,7 +133,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets the player's position and other elements after a certain amount of seconds - ONLY USED IN TUTORIAL
     public IEnumerator resetPlayerPositionInTutorialWithDelay(float seconds)
     {
-        StartIceMatCoroutines();
+        iceMaterialScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.canPause = false;
@@ -145,7 +145,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets player elements (position, animation, rotation, torch meter)
     private void ResetPlayer()
     {
-        ResetIceMatAlphas();
+        iceMaterialScript.ResetIceAlphas();
 
         player.SetActive(false);
         playerAnimator.enabled = true;
@@ -157,20 +157,6 @@ public class CheckpointManager : MonoBehaviour
         playerScript.setDestination(checkpointPosition);
         playerScript.ResetTorchMeter();
         playerScript.SetPlayerBoolsTrue();
-    }
-
-    // Fades in the alphas for all Cold UI elements
-    private void StartIceMatCoroutines()
-    {
-        iceMaterialScript.StartCoroutine("IncreaseFrostedBorderAlpha");
-        iceMaterialScript.StartCoroutine("IncreaseIceMaterialAlpha");
-    }
-
-    // Resets the alphas for all Cold UI elements
-    private void ResetIceMatAlphas()
-    {
-        iceMaterialScript.ResetIceMaterial();
-        iceMaterialScript.ResetFrostedBorderAlpha();
     }
 
     // Sets the scripts to use

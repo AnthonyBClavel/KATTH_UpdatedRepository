@@ -45,7 +45,6 @@ public class EndCredits : MonoBehaviour
     public GameObject endCreditsMusic;
     private AudioSource charNoiseSFX;
 
-    private AudioLoops audioLoopsScript;
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
     private MainMenuMusicScript mainMenuMusicScript;
@@ -121,7 +120,6 @@ public class EndCredits : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            audioLoopsScript = FindObjectOfType<AudioLoops>();
             playerScript = FindObjectOfType<TileMovementController>();
             audioManagerScript = FindObjectOfType<AudioManager>();
         }
@@ -288,7 +286,9 @@ public class EndCredits : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            audioLoopsScript.FadeOutAudioLoops();
+            //audioLoopsScript.FadeOutAudioLoops();
+            audioManagerScript.FadeOutBackgroundMusic();
+            audioManagerScript.FadeOutLoopingAmbientSFX();
             audioManagerScript.loopingFireSFX.volume = 0f;
         }
     }

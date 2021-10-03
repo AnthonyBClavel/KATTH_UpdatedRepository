@@ -5,15 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
+    private bool hasPaused = false;
+
     private int cameraIndex;
     private float cameraSpeed; // 3f
-
-    [Header("Bools")]
-    public bool canMoveCamera = true;
-    public bool canMoveToDialogueViews = false;
-    public bool canMoveToArtifactView = false;
-    public bool hasCheckedDialogueViews = false;
-    private bool hasPaused = false;
 
     Vector3 up = Vector3.zero,
     right = new Vector3(0, 90, 0),
@@ -21,9 +16,10 @@ public class CameraController : MonoBehaviour
     left = new Vector3(0, 270, 0);
     
     private Transform[] puzzleViews;
-    private Transform currentView;
+    private Vector3 currentView;
+    private Vector3 currentDialogueView;
+    private Vector3 originalCameraRotation;
 
-    private AmbientLoopingSFXManager theALSM;
     private GameHUD gameHUDScript;
     private GeneratorScript generatorScript;
     private TileMovementController playerScript;
@@ -40,7 +36,8 @@ public class CameraController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {       
+    {
+        originalCameraRotation = transform.eulerAngles;
         SetCameraPosition();
         SetPuzzleNumber();
     }
@@ -49,30 +46,7 @@ public class CameraController : MonoBehaviour
     void Update()
     {
         //CheckIfPaused();
-        PuzzleViewsDebuggingCheck();
-    }
-
-    void LateUpdate()
-    {
-        if (!canMoveToArtifactView)
-        {
-            if (canMoveCamera && !canMoveToDialogueViews)
-            {
-                if (currentView != puzzleViews[cameraIndex])
-                    currentView = puzzleViews[cameraIndex];
-
-                if (transform.position != currentView.position)
-                    transform.position = Vector3.Lerp(transform.position, currentView.position, cameraSpeed * Time.deltaTime);
-
-            }
-            if (canMoveToDialogueViews && !canMoveCamera)
-            {
-                DialogueViewsCheck();
-
-                if (transform.position != currentView.position)
-                    transform.position = Vector3.Lerp(transform.position, currentView.position, cameraSpeed * Time.deltaTime);
-            }
-        }
+        DebuggingCheck();
     }
 
     /*** Functions for save manager START here ***/
@@ -100,11 +74,12 @@ public class CameraController : MonoBehaviour
     {
         if (cameraIndex < puzzleViews.Length - 1)
         {
-            //Debug.Log("Next Puzzle View Activated");
-            currentView = puzzleViews[cameraIndex++];
-            SetPuzzleNumber();
-            PlayWindGushSFX();
+            //Debug.Log("Moved to next puzzle view");
+            audioManagerScript.ChangeLoopingAmbientSFX();
             audioManagerScript.PlayWindGushSFX();
+            LerpCameraToNextPuzzleView();
+            SetPuzzleNumber(); // Set puzzle number must come after lerping camera
+
 
             // Turns off the generator's light (if applicable)
             if (SceneManager.GetActiveScene().name == "FifthMap")
@@ -112,32 +87,58 @@ public class CameraController : MonoBehaviour
         }         
     }
 
-    // Sets the camera's position to a puzzle view - determined by currentIndex
-    private void SetCameraPosition()
+    // Sets the camera to the current dialogue view
+    public void SetCameraToCurrentDialogueView()
     {
-        if (canMoveCamera)
-            transform.position = puzzleViews[cameraIndex].transform.position;
+        transform.position = currentDialogueView;
+        transform.eulerAngles = originalCameraRotation;
+    }
+
+    // Lerps the camera's position to the current puzzle view
+    public void LerpCameraToCurrentPuzzleView()
+    {
+        currentView = puzzleViews[cameraIndex].position;
+        StopAllCoroutines();
+        StartCoroutine(LerpCamera(currentView));
     }
 
     // Checks which dialogue view the camera should move to - for character/artifact dialogue
-    private void DialogueViewsCheck()
+    public void LerpCameraToDialogueView()
     {
-        if (!hasCheckedDialogueViews)
-        { 
-            if (playerScript.playerDirection == left)
-                currentView = dialogueCameraViewsScript.dialogueCameraViews[0];
+        if (playerScript.playerDirection == left)
+            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[0].position;
 
-            if (playerScript.playerDirection == right)
-                currentView = dialogueCameraViewsScript.dialogueCameraViews[1];
+        if (playerScript.playerDirection == right)
+            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[1].position;
 
-            if (playerScript.playerDirection == up)
-                currentView = dialogueCameraViewsScript.dialogueCameraViews[2];
+        if (playerScript.playerDirection == up)
+            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[2].position;
 
-            if (playerScript.playerDirection == down)
-                currentView = dialogueCameraViewsScript.dialogueCameraViews[3];
+        if (playerScript.playerDirection == down)
+            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[3].position;
 
-            hasCheckedDialogueViews = true;
-        }
+        StopAllCoroutines();
+        StartCoroutine(LerpCamera(currentDialogueView));
+    }
+
+    // Lerps the camera to the next puzzle view
+    private void LerpCameraToNextPuzzleView()
+    {
+        cameraIndex++;
+
+        if (cameraIndex > puzzleViews.Length - 1)
+            cameraIndex = 0;
+
+        currentView = puzzleViews[cameraIndex].position;
+        StopAllCoroutines();
+        StartCoroutine(LerpCamera(currentView));      
+    }
+
+    // Sets the camera's initial position - determined by currentIndex (does not set during intro or if on first puzzle)
+    private void SetCameraPosition()
+    {
+        if (transform.position != puzzleViews[cameraIndex].position)
+            transform.position = puzzleViews[cameraIndex].position;           
     }
 
     // Updates and checks to play the puzzle notification bubble
@@ -149,12 +150,6 @@ public class CameraController : MonoBehaviour
             gameHUDScript.UpdatePuzzleBubbleText((cameraIndex + 1) + "/10");
 
         notificationBubblesScript.PlayPuzzleNotificationCheck();
-    }
-
-    // Plays a WindGushSFX and changes the ambient looping SFX
-    private void PlayWindGushSFX()
-    {
-        theALSM.ChangeAmbientLoopingSFX();
     }
 
     // Pauses the WindGushSFX if you pause the game on a bridge - OPTIONAL (not currenlty used)
@@ -176,6 +171,18 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    // Lerps the position of the camera to a new position (endPosition = position to lerp to)
+    private IEnumerator LerpCamera(Vector3 endPosition)
+    {
+        while (transform.position != endPosition)
+        {
+            transform.position = Vector3.Lerp(transform.position, endPosition, cameraSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        transform.position = endPosition;
+    }
+
     // Sets the puzzle views array and camera transition speed
     private void SetElements()
     {
@@ -187,7 +194,6 @@ public class CameraController : MonoBehaviour
     private void SetScripts()
     {
         gameHUDScript = FindObjectOfType<GameHUD>();
-        theALSM = FindObjectOfType<AmbientLoopingSFXManager>();
         playerScript = FindObjectOfType<TileMovementController>();
         dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
         gameManagerScript = FindObjectOfType<GameManager>();
@@ -198,20 +204,16 @@ public class CameraController : MonoBehaviour
             generatorScript = FindObjectOfType<GeneratorScript>();
     }
 
-    // Enables debugging for the puzzle views - For Debugging Purposes ONLY
-    private void PuzzleViewsDebuggingCheck()
+    // Enables debugging for the puzzle views and cameraSpeed - For Debugging Purposes ONLY
+    private void DebuggingCheck()
     {
         if (gameManagerScript.isDebugging)
         {
             if (Input.GetKeyDown(KeyCode.Backslash))
             {
-                PlayWindGushSFX();
+                audioManagerScript.ChangeLoopingAmbientSFX();
                 audioManagerScript.PlayWindGushSFX();
-                currentView = puzzleViews[cameraIndex++];
-
-                // Sets the camera back to the first puzzle view
-                if (cameraIndex > puzzleViews.Length - 1)
-                    cameraIndex = 0;
+                LerpCameraToNextPuzzleView();
             }
 
             if (cameraSpeed != gameManagerScript.cameraSpeed)

@@ -18,6 +18,7 @@ public class GameHUD : MonoBehaviour
     private TextMeshProUGUI puzzleForegroundText;
     private TextMeshProUGUI artifactForegroundText;
 
+    private GameObject torchMeter;
     private GameObject deathScreen;
     private GameObject skipTutorialButton;
     private GameObject notificationBubblesHolder;
@@ -53,9 +54,8 @@ public class GameHUD : MonoBehaviour
     // Turns the HUD on
     public void TurnOnHUD()
     {
-        torchMeterScript.TurnOnTorchMeter();
+        torchMeter.SetActive(true); 
         notificationBubblesHolder.SetActive(true);
-        notificationBubblesScript.EnableNotificationsToggle();
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             skipTutorialButton.SetActive(true);
@@ -64,7 +64,7 @@ public class GameHUD : MonoBehaviour
     // Turns the HUD off
     public void TurnOffHUD()
     {
-        torchMeterScript.TurnOffTorchMeter();
+        torchMeter.SetActive(false);
         notificationBubblesHolder.SetActive(false);
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
@@ -211,6 +211,8 @@ public class GameHUD : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             skipTutorialButton = FindObjectOfType<SkipButton>().gameObject;
+
+        torchMeter = torchMeterScript.gameObject;
     }
 
 }
