@@ -1312,9 +1312,9 @@ GameObject:
   - component: {fileID: 8893811602064672361}
   - component: {fileID: 543118122}
   - component: {fileID: 8893811602064672363}
+  - component: {fileID: 335815886686903731}
   - component: {fileID: 1763956048}
   - component: {fileID: 543118121}
-  - component: {fileID: 335815886686903731}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1366,24 +1366,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isWalking: 0
-  hasDied: 0
-  canMove: 1
-  canInteract: 1
-  canRestartPuzzle: 0
-  canSetBoolsTrue: 0
-  hasFinishedZone: 0
-  lerpLength: 0.2
-  playerDirection: {x: 0, y: 0, z: 0}
-  destroyedBlockParticle: {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
-  torchFireParticle: {fileID: 1499755168}
-  checkpoint: {fileID: 0}
-  puzzle: {fileID: 0}
-  bridge: {fileID: 0}
-  torchMeterMoves:
-    bar: {fileID: 0}
-    maxValue: 11
-    currentValue: 11
+--- !u!114 &335815886686903731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893811602064672366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1763956048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1408,20 +1402,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db15bad1509b6894187d317bd35e417f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &335815886686903731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inCharacterDialogue: 0
-  playerAnimator: {fileID: 0}
 --- !u!1 &8903292719559576860
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,10 +1523,5 @@ PrefabInstance:
 --- !u!4 &1499755170 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7379528088851055839, guid: 22742cbeb5c14b845b62f1de5fdc99c7, type: 3}
-  m_PrefabInstance: {fileID: 7379528087888230013}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &1499755168 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 7379528088851055837, guid: 22742cbeb5c14b845b62f1de5fdc99c7, type: 3}
   m_PrefabInstance: {fileID: 7379528087888230013}
   m_PrefabAsset: {fileID: 0}

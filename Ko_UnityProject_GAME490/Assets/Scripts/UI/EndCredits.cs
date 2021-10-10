@@ -44,6 +44,7 @@ public class EndCredits : MonoBehaviour
     [Header("Audio")]
     public GameObject endCreditsMusic;
     private AudioSource charNoiseSFX;
+    private AudioSource loopingFireSFX;
 
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
@@ -132,7 +133,7 @@ public class EndCredits : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            if (playerScript.bridge.name == "EndBridge" && !hasStartedCredits)
+            if (/*playerScript.bridge.name == "EndBridge"*/ playerScript.ReturnHasFinishedZone() && !hasStartedCredits)
             {
                 StartCoroutine("StartEndCredits");
                 hasStartedCredits = true;
@@ -289,7 +290,7 @@ public class EndCredits : MonoBehaviour
             //audioLoopsScript.FadeOutAudioLoops();
             audioManagerScript.FadeOutBackgroundMusic();
             audioManagerScript.FadeOutLoopingAmbientSFX();
-            audioManagerScript.loopingFireSFX.volume = 0f;
+            loopingFireSFX.volume = 0f;
         }
     }
 
@@ -340,7 +341,8 @@ public class EndCredits : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        charNoiseSFX = audioManagerScript.charNoiseSFX;
+        charNoiseSFX = audioManagerScript.charNoiseAS;
+        loopingFireSFX = audioManagerScript.loopingFireAS;
     }
 
 }

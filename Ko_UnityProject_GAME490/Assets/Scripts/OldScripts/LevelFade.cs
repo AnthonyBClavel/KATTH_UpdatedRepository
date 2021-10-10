@@ -57,7 +57,7 @@ public class LevelFade : MonoBehaviour
     // Triggers the "FadeOutOfLevel" animation (fade)
     public void FadeOutOfLevel()
     {
-        playerScript.canSetBoolsTrue = false;
+        //playerScript.canSetBoolsTrue = false;
         pauseMenuScript.isChangingScenes = true;
         disableMenuInputs();
         Time.timeScale = 1f;

@@ -34,6 +34,7 @@ public class Tutorial : MonoBehaviour
 
     private TutorialDialogueManager tutorialDialogueManagerScript;
     private TileMovementController playerScript;
+    private TorchMeterScript torchMeterScript;
     private PauseMenu pauseMenuScript;
     private ArtifactScript artifactScript;
     private SkipButton skipTurorialButtonScript;
@@ -47,6 +48,7 @@ public class Tutorial : MonoBehaviour
         artifactScript = FindObjectOfType<ArtifactScript>();
         skipTurorialButtonScript = FindObjectOfType<SkipButton>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        torchMeterScript = FindObjectOfType<TorchMeterScript>();
 
         SetElements();
     }
@@ -70,7 +72,7 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!playerScript.isWalking && !pauseMenuScript.isChangingScenes)
+        if (/*!playerScript.isWalking*/ playerScript.ReturnCanMove() && !pauseMenuScript.isChangingScenes)
         {
             Collider collider = playerScript.getCollider();
 
@@ -110,7 +112,9 @@ public class Tutorial : MonoBehaviour
 
             if (playerScript.checkIfOnCheckpoint())
             {
-                if (playerScript.puzzle.name == "Puzzle01" && !hasPlayedStart)
+                string currentPuzzle = playerScript.ReturnCurrentPuzzle().name;
+
+                if (currentPuzzle == "Puzzle01" && !hasPlayedStart)
                 {
                     setDialogue(startupDialogue);
                     currentDialogue = startupDialogue;
@@ -118,7 +122,7 @@ public class Tutorial : MonoBehaviour
                     hasPlayedStart = true;
                 }
 
-                else if (playerScript.puzzle.name == "Puzzle03" && !hasPlayedHole)
+                else if (currentPuzzle == "Puzzle03" && !hasPlayedHole)
                 {
                     setDialogue(holeDialogue);
                     currentDialogue = holeDialogue;
@@ -126,7 +130,7 @@ public class Tutorial : MonoBehaviour
                     hasPlayedHole = true;
                 }
 
-                else if (playerScript.puzzle.name == "Puzzle05" && !hasPlayedInteractables)
+                else if (currentPuzzle == "Puzzle05" && !hasPlayedInteractables)
                 {
                     setDialogue(interactablesDialogue);
                     currentDialogue = interactablesDialogue;
@@ -134,7 +138,7 @@ public class Tutorial : MonoBehaviour
                     hasPlayedInteractables = true;
                 }
 
-                else if (playerScript.puzzle.name == "Puzzle06" && !hasplayedFinishedTutorial)
+                else if (currentPuzzle == "Puzzle06" && !hasplayedFinishedTutorial)
                 {
                     setDialogue(finishedTutorialDialogue);
                     currentDialogue = finishedTutorialDialogue;
@@ -163,7 +167,7 @@ public class Tutorial : MonoBehaviour
             hasPlayedArtifacts = true;
         }
 
-        if (playerScript.hasDied)
+        if (/*playerScript.hasDied*/ torchMeterScript.CurrentVal <= 0)
         {
             playerScript.SetPlayerBoolsFalse();
 

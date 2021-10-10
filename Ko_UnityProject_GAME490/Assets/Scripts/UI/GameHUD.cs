@@ -8,7 +8,6 @@ using TMPro;
 public class GameHUD : MonoBehaviour
 {
     [Header("Bools")]
-    public bool canDeathScreen;
     public bool isDeathScreen;
     public bool canToggleHUD;
 
@@ -28,6 +27,8 @@ public class GameHUD : MonoBehaviour
     private TorchMeterScript torchMeterScript;
     private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
+    private GameManager gameManagerScript;
+    private PuzzleManager puzzleManagerScript;
 
     void Awake()
     {
@@ -40,7 +41,7 @@ public class GameHUD : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        canDeathScreen = false; // Keep set to false - no longer using death screen
+
     }
 
     // Update is called once per frame
@@ -85,11 +86,12 @@ public class GameHUD : MonoBehaviour
         artifactForegroundText.text = newArtifactBubbleText;
     }
 
-    // Sets the death screen active - ONLY IF canDeathScreen is true
-    public void SetDeathScreenActiveCheck()
+    // Sets the death screen active
+    public void SetDeathScreenActive()
     {
-        if (canDeathScreen)
-            StartCoroutine("SetDeathScreenActiveDelay");
+        deathScreen.SetActive(true);
+        isDeathScreen = true;
+        audioManagerScript.PlayDeathScreenSFX();
     }
 
     // Sets the death screen inactive
@@ -155,17 +157,21 @@ public class GameHUD : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Q) && !pauseMenuScript.isSafetyMenu)
                 pauseMenuScript.OpenSafetyMenu();
 
-            // Note: restarting puzzle is done via playerScript
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                playerScript.ReturnCurrentCheckpoint().GetComponent<CheckpointManager>().ResetPlayer();
+                puzzleManagerScript.ResetPuzzle(0f);
+                SetDeathScreenInactive();
+            }           
         }
     }
 
     // Sets the death screen elements active after a delay
-    private IEnumerator SetDeathScreenActiveDelay()
+    private IEnumerator SetDeathScreenActiveDelay(float seconds)
     {
-        yield return new WaitForSeconds(1.25f);
+        yield return new WaitForSeconds(gameManagerScript.resetPuzzleDelay);
         deathScreen.SetActive(true);
         isDeathScreen = true;
-        playerScript.canRestartPuzzle = true;
         audioManagerScript.PlayDeathScreenSFX();
     }
 
@@ -177,6 +183,8 @@ public class GameHUD : MonoBehaviour
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
     }
 
     // Sets private variables, objects, and components

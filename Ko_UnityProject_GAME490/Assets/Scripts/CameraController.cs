@@ -6,24 +6,27 @@ using UnityEngine.SceneManagement;
 public class CameraController : MonoBehaviour
 {
     private bool hasPaused = false;
-
-    private int cameraIndex;
     private float cameraSpeed; // 3f
+    private int cameraIndex;
 
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
-    
+    private GameObject northDialogueView;
+    private GameObject eastDialogueView;
+    private GameObject southDialogueView;
+    private GameObject westDialogueView;
+
     private Transform[] puzzleViews;
     private Vector3 currentView;
     private Vector3 currentDialogueView;
     private Vector3 originalCameraRotation;
 
+    Vector3 up = Vector3.zero,
+    right = new Vector3(0, 90, 0),
+    down = new Vector3(0, 180, 0),
+    left = new Vector3(0, 270, 0);
+
     private GameHUD gameHUDScript;
     private GeneratorScript generatorScript;
     private TileMovementController playerScript;
-    private DialogueCameraViews dialogueCameraViewsScript;
     private GameManager gameManagerScript;
     private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
@@ -75,16 +78,33 @@ public class CameraController : MonoBehaviour
         if (cameraIndex < puzzleViews.Length - 1)
         {
             //Debug.Log("Moved to next puzzle view");
-            audioManagerScript.ChangeLoopingAmbientSFX();
+            audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();
             LerpCameraToNextPuzzleView();
-            SetPuzzleNumber(); // Set puzzle number must come after lerping camera
+            SetPuzzleNumber(); // Set puzzle number must come AFTER lerping camera
 
 
             // Turns off the generator's light (if applicable)
             if (SceneManager.GetActiveScene().name == "FifthMap")
                 generatorScript.TurnOffEmisionAndVolume();
         }         
+    }
+
+    // Moves the camera to the previous puzzle view
+    public void PreviousPuzzleView()
+    {
+        if (cameraIndex > 0)
+        {
+            //Debug.Log("Moved to next puzzle view");
+            audioManagerScript.ChangeLoopingAmbienceSFX();
+            audioManagerScript.PlayWindGushSFX();
+            LerpCameraToPreviousPuzzleView();
+            SetPuzzleNumber(); // Set puzzle number must come AFTER lerping camera
+
+            // Turns off the generator's light (if applicable)
+            if (SceneManager.GetActiveScene().name == "FifthMap")
+                generatorScript.TurnOffEmisionAndVolume();
+        }
     }
 
     // Sets the camera to the current dialogue view
@@ -105,17 +125,19 @@ public class CameraController : MonoBehaviour
     // Checks which dialogue view the camera should move to - for character/artifact dialogue
     public void LerpCameraToDialogueView()
     {
-        if (playerScript.playerDirection == left)
-            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[0].position;
+        Vector3 playerDirection = playerScript.transform.eulerAngles;
 
-        if (playerScript.playerDirection == right)
-            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[1].position;
+        if (playerDirection == down)
+            currentDialogueView = northDialogueView.transform.position;
 
-        if (playerScript.playerDirection == up)
-            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[2].position;
+        if (playerDirection == left)
+            currentDialogueView = eastDialogueView.transform.position;
 
-        if (playerScript.playerDirection == down)
-            currentDialogueView = dialogueCameraViewsScript.dialogueCameraViews[3].position;
+        if (playerDirection == up)
+            currentDialogueView = southDialogueView.transform.position;
+
+        if (playerDirection == right)
+            currentDialogueView = westDialogueView.transform.position;
 
         StopAllCoroutines();
         StartCoroutine(LerpCamera(currentDialogueView));
@@ -132,6 +154,19 @@ public class CameraController : MonoBehaviour
         currentView = puzzleViews[cameraIndex].position;
         StopAllCoroutines();
         StartCoroutine(LerpCamera(currentView));      
+    }
+
+    // Lerps the camera to the previous puzzle view
+    private void LerpCameraToPreviousPuzzleView()
+    {
+        cameraIndex--;
+
+        if (cameraIndex < 0)
+            cameraIndex = puzzleViews.Length - 1;
+
+        currentView = puzzleViews[cameraIndex].position;
+        StopAllCoroutines();
+        StartCoroutine(LerpCamera(currentView));
     }
 
     // Sets the camera's initial position - determined by currentIndex (does not set during intro or if on first puzzle)
@@ -186,6 +221,31 @@ public class CameraController : MonoBehaviour
     // Sets the puzzle views array and camera transition speed
     private void SetElements()
     {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.parent.childCount; i++)
+        {
+            GameObject child = transform.parent.GetChild(i).gameObject;
+
+            if (child.name == "DialogueViewsHolder")
+            {
+                GameObject dialogueViewsHolder = child;
+
+                for (int j = 0; j < dialogueViewsHolder.transform.childCount; j++)
+                {
+                    GameObject child02 = dialogueViewsHolder.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "NorthDV")
+                        northDialogueView = child02;
+                    if (child02.name == "EastDV")
+                        eastDialogueView = child02;
+                    if (child02.name == "SouthDV")
+                        southDialogueView = child02;
+                    if (child02.name == "WestDV")
+                        westDialogueView = child02;
+                }
+            }
+        }
+
         puzzleViews = gameManagerScript.puzzleViews;
         cameraSpeed = gameManagerScript.cameraSpeed;
     }
@@ -195,7 +255,6 @@ public class CameraController : MonoBehaviour
     {
         gameHUDScript = FindObjectOfType<GameHUD>();
         playerScript = FindObjectOfType<TileMovementController>();
-        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
         gameManagerScript = FindObjectOfType<GameManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
@@ -209,11 +268,18 @@ public class CameraController : MonoBehaviour
     {
         if (gameManagerScript.isDebugging)
         {
-            if (Input.GetKeyDown(KeyCode.Backslash))
+            if (Input.GetKeyDown(KeyCode.Equals)) // =
             {
-                audioManagerScript.ChangeLoopingAmbientSFX();
+                audioManagerScript.ChangeLoopingAmbienceSFX();
                 audioManagerScript.PlayWindGushSFX();
                 LerpCameraToNextPuzzleView();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Minus)) // -
+            {
+                audioManagerScript.ChangeLoopingAmbienceSFX();
+                audioManagerScript.PlayWindGushSFX();
+                LerpCameraToPreviousPuzzleView();
             }
 
             if (cameraSpeed != gameManagerScript.cameraSpeed)

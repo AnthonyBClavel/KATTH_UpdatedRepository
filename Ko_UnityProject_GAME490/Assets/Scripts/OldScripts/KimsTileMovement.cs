@@ -46,7 +46,7 @@ public class KimsTileMovement : MonoBehaviour
 
     private void Awake()
     {
-        torchMeterMoves.Initialize();                           //initializes the specified/external script so it can be accesed within this script
+        //torchMeterMoves.Initialize();                           //initializes the specified/external script so it can be accesed within this script
     }
 
     void Start()
@@ -66,11 +66,11 @@ public class KimsTileMovement : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.LeftArrow))                                                           //if the left arrow key is pressed... (this is just for debugging purposes)
         {
-            torchMeterMoves.CurrentVal -= 1;                                                              //subract one from the torch meter's current value
+            //torchMeterMoves.CurrentVal -= 1;                                                              //subract one from the torch meter's current value
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))                                                         //if the right arrow key is pressed...(this is just for debugging purposes)
         {
-            torchMeterMoves.CurrentVal += 1;                                                              //add one to the torch meter's current value
+            //torchMeterMoves.CurrentVal += 1;                                                              //add one to the torch meter's current value
         }
 
         // If player wants to reset puzzle
@@ -80,7 +80,7 @@ public class KimsTileMovement : MonoBehaviour
         }
 
         // If player runs out of the meter
-        if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
+        /*if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX)
         {
             Instantiate(torchFireExtinguishSFX, transform.position, transform.rotation);                  //play the audio clip (spawns an object prefab with an audio clip that plays on awake)
             alreadyPlayedSFX = true;                                                                      //the audio clip cannot be played again
@@ -90,7 +90,7 @@ public class KimsTileMovement : MonoBehaviour
         if(torchMeterMoves.CurrentVal > 0)                                                                //when the torch meter's current value is greater than zero
         {
             alreadyPlayedSFX = false;                                                                     //the audio clip can be played again
-        }
+        }*/
 
         checkIfOnCheckpoint();
     }
@@ -154,7 +154,7 @@ public class KimsTileMovement : MonoBehaviour
                     Footstep();
                     destination = transform.position + nextPos;                                          //updates the destination by adding the next position to the object's current position
                     direction = nextPos;
-                    torchMeterMoves.CurrentVal -= 1;
+                    //torchMeterMoves.CurrentVal -= 1;
                     canMove = false;                                                                     //prevents the object from constantly moving towards the object's current direction     
                 }           
             }    
@@ -257,7 +257,7 @@ public class KimsTileMovement : MonoBehaviour
 
             if (hit.collider.tag == "FireStone" && Input.GetKeyDown(KeyCode.Return) && canPush)                                                 //if the ray hits an object tagged "Firestone" and etc... (hold down correct WASD key and then press enter to interact with firestone)                
             {
-                torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                            //set the torch meter to it max value (fill up the bar)
+                //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                            //set the torch meter to it max value (fill up the bar)
                 Instantiate(torchFireIgniteSFX, transform.position, transform.rotation);                                                        //spwans the particle effect on the object's position and rotation
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
                 return false;                                                                                                                   //the bool function will return as false if the statement above is true
@@ -265,11 +265,11 @@ public class KimsTileMovement : MonoBehaviour
 
             if (hit.collider.tag == "Obstacle" && canPush)                                                                                      //if the ray hits an object tagged "Obstacle" and etc... (hold down correct WASD key and then press left shift to push block)
             {   
-                bool move = hit.collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(direction);
+                /*bool move = hit.collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(direction);
                 if (Input.GetKeyDown(KeyCode.LeftShift) && move)                                                                                         //...and if the specified key is pressed... **this needs to be refined** 
                 {
-                    torchMeterMoves.CurrentVal -= 1;                                                                                            //subract one from the torch meter's current value
-                }
+                    //torchMeterMoves.CurrentVal -= 1;                                                                                            //subract one from the torch meter's current value
+                }*/
 
                 //hit.collider.gameObject.GetComponent<BlockMovement>().MoveBlock();                                                              //calls the function from the hit object's script 
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
@@ -295,7 +295,7 @@ public class KimsTileMovement : MonoBehaviour
             if (hit.collider.tag == "DestroyableBlock" && Input.GetKeyDown(KeyCode.Return) && canPush)                                          //if the ray hits an object tagged "DestroyableBlock" and etc... (hold down correct WASD key and then press enter to destroy block)  
             {
                 Debug.Log("Destroyed Block");                                                                                                   //sends a debug message to the console (just for debugging purposes)
-                torchMeterMoves.CurrentVal -= 2;                                                                                                //subract 2 from the torch meter
+                //torchMeterMoves.CurrentVal -= 2;                                                                                                //subract 2 from the torch meter
                 Instantiate(destroyedBlockParticle, hit.collider.gameObject.transform.position, hit.collider.gameObject.transform.rotation);    //spawns the block destruction particle effect on the tagged object's position and rotation
                 hit.collider.gameObject.SetActive(false);
                 isWalking = false;                                                                                                              //the object cannot play its walking animation while the statement above is true
@@ -321,7 +321,7 @@ public class KimsTileMovement : MonoBehaviour
         {
             if(hit.collider.tag == "MoveCameraBlock")                                                                                            //if the ray hits an object tagged with this specific tag...
             {
-                torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                             //set the torch meter to it max value (fill up the bar)
+                //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;                                                                             //set the torch meter to it max value (fill up the bar)
                 //CameraController.instance.NextPuzzleView();                                                                                      //calls a function within the specified/external script
                 return true;                                                                                                                     //the bool is returned as true
             }
@@ -373,7 +373,7 @@ public class KimsTileMovement : MonoBehaviour
     private void resetPuzzle()
     {
         checkpoint.GetComponent<KimsCheckpoint>().resetPlayerPosition();
-        torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+        //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
 
         Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)

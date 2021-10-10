@@ -32,11 +32,8 @@ public class ObjectShakeController : MonoBehaviour
     [Range(0, 3f)]
     public float barrelShakeDuration = 0.25f;
 
-    [Header("Particle Effects")]
-    public GameObject treeHitParticle;
-    public GameObject snowTreeHitParticle;
-
-    private ParticleSystem.MainModule treeHitparticleSystem;
+    private GameObject treeHitParticle;
+    private GameObject snowTreeHitParticle;
     private GameObject lastTree;
 
     private IEnumerator shakeTreeCoroutine;
@@ -45,8 +42,15 @@ public class ObjectShakeController : MonoBehaviour
     private IEnumerator shakeBarrelCoroutine;
     private IEnumerator shakeRockCoroutine;
 
+    private ParticleSystem.MainModule treeHitparticleSystem;
+    private GameManager gameManagerScript;
+
     void Awake()
     {
+        gameManagerScript = FindObjectOfType<GameManager>();
+
+        treeHitParticle = gameManagerScript.treeHitParticle;
+        snowTreeHitParticle = gameManagerScript.snowTreeHitParticle;
         treeHitparticleSystem = treeHitParticle.GetComponent<ParticleSystem>().main;
     }
 

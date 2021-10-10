@@ -24,7 +24,7 @@ public class KimsTorchMeterStat //Dont worry about this script, use the TileMove
         set
         {
             this.currentValue = Mathf.Clamp(value, 0, MaxVal);
-            bar.Value = currentValue;
+            //bar.Value = currentValue;
         }
     }
 
@@ -38,7 +38,7 @@ public class KimsTorchMeterStat //Dont worry about this script, use the TileMove
         set
         {  
             this.maxValue = value;
-            bar.MaxValue = maxValue;
+            //bar.MaxValue = maxValue;
         }
     }
 

@@ -36,7 +36,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
     private GameObject edgeCheck;
     private GameObject nextBridgeTileCheck;
-    private GameObject dialogueViewsHolder;
+    //private GameObject dialogueViewsHolder;
     private GameObject previousBridgeTile;
     private GameObject objectToShake;
     private Animator playerAnim;
@@ -58,7 +58,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private FootstepsController footstepsControllerScript;
-    private DialogueCameraViews dialogueCameraViewsScript;
+    //private DialogueCameraViews dialogueCameraViewsScript;
     private CameraController cameraScript;
     //private FidgetAnimControllerPlayer playerFidgetScript;
     private AudioManager audioManagerScript;
@@ -92,8 +92,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             playerDirection = currentDirection;
 
         // Resets the SFX for the torch meter back to false
-        if (torchMeterMoves.CurrentVal > 0 && alreadyPlayedSFX != false)
-            alreadyPlayedSFX = false;
+        //if (torchMeterMoves.CurrentVal > 0 && alreadyPlayedSFX != false)
+            //alreadyPlayedSFX = false;
 
         Move();
         checkIfOnCheckpoint();
@@ -120,7 +120,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             //checkForNextBridgeTile();
 
             // Resets the puzzle if the torch meter runs out
-            if (torchMeterMoves.CurrentVal <= 0 && !alreadyPlayedSFX && canTorchMeter)
+            if (/*torchMeterMoves.CurrentVal <= 0 &&*/ !alreadyPlayedSFX && canTorchMeter)
             {
                 if (SceneManager.GetActiveScene().name == "TutorialMap")
                     resetPuzzleWithDelayInTutorial();
@@ -256,8 +256,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
                 break;
 
             case ("PushableBlock"):
-                if (collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(currentDirection))
-                    SubractFromTorchMeter();
+                //if (collider.gameObject.GetComponent<BlockMovementController>().MoveBlock(currentDirection))
+                    //SubractFromTorchMeter();
                 CheckToPlayAnims();
                 break;
 
@@ -326,7 +326,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         if (firestoneLight.enabled == true)
         {
             //Debug.Log("Has Interacted With Firestone");
-            torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+            //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
             audioManagerScript.PlayTorchFireIgniteSFX();
 
             isInteracting = true;
@@ -342,7 +342,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         //Debug.Log("Player has interacted with NPC");
         NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
 
-        dialogueViewsHolder.transform.position = collider.transform.position;
+        //dialogueViewsHolder.transform.position = collider.transform.position;
         nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
 
         isInteracting = false;
@@ -357,7 +357,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         if (!artifactScript.hasCollectedArtifact)
         {
             //Debug.Log("Player has interacted with Artifact");
-            dialogueViewsHolder.transform.position = collider.transform.position;
+            //dialogueViewsHolder.transform.position = collider.transform.position;
             artifactScript.SetVariablesForCharacterDialogueScript();
 
             isInteracting = true;
@@ -374,7 +374,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     // Resets the current value of the torch meter to its maximum value
     public void ResetTorchMeter()
     {
-        torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
+        //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
         torchMeterScript.ResetTorchMeterElements();
     }
 
@@ -413,16 +413,16 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
         // Sets the new torch meter value based on the checkpoint's value
         int newNumMovements = checkpointManagerScript.getNumMovements();
-        torchMeterMoves.setMaxValue(newNumMovements);    
+        //torchMeterMoves.setMaxValue(newNumMovements);    
 
         // If this is the first time we visited this checkpoint
-        if (!checkpointManagerScript.hitCheckpoint())
+        /*if (!checkpointManagerScript.hitCheckpoint())
         {
             if (canSetBoolsTrue)
                 SetPlayerBoolsTrue(); //Enable Player Movement
 
-            /*if (!footstepsControllerScript.canPlaySecondFootstep)
-                footstepsControllerScript.canPlaySecondFootstep = true;*/
+            //if (!footstepsControllerScript.canPlaySecondFootstep)
+                //footstepsControllerScript.canPlaySecondFootstep = true;
 
             bridgeTileCount = 0;
             checkpointManagerScript.setCheckpoint();
@@ -432,7 +432,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             saveManagerScript.SavePlayerPosition(checkpoint);
             saveManagerScript.SaveCameraPosition();
             hasMovedPuzzleView = false;
-        }
+        }*/
         return true;
     }
 
@@ -582,7 +582,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         RaycastHit hit;
         Debug.DrawRay(myAlertBubbleRay.origin, myAlertBubbleRay.direction, Color.blue);
 
-        if (Physics.Raycast(myAlertBubbleRay, out hit, rayLength) && torchMeterMoves.CurrentVal != 0f) // Note: Bubble doesn't pop up when frozen
+        if (Physics.Raycast(myAlertBubbleRay, out hit, rayLength) /*&& torchMeterMoves.CurrentVal != 0f*/) // Note: Bubble doesn't pop up when frozen
         {
             string tag = hit.collider.tag;
 
@@ -612,7 +612,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         // You cant restart a puzzle while on a bridge tile (determined in EdgeCheck)
         if (canRestartPuzzle)
         {
-            checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
+            //checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
 
             //Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
             for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -647,7 +647,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
         {
-            if (!gameHUDScript.canDeathScreen)
+            /*if (!gameHUDScript.canDeathScreen)
             {
                 GameObject child = puzzle.transform.GetChild(i).gameObject;
 
@@ -665,7 +665,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
                 else if (child.name == "GeneratorBlocks")
                     child.GetComponent<ResetGeneratorBlocks>().StartCoroutine("resetGeneratorWithDelay", resetDuration);
-            }
+            }*/
         }
 
         hasDied = true;
@@ -720,8 +720,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     // Subracts a value from the torch meter's total - subracts 1
     private void SubractFromTorchMeter()
     {
-        if (canTorchMeter)
-            torchMeterMoves.CurrentVal--;
+        //if (canTorchMeter)
+            //torchMeterMoves.CurrentVal--;
     }
 
     // Checks of the torch meter can pop out
@@ -798,7 +798,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         torchMeterScript = FindObjectOfType<TorchMeterScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
-        dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
+        //dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         //playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
         cameraScript = FindObjectOfType<CameraController>();
@@ -824,7 +824,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
                 nextBridgeTileCheck = child;
         }
 
-        dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
+        //dialogueViewsHolder = dialogueCameraViewsScript.gameObject;
         playerAnim = GetComponentInChildren<Animator>();
     }
 
@@ -833,10 +833,10 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         if (gameManagerScript.isDebugging)
         {
-            if (Input.GetKeyDown(KeyCode.LeftBracket))
-                torchMeterMoves.CurrentVal--;
-            if (Input.GetKeyDown(KeyCode.RightBracket))
-                torchMeterMoves.CurrentVal++;
+            //if (Input.GetKeyDown(KeyCode.LeftBracket))
+                //torchMeterMoves.CurrentVal--;
+            //if (Input.GetKeyDown(KeyCode.RightBracket))
+                //torchMeterMoves.CurrentVal++;
         }
     }
 

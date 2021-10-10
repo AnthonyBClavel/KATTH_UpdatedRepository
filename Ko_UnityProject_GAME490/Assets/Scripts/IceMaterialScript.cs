@@ -37,6 +37,7 @@ public class IceMaterialScript : MonoBehaviour
     // Sets the ice material and frosted border's alpha back to zero
     public void ResetIceAlphas()
     {
+        StopAllCoroutines();
         iceMaterial.SetFloat("Vector1_FCC70E1D", zeroAlpha);
         frostedBorderImage.color = zeroAlphaColor;
     }

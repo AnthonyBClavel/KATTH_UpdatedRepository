@@ -136,7 +136,7 @@ public class TutorialDialogueManager : MonoBehaviour
     {
         skipTutorialButton.SetActive(true);
         notificationBubblesScript.EnableNotificationsToggle();
-        playerScript.hasDied = false;
+        //playerScript.hasDied = false;
         inDialogue = false;
 
         if (characterDialogueScript.canStartDialogue)
@@ -152,7 +152,7 @@ public class TutorialDialogueManager : MonoBehaviour
             skipTutorialButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
             playerScript.WalkIntoScene();
-            playerScript.canSetBoolsTrue = false;
+            playerScript.CanSetBoolsTrue();
             hasEnteredTutorial = true;
         }
     }

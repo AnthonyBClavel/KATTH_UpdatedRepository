@@ -197,9 +197,9 @@ public class IntroManager : MonoBehaviour
         zoneTextComponent = zoneName.GetComponent<TextMeshProUGUI>();
 
         pixelatedCamera = cameraScript.gameObject;
-        charNoiseSFX = audioManagerScript.charNoiseSFX;
         typingSpeed = gameManagerScript.typingSpeed;
         introCameraSpeed = gameManagerScript.introCameraSpeed;
+        charNoiseSFX = audioManagerScript.charNoiseAS;
     }
 
     // Updates the typing delay and intro camera speed - For Debuging Purposes ONLY

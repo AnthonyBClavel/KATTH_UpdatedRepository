@@ -7,182 +7,251 @@ using UnityEngine.UIElements;
 
 public class BlockMovementController : MonoBehaviour
 {
-    public GameObject crateEdgeCheck;
-    public AudioClip pushCrateSFX;
-    public AudioClip cantPushCrateSFX;
-    public AudioSource crateSlideSFX;
-    public AudioSource crateFallSFX;
+    private float lerpLength;
+    private float rayLength = 1f;
 
-    Vector3 up = Vector3.zero,                                 
-    right = new Vector3(0, 90, 0),                           
-    down = new Vector3(0, 180, 0),                             
-    left = new Vector3(0, 270, 0),                       
-    currentDirection = Vector3.zero;                 
+    private bool canMoveBlock = true;
+    private bool canPlayThumpSFX = false;
 
-    Vector3 nextBlockPos, destination, direction, startingPosition;                              
+    private GameObject edgeCheck;
+    private GameObject emptyBlock;
 
-    float speed = 10f;                                             
-    float rayLength = 1f;                                      
-    float rayLengthEdgeCheck = 1f;                              
-    float rayFalleCheck = 1f;
+    private Vector3 nextBlockPos;
+    private Vector3 destination;
+    private Vector3 originalPosition;
 
-    private AudioSource audioSource;
-    private bool hasPlayedSFX;
+    Vector3 up = Vector3.zero, // Look North
+    right = new Vector3(0, 90, 0), // Look East
+    down = new Vector3(0, 180, 0), // Look South
+    left = new Vector3(0, 270, 0); // Look West
 
+    private IEnumerator moveBlockCoroutine;                                      
+    private TileMovementController playerScript;
+    private AudioManager audioManagerScript;
+    private GameManager gameManagerScript;
+
+    void Awake()
+    {
+        playerScript = FindObjectOfType<TileMovementController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+
+        SetElements();
+    }
+
+    // Start is called before the first frame update
     void Start()
     {
-        currentDirection = up;
         nextBlockPos = Vector3.forward;
         destination = transform.position;
-        audioSource = GetComponent<AudioSource>(); 
-        startingPosition = transform.position;
+        originalPosition = transform.position;
     }
 
+    // Update is called once per frame
     void Update()
-    {                                                                                      
-        FallCheck();                                                                                            
-        transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime); 
+    {
+        DebuggingCheck();
     }
 
-    // Moves the block based on direction and bool checks
-    public bool MoveBlock(Vector3 direction)
+    // Moves the block to its original position
+    public void ResetBlockPosition()
     {
-        setDirection(direction);
-        if (Vector3.Distance(destination, transform.position) <= 0.00001f)
+        StopAllCoroutines();
+        transform.position = originalPosition;
+        destination = originalPosition;
+        canMoveBlock = true;
+
+        if (emptyBlock != null)
+            emptyBlock.SetActive(true);
+    }
+
+    // Checks of the block can move - returns true if so, false otherwise
+    public bool MoveBlock()
+    {
+        /*** Old Movement Code ***/
+        //transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+
+        // If the block is within 0.00001 units of its destination
+        if (Vector3.Distance(destination, transform.position) <= 0.00001f && canMoveBlock)
         {
-            if (Valid() && EdgeCheck())
-            {
+            SetNextBlockPosition();
+
+            // Checks for colliders and edges
+            if (!ColliderCheck() && !EdgeCheck())
+            {              
                 destination = transform.position + nextBlockPos;
-                direction = nextBlockPos;
-                PlayCanPushSFX();             
+                StartMoveBlockCoroutine();
+                audioManagerScript.PlayPushCrateSFX();
+                audioManagerScript.PlayCrateSlideSFX();
+                canMoveBlock = false;
                 return true;
             }
         }
         return false;
     }
 
-    void setDirection(Vector3 direction)
-    {     
-        if (direction == up)
+    // Sets the position to move to and moves the edgeCheck to that position
+    private void SetNextBlockPosition()
+    {
+        Vector3 playerDirection = playerScript.transform.eulerAngles;
+
+        if (playerDirection == up)
         {
             nextBlockPos = Vector3.forward;
-            currentDirection = up;
-            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
+            edgeCheck.transform.position = (transform.position + nextBlockPos);
         }
 
-        else if (direction == down)
+        else if (playerDirection == down)
         {
             nextBlockPos = Vector3.back;
-            currentDirection = down;
-            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
+            edgeCheck.transform.position = (transform.position + nextBlockPos);
         }
 
-        else if (direction == right)
-        {
-            nextBlockPos = Vector3.right;
-            currentDirection = right;
-            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
-        }
-
-        else if (direction == left)
+        else if (playerDirection == left)
         {
             nextBlockPos = Vector3.left;
-            currentDirection = left;
-            crateEdgeCheck.transform.position = (transform.position + nextBlockPos);
+            edgeCheck.transform.position = (transform.position + nextBlockPos);
+        }
+
+        else if (playerDirection == right)
+        {
+            nextBlockPos = Vector3.right;
+            edgeCheck.transform.position = (transform.position + nextBlockPos);
         }
     }
 
-    // Checks to see if the next position is valid or not
-    bool Valid()                                                                                                                
+    // Checks for colliders - return true if so, false otherwise
+    private bool ColliderCheck()                                                                                                                
     {
         Ray myRay = new Ray(transform.position, nextBlockPos);                                                             
         RaycastHit hit;
-        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                               
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                                           
 
         if (Physics.Raycast(myRay, out hit, rayLength))                                                                         
         {
-            string tag = hit.collider.tag;
-            if (tag == "PushableBlock" || tag == "StaticBlock" || tag == "DestroyableBlock" || tag == "Firestone" || tag == "Generator" || tag == "InvisibleBlock" || tag == "Crystal" || tag == "NPC") 
+            // If the ray hits anything, then there's a collider
+            if (hit.collider == true)
             {
-                PlayCantPushSFX();                                                                 
-                return false;                                                                                                  
+                audioManagerScript.PlayCantPushCrateSFX();
+                return true;
             }
         }
-        return true;                                                                                                           
 
+        // If the ray doesn't anything, then there's no collider
+        return false;
     }
 
-    // Checks if there's an edge - determines where the block cant move towards
-    bool EdgeCheck()                                                                                                           
+    // Determines where the block can't move to - returns true if there's an edge, false otherwise
+    private bool EdgeCheck()                                                            
     {
-        Ray myEdgeRay = new Ray(crateEdgeCheck.transform.position, -transform.up);                                              
+        Ray myEdgeRay = new Ray(edgeCheck.transform.position, Vector3.down);                                  
         RaycastHit hit;
         Debug.DrawRay(myEdgeRay.origin, myEdgeRay.direction, Color.red);
 
-        if (Physics.Raycast(myEdgeRay, out hit, rayLengthEdgeCheck))
+        if (Physics.Raycast(myEdgeRay, out hit, rayLength))
         {
             string name = hit.collider.name;
-            // Prevents block from moving onto a bridge tile
-            if (name == "BridgeTile")
+
+            if (name == "BridgeTile") // Prevents the block from moving onto a bridge tile
             {
-                PlayCantPushSFX();
-                return false;
+                audioManagerScript.PlayCantPushCrateSFX();
+                return true;
             }
-            return true;
+            else
+                return false;
         }
 
-        PlayCantPushSFX();
-        return false;                                                                                                      
+        // If the ray doesn't hit anything, then there's an edge
+        audioManagerScript.PlayCantPushCrateSFX();
+        return true;                                                                                                      
     }
 
-    // Checks to see if the block can fall (into hole)
-    void FallCheck()                                                                                                            
+    // Checks if the block can fall into a hole - returns true if so, false otherwise
+    private bool FallCheck()                                                                                                       
     {
-        Ray myFallCheckRay = new Ray(transform.position, -transform.up);                                                        
+        Ray myRay = new Ray(transform.position, Vector3.down);                                                        
         RaycastHit hit;
-        Debug.DrawRay(myFallCheckRay.origin, myFallCheckRay.direction, Color.red);                                             
+        Debug.DrawRay(myRay.origin, myRay.direction, Color.red);                                             
 
-        if (Physics.Raycast(myFallCheckRay, out hit, rayFalleCheck) && hit.collider.tag == "EmptyBlock")
+        if (Physics.Raycast(myRay, out hit, rayLength))
         {
-            destination = hit.collider.gameObject.transform.position;
-            if(!hasPlayedSFX)
+            GameObject colliderObject = hit.collider.gameObject;
+            string tag = colliderObject.tag;
+
+            if (tag == "EmptyBlock")
             {
-                PlayCrateFallSFX();
-                hasPlayedSFX = true;
-            }             
-        }           
+                destination = colliderObject.transform.position;
+                StartMoveBlockCoroutine();
+                emptyBlock = colliderObject;
+                emptyBlock.SetActive(false);
+                canPlayThumpSFX = true;
+                return true;
+            }
+        }
+        return false;
     }
 
-    // Resets the block back to its original position
-    public void resetPosition()
+    // Starts the coroutine for moving the block
+    private void StartMoveBlockCoroutine()
     {
-        transform.position = startingPosition;
-        Start();
+        if (moveBlockCoroutine != null)
+            StopCoroutine(moveBlockCoroutine);
+
+        moveBlockCoroutine = MoveBlockPosition(destination, lerpLength);
+        StartCoroutine(moveBlockCoroutine);
     }
 
-    private void PlayCantPushSFX()
+    // Moves the block's position to a new position over a duration (endPosition = position to move to, duration = seconds)
+    private IEnumerator MoveBlockPosition(Vector3 endPosition, float duration)
     {
-        audioSource.volume = 0.9f;
-        audioSource.pitch = 1.0f;
-        audioSource.PlayOneShot(cantPushCrateSFX);
+        float time = 0f;
+        Vector3 startPosition = transform.position;
+
+        while (time < duration)
+        {
+            // Checks if the crateThumpSFX can be played (only after the block fell = after reaching half its destination)
+            if (canPlayThumpSFX && time > (duration / 2))
+            {
+                audioManagerScript.PlayCrateThumpSFX();
+                canPlayThumpSFX = false;
+            }
+
+            transform.position = Vector3.MoveTowards(startPosition, endPosition, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = endPosition;
+
+        if (FallCheck())
+            canMoveBlock = false;
+        else
+            canMoveBlock = true;
     }
 
-    private void PlayCanPushSFX()
+    // Sets private variables, objects, and components
+    private void SetElements()
     {
-        hasPlayedSFX = false;
-        audioSource.volume = 0.72f;
-        audioSource.pitch = 0.9f;
-        audioSource.PlayOneShot(pushCrateSFX);
-        crateSlideSFX.volume = 0.06f;
-        crateSlideSFX.Play();
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            if (child.name == "EdgeCheck")
+                edgeCheck = child;
+        }
+
+        lerpLength = gameManagerScript.crateLerpLength;
     }
 
-    private void PlayCrateFallSFX()
+    // Updates the lerp length if the value changes
+    private void DebuggingCheck()
     {
-        //crateFallSFX.volume = 0.5f;
-        //crateFallSFX.pitch = 0.75f;
-        crateSlideSFX.Stop();
-        crateFallSFX.Play();
+        if (gameManagerScript.isDebugging)
+        {
+            if (lerpLength != gameManagerScript.crateLerpLength)
+                lerpLength = gameManagerScript.crateLerpLength;
+        }
     }
 
 }

@@ -315,7 +315,6 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenSafetyMenuDelay_DS()
     {
         DisableMenuInputsPS();
-        playerScript.canRestartPuzzle = false;
 
         yield return new WaitForSecondsRealtime(0.15f);
         audioManagerScript.PlayPopUpSFX();
@@ -378,7 +377,6 @@ public class PauseMenu : MonoBehaviour
         }
 
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the death screen's pop in animation
-        playerScript.canRestartPuzzle = true;
         EnableMenuInputPS();
     }
 

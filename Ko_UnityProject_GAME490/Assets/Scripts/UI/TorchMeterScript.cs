@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +8,9 @@ public class TorchMeterScript : MonoBehaviour
 {
     private bool isTorchMeter = true;
     private float lerpSpeed = 2f;
-    private float fillAmount;
+    private float fillAmount = 1f; // Set this to zero if you want to mute the fire loop sfx during intro
+    private float maxValue = 1f; // Do not set to zero
+    private float currentValue = 1f; // Do not set to zero
 
     private Animator torchAnim;
     private AudioSource loopingFireSFX;
@@ -31,21 +32,6 @@ public class TorchMeterScript : MonoBehaviour
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
 
-    public float MaxValue { get; set; }
-
-    public float Value
-    {
-        set
-        {
-            // Take everything behind the colon and place it as the tmp value...
-            //string[] tmp = valueText.text.Split(':');   
-            //valueText.text = tmp[0] + ": " + value;
-
-            valueText.text = value.ToString();
-            fillAmount = Map(value, MaxValue);
-        }
-    }
-
     void Awake()
     {
         audioManagerScript = FindObjectOfType<AudioManager>();
@@ -57,13 +43,47 @@ public class TorchMeterScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
         RadialBar();
+    }
+
+    // You can use the function to return currentValue or set it to a new value
+    public float CurrentVal
+    {
+        // Returns the currentValue...
+        get
+        {
+            return currentValue;
+        }
+
+        // Or sets a new value to currentValue (also sets the fillAmount and valueText accordingly)
+        set
+        {
+            currentValue = Mathf.Clamp(value, 0, maxValue);
+            valueText.text = currentValue.ToString();
+            fillAmount = currentValue / maxValue;
+        }
+    }
+
+    // You can use the function to return maxValue or set it to a new value
+    public float MaxVal
+    {
+        // Returns the maxValue...
+        get
+        {
+            return maxValue;
+        }
+
+        // Or sets a new value to maxValue
+        set
+        {
+            maxValue = value;
+        }
     }
 
     // Enables all of the torch meter's sprites
@@ -97,12 +117,6 @@ public class TorchMeterScript : MonoBehaviour
             TurnOnTorchMeter();
         if (!isTorchMeter)
             TurnOffTorchMeter();
-    }
-
-    // Sets the torch meter's max value
-    public void setMaxValue(float value)
-    {
-        MaxValue = value;
     }
 
     // Triggers the torch meter's "PopIn" animation
@@ -152,9 +166,9 @@ public class TorchMeterScript : MonoBehaviour
             }
             if (child.name == "Icons")
             {
-                for (int h = 0; h < child.transform.childCount; h++)
+                for (int k = 0; k < child.transform.childCount; k++)
                 {
-                    GameObject child03 = child.transform.GetChild(h).gameObject;
+                    GameObject child03 = child.transform.GetChild(k).gameObject;
                     Image image03 = child03.GetComponent<Image>();
 
                     if (child03.name == "TorchFlameIcon")
@@ -168,17 +182,28 @@ public class TorchMeterScript : MonoBehaviour
                 valueText = child.GetComponent<TextMeshProUGUI>();
         }
 
+        for (int i = 0; i < playerScript.transform.childCount; i++)
+        {
+            GameObject child = playerScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "PlayerModel")
+            {
+                GameObject playerModel = child;
+
+                for (int j = 0; j < playerModel.transform.childCount; j++)
+                {
+                    GameObject child02 = playerModel.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "Ko")
+                        torchFireParticle = child02.GetComponentInChildren<ParticleSystem>();
+                }
+            }
+        }
+
         bar = GetComponent<Image>();
         torchAnim = GetComponent<Animator>();
-        torchFireParticle = playerScript.torchFireParticle;
         torchFireMain = torchFireParticle.main;
-        loopingFireSFX = audioManagerScript.loopingFireSFX;
-        playerScript.torchMeterMoves.Initialize();
-    }
-
-    private float Map(float value, float max)
-    {
-        return value / max;
+        loopingFireSFX = audioManagerScript.loopingFireAS;
     }
 
     // Adjusts the torch meter's color, value, and volume

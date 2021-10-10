@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8136278667369565491}
   m_Layer: 0
-  m_Name: DialogueView_LookingRight
+  m_Name: WestDV
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8136278669123755749}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8136278667421824219
 GameObject:
@@ -40,7 +40,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8136278667421824218}
   m_Layer: 0
-  m_Name: DialogueView_LookingUp
+  m_Name: SouthDV
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70,7 +70,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8136278668697974681}
   m_Layer: 0
-  m_Name: DialogueView_LookingLeft
+  m_Name: EastDV
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88,7 +88,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8136278669123755749}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8136278668836643676
 GameObject:
@@ -100,7 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8136278668836643675}
   m_Layer: 0
-  m_Name: DialogueView_LookingDown
+  m_Name: NorthDV
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,7 +118,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8136278669123755749}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8136278669123755750
 GameObject:
@@ -129,7 +129,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8136278669123755749}
-  - component: {fileID: 8136278669123755748}
   m_Layer: 0
   m_Name: DialogueViewsHolder
   m_TagString: Untagged
@@ -148,27 +147,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8136278668697974681}
-  - {fileID: 8136278667369565491}
-  - {fileID: 8136278667421824218}
   - {fileID: 8136278668836643675}
+  - {fileID: 8136278668697974681}
+  - {fileID: 8136278667421824218}
+  - {fileID: 8136278667369565491}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8136278669123755748
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8136278669123755750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85b6748ac4ddf24f89c8fcd78806bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogueCameraViews:
-  - {fileID: 8136278668697974681}
-  - {fileID: 8136278667369565491}
-  - {fileID: 8136278667421824218}
-  - {fileID: 8136278668836643675}

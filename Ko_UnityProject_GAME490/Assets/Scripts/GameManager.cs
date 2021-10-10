@@ -17,6 +17,10 @@ public class GameManager : MonoBehaviour
     public float cameraSpeed = 3f;
     [Range(1f, 10f)]
     public float introCameraSpeed = 3f;
+    [Range(0f, 1f)]
+    public float playerLerpLength = 0.2f;
+    [Range(0f, 1f)]
+    public float crateLerpLength = 0.1f;
     [Range(0.5f, 10f)]
     public float resetPuzzleDelay = 1.5f;
     [Range(0.5f, 10f)]
@@ -27,9 +31,19 @@ public class GameManager : MonoBehaviour
 
     private string levelToLoad;
 
+    [Header("Bools")]
+    public bool canDeathScreen = false;
+    public bool canSavedInvisibleBlock = true;
+
     [Header("Materials")]
     public Material grassMaterial;
     public Material iceMaterial;
+
+    [Header("Prefabs")]
+    public GameObject destroyedRockParticle;
+    public GameObject treeHitParticle;
+    public GameObject snowTreeHitParticle;
+    private GameObject savedInvisibleBlock;
 
     [Header("Arrays")]
     public Transform[] puzzleViews;
@@ -48,6 +62,7 @@ public class GameManager : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private TipsManager tipsManagerScript;
     private TransitionFade transitionFadeScript;
+    private SaveManagerScript saveManagerScript;
 
     [Header("Debugging Elements")]
     public bool isDebugging;
@@ -62,24 +77,27 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-    
+        canDeathScreen = false;
+        canSavedInvisibleBlock = true;
     }
 
+    // Update is called once per frame
     void Update()
     {
+        CanTravelToPreviousPuzzleCheck();
         CreateNewSaveFileCheck();
     }
 
     // Checks which scene to load next
     public void LoadNextSceneCheck()
     {
-        if (!playerScript.hasFinishedZone)
+        if (!playerScript.ReturnHasFinishedZone())
         {
             levelToLoad = "MainMenu";
             blackLoadingScreen.SetActive(true);
             SceneManager.LoadSceneAsync(levelToLoad);
         }
-        if (playerScript.hasFinishedZone)
+        else
         {
             LevelToLoadCheck();
             StartCoroutine("LoadNextLevelAsync");
@@ -177,6 +195,7 @@ public class GameManager : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
+        saveManagerScript = FindObjectOfType<SaveManagerScript>();
     }
 
     // Sets private variables, objects, and components
@@ -211,6 +230,22 @@ public class GameManager : MonoBehaviour
         }
 
         loadingScreenImage = loadingScreen.GetComponent<Image>();
+        savedInvisibleBlock = saveManagerScript.transform.GetChild(0).gameObject;
+    }
+
+    // Checks when to set the saved invisible block active/inactive
+    private void CanTravelToPreviousPuzzleCheck()
+    {
+        if (!canSavedInvisibleBlock)
+        {
+            if (savedInvisibleBlock.activeSelf)
+                savedInvisibleBlock.SetActive(false);
+        }
+        if (canSavedInvisibleBlock)
+        {
+            if (!savedInvisibleBlock.activeSelf)
+                savedInvisibleBlock.SetActive(true);
+        }
     }
 
     // Creates a new save file

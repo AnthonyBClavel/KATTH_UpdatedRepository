@@ -6,22 +6,22 @@ using UnityEngine.SceneManagement;
 public class CheckpointManager : MonoBehaviour
 {
     public int numMovements;
+    private float rayLength = 1f;
 
     private GameObject bridgeTileCheck;
     private GameObject player;
     private GameObject savedInvisibleBlock;
-    private GameObject deathScreen;
-    private Animator playerAnimator;
 
-    private float rayLengthLBT = 1f;
-    private bool hit; // True if we hit it before, false otherwise
     private Vector3 checkpointPosition;
+    private Animator playerAnimator;
+    private IEnumerator resetPlayerCoroutine;
 
     private IceMaterialScript iceMaterialScript;
     private TileMovementController playerScript;
     private SaveManagerScript saveManagerScript;
-    private GameHUD gameHUDScript;
+    private GameManager gameManagerScript;
     private PauseMenu pauseMenuScript;
+    private GameHUD gameHUDScript;
 
     void Awake()
     {
@@ -31,23 +31,12 @@ public class CheckpointManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {      
-        hit = false;
+    {
         checkpointPosition = transform.position;
     }
 
     // Returns the number of movements for the checkpoint - movements determined within the script's component in unity inspector
     public int getNumMovements() { return numMovements; }
-
-    public void setCheckpoint()
-    {
-        hit = true;
-    }
-
-    public bool hitCheckpoint()
-    {
-        return hit;
-    }
 
     // Checks for the closet bridge tile and sets the savedInvisibleBlock's position to that bridge tile
     public bool LastBridgeTileCheck()
@@ -60,7 +49,7 @@ public class CheckpointManager : MonoBehaviour
             RaycastHit hit;
             Debug.DrawRay(myRayLBT.origin, myRayLBT.direction, Color.red);
 
-            if (Physics.Raycast(myRayLBT, out hit, rayLengthLBT))
+            if (Physics.Raycast(myRayLBT, out hit, rayLength))
             {
                 GameObject lastBridgeTile = hit.collider.gameObject;
                 float lastBridgeTileX = lastBridgeTile.transform.position.x;
@@ -71,13 +60,16 @@ public class CheckpointManager : MonoBehaviour
                 if (name == "BridgeTile" || tag == "BridgeTile")
                 {
                     //Debug.Log("BridgeBlock Found");
-                    playerScript.bridge = lastBridgeTile.transform.parent.gameObject;
+                    //playerScript.bridge = lastBridgeTile.transform.parent.gameObject;
                     savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
 
                     // Saves the player's rotataion as the opposite angle from which the BridgeBlock was found
                     float playerRotation = bridgeTileCheck.transform.localEulerAngles.y - 180;
-                    player.transform.localEulerAngles = new Vector3(0, playerRotation, 0);
                     saveManagerScript.SavePlayerRotation(playerRotation);
+
+                    // Sets the player's rotation (ONLY gets called when a puzzle is loaded while debugging)
+                    if (player.transform.position == transform.position)
+                        player.transform.localEulerAngles = new Vector3(0, playerRotation, 0);                            
 
                     return true;
                 }
@@ -92,58 +84,8 @@ public class CheckpointManager : MonoBehaviour
         return false;
     }
 
-    // Sets the player's position to the checkpoint - also resets the player's animation, rotation, torch meter, and Cold UI elements
-    public void resetPlayerPosition()
-    {
-        gameHUDScript.SetDeathScreenInactive();
-        ResetPlayer();  
-        iceMaterialScript.ResetIceAlphas();
-    }
-
-    // Resets the player's position, animation, rotation, torch meter, and Cold UI elements - ONLY USE THIS after pressing "yes" in the death screen's safety menu 
-    public void resetPlayerPosition_DS()
-    {
-        player.SetActive(false);
-        playerAnimator.enabled = true;
-        player.SetActive(true);
-        player.transform.position = checkpointPosition;
-        saveManagerScript.LoadPlayerRotation();
-        playerScript.setDestination(checkpointPosition);
-        playerScript.ResetTorchMeter();
-
-        deathScreen.SetActive(false);
-        iceMaterialScript.ResetIceAlphas();
-    }
-
-    // Resets the player's position and other elements after a certain amount of seconds
-    public IEnumerator resetPlayerPositionWithDelay(float seconds)
-    {
-        iceMaterialScript.LerpIceAlphas();
-        playerScript.SetPlayerBoolsFalse();
-        playerAnimator.enabled = false;
-        pauseMenuScript.canPause = false;
-        gameHUDScript.SetDeathScreenActiveCheck();
-
-        yield return new WaitForSeconds(seconds);
-
-        if (!gameHUDScript.canDeathScreen)
-            ResetPlayer();         
-    }
-
-    // Resets the player's position and other elements after a certain amount of seconds - ONLY USED IN TUTORIAL
-    public IEnumerator resetPlayerPositionInTutorialWithDelay(float seconds)
-    {
-        iceMaterialScript.LerpIceAlphas();
-        playerScript.SetPlayerBoolsFalse();
-        playerAnimator.enabled = false;
-        pauseMenuScript.canPause = false;
-
-        yield return new WaitForSeconds(seconds);
-        ResetPlayer();
-    }
-
-    // Resets player elements (position, animation, rotation, torch meter)
-    private void ResetPlayer()
+    // Resets all player elements (position, animation, rotation, torch meter)
+    public void ResetPlayer()
     {
         iceMaterialScript.ResetIceAlphas();
 
@@ -159,6 +101,43 @@ public class CheckpointManager : MonoBehaviour
         playerScript.SetPlayerBoolsTrue();
     }
 
+    // Resets all player elements after a delay (set float to zero for instant reset)
+    public void ResetPlayerDelay(float seconds)
+    {
+        if (resetPlayerCoroutine != null)
+            StopCoroutine(resetPlayerCoroutine);
+
+        resetPlayerCoroutine = ResetPlayerPosition(seconds);
+        StartCoroutine(resetPlayerCoroutine);
+    }
+
+    // Resets the player's position and other elements after a delay
+    private IEnumerator ResetPlayerPosition(float seconds)
+    {
+        iceMaterialScript.LerpIceAlphas();
+        playerScript.SetPlayerBoolsFalse();
+        playerAnimator.enabled = false;
+        pauseMenuScript.canPause = false;
+
+        yield return new WaitForSeconds(seconds);
+        if (!gameManagerScript.canDeathScreen)
+            ResetPlayer();
+        if (gameManagerScript.canDeathScreen)
+            gameHUDScript.SetDeathScreenActive();
+    }
+
+    // Resets the player's position and other elements after a certain amount of seconds - ONLY USED IN TUTORIAL
+    /*public IEnumerator resetPlayerPositionInTutorialWithDelay(float seconds)
+    {
+        iceMaterialScript.LerpIceAlphas();
+        playerScript.SetPlayerBoolsFalse();
+        playerAnimator.enabled = false;
+        pauseMenuScript.canPause = false;
+
+        yield return new WaitForSeconds(seconds);
+        ResetPlayer();
+    }*/
+
     // Sets the scripts to use
     private void SetScript()
     {
@@ -167,6 +146,8 @@ public class CheckpointManager : MonoBehaviour
         saveManagerScript = FindObjectOfType<SaveManagerScript>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
     }
 
     // Sets private variables, objects, and components
@@ -187,14 +168,6 @@ public class CheckpointManager : MonoBehaviour
 
             if (child.name == "SavedInvisibleBlock")
                 savedInvisibleBlock = child;
-        }
-
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "OptionalDeathScreen")
-                deathScreen = child;
         }
 
         player = playerScript.gameObject;

@@ -32,10 +32,10 @@ public class ArtifactScript : MonoBehaviour
     private Vector3 arhOriginalRotation; // arh = artifact rotation holder
     private Vector3 inspectingArtifactRotation;
 
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
+    Vector3 up = Vector3.zero, // Look North
+    right = new Vector3(0, 90, 0), // Look East
+    down = new Vector3(0, 180, 0), // Look South
+    left = new Vector3(0, 270, 0); // Look West
 
     private IEnumerator artifactViewCoroutine;
     private IEnumerator previousViewCoroutine;
@@ -173,17 +173,19 @@ public class ArtifactScript : MonoBehaviour
     // Rotates the wooden chest towards the player
     private void SetChestRotation()
     {
-        if (playerScript.playerDirection == up)
+        Vector3 playerDirection = playerScript.transform.eulerAngles;
+
+        if (playerDirection == up)
             WoodenChestHolder.transform.localEulerAngles = down;
 
-        if (playerScript.playerDirection == left)
-            WoodenChestHolder.transform.localEulerAngles = right;
+        else if (playerDirection == right)
+            WoodenChestHolder.transform.localEulerAngles = left;
 
-        if (playerScript.playerDirection == down)
+        else if (playerDirection == down)
             WoodenChestHolder.transform.localEulerAngles = up;
 
-        if (playerScript.playerDirection == right)
-            WoodenChestHolder.transform.localEulerAngles = left;
+        else if (playerDirection == left)
+            WoodenChestHolder.transform.localEulerAngles = right;
     }
 
     // Sets the artifact camera view - sets the camera's position and rotation to the player's

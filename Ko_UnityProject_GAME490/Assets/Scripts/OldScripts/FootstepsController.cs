@@ -8,7 +8,7 @@ public class FootstepsController : MonoBehaviour
     public bool canPlayFootsteps = true;
     public bool canPlaySecondFootstep = false;
 
-    private float playerLerpLength;
+    //private float playerLerpLength;
     private float rayLength = 1f;
 
     private new string tag;
@@ -23,7 +23,7 @@ public class FootstepsController : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
 
-        playerLerpLength = playerScript.lerpLength;
+        //playerLerpLength = playerScript.lerpLength;
     }
 
     void Start()
@@ -32,14 +32,14 @@ public class FootstepsController : MonoBehaviour
     }
 
     // Plays the footsteps coroutine for the player
-    public void PlayerFootstepsSFX()
+    /*public void PlayerFootstepsSFX()
     {
         if (playerFootstepsCoroutine != null)
             StopCoroutine(playerFootstepsCoroutine);
 
         playerFootstepsCoroutine = PlayerFootsteps();
         StartCoroutine(playerFootstepsCoroutine);
-    }
+    }*/
 
     // Checks which footstep sfx to play for the PLAYER - determined by the tag/name of object the player walks on
     private void PlayerFootstepSFXCheck()
@@ -83,7 +83,7 @@ public class FootstepsController : MonoBehaviour
     }
 
     // Plays the footsteps sfx based on the player's playerLerpLength (time it takes to move from its current position to the destination)
-    private IEnumerator PlayerFootsteps()
+    /*private IEnumerator PlayerFootsteps()
     {
         float duration = playerLerpLength / 4f;
 
@@ -95,6 +95,6 @@ public class FootstepsController : MonoBehaviour
         yield return new WaitForSeconds(duration * 2f);
         if (canPlaySecondFootstep)
             PlayerFootstepSFXCheck();
-    }
+    }*/
 
 }

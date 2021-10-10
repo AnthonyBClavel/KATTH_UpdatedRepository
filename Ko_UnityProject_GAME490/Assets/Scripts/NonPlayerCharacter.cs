@@ -16,10 +16,10 @@ public class NonPlayerCharacter : MonoBehaviour
     private GameObject nPCDialogueCheck;
     private Vector3 originalRotation;
 
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
+    Vector3 up = Vector3.zero, // Look North
+    right = new Vector3(0, 90, 0), // Look East
+    down = new Vector3(0, 180, 0), // Look South
+    left = new Vector3(0, 270, 0); // Look West
 
     [Header("NPC Dialogue Array")]
     public TextAsset[] nPCDialogueFiles;
@@ -75,17 +75,19 @@ public class NonPlayerCharacter : MonoBehaviour
     // Rotates the npc towards the player
     public void SetRotationNPC()
     {
-        if (playerScript.playerDirection == up)
+        Vector3 playerDirection = playerScript.transform.eulerAngles;
+
+        if (playerDirection == up)
             characterHolder.transform.localEulerAngles = down;
 
-        if (playerScript.playerDirection == left)
-            characterHolder.transform.localEulerAngles = right;
+        else if (playerDirection == right)
+            characterHolder.transform.localEulerAngles = left;
 
-        if (playerScript.playerDirection == down)
+        else if (playerDirection == down)
             characterHolder.transform.localEulerAngles = up;
 
-        if (playerScript.playerDirection == right)
-            characterHolder.transform.localEulerAngles = left;
+        else if (playerDirection == left)
+            characterHolder.transform.localEulerAngles = right;
     }
 
     // Sets the name of the NPC and the text color

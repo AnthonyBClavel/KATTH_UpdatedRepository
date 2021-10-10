@@ -6,13 +6,13 @@ public class InteractiveGrassScript : MonoBehaviour
 {
     private Material grassMaterial;
     private Transform playerTransform;
-    private Vector3 thePosition;
+    private Vector3 matPosition;
     private GameManager gameManagerScript;
 
     void Awake()
     {
-        playerTransform = FindObjectOfType<TileMovementController>().transform;
         gameManagerScript = FindObjectOfType<GameManager>();
+        playerTransform = FindObjectOfType<TileMovementController>().transform;
     }
 
     // Start is called before the first frame update
@@ -32,16 +32,16 @@ public class InteractiveGrassScript : MonoBehaviour
     {
         while (true)
         {
-            if (thePosition != playerTransform.position)
+            if (matPosition != playerTransform.position)
             {
-                thePosition = playerTransform.position;
-                grassMaterial.SetVector("_position", thePosition);
+                matPosition = playerTransform.position;
+                grassMaterial.SetVector("_position", matPosition);
             }
 
             // Use this if you have more than one grass material (baby mammoth)
             /*for (int i = 0; i < materials.Length; i++)
             {
-                materials[i].SetVector("_position", thePosition);
+                materials[i].SetVector("_position", matPosition);
             }*/
 
             return;

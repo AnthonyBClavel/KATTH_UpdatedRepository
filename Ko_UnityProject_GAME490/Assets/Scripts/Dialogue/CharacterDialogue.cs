@@ -103,10 +103,11 @@ public class CharacterDialogue : MonoBehaviour
     private RectTransform nPCSpeechBubbleHolder;
     private RectTransform doSpeechBubbleHolder; // do = dialogue options
 
-    Vector3 up = Vector3.zero,
-    right = new Vector3(0, 90, 0),
-    down = new Vector3(0, 180, 0),
-    left = new Vector3(0, 270, 0);
+    private Vector3 playerDirection;
+    Vector3 up = Vector3.zero, // Looking North
+    right = new Vector3(0, 90, 0), // Looking East
+    down = new Vector3(0, 180, 0), // Looking South
+    left = new Vector3(0, 270, 0); // Looking West
 
     private Vector3 bubbleAnimOrigPos;
     private Vector3 bubbleHolderOrigPos;
@@ -181,6 +182,10 @@ public class CharacterDialogue : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Updates the player's current direction
+        if (playerDirection != playerScript.transform.eulerAngles)
+            playerDirection = playerScript.transform.eulerAngles;
+
         AdjustDialogueBubbleCheckPlayer();
         AdjustDialogueBubbleCheckNPC();
         AdjustDialogueOptionsBubbleCheck();
@@ -760,7 +765,7 @@ public class CharacterDialogue : MonoBehaviour
                 hasSetBubbleDefaultPosY = true;
             }
 
-            if (playerScript.playerDirection == right)
+            if (playerDirection == right)
             {
                 dosph_LeftEdgePosX = dob_LocalPosX + ((dosph_LocalPosX - dosph_Width) * dialogueBubbleScale);
 
@@ -779,7 +784,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == left)
+            else if (playerDirection == left)
             {
                 dosph_RightEdgePosX = dob_LocalPosX + ((dosph_LocalPosX + dosph_Width) * dialogueBubbleScale);
 
@@ -798,7 +803,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == up || playerScript.playerDirection == down)
+            else if (playerDirection == up || playerDirection == down)
             {
                 dosph_LeftEdgePosX = dob_LocalPosX + ((dosph_LocalPosX - dosph_Width * 0.5f) * dialogueBubbleScale);
                 dosph_RightEdgePosX = dob_LocalPosX + ((dosph_LocalPosX + dosph_Width * 0.5f) * dialogueBubbleScale);
@@ -850,7 +855,7 @@ public class CharacterDialogue : MonoBehaviour
                 hasSetBubbleDefaultPosY = true;
             }
 
-            if (playerScript.playerDirection == right)
+            if (playerDirection == right)
             {
                 psbh_LeftEdgePosX = pdb_LocalPosX + ((psbh_LocalPosX - psbh_Width) * dialogueBubbleScale);
 
@@ -870,7 +875,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == left)
+            else if (playerDirection == left)
             {
                 psbh_RightEdgePosX = pdb_LocalPosX + ((psbh_LocalPosX + psbh_Width) * dialogueBubbleScale);
 
@@ -890,7 +895,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == up || playerScript.playerDirection == down)
+            else if (playerDirection == up || playerDirection == down)
             {
                 psbh_LeftEdgePosX = pdb_LocalPosX + ((psbh_LocalPosX - psbh_Width * 0.5f) * dialogueBubbleScale);
                 psbh_RightEdgePosX = pdb_LocalPosX + ((psbh_LocalPosX + psbh_Width * 0.5f) * dialogueBubbleScale);
@@ -942,7 +947,7 @@ public class CharacterDialogue : MonoBehaviour
                 hasSetBubbleDefaultPosY = true;
             }
 
-            if (playerScript.playerDirection == right)
+            if (playerDirection == right)
             {
                 npcsbh_RightEdgePosX = npcdb_LocalPosX + ((npcsbh_LocalPosX + npcsbh_Width) * dialogueBubbleScale);
 
@@ -961,7 +966,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == left)
+            else if (playerDirection == left)
             {
                 npcsbh_LeftEdgePosX = npcdb_LocalPosX + ((npcsbh_LocalPosX - npcsbh_Width) * dialogueBubbleScale);
 
@@ -980,7 +985,7 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            else if (playerScript.playerDirection == up || playerScript.playerDirection == down)
+            else if (playerDirection == up || playerDirection == down)
             {
                 npcsbh_LeftEdgePosX = npcdb_LocalPosX + ((npcsbh_LocalPosX - npcsbh_Width * 0.5f) * dialogueBubbleScale);
                 npcsbh_RightEdgePosX = npcdb_LocalPosX + ((npcsbh_LocalPosX + npcsbh_Width * 0.5f) * dialogueBubbleScale);
@@ -1080,7 +1085,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!hasSetPivot)
         {
-            if (playerScript.playerDirection == up || playerScript.playerDirection == down)
+            if (playerDirection == up || playerDirection == down)
             {
 
                 playerSpeechBubbleHolder.pivot = originalPivot;
@@ -1088,14 +1093,14 @@ public class CharacterDialogue : MonoBehaviour
                 doSpeechBubbleHolder.pivot = originalPivot;
             }
 
-            if (playerScript.playerDirection == left)
+            if (playerDirection == left)
             {
                 playerSpeechBubbleHolder.pivot = movePivotLeft;
                 nPCSpeechBubbleHolder.pivot = movePivotRight;
                 doSpeechBubbleHolder.pivot = movePivotLeft;
             }
 
-            if (playerScript.playerDirection == right)
+            if (playerDirection == right)
             {
                 playerSpeechBubbleHolder.pivot = movePivotRight;
                 nPCSpeechBubbleHolder.pivot = movePivotLeft;
@@ -1548,7 +1553,7 @@ public class CharacterDialogue : MonoBehaviour
                 nPCDialogueCheck = child;                      
         }
 
-        charNoiseSFX = audioManagerScript.charNoiseSFX;
+        charNoiseSFX = audioManagerScript.charNoiseAS;
         typingSpeed = gameManagerScript.typingSpeed;
         originalTypingSpeed = gameManagerScript.typingSpeed;
         sentenceSpeed = gameManagerScript.sentenceSpeed;

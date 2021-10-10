@@ -22,31 +22,20 @@ public class SaveManagerScript : MonoBehaviour
     {      
         SaveSceneName();
         SetElements();
-        LoadAllPlayerPrefs();       
+        LoadAllPlayerPrefs();
 
         if (PlayerPrefs.GetInt("Saved") == 1 && PlayerPrefs.GetInt("TimeToLoad") == 1 && SceneManager.GetActiveScene().name != "TutorialMap" && !gameManagerScript.isDebugging)
         {
             Debug.Log("Save Loaded Successfully");          
 
-            pX = player.transform.position.x;
-            pZ = player.transform.position.z;
-            rY = player.transform.eulerAngles.y;
-
-            pX = PlayerPrefs.GetFloat("p_x");
-            pZ = PlayerPrefs.GetFloat("p_z");
-            rY = PlayerPrefs.GetFloat("r_y");
-
-            player.transform.position = new Vector3(pX, 0, pZ);
-            player.transform.eulerAngles = new Vector3(0, rY, 0);
-
-            //cameraScript.cameraIndex = PlayerPrefs.GetInt("cameraIndex");
+            LoadPlayerPosition();
+            LoadPlayerRotation();
             cameraScript.LoadSavedCameraIndex();
             OnFirstPuzzleCheck();
 
             PlayerPrefs.SetInt("TimeToLoad", 0);
             PlayerPrefs.Save();
         }     
-
         if (gameManagerScript.isDebugging)
         {
             SetPuzzleToLoad();
@@ -61,8 +50,6 @@ public class SaveManagerScript : MonoBehaviour
         {
             PlayerPrefs.SetFloat("p_x", checkpoint.transform.position.x);
             PlayerPrefs.SetFloat("p_z", checkpoint.transform.position.z);
-            //PlayerPrefs.SetFloat("p_x", player.transform.position.x);
-            //PlayerPrefs.SetFloat("p_z", player.transform.position.z);
         }
 
         PlayerPrefs.SetInt("Saved", 1);
@@ -73,8 +60,6 @@ public class SaveManagerScript : MonoBehaviour
     public void SavePlayerRotation(float playerRotation)
     {
         PlayerPrefs.SetFloat("r_y", playerRotation);
-        //PlayerPrefs.SetFloat("r_y", player.transform.eulerAngles.y);
-
         PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
     }
@@ -84,9 +69,7 @@ public class SaveManagerScript : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
-            //PlayerPrefs.SetInt("cameraIndex", cameraScript.cameraIndex);
             PlayerPrefs.SetInt("cameraIndex", cameraScript.ReturnCameraIndex());
-
             PlayerPrefs.SetInt("Saved", 1);
             PlayerPrefs.Save();
         }
@@ -125,6 +108,18 @@ public class SaveManagerScript : MonoBehaviour
         player.transform.eulerAngles = new Vector3(0, rY, 0);
     }
 
+    // Loads the player's position
+    private void LoadPlayerPosition()
+    {
+        pX = player.transform.position.x;
+        pZ = player.transform.position.z;
+
+        pX = PlayerPrefs.GetFloat("p_x");
+        pZ = PlayerPrefs.GetFloat("p_z");
+
+        player.transform.position = new Vector3(pX, 0, pZ);
+    }
+
     // Loads ALL of the saved values within the PlayerPrefs
     private void LoadAllPlayerPrefs()
     {
@@ -154,12 +149,12 @@ public class SaveManagerScript : MonoBehaviour
             if (puzzleNumber >= 1 && puzzleNumber <= gameManagerScript.checkpoints.Length)
             {
                 Debug.Log("Loaded Debug");
-                Transform checkpointTransform = gameManagerScript.checkpoints[puzzleNumber - 1];
+                Vector3 checkpointPosition = gameManagerScript.checkpoints[puzzleNumber - 1].position;
 
                 // Sets the player's position to loaded checkpoint's position
-                player.transform.position = new Vector3(checkpointTransform.position.x, 0, checkpointTransform.position.z);
-                //cameraScript.cameraIndex = puzzleNumber - 1;
+                player.transform.position = new Vector3(checkpointPosition.x, 0, checkpointPosition.z);
                 cameraScript.SetCameraIndex(puzzleNumber - 1);
+                LoadPlayerRotation();
             }
         }     
     }

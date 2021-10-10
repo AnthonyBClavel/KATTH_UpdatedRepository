@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class TorchMeterStat // Dont change this script - use the TileMovementController's script component (in the Unity inspector) to manipulate the torch meter                
+public class TorchMeterStat             
 {
     public TorchMeterScript bar;
 
@@ -23,8 +23,8 @@ public class TorchMeterStat // Dont change this script - use the TileMovementCon
 
         set
         {
-            this.currentValue = Mathf.Clamp(value, 0, MaxVal);
-            bar.Value = currentValue;
+            currentValue = Mathf.Clamp(value, 0, MaxVal);
+            //bar.Value = currentValue;
         }
     }
 
@@ -38,7 +38,7 @@ public class TorchMeterStat // Dont change this script - use the TileMovementCon
         set
         {  
             this.maxValue = value;
-            bar.MaxValue = maxValue;
+            //bar.MaxValue = maxValue;
         }
     }
 
@@ -51,7 +51,7 @@ public class TorchMeterStat // Dont change this script - use the TileMovementCon
     public void setMaxValue(int newMax)
     {
         maxValue = (float)newMax;
-        bar.setMaxValue(maxValue);
+        //bar.setMaxValue(maxValue);
     }
 
     public void setCurrentVal(int newCurrentVal)

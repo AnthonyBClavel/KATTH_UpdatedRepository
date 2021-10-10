@@ -30,8 +30,8 @@ public class DestoryThisObject : MonoBehaviour
     {
         while(true)
         {
-            if (playerScript.canRestartPuzzle)
-                Destroy(gameObject);
+            //if (playerScript.canRestartPuzzle)
+                //Destroy(gameObject);
             yield return new WaitForSeconds(3f);
         }
     }

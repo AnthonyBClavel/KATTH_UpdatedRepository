@@ -14,25 +14,25 @@ public class AudioManager : MonoBehaviour
     private Slider sfxSlider;
 
     private float fadeAudioLength;
-    private float originalVolumeBGM; // background music
-    private float originalVolumeDM; // dialogue music
-    private float originalVolumeLASFX; // looping ambient sfx
+    private float originalVolumeBGM; // BGM = background music
+    private float originalVolumeDM; // DM = dialogue music
+    private float originalVolumeLASFX; // LASFX = looping ambience sfx
     private bool isDialogueMusic = true;
 
     private IEnumerator backgroundMusicCoroutine;
     private IEnumerator dialogueMusicCoroutine;
-    private IEnumerator loopingAmbientCoroutine;
+    private IEnumerator loopingAmbienceCoroutine;
 
     [Header("Music")]
-    public AudioSource mainMenuMusic;
-    public AudioSource dialogueMusic;
-    public AudioSource backgroundMusic;
-    public AudioSource endCreditsMusic;
+    private AudioSource mainMenuMusic;
+    private AudioSource dialogueMusic;
+    private AudioSource backgroundMusic;
+    private AudioSource endCreditsMusic;
 
     [Header("Audio Loops")]
-    public AudioSource loopingFireSFX;
-    public AudioSource charNoiseSFX;
-    public AudioSource loopingAmbientSFX;
+    public AudioSource loopingFireAS;
+    public AudioSource charNoiseAS;
+    private AudioSource loopingAmbienceAS;
 
     [Header("SFX")]
     public AudioClip torchFireIgniteSFX;
@@ -48,6 +48,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip dialogueArrowSFX;
     public AudioClip openingChestSFX;
     public AudioClip closingChestSFX;
+    public AudioClip pushCrateSFX;
+    public AudioClip cantPushCrateSFX;
+    public AudioClip crateSlideSFX;
+    public AudioClip crateThumpSFX;
 
     private AudioSource swooshAS;
     private AudioSource torchFireIgniteAS;
@@ -71,6 +75,10 @@ public class AudioManager : MonoBehaviour
     private AudioSource rockHitAS;
     private AudioSource rockBreakAS;
     private AudioSource footstepsAS;
+    private AudioSource pushCrateAS;
+    private AudioSource cantPushCrateAS;
+    private AudioSource crateSlideAS;
+    private AudioSource crateThumpAS;
 
     [Header("SFX Arrays")]
     public AudioClip[] swooshClips;
@@ -91,13 +99,13 @@ public class AudioManager : MonoBehaviour
     public AudioClip[] crateFootstepClips;
 
     [Header("Audio Loop Arrays")]
-    public AudioClip[] loopingAmbientClips;
+    public AudioClip[] loopingAmbienceClips;
     public AudioClip[] dialogueMusicTracks;
     public AudioClip[] backgroundMusicTracks;
 
     private AudioClip lastWindGushClip;
     private AudioClip lastSwooshClip;
-    private AudioClip lastAmbientLoopingClip;
+    private AudioClip lastLoopingAmbienceClip;
     private AudioClip lastDialogueMusicTrack;
     private AudioClip lastTreeHitClip;
     private AudioClip lastSnowTreeHitClip;
@@ -136,16 +144,12 @@ public class AudioManager : MonoBehaviour
         DebuggingCheck();
     }
 
-    private void SetAudioLoopsActiveCheck()
+    // Checks if you're in the tutorial scene - fades in ONLY the music IF SO - ONLY gets called/checked during the tutorial scene
+    /*private void SetAudioLoopsForTutorial()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName != "MainMenu" && playerScript.checkIfOnCheckpoint())
-        {
-            backgroundMusic.gameObject.SetActive(true);
-            loopingAmbientSFX.gameObject.SetActive(true);
-        }
-    }
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            FadeInBackgroundMusic();
+    }*/
 
     // Fades in the background music
     public void FadeInBackgroundMusic()
@@ -177,29 +181,29 @@ public class AudioManager : MonoBehaviour
     // Fades in the looping ambient sfx
     public void FadeInLoopingAmbientSFX()
     {
-        if (!loopingAmbientSFX.gameObject.activeSelf)
-            loopingAmbientSFX.gameObject.SetActive(true);
+        if (!loopingAmbienceAS.gameObject.activeSelf)
+            loopingAmbienceAS.gameObject.SetActive(true);
 
-        if (loopingAmbientCoroutine != null)
-            StopCoroutine(loopingAmbientCoroutine);
+        if (loopingAmbienceCoroutine != null)
+            StopCoroutine(loopingAmbienceCoroutine);
 
-        loopingAmbientCoroutine = LerpAudio(loopingAmbientSFX, originalVolumeLASFX, fadeAudioLength);
+        loopingAmbienceCoroutine = LerpAudio(loopingAmbienceAS, originalVolumeLASFX, fadeAudioLength);
 
-        loopingAmbientSFX.volume = 0f;
-        StartCoroutine(loopingAmbientCoroutine);
+        loopingAmbienceAS.volume = 0f;
+        StartCoroutine(loopingAmbienceCoroutine);
     }
 
     // Fades out the looping ambient sfx
     public void FadeOutLoopingAmbientSFX()
     {
-        if (loopingAmbientCoroutine != null)
-            StopCoroutine(loopingAmbientCoroutine);
+        if (loopingAmbienceCoroutine != null)
+            StopCoroutine(loopingAmbienceCoroutine);
 
-        loopingAmbientCoroutine = LerpAudio(loopingAmbientSFX, 0f, fadeAudioLength);
+        loopingAmbienceCoroutine = LerpAudio(loopingAmbienceAS, 0f, fadeAudioLength);
         isDialogueMusic = true;
 
-        loopingAmbientSFX.volume = originalVolumeLASFX;
-        StartCoroutine(loopingAmbientCoroutine);
+        loopingAmbienceAS.volume = originalVolumeLASFX;
+        StartCoroutine(loopingAmbienceCoroutine);
     }
 
     // Fades in the dilaogue music
@@ -230,32 +234,6 @@ public class AudioManager : MonoBehaviour
 
         dialogueMusic.volume = originalVolumeDM;
         StartCoroutine(dialogueMusicCoroutine);
-    }
-
-    // Checks if you're in the tutorial scene - fades in ONLY the music IF SO - ONLY gets called/checked during the tutorial scene
-    /*private void SetAudioLoopsForTutorial()
-    {
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            FadeInBackgroundMusic();
-    }*/
-
-    // Lerps the volume of an audio source over a specific duration (endVolume = volume to lerp to, duration = seconds)
-    private IEnumerator LerpAudio(AudioSource audioSource, float endVolume, float duration)
-    {
-        float time = 0;
-        float startVolume = audioSource.volume;
-
-        while (time < duration)
-        {
-            audioSource.volume = Mathf.Lerp(startVolume, endVolume, time / duration);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        audioSource.volume = endVolume;
-
-        if (audioSource == dialogueMusic && !isDialogueMusic)
-            dialogueMusic.gameObject.SetActive(false);   
     }
 
     public void PlayTorchFireIgniteSFX()
@@ -355,6 +333,34 @@ public class AudioManager : MonoBehaviour
         //closingChestAS.volume = 0.65f;
         //closingChestAS.pitch = 1f;
         closingChestAS.PlayOneShot(closingChestSFX);
+    }
+
+    public void PlayPushCrateSFX()
+    {
+        //pushCrateAS.volume = 0.72f;
+        //pushCrateAS.pitch = 0.9f;
+        pushCrateAS.PlayOneShot(pushCrateSFX);
+    }
+
+    public void PlayCantPushCrateSFX()
+    {
+        //cantPushCrateAS.volume = 0.9f;
+        //cantPushCrateAS.pitch = 1.0f;
+        cantPushCrateAS.PlayOneShot(cantPushCrateSFX);
+    }
+
+    public void PlayCrateSlideSFX()
+    {
+        //crateSlideAS.volume = 0.06f;
+        //crateSlideAS.pitch = 1.0f;
+        crateSlideAS.PlayOneShot(crateSlideSFX);
+    }
+
+    public void PlayCrateThumpSFX()
+    {
+        //crateThumpAS.volume = 1.0f;
+        //crateThumpAS.pitch = 1.0f;
+        crateThumpAS.PlayOneShot(crateThumpSFX);
     }
 
     // Plays a new SwooshSFX - different from the one previously played
@@ -624,22 +630,22 @@ public class AudioManager : MonoBehaviour
     }
 
     // Plays a new looping ambient sfx - different from the one currenlty playing
-    public void ChangeLoopingAmbientSFX()
+    public void ChangeLoopingAmbienceSFX()
     {
         int attempts = 3;
-        AudioClip newLoopingAmbientClip = loopingAmbientClips[Random.Range(0, loopingAmbientClips.Length)];
+        AudioClip newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
 
-        while (newLoopingAmbientClip == lastAmbientLoopingClip && attempts > 0)
+        while (newLoopingAmbienceClip == lastLoopingAmbienceClip && attempts > 0)
         {
-            newLoopingAmbientClip = loopingAmbientClips[Random.Range(0, loopingAmbientClips.Length)];
+            newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
             attempts--;
         }
 
-        lastAmbientLoopingClip = newLoopingAmbientClip;
+        lastLoopingAmbienceClip = newLoopingAmbienceClip;
 
-        loopingAmbientSFX.Stop();
-        loopingAmbientSFX.clip = newLoopingAmbientClip;
-        loopingAmbientSFX.Play();
+        loopingAmbienceAS.Stop();
+        loopingAmbienceAS.clip = newLoopingAmbienceClip;
+        loopingAmbienceAS.Play();
     }
 
     // Selects and plays a new track for the dialogue music - different from the one previously played
@@ -662,6 +668,37 @@ public class AudioManager : MonoBehaviour
         dialogueMusic.Stop();
         dialogueMusic.clip = newDialogueMusicTrack;
         dialogueMusic.Play();
+    }
+
+    // Checks which audio loops to set active
+    private void SetAudioLoopsActiveCheck()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName != "MainMenu" && playerScript.checkIfOnCheckpoint())
+        {
+            backgroundMusic.gameObject.SetActive(true);
+            loopingAmbienceAS.gameObject.SetActive(true);
+        }
+    }
+
+    // Lerps the volume of an audio source over a specific duration (endVolume = volume to lerp to, duration = seconds)
+    private IEnumerator LerpAudio(AudioSource audioSource, float endVolume, float duration)
+    {
+        float time = 0;
+        float startVolume = audioSource.volume;
+
+        while (time < duration)
+        {
+            audioSource.volume = Mathf.Lerp(startVolume, endVolume, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        audioSource.volume = endVolume;
+
+        if (audioSource == dialogueMusic && !isDialogueMusic)
+            dialogueMusic.gameObject.SetActive(false);
     }
 
     // Sets the volume sliders in the options menu to the last saved value - MUST be called in start
@@ -750,13 +787,22 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = transform.GetChild(i).gameObject;
 
-            /*if (child.name == "Music")
+            if (child.name == "Music")
             {
                 GameObject music = child;
 
                 for (int j = 0; j < music.transform.childCount; j++)
                 {
+                    AudioSource childAudioSource = music.transform.GetChild(j).GetComponent<AudioSource>();
 
+                    if (childAudioSource.name == "MainMenuMusic")
+                        mainMenuMusic = childAudioSource;
+                    if (childAudioSource.name == "DialogueMusic")
+                        dialogueMusic = childAudioSource;
+                    if (childAudioSource.name == "BackgroundMusic")
+                        backgroundMusic = childAudioSource;
+                    if (childAudioSource.name == "EndCreditsMusic")
+                        endCreditsMusic = childAudioSource;
                 }
             }
 
@@ -766,9 +812,12 @@ public class AudioManager : MonoBehaviour
 
                 for (int k = 0; k < audioLoops.transform.childCount; k++)
                 {
+                    AudioSource childAudioSource = audioLoops.transform.GetChild(k).GetComponent<AudioSource>();
 
+                    if (childAudioSource.name == "LoopingAmbienceSFX")
+                        loopingAmbienceAS = childAudioSource;
                 }
-            }*/
+            }
 
             if (child.name == "SFX")
             {
@@ -824,13 +873,21 @@ public class AudioManager : MonoBehaviour
                         rockBreakAS = childAudioSource;
                     if (childAudioSource.name == "FootstepsSFX")
                         footstepsAS = childAudioSource;
+                    if (childAudioSource.name == "PushCrateSFX")
+                        pushCrateAS = childAudioSource;
+                    if (childAudioSource.name == "CantPushCrateSFX")
+                        cantPushCrateAS = childAudioSource;
+                    if (childAudioSource.name == "CrateSlideSFX")
+                        crateSlideAS = childAudioSource;
+                    if (childAudioSource.name == "CrateThumpSFX")
+                        crateThumpAS = childAudioSource;
                 }
             }
         }
 
         originalVolumeBGM = backgroundMusic.volume;
         originalVolumeDM = dialogueMusic.volume;
-        originalVolumeLASFX = loopingAmbientSFX.volume;
+        originalVolumeLASFX = loopingAmbienceAS.volume;
         fadeAudioLength = gameManagerScript.fadeAudioLength;
         SetMusic();
     }
