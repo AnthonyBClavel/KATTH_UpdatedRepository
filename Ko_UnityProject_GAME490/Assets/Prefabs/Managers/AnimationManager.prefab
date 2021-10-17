@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &217230102313995887
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 217230102313995884}
+  - component: {fileID: 217230102313995885}
+  - component: {fileID: 217230102313995882}
+  - component: {fileID: 217230102313995881}
+  - component: {fileID: 217230102313995880}
+  - component: {fileID: 3830829810108874947}
+  - component: {fileID: 217230102313995883}
+  m_Layer: 0
+  m_Name: AnimationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &217230102313995884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &217230102313995885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d80dd38e6a3564b9cd3c7b02876ef5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animLength: 1
+  animDistance: 15
+--- !u!114 &217230102313995882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5bbb576e5bc9bf4b9cc6014c69158d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animLength: 0.25
+  animDistance: 130
+--- !u!114 &217230102313995881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc408125f57bdfc4191237ac57fe7b55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animLength: 0.3
+  notificationLength: 3
+  animDistanceNB: 30
+  animDistanceKB: 125
+--- !u!114 &217230102313995880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14958767877647f49829e83cd416e9e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameFadeIn: 2
+  gameFadeOut: 2
+  introFadeIn: 2
+  introFadeOut: 2
+  fadeOutAndIn: 2
+--- !u!114 &3830829810108874947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f218efa1d5402614a9a89c9dcb3fc6a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skipSceneButton: {fileID: 0}
+--- !u!114 &217230102313995883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eef9fe4675277dc4e87e6db61fc0fa06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationMultiplier: 7.5
+  rockShakePower: 0.25
+  rockShakeDuration: 0.2
+  treeShakePower: 0.25
+  treeShakeDuration: 0.25
+  crystalShakePower: 0.25
+  crystalShakeDuration: 0.25
+  barrelShakePower: 0.25
+  barrelShakeDuration: 0.25

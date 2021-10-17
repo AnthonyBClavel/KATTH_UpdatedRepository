@@ -6,7 +6,7 @@ using System;
 [Serializable]
 public class KimsTorchMeterStat //Dont worry about this script, use the TileMovement Script and its component (in the Unity inspector) to manipulate the torch meter                
 {
-    public TorchMeterScript bar;
+    public TorchMeter bar;
 
     [SerializeField]
     private float maxValue;

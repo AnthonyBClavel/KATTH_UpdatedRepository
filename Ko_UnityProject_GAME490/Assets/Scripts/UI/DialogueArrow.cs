@@ -9,25 +9,10 @@ public class DialogueArrow : MonoBehaviour
     [Range(1f, 90f)]
     public float animDistance = 15f;
 
-    private bool canPlayAnim = true;
-    private bool hasStoppedCoroutine = true;
-
-    private GameObject dialogueArrowHolder;
     private GameObject dialogueArrow;
-
     private Vector3 originalPosition;
     private Vector3 destination;
-
-    private CharacterDialogue characterDialogueScript;
-    private GameManager gameManagerScript;
-
-    void Awake()
-    {
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-
-        SetElements();
-    }
+    private IEnumerator dialogueArrowCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -36,28 +21,23 @@ public class DialogueArrow : MonoBehaviour
         destination = new Vector3(originalPosition.x - animDistance, originalPosition.y, originalPosition.z);
     }
 
-    // Update is called once per frame
-    void LateUpdate()
+    // Stops playing the dialogue arrow animation, and sets resets its position
+    public void StopDialogueArrowAnim()
     {
-        UpdateDestinationCheck();
-        PlayDialogueArrowAnim();
+        if (dialogueArrowCoroutine != null)
+            StopCoroutine(dialogueArrowCoroutine);
+
+        dialogueArrow.transform.localPosition = originalPosition;
     }
 
-    // Plays the animation for the dilaogue arrow
-    private void PlayDialogueArrowAnim()
+    // Starts the dialogue arrow corouitne (plays the dialogue arrow animation)
+    public void PlayDialogueArrowAnim()
     {
-        if (dialogueArrowHolder.activeSelf & canPlayAnim)
-        {
-            StartCoroutine(LerpDialogueArrow(animLength));
-            hasStoppedCoroutine = false;
-            canPlayAnim = false;
-        }
-        if (!dialogueArrowHolder.activeSelf && !hasStoppedCoroutine)
-        {
-            StopCoroutine("LerpDialogueArrow");
-            canPlayAnim = true;
-            hasStoppedCoroutine = true;
-        }    
+        if (dialogueArrowCoroutine != null)
+            StopCoroutine(dialogueArrowCoroutine);
+
+        dialogueArrowCoroutine = LerpDialogueArrow(animLength);
+        StartCoroutine(dialogueArrowCoroutine);
     }
 
     // Lerps the color of the image to another, over a specific duration - for the zone intro ONLY
@@ -82,14 +62,12 @@ public class DialogueArrow : MonoBehaviour
         }
 
         dialogueArrow.transform.localPosition = originalPosition;
-        canPlayAnim = true;
+        PlayDialogueArrowAnim();
     }
 
     // Sets private variables, objects, and components
-    private void SetElements()
+    public void SetDialogueArrow(GameObject dialogueArrowHolder)
     {
-        dialogueArrowHolder = characterDialogueScript.ReturnDialogueArrowHolder();
-
         // Sets the game objects by looking at names of children
         for (int i = 0; i < dialogueArrowHolder.transform.childCount; i++)
         {
@@ -101,52 +79,13 @@ public class DialogueArrow : MonoBehaviour
     }
 
     // Updates the destination if the animDistance is changed - For Debugging Purposes Only
-    private void UpdateDestinationCheck()
+    public void DebuggingCheck(GameManager gameManager)
     {
-        if (gameManagerScript.isDebugging)
+        if (gameManager.isDebugging)
         {
             if (destination != new Vector3(originalPosition.x - animDistance, originalPosition.y, originalPosition.z))
                 destination = new Vector3(originalPosition.x - animDistance, originalPosition.y, originalPosition.z);
         }
     }
 
-    /*** OLD FUNCTIONS START HERE - FOR REFERENCE ***/
-
-    // Lerps the position of the dialogue arrow between two positions (set animSpeed to 2f) - OLD VERSION 02
-    /*private void DialogueArrowLerpCheck()
-    {
-        if (pingPong !=  Mathf.PingPong(animSpeed * Time.time, lerpLength))
-            pingPong = Mathf.PingPong(animSpeed * Time.time, lerpLength);
-
-        if (dialogueArrowHolder.activeSelf)
-            dialogueArrow.transform.localPosition = Vector3.Lerp(originalPosition, destination, pingPong);
-
-        if (!dialogueArrowHolder.activeSelf && dialogueArrow.transform.localPosition != originalPosition)
-            dialogueArrow.transform.localPosition = originalPosition;     
-    }
-
-    // The animation for the dialogue arrow (set animSpeed to 30f) - OLD VERSION 01
-    private void DialogueArrowAnimCheck()
-    {
-        if (dialogueArrowHolder.activeSelf)
-        {
-            if (!hasReachedDestination)
-            {
-                dialogueArrow.transform.localPosition = Vector3.MoveTowards(dialogueArrow.transform.localPosition, destination, animSpeed * Time.deltaTime);
-
-                if (dialogueArrow.transform.localPosition == destination)
-                    hasReachedDestination = true;
-            }
-            if (hasReachedDestination)
-            {
-                dialogueArrow.transform.localPosition = Vector3.MoveTowards(dialogueArrow.transform.localPosition, originalPosition, animSpeed * Time.deltaTime);
-
-                if (dialogueArrow.transform.localPosition == originalPosition)
-                    hasReachedDestination = false;
-            }
-        }
-
-        if (!dialogueArrowHolder.activeSelf && dialogueArrow.transform.localPosition != originalPosition)
-            dialogueArrow.transform.localPosition = originalPosition;
-    }*/
 }

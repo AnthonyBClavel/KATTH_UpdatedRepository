@@ -22,7 +22,7 @@ public class ResetGeneratorBlocks : MonoBehaviour
         Debug.Log("Generator has been reseted");
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<GeneratorScript>().TurnOffGenerator();
+            transform.GetChild(i).gameObject.GetComponentInChildren<Generator>().TurnOffGenerator();
         }
     }
 
@@ -33,7 +33,7 @@ public class ResetGeneratorBlocks : MonoBehaviour
         Debug.Log("Generator has been reseted");
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<GeneratorScript>().TurnOffGenerator();
+            transform.GetChild(i).gameObject.GetComponentInChildren<Generator>().TurnOffGenerator();
         }
     }
 

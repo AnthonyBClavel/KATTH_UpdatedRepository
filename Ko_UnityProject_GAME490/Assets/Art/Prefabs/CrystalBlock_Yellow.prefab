@@ -334,15 +334,13 @@ GameObject:
   m_Component:
   - component: {fileID: 2070077362096172016}
   - component: {fileID: 2070077362096172017}
-  - component: {fileID: 2086342529}
-  - component: {fileID: 2086342528}
   m_Layer: 8
-  m_Name: CrystalGlow_Yellow
+  m_Name: CrystalLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2070077362096172016
 Transform:
   m_ObjectHideFlags: 0
@@ -418,40 +416,6 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!95 &2086342529
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2070077362096172019}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b90ca43bac0022840b9b91ae5407ee68, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2086342528
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2070077362096172019}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f94882adfcfaac4cb448b60f73b8608, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightIntensity: 0
-  canResetIdle: 0
-  canFadeOut: 0
 --- !u!1 &2070077362653838937
 GameObject:
   m_ObjectHideFlags: 0
@@ -623,10 +587,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2070077363205763068}
-  - component: {fileID: 593250076}
   m_Layer: 0
   m_Name: Crystal
-  m_TagString: StaticBlock
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -653,21 +616,6 @@ Transform:
   m_Father: {fileID: 2195155508592052998}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &593250076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2070077363205763070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f21f0407864aba149bd67ed3ed097e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  crystalGlow: {fileID: 2070077362096172019}
-  crystalAnim: {fileID: 2086342529}
-  crystalAnimScript: {fileID: 2086342528}
 --- !u!1 &2070077363563716613
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,9 +707,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2195155508592052998}
   - component: {fileID: 2195155508592052997}
+  - component: {fileID: 8001142754665351677}
   m_Layer: 0
   m_Name: CrystalBlock_Yellow
-  m_TagString: Crystal
+  m_TagString: StaticBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -794,3 +743,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 2, z: 1.0000001}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8001142754665351677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2195155508592052999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f21f0407864aba149bd67ed3ed097e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

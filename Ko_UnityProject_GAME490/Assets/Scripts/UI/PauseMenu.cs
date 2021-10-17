@@ -77,13 +77,14 @@ public class PauseMenu : MonoBehaviour
 
     // Pauses the game
     public void Pause()
-    {   
+    {
         Time.timeScale = 0f;
         isPaused = true;
         hasPlayedSelectedSFX = false;
         pauseMenu.SetActive(true);
         pauseMenuBG.SetActive(true);
         playerScript.SetPlayerBoolsFalse();
+        audioManagerScript.PauseAllAudio();
 
         eventSystem.SetSelectedGameObject(null); // Clear last selected object then...
         eventSystem.SetSelectedGameObject(pauseFirstButton); // Set new selected object
@@ -120,7 +121,7 @@ public class PauseMenu : MonoBehaviour
     // Closes the saftey menu (after pressing "no" button)
     public void CloseSafetyMenu()
     {
-        if (gameHUDScript.isDeathScreen)         
+        if (gameHUDScript.isDeathScreen)
             StartCoroutine("CloseSafetyMenuDelay_DS");
         else
             StartCoroutine("CloseSafetyMenuDelay");
@@ -207,7 +208,7 @@ public class PauseMenu : MonoBehaviour
                 {
                     hasPressedESC = true;
                     Resume();
-                }                
+                }
                 else if (!isPaused && canPause)
                     Pause();
             }
@@ -230,6 +231,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator ResumeDelay()
     {
         DisableMenuInputsPS();
+        audioManagerScript.UnPauseAllAudio();
 
         if (!hasPressedESC)
             audioManagerScript.PlayButtonClickSFX();
@@ -248,7 +250,7 @@ public class PauseMenu : MonoBehaviour
         isChangingMenus = false;
         isPaused = false;
         pauseMenu.SetActive(false);
-        pauseMenuBG.SetActive(false);        
+        pauseMenuBG.SetActive(false);
     }
 
     // For opening the options menu
@@ -259,8 +261,8 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
-        pauseMenuAnim.SetTrigger("PS_PopOut"); 
-        
+        pauseMenuAnim.SetTrigger("PS_PopOut");
+
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "PS_PopOut" animation
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(true);
@@ -342,8 +344,8 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut");  
-        
+        safetyMenuAnim.SetTrigger("SM_PopOut");
+
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
         safetyMenu.SetActive(false);
         if (!isChangingScenes)
@@ -366,7 +368,7 @@ public class PauseMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
         safetyMenuAnim.SetTrigger("SM_PopOut");
-                                                
+
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
         safetyMenu.SetActive(false);
         if (!isChangingScenes)
@@ -389,7 +391,7 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
-        safetyMenuAnim.SetTrigger("SM_PopOut");        
+        safetyMenuAnim.SetTrigger("SM_PopOut");
     }
 
     // Sets the scripts to use
@@ -433,7 +435,7 @@ public class PauseMenu : MonoBehaviour
                             if (child03.name == "ButtonHolder")
                                 pauseMenuButtons = child03;
                         }
-                    }                     
+                    }
                 }
             }
 

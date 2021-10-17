@@ -19,12 +19,12 @@ public class GameHUD : MonoBehaviour
 
     private GameObject torchMeter;
     private GameObject deathScreen;
-    private GameObject skipTutorialButton;
+    private GameObject skipSceneButton;
     private GameObject notificationBubblesHolder;
 
     private PauseMenu pauseMenuScript;
     private TileMovementController playerScript;
-    private TorchMeterScript torchMeterScript;
+    private TorchMeter torchMeterScript;
     private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
     private GameManager gameManagerScript;
@@ -59,7 +59,7 @@ public class GameHUD : MonoBehaviour
         notificationBubblesHolder.SetActive(true);
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            skipTutorialButton.SetActive(true);
+            skipSceneButton.SetActive(true);
     }
 
     // Turns the HUD off
@@ -69,7 +69,7 @@ public class GameHUD : MonoBehaviour
         notificationBubblesHolder.SetActive(false);
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            skipTutorialButton.SetActive(false);
+            skipSceneButton.SetActive(false);
     }
 
     // Updates the text for the puzzle notification
@@ -159,7 +159,7 @@ public class GameHUD : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                playerScript.ReturnCurrentCheckpoint().GetComponent<CheckpointManager>().ResetPlayer();
+                playerScript.CurrentCheckpoint.GetComponent<CheckpointManager>().ResetPlayer();
                 puzzleManagerScript.ResetPuzzle(0f);
                 SetDeathScreenInactive();
             }           
@@ -180,7 +180,7 @@ public class GameHUD : MonoBehaviour
     {
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         gameManagerScript = FindObjectOfType<GameManager>();
@@ -218,7 +218,7 @@ public class GameHUD : MonoBehaviour
         }
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            skipTutorialButton = FindObjectOfType<SkipButton>().gameObject;
+            skipSceneButton = FindObjectOfType<SkipSceneButton>().gameObject;
 
         torchMeter = torchMeterScript.gameObject;
     }

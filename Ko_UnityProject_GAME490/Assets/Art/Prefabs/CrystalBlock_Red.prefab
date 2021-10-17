@@ -57,7 +57,7 @@ GameObject:
   - component: {fileID: 8940536884227694063}
   m_Layer: 0
   m_Name: Crystal
-  m_TagString: StaticBlock
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,9 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f21f0407864aba149bd67ed3ed097e90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  crystalGlow: {fileID: 2833434337724516480}
-  crystalAnim: {fileID: 1171057376499271817}
-  crystalAnimScript: {fileID: 5712317407574454122}
 --- !u!1 &2833434337626940148
 GameObject:
   m_ObjectHideFlags: 0
@@ -271,15 +268,13 @@ GameObject:
   m_Component:
   - component: {fileID: 2833434337724516483}
   - component: {fileID: 2833434337724516482}
-  - component: {fileID: 1171057376499271817}
-  - component: {fileID: 5712317407574454122}
   m_Layer: 8
-  m_Name: CrystalGlow_Red
+  m_Name: CrystalLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2833434337724516483
 Transform:
   m_ObjectHideFlags: 0
@@ -355,40 +350,6 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!95 &1171057376499271817
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2833434337724516480}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b90ca43bac0022840b9b91ae5407ee68, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &5712317407574454122
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2833434337724516480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f94882adfcfaac4cb448b60f73b8608, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightIntensity: 0
-  canResetIdle: 0
-  canFadeOut: 0
 --- !u!1 &2833434337749764185
 GameObject:
   m_ObjectHideFlags: 0

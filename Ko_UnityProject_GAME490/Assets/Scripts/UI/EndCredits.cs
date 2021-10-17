@@ -133,7 +133,7 @@ public class EndCredits : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "FifthMap")
         {
-            if (/*playerScript.bridge.name == "EndBridge"*/ playerScript.ReturnHasFinishedZone() && !hasStartedCredits)
+            if (/*playerScript.bridge.name == "EndBridge"*/ playerScript.HasFinishedZone && !hasStartedCredits)
             {
                 StartCoroutine("StartEndCredits");
                 hasStartedCredits = true;

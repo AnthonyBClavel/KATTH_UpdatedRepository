@@ -90,7 +90,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6483797737481933649}
-  - component: {fileID: 858738316}
   m_Layer: 0
   m_Name: Crystal
   m_TagString: Untagged
@@ -120,21 +119,6 @@ Transform:
   m_Father: {fileID: 8262073917731497755}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &858738316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6483797737481933663}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f21f0407864aba149bd67ed3ed097e90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  crystalGlow: {fileID: 6483797739046056619}
-  crystalAnim: {fileID: 1888427374}
-  crystalAnimScript: {fileID: 1888427373}
 --- !u!1 &6483797737588898733
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,15 +534,13 @@ GameObject:
   m_Component:
   - component: {fileID: 6483797739046056618}
   - component: {fileID: 6483797739046056621}
-  - component: {fileID: 1888427374}
-  - component: {fileID: 1888427373}
   m_Layer: 8
-  m_Name: CrytsalGlow_Cyan
+  m_Name: CrystalLight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6483797739046056618
 Transform:
   m_ObjectHideFlags: 0
@@ -634,40 +616,6 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!95 &1888427374
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6483797739046056619}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b90ca43bac0022840b9b91ae5407ee68, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &1888427373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6483797739046056619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f94882adfcfaac4cb448b60f73b8608, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightIntensity: 0
-  canResetIdle: 0
-  canFadeOut: 0
 --- !u!1 &6483797739309610140
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,9 +707,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8262073917731497755}
   - component: {fileID: 8262073917731497752}
+  - component: {fileID: 2972235555455085139}
   m_Layer: 0
   m_Name: CrystalBlock_Cyan
-  m_TagString: Crystal
+  m_TagString: StaticBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -794,3 +743,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 2, z: 1.0000001}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2972235555455085139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8262073917731497754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f21f0407864aba149bd67ed3ed097e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

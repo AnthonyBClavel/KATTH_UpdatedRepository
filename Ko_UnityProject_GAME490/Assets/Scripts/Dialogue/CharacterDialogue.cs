@@ -36,9 +36,8 @@ public class CharacterDialogue : MonoBehaviour
     private bool canSpeedUpDialogue = false;
 
     //public float sentenceLength;
-    private float typingSpeed; // 3f
-    private float originalTypingSpeed; // 3f
-    private float sentenceSpeed; // 1f
+    private float typingSpeed; // 0.03f
+    private float originalTypingSpeed; // 0.03f
     private float speechBubbleAnimationDelay;
     private float dialogueBubbleScale = 0.8f; // the scale of the parent object affects the child object's positioning
 
@@ -143,7 +142,7 @@ public class CharacterDialogue : MonoBehaviour
     private string[] nPCDialogueSentences;
     private string[] dialogueQuestions;
 
-    private ArtifactScript artifactScript;
+    private Artifact artifactScript;
     private NonPlayerCharacter nPCScript;
     private NPCFidgetController nPCFidgetScript;
     private TileMovementController playerScript;
@@ -154,6 +153,7 @@ public class CharacterDialogue : MonoBehaviour
     private AudioManager audioManagerScript;
     private BlackBars blackBarsScript;
     private GameHUD gameHUDScript;
+    private DialogueArrow dialogueArrowScript;
 
     void Awake()
     {
@@ -193,7 +193,6 @@ public class CharacterDialogue : MonoBehaviour
 
         AnimBubbleDelayCheck();
         ContinueButtonCheck();
-        DebuggingCheck();
 
         //sentenceLength = whitePlayerText.text.Length;
 
@@ -235,6 +234,19 @@ public class CharacterDialogue : MonoBehaviour
         SetAlertBubblePosition();
     }
 
+    // Returns or sets the value of typingSpeed
+    public float TypingSpeed
+    {
+        get
+        {
+            return typingSpeed;
+        }
+        set
+        {
+            typingSpeed = value;
+        }
+    }
+
     // Assigns a new game object to the nPCDialogueCheck
     public void UpdateDialogueCheckForNPC(GameObject newGameObject)
     {
@@ -260,15 +272,9 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     // Assigns a new script to the artifact Script
-    public void UpdateScriptForArtifact(ArtifactScript newScript)
+    public void UpdateScriptForArtifact(Artifact newScript)
     {
         artifactScript = newScript;
-    }
-
-    // Returns the game object for the dialogue holder - used in dialogue arrow script ONLY
-    public GameObject ReturnDialogueArrowHolder()
-    {
-        return dialogueArrowHolder;
     }
 
     // Starts the dialogue with an npc
@@ -448,9 +454,11 @@ public class CharacterDialogue : MonoBehaviour
     // Checks if the player is speaking first or not
     private void StartDialogueCheck()
     {
-        WhoSpeaksFirstCheck();
-        typingSpeed = originalTypingSpeed;
+        gameManagerScript.CheckForCharacterDialogueDebug();
+        originalTypingSpeed = typingSpeed;
+        //typingSpeed = originalTypingSpeed;
         canSpeedUpDialogue = false;
+        WhoSpeaksFirstCheck();
 
         if (isPlayerSpeaking)
             StartCoroutine("TypePlayerDialogue");
@@ -461,7 +469,9 @@ public class CharacterDialogue : MonoBehaviour
     // Determines the next dialogue sentence do be played
     private void NextDialogueSentenceCheck()
     {
-        typingSpeed = originalTypingSpeed;
+        gameManagerScript.CheckForCharacterDialogueDebug();
+        originalTypingSpeed = typingSpeed;
+        //typingSpeed = originalTypingSpeed;
         canSpeedUpDialogue = false;
 
         if (playerDialogueSentences != null)
@@ -1164,6 +1174,8 @@ public class CharacterDialogue : MonoBehaviour
 
         playerIndex = 0;
         nPCIndex = 0;
+
+        dialogueArrowScript.StopDialogueArrowAnim();
     }
 
     // Sets the text for each dialogue option back to its default color
@@ -1269,9 +1281,10 @@ public class CharacterDialogue : MonoBehaviour
     private IEnumerator SetDialogueArrowActiveDelay()
     {
         yield return new WaitForSeconds(0.25f);
-        dialogueArrowHolder.SetActive(true);
-        audioManagerScript.PlayDialogueArrowSFX();
         hasMovedDialogueArrow = false;
+        dialogueArrowHolder.SetActive(true);
+        dialogueArrowScript.PlayDialogueArrowAnim();
+        audioManagerScript.PlayDialogueArrowSFX();
 
         if (dialogueOptionsIndex == 0)
             optionOneText.color = selectedTextColor;
@@ -1370,7 +1383,8 @@ public class CharacterDialogue : MonoBehaviour
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
 
-        //yield return new WaitForSeconds(sentenceSpeed);
+        // For playing the dialogue automatically - OLD VERSION
+        //yield return new WaitForSeconds(1f); 
         //ContinueDialogueCheck();
     }
 
@@ -1408,7 +1422,8 @@ public class CharacterDialogue : MonoBehaviour
         WhoSpeaksNextCheck();
         continueButton.SetActive(true);
 
-        //yield return new WaitForSeconds(sentenceSpeed);
+        // For playing the dialogue automatically - OLD VERSION
+        //yield return new WaitForSeconds(1f);
         //ContinueDialogueCheck();      
     }
 
@@ -1421,11 +1436,12 @@ public class CharacterDialogue : MonoBehaviour
         cameraScript = FindObjectOfType<CameraController>();
         nPCFidgetScript = FindObjectOfType<NPCFidgetController>();
         playerFidgetScript = FindObjectOfType<PlayerFidgetController>();
-        artifactScript = FindObjectOfType<ArtifactScript>();
+        artifactScript = FindObjectOfType<Artifact>();
         gameManagerScript = FindObjectOfType<GameManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         blackBarsScript = FindObjectOfType<BlackBars>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        dialogueArrowScript = FindObjectOfType<DialogueArrow>();
     }
 
     // Sets private variables, objects, and components
@@ -1463,7 +1479,10 @@ public class CharacterDialogue : MonoBehaviour
                                     GameObject child03 = dialogueOptionOne.transform.GetChild(l).gameObject;
 
                                     if (child03.name == "DialogueArrowHolder")
+                                    {
                                         dialogueArrowHolder = child03;
+                                        dialogueArrowScript.SetDialogueArrow(dialogueArrowHolder);
+                                    }
                                 }
                             }
                                
@@ -1556,25 +1575,11 @@ public class CharacterDialogue : MonoBehaviour
         charNoiseSFX = audioManagerScript.charNoiseAS;
         typingSpeed = gameManagerScript.typingSpeed;
         originalTypingSpeed = gameManagerScript.typingSpeed;
-        sentenceSpeed = gameManagerScript.sentenceSpeed;
 
         optionOneText = dialogueOptionOne.GetComponent<TextMeshProUGUI>();
         optionTwoText = dialogueOptionTwo.GetComponent<TextMeshProUGUI>();
         optionThreeText = dialogueOptionThree.GetComponent<TextMeshProUGUI>();
         continueButtonText = continueButton.GetComponent<TextMeshProUGUI>();
-    }
-
-    // Updates the typing speed and sentenceSpeed- For Debugging Purposes ONLY
-    private void DebuggingCheck()
-    {
-        if (gameManagerScript.isDebugging)
-        {
-            if (typingSpeed != gameManagerScript.typingSpeed)
-                typingSpeed = gameManagerScript.typingSpeed;
-
-            if (sentenceSpeed != gameManagerScript.sentenceSpeed)
-                sentenceSpeed = gameManagerScript.sentenceSpeed;
-        }
     }
 
     //*** PRIORITIES ***

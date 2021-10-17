@@ -53,8 +53,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
     [Header("Scripts")]
     public TorchMeterStat torchMeterMoves;
-    private TorchMeterScript torchMeterScript;
-    private SaveManagerScript saveManagerScript;
+    private TorchMeter torchMeterScript;
+    private SaveManager saveManagerScript;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private FootstepsController footstepsControllerScript;
@@ -250,8 +250,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             case ("Crystal"):
                 objectShakeScript.ShakeObject(objectToShake);
                 audioManagerScript.PlayCrystalHitSFX();
-                collider.gameObject.GetComponentInChildren<CrystalsManager>().SetGlowActive();
-                collider.gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
+                //collider.gameObject.GetComponentInChildren<CrystalManager>().SetGlowActive();
+                //collider.gameObject.GetComponentInChildren<CrystalManager>().ResetCrystalIdleAnim();
                 CheckToPlayAnims();
                 break;
 
@@ -305,9 +305,9 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     // Turns on the generator if the player is colliding/interacting with it
     public void turnOnGenerator(Collider collider)
     {
-        GeneratorScript generatorScript = collider.gameObject.GetComponent<GeneratorScript>();
+        Generator generatorScript = collider.gameObject.GetComponent<Generator>();
 
-        if (generatorScript.canInteract == true)
+        if (generatorScript.IsActive == true)
         {
             //Debug.Log("Turned On Generator");
             generatorScript.TurnOnGenerator();
@@ -351,8 +351,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
     // Calls the scripts and functions to begin/trigger the Artifact dialogue
     public void interactWithArtifact(Collider collider)
-    {    
-        ArtifactScript artifactScript = collider.GetComponent<ArtifactScript>();
+    {
+        Artifact artifactScript = collider.GetComponent<Artifact>();
 
         if (!artifactScript.hasCollectedArtifact)
         {
@@ -593,7 +593,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             }
             else if (tag == "Artifact")
             {
-                ArtifactScript artifactScript = hit.collider.GetComponent<ArtifactScript>();
+                Artifact artifactScript = hit.collider.GetComponent<Artifact>();
 
                 if (!artifactScript.hasCollectedArtifact)
                 {
@@ -796,13 +796,13 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         //dialogueCameraViewsScript = FindObjectOfType<DialogueCameraViews>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         //playerFidgetScript = FindObjectOfType<FidgetAnimControllerPlayer>();
         cameraScript = FindObjectOfType<CameraController>();
-        saveManagerScript = FindObjectOfType<SaveManagerScript>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
         introManagerScript = FindObjectOfType<IntroManager>();

@@ -27,12 +27,10 @@ public class BlackBars : MonoBehaviour
     private Vector2 bottomBarDestination;
 
     private GameHUD gameHUDScript;
-    private GameManager gameManagerScript;
 
     void Awake()
     {
         gameHUDScript = FindObjectOfType<GameHUD>();
-        gameManagerScript = FindObjectOfType<GameManager>();
 
         SetElements();
     }
@@ -41,11 +39,6 @@ public class BlackBars : MonoBehaviour
     void Start()
     {
         SetVectorsCheck();
-    }
-
-    void LateUpdate()
-    {
-        DebuggingCheck();
     }
 
     // Moves the black bars onto the screen
@@ -175,13 +168,16 @@ public class BlackBars : MonoBehaviour
     }
 
     // Updates the destination if the blackBarDistance is changed - For Debugging Purposes ONLY
-    private void DebuggingCheck()
+    public void DebuggingCheck(GameManager gameManager)
     {
-        if (gameManagerScript.isDebugging)
+        if (gameManager.isDebugging)
         {
             // Toggles the black bars
             if (Input.GetKeyDown(KeyCode.P) && canMoveBars)
+            {
+                Debug.Log("Debugging: Toggled Black Bars");
                 ToggleBlackBars();
+            }
 
             if (topBarDestination != new Vector2(0, topBarOriginalPosition.y - animDistance))
                 topBarDestination = new Vector2(0, topBarOriginalPosition.y - animDistance);

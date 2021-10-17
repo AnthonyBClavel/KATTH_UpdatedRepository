@@ -34,10 +34,10 @@ public class Tutorial : MonoBehaviour
 
     private TutorialDialogueManager tutorialDialogueManagerScript;
     private TileMovementController playerScript;
-    private TorchMeterScript torchMeterScript;
+    private TorchMeter torchMeterScript;
     private PauseMenu pauseMenuScript;
-    private ArtifactScript artifactScript;
-    private SkipButton skipTurorialButtonScript;
+    private Artifact artifactScript;
+    private SkipSceneButton skipTurorialButtonScript;
     private CharacterDialogue characterDialogueScript;
 
     void Awake()
@@ -45,10 +45,10 @@ public class Tutorial : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
-        artifactScript = FindObjectOfType<ArtifactScript>();
-        skipTurorialButtonScript = FindObjectOfType<SkipButton>();
+        artifactScript = FindObjectOfType<Artifact>();
+        skipTurorialButtonScript = FindObjectOfType<SkipSceneButton>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        torchMeterScript = FindObjectOfType<TorchMeterScript>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
 
         SetElements();
     }
@@ -72,7 +72,7 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (/*!playerScript.isWalking*/ playerScript.ReturnCanMove() && !pauseMenuScript.isChangingScenes)
+        if (/*!playerScript.isWalking*/ playerScript.CanMove && !pauseMenuScript.isChangingScenes)
         {
             Collider collider = playerScript.getCollider();
 
@@ -112,7 +112,7 @@ public class Tutorial : MonoBehaviour
 
             if (playerScript.checkIfOnCheckpoint())
             {
-                string currentPuzzle = playerScript.ReturnCurrentPuzzle().name;
+                string currentPuzzle = playerScript.CurrentPuzzle.name;
 
                 if (currentPuzzle == "Puzzle01" && !hasPlayedStart)
                 {

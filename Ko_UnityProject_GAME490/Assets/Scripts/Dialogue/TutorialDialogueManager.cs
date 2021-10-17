@@ -12,7 +12,7 @@ public class TutorialDialogueManager : MonoBehaviour
     public GameObject dialogueText;
     public GameObject continueButtonDM;
     public GameObject blackOverlay;
-    private GameObject skipTutorialButton;
+    private GameObject skipSceneButton;
     private GameObject continueButtonCD;
 
     private TextMeshProUGUI textDisplay;
@@ -25,8 +25,8 @@ public class TutorialDialogueManager : MonoBehaviour
 
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private SkipButton skipButtonScript;
-    private ArtifactScript artifactScript;
+    private SkipSceneButton skipSceneButtonScript;
+    private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
     private NotificationBubbles notificationBubblesScript;
     private GameHUD gameHUDScript;
@@ -35,13 +35,13 @@ public class TutorialDialogueManager : MonoBehaviour
     {
         playerScript = FindObjectOfType<TileMovementController>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
-        skipButtonScript = FindObjectOfType<SkipButton>();
-        artifactScript = FindObjectOfType<ArtifactScript>();
+        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
+        artifactScript = FindObjectOfType<Artifact>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         gameHUDScript = FindObjectOfType<GameHUD>();
 
-        skipTutorialButton = skipButtonScript.gameObject;
+        skipSceneButton = skipSceneButtonScript.gameObject;
         SetElements();
     }
 
@@ -94,7 +94,7 @@ public class TutorialDialogueManager : MonoBehaviour
         index = 0;
 
         continueButtonDM.SetActive(false);
-        skipTutorialButton.SetActive(false);
+        skipSceneButton.SetActive(false);
         blackOverlay.SetActive(true);
         dialogueText.SetActive(true);
         StartCoroutine("TypeDialogue");
@@ -134,7 +134,7 @@ public class TutorialDialogueManager : MonoBehaviour
     // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
     public void EndTutorialDialogueManager()
     {
-        skipTutorialButton.SetActive(true);
+        skipSceneButton.SetActive(true);
         notificationBubblesScript.EnableNotificationsToggle();
         //playerScript.hasDied = false;
         inDialogue = false;
@@ -149,10 +149,10 @@ public class TutorialDialogueManager : MonoBehaviour
         if (!hasEnteredTutorial)
         {
             notificationBubblesScript.DisableNotificationsToggle();
-            skipTutorialButton.SetActive(false);
+            skipSceneButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
             playerScript.WalkIntoScene();
-            playerScript.CanSetBoolsTrue();
+            playerScript.CanSetBoolsTrue = false;
             hasEnteredTutorial = true;
         }
     }

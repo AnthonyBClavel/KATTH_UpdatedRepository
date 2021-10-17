@@ -51,13 +51,11 @@ public class NotificationBubbles : MonoBehaviour
 
     private PauseMenu pauseMenuScript;
     private GameHUD gameHUDScript;
-    private GameManager gameManagerScript;
 
     void Awake()
     {
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         gameHUDScript = FindObjectOfType<GameHUD>();
-        gameManagerScript = FindObjectOfType<GameManager>();
 
         SetElements();
     }
@@ -76,7 +74,6 @@ public class NotificationBubbles : MonoBehaviour
 
     void LateUpdate()
     {
-        DebuggingCheck();
         UpdateOriginalPositionsCheck();
     }
 
@@ -328,7 +325,6 @@ public class NotificationBubbles : MonoBehaviour
             if (anbRectTransform.anchoredPosition != anbOriginalPosition)
                 anbRectTransform.anchoredPosition = anbOriginalPosition;
         }
-
     }
 
     // Sets private variables, objects, and components
@@ -374,9 +370,9 @@ public class NotificationBubbles : MonoBehaviour
     }
 
     // Updates the destinations if the animation distances are changed - For Debugging Purposes ONLY
-    private void DebuggingCheck()
+    public void DebuggingCheck(GameManager gameManager)
     {
-        if (gameManagerScript.isDebugging)
+        if (gameManager.isDebugging)
         {
             if (pnbDestination != new Vector2(-animDistanceNB, pnbOriginalPosition.y))
                 pnbDestination = new Vector2(-animDistanceNB, pnbOriginalPosition.y);

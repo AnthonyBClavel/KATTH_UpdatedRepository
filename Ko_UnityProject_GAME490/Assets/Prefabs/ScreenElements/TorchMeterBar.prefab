@@ -278,8 +278,8 @@ GameObject:
   - component: {fileID: 9028952016999894976}
   - component: {fileID: 9028952016999894977}
   - component: {fileID: 9028952016999894988}
-  - component: {fileID: 9028952016999894979}
   - component: {fileID: 9028952016999894978}
+  - component: {fileID: 9028952016999894979}
   m_Layer: 5
   m_Name: TorchMeterBar
   m_TagString: Untagged
@@ -366,30 +366,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &9028952016999894979
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9028952016999894983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afc44c50e22bf244c9f2f85b6ffefe64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mask: {fileID: 9028952018142547748}
-  content: {fileID: 9028952017456693282}
-  flameIcon: {fileID: 9028952016622533619}
-  torchIcon: {fileID: 9028952018350374266}
-  valueText: {fileID: 9028952016707619125}
-  fullColor: {r: 1, g: 0.50980395, b: 0.7358491, a: 1}
-  lowColor: {r: 0.99607843, g: 0.40784314, b: 0.68235296, a: 1}
-  fullFlameColor: {r: 1, g: 1, b: 1, a: 1}
-  lowFlameColor: {r: 1, g: 1, b: 1, a: 0}
-  lerpSpeed: 2
-  fireParticle: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!114 &9028952016999894978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,6 +381,18 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
+--- !u!114 &9028952016999894979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9028952016999894983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afc44c50e22bf244c9f2f85b6ffefe64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9028952017456693280
 GameObject:
   m_ObjectHideFlags: 0

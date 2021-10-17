@@ -4,35 +4,35 @@ using UnityEngine;
 
 public class ResetCrystalBlocks : MonoBehaviour
 {
-    private bool canPlaySFX;
+    //private bool canPlaySFX;
 
-    private AudioManager audioManagerScript;
+    //private AudioManager audioManagerScript;
 
     void Awake()
     {
-        audioManagerScript = FindObjectOfType<AudioManager>();
+        //audioManagerScript = FindObjectOfType<AudioManager>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        canPlaySFX = false;
+        //canPlaySFX = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        CheckCrystalIntesities();
+        //CheckCrystalIntesities();
     }
 
     // Resets the idle animation of the crystal light - crystal will not fade out until its idle animation is completed
-    public void ResetCrystalIdle()
+    /*public void ResetCrystalIdle()
     {
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
         }
-    }
+    }*/
 
     // Checks to see if each crystal's light component has an intesity value of 1f
     public void CheckCrystalIntesities()
@@ -41,22 +41,22 @@ public class ResetCrystalBlocks : MonoBehaviour
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            if (!transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().crystalGlow.activeSelf)
-                allLit = false;                    
+            //if (!transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().crystalGlow.activeSelf)
+                //allLit = false;                    
         }
 
         if (allLit)
         {
             for (int i = 0; i < transform.childCount; i++)
             {
-                transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().DisableCrystalFade();
-                transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
+                //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().DisableCrystalFade();
+                //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalIdleAnim();
 
-                if (!canPlaySFX)
+                /*if (!canPlaySFX)
                 {
                     audioManagerScript.PlayChimeSFX();
                     canPlaySFX = true;
-                }
+                }*/
             }
         }
     }
@@ -67,9 +67,9 @@ public class ResetCrystalBlocks : MonoBehaviour
         Debug.Log("Num of Crystal blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
-            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
-            canPlaySFX = false;
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
+            //canPlaySFX = false;
             //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().EnableCrystalFade();
         }
     }
@@ -81,9 +81,9 @@ public class ResetCrystalBlocks : MonoBehaviour
         Debug.Log("Num of Crystal blocks: " + transform.childCount);
         for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
-            transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
-            canPlaySFX = false;
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().SetGlowInactive();
+            //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().ResetCrystalBool();
+            //canPlaySFX = false;
             //transform.GetChild(i).gameObject.GetComponentInChildren<CrystalsManager>().EnableCrystalFade();
         }
     }

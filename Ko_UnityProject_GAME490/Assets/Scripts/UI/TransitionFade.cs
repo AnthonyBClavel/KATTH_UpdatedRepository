@@ -15,7 +15,7 @@ public class TransitionFade : MonoBehaviour
     [Range(0.1f, 5.0f)]
     public float introFadeOut = 2f;
     [Range(0.1f, 10.0f)]
-    public float fadeInAndOut = 2f;
+    public float fadeOutAndIn = 2f;
 
     private Image transitionFade;
     private Image zoneIntroBlackOverlay;
@@ -50,21 +50,6 @@ public class TransitionFade : MonoBehaviour
 
         if (playerScript.checkIfOnCheckpoint())
             GameFadeIn();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Comma) && transitionFade.color == fullAlpha)
-        {
-            Debug.Log("Fade Out Triggered");
-            StartCoroutine(LerpGameFade(zeroAlpha, gameFadeOut));
-        }
-        if (Input.GetKeyDown(KeyCode.Period) && transitionFade.color == zeroAlpha)
-        {
-            Debug.Log("Fade In Triggered");
-            StartCoroutine(LerpGameFade(fullAlpha, gameFadeIn));
-        }
     }
 
     // Fades into the game
@@ -115,12 +100,11 @@ public class TransitionFade : MonoBehaviour
     public void PlayTransitionFade()
     {
         transitionFade.color = zeroAlpha;
-        //StartCoroutine(LerpTransitionFade(fadeInAndOut));
 
         if (transitionFadeCoroutine != null)
             StopCoroutine(transitionFadeCoroutine);
 
-        transitionFadeCoroutine = LerpTransitionFade(fadeInAndOut);
+        transitionFadeCoroutine = LerpTransitionFade(fadeOutAndIn);
         StartCoroutine(transitionFadeCoroutine);
     }
 
@@ -211,6 +195,24 @@ public class TransitionFade : MonoBehaviour
                 zoneIntroBlackOverlay = child.GetComponent<Image>();
         }
     }
+
+    // Fades the game in or out - For Debugging Purposes Only!
+    public void DebuggingCheck(GameManager gameManager)
+    {
+        if (gameManager.isDebugging)
+        {
+            if (Input.GetKeyDown(KeyCode.Semicolon) && transitionFade.color == zeroAlpha) // ;
+            {
+                Debug.Log("Debugging: Game Is Fading Out");
+                StartCoroutine(LerpGameFade(fullAlpha, gameFadeOut));
+            }
+            if (Input.GetKeyDown(KeyCode.Quote) && transitionFade.color == fullAlpha) // '
+            {
+                Debug.Log("Debugging: Game Is Fading In");
+                StartCoroutine(LerpGameFade(zeroAlpha, gameFadeIn));
+            }
+        }
+    }  
 
     // Enables all UI inputs
     private void EnableMenuInputs()
