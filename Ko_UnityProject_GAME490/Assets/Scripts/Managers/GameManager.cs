@@ -21,13 +21,14 @@ public class GameManager : MonoBehaviour
     public float crateLerpLength = 0.1f;
     [Range(0.5f, 10f)]
     public float resetPuzzleDelay = 1.5f;
-    [Range(0.5f, 10f)]
-    public float fadeAudioLength = 2f;
+    [Range(0.01f, 1f)]
+    public float loadingIconSpeed = 0.08f;
 
     public float rotateWithKeysSpeed = 200f;
     public float rotateWithMouseSpeed = 500f;
 
     private string levelToLoad;
+    private int loadingIconIndex;
 
     [Header("Bools")]
     public bool canDeathScreen = false;
@@ -45,19 +46,21 @@ public class GameManager : MonoBehaviour
     [Header("Arrays")]
     public Transform[] puzzleViews;
     public Transform[] checkpoints;
-    public Sprite[] loadingScreenSprites;
+    public Sprite[] loadingScreenImages;
+    public Sprite[] loadingIconSprites;
 
     [Header("Loading Screen Elements")]
     private GameObject blackLoadingScreen;
     private GameObject loadingScreen;
     private GameObject loadingScreenIcon;
+    private GameObject loadingScreenTips;
     private TextMeshProUGUI loadingScreenText;
     private Slider loadingScreenBar;
     private Image loadingScreenImage;
 
+    private IEnumerator loadingIconCoroutine;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private TipsManager tipsManagerScript;
     private TransitionFade transitionFadeScript;
     private BlackBars blackBarsScript;
     private SaveManager saveManagerScript;
@@ -69,6 +72,7 @@ public class GameManager : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private DialogueArrow dialogueArrowScript;
     private NotificationBubbles notificationBubblesScript;
+    private EndCredits endCreditsScript;
 
     [Header("Debugging Elements")]
     public bool isDebugging;
@@ -85,12 +89,6 @@ public class GameManager : MonoBehaviour
     {
         canDeathScreen = false;
     }
-
-    // Update is called once per frame
-    /*void Update()
-    {
-
-    }*/
 
     void LateUpdate()
     {
@@ -189,21 +187,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Updates the intoCameraSpeed and typingSpeed in introManagerScript - For Debugging Purposes Only!
-    public void CheckForAudioManagerDebug()
-    {
-        if (isDebugging)
-        {
-            if (audioManagerScript.FadeAudioLength != fadeAudioLength)
-                audioManagerScript.FadeAudioLength = fadeAudioLength;
-        }
-        else
-        {
-            if (audioManagerScript.FadeAudioLength != 2f)
-                audioManagerScript.FadeAudioLength = 2f;
-        }
-    }
-
     // Updates the typingSpeed in characterDialogueScript - For Debugging Purposes Only!
     public void CheckForCharacterDialogueDebug()
     {
@@ -223,17 +206,31 @@ public class GameManager : MonoBehaviour
     // Checks which scene to load next
     public void LoadNextSceneCheck()
     {
-        if (!playerScript.HasFinishedZone)
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (/*currentScene != "MainMeu" || currentScene != "FifthMap"*/ !endCreditsScript.enabled)
         {
-            levelToLoad = "MainMenu";
-            blackLoadingScreen.SetActive(true);
-            SceneManager.LoadSceneAsync(levelToLoad);
+            // Return to main menu if the player hasn't finished the zone
+            if (!playerScript.HasFinishedZone)
+            {
+                LoadMainMenu();
+            }
+            // Load the next zone if the player has finished the zone
+            else
+            {
+                LevelToLoadCheck();
+                StartCoroutine(LoadNextLevelAsync());
+            }
         }
-        else
-        {
-            LevelToLoadCheck();
-            StartCoroutine(LoadNextLevelAsync());
-        }
+    }
+
+    // Loads the main menu
+    public void LoadMainMenu()
+    {
+        levelToLoad = "MainMenu";
+        blackLoadingScreen.SetActive(true);
+        PlayLoadingIconAnim(blackLoadingScreen);
+        SceneManager.LoadSceneAsync(levelToLoad);
     }
 
     // Disables player bools, plays chimeSFX, and triggers the fade to next level
@@ -241,8 +238,8 @@ public class GameManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
-        if (currentScene != "FifthMap")
-            transitionFadeScript.GameFadeOut();
+        //if (currentScene != "FifthMap")
+        transitionFadeScript.GameFadeOut();
 
         // Creates new save file - ONLY delete artifact saves here
         if (currentScene == "FifthMap" || currentScene == "TutorialMap")
@@ -250,41 +247,6 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.DeleteKey("listOfArtifacts");
             PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
             CreateNewSaveFile();
-        }
-    }
-
-    // Loads the next level asynchronously as the loading screen is active 
-    private IEnumerator LoadNextLevelAsync()
-    {
-        loadingScreen.SetActive(true);
-        SetRandomLoadingScreenImage();
-
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelToLoad);
-        asyncLoad.allowSceneActivation = false;
-
-        while (!asyncLoad.isDone)
-        {
-            loadingScreenBar.value = asyncLoad.progress;
-
-            if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
-            {
-                loadingScreenText.text = "Press SPACE to Continue";
-                loadingScreenIcon.SetActive(false);
-
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    CreateNewSaveFile();
-
-                    loadingScreenImage.color = Color.black;
-                    tipsManagerScript.gameObject.SetActive(false);
-                    loadingScreenText.gameObject.SetActive(false);
-                    loadingScreenBar.gameObject.SetActive(false);
-                    loadingScreenIcon.gameObject.SetActive(false);
-
-                    asyncLoad.allowSceneActivation = true;
-                }
-            }
-            yield return null;
         }
     }
 
@@ -321,8 +283,78 @@ public class GameManager : MonoBehaviour
     // Sets the image/sprite for the loading screen by randomly selecting one from an array
     private void SetRandomLoadingScreenImage()
     {
-        if (loadingScreenSprites != null)
-            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
+        if (loadingScreenImages != null)
+            SetRandomSprite(loadingScreenImages[UnityEngine.Random.Range(0, loadingScreenImages.Length)]);
+    }
+
+    // Starts the corouitne to play the loading icon animation
+    private void PlayLoadingIconAnim(GameObject loadingScreenObject)
+    {
+        if (loadingIconCoroutine != null)
+            StopCoroutine(loadingIconCoroutine);
+
+        loadingIconCoroutine = LoadingIconAnimation(loadingScreenObject);
+        StartCoroutine(loadingIconCoroutine);
+    }
+
+    // Sets the next/new sprite for the loading icon at the end of each time interval
+    private IEnumerator LoadingIconAnimation(GameObject loadingScreen)
+    {
+        for (int i = 0; i < loadingScreen.transform.childCount; i++)
+        {
+            GameObject child = loadingScreen.transform.GetChild(i).gameObject;
+            if (child.name == "LoadingIcon")
+            {
+                Image loadingIconImage = child.GetComponent<Image>();
+                loadingIconIndex = 0;
+                loadingIconImage.sprite = loadingIconSprites[loadingIconIndex];
+
+                while (loadingIconImage.isActiveAndEnabled)
+                {
+                    yield return new WaitForSeconds(loadingIconSpeed);
+                    loadingIconIndex++;
+                    if (loadingIconIndex > loadingIconSprites.Length - 1 || loadingIconIndex < 0)
+                        loadingIconIndex = 0;
+                    loadingIconImage.sprite = loadingIconSprites[loadingIconIndex];
+                }
+            }              
+        }
+    }
+
+    // Loads the next level asynchronously as the loading screen is active 
+    private IEnumerator LoadNextLevelAsync()
+    {
+        loadingScreen.SetActive(true);
+        SetRandomLoadingScreenImage();
+        PlayLoadingIconAnim(loadingScreen);
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelToLoad);
+        asyncLoad.allowSceneActivation = false;
+
+        while (!asyncLoad.isDone)
+        {
+            loadingScreenBar.value = asyncLoad.progress;
+
+            if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
+            {
+                loadingScreenText.text = "Press SPACE to Continue";
+                loadingScreenIcon.SetActive(false);
+
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                {
+                    CreateNewSaveFile();
+
+                    loadingScreenImage.color = Color.black;
+                    loadingScreenText.gameObject.SetActive(false);
+                    loadingScreenBar.gameObject.SetActive(false);
+                    loadingScreenIcon.SetActive(false);
+                    loadingScreenTips.SetActive(false);
+
+                    asyncLoad.allowSceneActivation = true;
+                }
+            }
+            yield return null;
+        }
     }
 
     // Sets the scripts to use
@@ -341,6 +373,7 @@ public class GameManager : MonoBehaviour
         blackBarsScript = FindObjectOfType<BlackBars>();
         dialogueArrowScript = FindObjectOfType<DialogueArrow>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        endCreditsScript = FindObjectOfType<EndCredits>();
     }
 
     // Sets private variables, objects, and components
@@ -369,7 +402,7 @@ public class GameManager : MonoBehaviour
                     if (child02.name == "LoadingBar")
                         loadingScreenBar = child02.GetComponent<Slider>();
                     if (child02.name == "Tips")
-                        tipsManagerScript = child02.GetComponent<TipsManager>();
+                        loadingScreenTips = child02;
                 }
             }
         }

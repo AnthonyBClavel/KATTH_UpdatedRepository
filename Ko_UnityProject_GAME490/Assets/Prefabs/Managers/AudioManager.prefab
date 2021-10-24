@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 33906430}
   - component: {fileID: 33906431}
   m_Layer: 0
-  m_Name: ButtonClickSFX
+  m_Name: ButtonClick01SFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -283,7 +283,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9024419597169885824}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &401372780
 AudioSource:
@@ -1807,7 +1807,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9024419597169885824}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1333961090
 AudioSource:
@@ -2315,7 +2315,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9024419597169885824}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1817222494
 AudioSource:
@@ -2424,7 +2424,7 @@ GameObject:
   - component: {fileID: 2016211994}
   - component: {fileID: 2016211995}
   m_Layer: 0
-  m_Name: DialogueArrowSFX
+  m_Name: ButtonClick02SFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2442,7 +2442,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9024419597169885824}
-  m_RootOrder: 12
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &2016211995
 AudioSource:
@@ -2569,7 +2569,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9024419597169885824}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &2076284668
 AudioSource:
@@ -3103,11 +3103,11 @@ MonoBehaviour:
   chimeSFX: {fileID: 8300000, guid: 1f2b5a0cd29d43b4493b0fa8e267d466, type: 3}
   chime02SFX: {fileID: 8300000, guid: 65259087dc8c3e34ba39c388d63da22d, type: 3}
   popUpSFX: {fileID: 8300000, guid: 819c87a4d4bd44742a6e695eded9d413, type: 3}
-  buttonClickSFX: {fileID: 8300000, guid: 91efa2e20b0b97e419dd0301ca62de5b, type: 3}
+  buttonClick01SFX: {fileID: 8300000, guid: 91efa2e20b0b97e419dd0301ca62de5b, type: 3}
+  buttonClick02SFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   buttonSelectSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   deathScreenSFX: {fileID: 8300000, guid: ac58a90d2c90b6842a649d8263992388, type: 3}
   dialoguePopUpSFX: {fileID: 8300000, guid: bf9d07c7017da5543a143b58834f6468, type: 3}
-  dialogueArrowSFX: {fileID: 8300000, guid: ba5bdf92638df2a4996115073fc8bf0c, type: 3}
   openingChestSFX: {fileID: 8300000, guid: 7557e2bbd75d8994eaf9d37503d3d418, type: 3}
   closingChestSFX: {fileID: 8300000, guid: 046728af13d58254caf30b1fd5b8c83c, type: 3}
   pushCrateSFX: {fileID: 8300000, guid: c5acd7b77ab1d6e4382ee914d75eef0e, type: 3}
@@ -3246,11 +3246,11 @@ Transform:
   - {fileID: 449156440}
   - {fileID: 499977166}
   - {fileID: 33906430}
+  - {fileID: 2016211994}
   - {fileID: 401372779}
   - {fileID: 1817222493}
   - {fileID: 1333961089}
   - {fileID: 2076284667}
-  - {fileID: 2016211994}
   - {fileID: 473515410}
   - {fileID: 1310429892}
   - {fileID: 6222274530264356336}

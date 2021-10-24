@@ -27,7 +27,7 @@ public class EndCreditsAnimEvent : MonoBehaviour
     }
 
     // Checks to see which function to play based on the scene - for animation event
-    public void FunctionAfterEndCredits()
+    /*public void FunctionAfterEndCredits()
     {
         if (endCreditsScript.hasEndedCredits)
         {
@@ -36,7 +36,7 @@ public class EndCreditsAnimEvent : MonoBehaviour
             else
                 endCreditsScript.ResetEndCredits();
         }         
-    }
+    }*/
 
     // Sets the main menu active - for animation event
     public void SetMainMenuActive()

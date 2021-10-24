@@ -204,7 +204,9 @@ public class CameraController : MonoBehaviour
     {
         gameManagerScript.CheckForCameraScriptDebug();
 
-        while (transform.position != endPosition)
+        // When the camera is approximately equal to the next position
+        // Note: The transform.position in lerp will always get closer to endPosition, but never equal it, so the coroutine would endlessly play
+        while (Mathf.Abs(transform.position.x - endPosition.x) > 0.0001f && Mathf.Abs(transform.position.z - endPosition.z) > 0.0001f)
         {
             transform.position = Vector3.Lerp(transform.position, endPosition, cameraSpeed * Time.deltaTime);
             yield return null;
@@ -281,5 +283,22 @@ public class CameraController : MonoBehaviour
             }
         }
     }
+
+    // Lerps the position of the camera to a new position (endPosition = position to lerp to, duration = seconds) - FOR REFERENCE
+    /*private IEnumerator LerpCamera(Vector3 endPosition, float duration)
+    {
+        gameManagerScript.CheckForCameraScriptDebug();
+        float time = 0;
+        Vector3 startPosition = transform.position;
+
+        while (time < duration)
+        {
+            transform.position = Vector3.Lerp(startPosition, endPosition, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = endPosition;
+    }*/
 
 }

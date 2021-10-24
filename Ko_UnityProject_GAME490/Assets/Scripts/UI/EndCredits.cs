@@ -7,97 +7,72 @@ using TMPro;
 
 public class EndCredits : MonoBehaviour
 {
-    [Header("Bools")]
-    public bool hasEndedCredits;
-    public bool hasStartedCredits;
-    private bool canMoveGameLogo;
-    private bool canMoveCredits;
-    private bool hasPlayedEndMessage;
-    private bool canSpeedUpCredits;
-    private bool canSkipCredits;
+    private bool hasMovedGameLogo = false;
+    private bool hasSkippedCredits = false;
+    private bool hasStartedCredits = false;
 
-    [Header("Floats")]
-    public float typingDelay = 0.03f;
-    public float scrollSpeed;
-    private float creditsBGM = 0.4f;
-    private float charNoiseAudio = 1f;
-    private float logoAlpha = 0f;
-    private string endCreditsMessage;
-    private string currentText = string.Empty;
+    [Range(10f, 90f)]
+    public float endCreditsLength = 40f;
+    [Range(0f, 5f)]
+    public float fadeLogoLength = 2f;
+    [Range(1f, 5f)]
+    public float scrollSpeedMutiplier = 3f;
+    private float typingSpeed; // 0.03f
+    private float originalVolumeLFSFX; // LFSFX = looping fire sfx;
 
     [Header("UI Elements")]
-    public TextMeshProUGUI messageText;
-    private Image gameLogoImage;
+    private Image blackOverlay;
+    private Image gameLogo;
+    private GameObject teamLogo;
+    private GameObject endCredits;
+    private GameObject gameLogoRef;
+    private GameObject teamLogoRef;
+    private TextMeshProUGUI endMessage;
 
-    [Header("GameObjects")]
-    public GameObject firstFade;
-    public GameObject secondFade;
-    public GameObject endCredits;
-    public GameObject gameLogo;
-
-    [Header("Destinations")]
-    public Transform endCreditsDestination;
-    public Transform gameLogoDestination;
-    private Vector3 gameLogoFirstPosition;
-    private Vector3 endCreditsFirstPosition;
-
-    [Header("Audio")]
-    public GameObject endCreditsMusic;
     private AudioSource charNoiseSFX;
     private AudioSource loopingFireSFX;
 
-    private TileMovementController playerScript;
+    private Vector2 gameLogoOrigPos;
+    private Vector2 teamLogoOrigPos;
+
+    private Color zeroAlphaGL = new Color (1, 1, 1, 0); // GL = game logo
+    private Color fullAlphaGL = new Color(1, 1, 1, 1); // GL = game logo
+    private Color zeroAlphaBO = new Color(0, 0, 0, 0); // BO = black overlay
+    private Color fullAlphaBO = new Color(0, 0, 0, 1); // BO = black overlay
+
+    private IEnumerator fadeOutAudioCoroutine;
+    private IEnumerator gameLogoCoroutine;
+    private IEnumerator endCreditsCoroutine;
+    private IEnumerator endMessageCorouitne;
+    private IEnumerator blackOverlayCoroutine;
+
     private AudioManager audioManagerScript;
     private MainMenuMusicScript mainMenuMusicScript;
+    private PauseMenu pauseMenuScript;
+    private GameManager gameManagerScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
-        SetScriptsCheck();
+        SetScripts();
         SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        gameLogoFirstPosition = gameLogo.transform.localPosition;
-        endCreditsFirstPosition = endCredits.transform.localPosition;
-        gameLogoImage = gameLogo.GetComponent<Image>();
-        endCreditsMusic.GetComponent<AudioSource>().volume = creditsBGM;
-        hasEndedCredits = false;
-        hasStartedCredits = false;
-        canMoveCredits = false;
-        canMoveGameLogo = false;
-        hasPlayedEndMessage = false;
-        canSpeedUpCredits = false;
-        canSkipCredits = false;
+        gameLogoOrigPos = gameLogo.GetComponent<RectTransform>().anchoredPosition;
+        teamLogoOrigPos = teamLogo.GetComponent<RectTransform>().anchoredPosition;
     }
 
     void Update()
-    {        
-        StartEndCreditsCheck();
-        StopMovingCreditsCheck();
-        SpeedUpCreditsCheck();
-        CanSkipCreditsCheck();
-        //canMoveCreditsCheck();
-    }
-
-    void LateUpdate()
     {
-        canMoveCreditsCheck();
-    }
-
-    // Calls the function that starts the credits - for the credits button in the main menu
-    public void StartEndCreditsManually()
-    {
-        if (!hasStartedCredits)
-        {
-            StartCoroutine("StartEndCredits");
-            hasStartedCredits = true;
-        }
+        if (Input.GetKeyDown(KeyCode.I))
+            StartEndCredits();
     }
 
     // Resets the end credits elements to defaults - called at the end of the secondFade's animation via animation event
-    public void ResetEndCredits()
+    /*public void ResetEndCredits()
     {
         StopCoroutine("StartEndCredits");
         StopCoroutine("PlayCreditsMessage");
@@ -105,72 +80,19 @@ public class EndCredits : MonoBehaviour
         SetCreditsBoolsFalse();
         firstFade.SetActive(false);
         gameLogo.SetActive(false);
-        endCredits.SetActive(false);
+        endCreditsText.SetActive(false);
         endCreditsMusic.SetActive(false);
         //charNoise.volume = 1f;
         logoAlpha = 0f;
         messageText.text = string.Empty;
         gameLogo.transform.localPosition = gameLogoFirstPosition;
-        endCredits.transform.localPosition = endCreditsFirstPosition;
+        endCreditsText.transform.localPosition = endCreditsFirstPosition;
         mainMenuMusicScript.FadeInMusicVolume();
         secondFade.GetComponent<Animator>().SetTrigger("FadeIn");
-    }
-
-    // Checks to see which scripts can be found
-    private void SetScriptsCheck()
-    {
-        if (SceneManager.GetActiveScene().name == "FifthMap")
-        {
-            playerScript = FindObjectOfType<TileMovementController>();
-            audioManagerScript = FindObjectOfType<AudioManager>();
-        }
-        else
-            mainMenuMusicScript = FindObjectOfType<MainMenuMusicScript>();
-    }
-
-    // Checks to see if the credits can be played
-    private void StartEndCreditsCheck()
-    {
-        if (SceneManager.GetActiveScene().name == "FifthMap")
-        {
-            if (/*playerScript.bridge.name == "EndBridge"*/ playerScript.HasFinishedZone && !hasStartedCredits)
-            {
-                StartCoroutine("StartEndCredits");
-                hasStartedCredits = true;
-            }
-        }
-        /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.P) && !hasStartedCredits)
-        {
-            StartCoroutine("StartEndCredits");
-            hasStartedCredits = true;
-        }
-        /*** End Debugging ***/
-    }
-
-    // Checks if the logo and the credits can start moving
-    private void canMoveCreditsCheck()
-    {
-        if (canMoveGameLogo)
-            gameLogo.transform.localPosition = Vector3.MoveTowards(gameLogo.transform.localPosition, gameLogoDestination.localPosition, scrollSpeed * Time.deltaTime);
-        if (canMoveCredits)
-            endCredits.transform.localPosition = Vector3.MoveTowards(endCredits.transform.localPosition, endCreditsDestination.localPosition, scrollSpeed * Time.deltaTime);
-    }
-
-    // Checks when the logo and credits should stop moving - when the team logo is centered on the screen
-    private void StopMovingCreditsCheck()
-    {
-        if (endCredits.transform.localPosition == endCreditsDestination.localPosition && !hasPlayedEndMessage)
-        {
-            StartCoroutine("PlayCreditsMessage");
-            canMoveCredits = false;
-            canMoveGameLogo = false;
-            hasPlayedEndMessage = true;
-        }
-    }
+    }*/
 
     // Starts the end credits sequence
-    private IEnumerator StartEndCredits()
+    /*private IEnumerator StartEndCredits()
     {
         firstFade.SetActive(true);
         CheckToFadeMainMenuAudio();
@@ -185,7 +107,7 @@ public class EndCredits : MonoBehaviour
         SetCreditsMusicActive();
 
         yield return new WaitForSeconds(2f);
-        endCredits.SetActive(true);
+        endCreditsText.SetActive(true);
         canMoveCredits = true;
         canSkipCredits = true;
         canSpeedUpCredits = true;
@@ -193,156 +115,341 @@ public class EndCredits : MonoBehaviour
         //yield return new WaitForSeconds(3f);
         //canMoveGameLogo = true;
         //canSpeedUpCredits = true;
-    }
-
-    // Types a message that plays at the end of the credits - when it stops moving
-    private IEnumerator PlayCreditsMessage()
-    {
-        canSpeedUpCredits = false;
-
-        yield return new WaitForSeconds(1f);
-        endCreditsMessage = "Thanks for playing";
-
-        for (int i = 0; i <= endCreditsMessage.Length; i++)
-        {
-            currentText = endCreditsMessage.Substring(0, i);
-            messageText.text = currentText;
-
-            foreach (char letter in messageText.text)
-            {
-                charNoiseSFX.Play();
-            }
-            yield return new WaitForSeconds(typingDelay);
-        }
-
-        yield return new WaitForSeconds(4f);
-        canSkipCredits = false;
-        hasEndedCredits = true;
-        hasStartedCredits = false;
-        secondFade.SetActive(true); // Next scene is loaded or canvas is re-activated at the end of the fade animation via animation event 
-        
-        yield return new WaitForSeconds(1f);
-        StartCoroutine("FadeOutMusicEC");
-    }
-
-    // Stops playing the credits - used only while in the main menu
-    private IEnumerator StopPlayingCredits()
-    {
-        hasEndedCredits = true;
-        hasStartedCredits = false;
-        secondFade.SetActive(true);
-        charNoiseAudio = 1f;
-        StartCoroutine("FadeOutCharNoise");
-
-        yield return new WaitForSeconds(1f);      
-        StartCoroutine("FadeOutMusicEC");     
-    }
-
-    // Increases the alpha of the game logo over time until it reaches its max value
-    private IEnumerator IncreaseGameLogoAlpha()
-    {
-        for (float i = 0f; i <= 1; i += 0.015f)
-        {
-            i = logoAlpha;
-            logoAlpha += 0.015f;
-            gameLogoImage.color = new Color(1, 1, 1, logoAlpha);
-            yield return new WaitForSeconds(0.02f);
-        }
-    }
-
-    // Decreases the creditsBGM volume until it reaches its min value
-    private IEnumerator FadeOutMusicEC()
-    {
-        for (float i = 0.4f; i >= 0f; i -= 0.01f)
-        {
-            i = creditsBGM;
-            creditsBGM -= 0.01f;
-            endCreditsMusic.GetComponent<AudioSource>().volume = creditsBGM;
-            yield return new WaitForSeconds(0.025f);
-        }
-    }
-
-    // Decreases the charNoise volume until it reaches its min value - ONLY used if you skip the credits
-    private IEnumerator FadeOutCharNoise()
-    {
-        for (float j = 1f; j >= 0; j -= 0.02f)
-        {
-            j = charNoiseAudio;
-            charNoiseAudio -= 0.02f;
-            charNoiseSFX.volume = charNoiseAudio;
-            yield return new WaitForSeconds(0.025f);
-        }
-    }
-
-    // Sets the volume and volume float to the correct values before starting coroutine
-    private void SetCreditsMusicActive()
-    {
-        endCreditsMusic.GetComponent<AudioSource>().volume = 0.4f;
-        creditsBGM = 0.4f;
-        endCreditsMusic.SetActive(true);
-    }
-
-    // Checks if the audio loops are present and can fade
-    private void CheckToFadeLoopAudio()
-    {
-        if (SceneManager.GetActiveScene().name == "FifthMap")
-        {
-            //audioLoopsScript.FadeOutAudioLoops();
-            audioManagerScript.FadeOutBackgroundMusic();
-            audioManagerScript.FadeOutLoopingAmbientSFX();
-            loopingFireSFX.volume = 0f;
-        }
-    }
+    }*/
 
     // Checks if the main menu music is present and can fade
-    private void CheckToFadeMainMenuAudio()
+    /*private void CheckToFadeMainMenuAudio()
     {
         if (SceneManager.GetActiveScene().name == "MainMenu")
             mainMenuMusicScript.FadeOutMusicVolume();
+    }*/
+
+    // Checks to start the end credits
+    public void StartEndCredits()
+    {
+        if (!hasStartedCredits)
+        {
+            Debug.Log("Has Started End Credits");
+            endCredits.SetActive(true);
+            FadeOutAudio();
+            hasStartedCredits = true;
+        }
     }
 
-    // Checks to see when you can speed up credits
-    private void SpeedUpCreditsCheck()
+    // Checks to skip the end credits
+    private void SkipEndCreditsCheck()
     {
-        if (endCredits.transform.localPosition.y >= 280f && !canMoveGameLogo)
-            canMoveGameLogo = true;
-
-        if (canSpeedUpCredits)
+        if (Input.GetKeyDown(KeyCode.Escape) && !hasSkippedCredits)
         {
-            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.KeypadEnter))
-                scrollSpeed = 270f;
+            FadeOutOfEndCredits();
+            audioManagerScript.FadeOutEndCreditsMusic();
+            audioManagerScript.FadeOutCharNoiseSFX();
+            hasSkippedCredits = true;
+        }
+    }
+
+    // Resets all elements so that the end credits can be played again
+    private void ResetEndCredits()
+    {
+        if (endCreditsCoroutine != null)
+            StopCoroutine(endCreditsCoroutine);
+
+        if (endMessageCorouitne != null)
+            StopCoroutine(endMessageCorouitne);
+
+        transitionFadeScript.GameFadeIn();
+        audioManagerScript.FadeInBackgroundMusic();
+        audioManagerScript.FadeInLoopingAmbientSFX();
+        loopingFireSFX.volume = originalVolumeLFSFX;
+
+        gameLogo.transform.SetParent(endCredits.transform);
+        gameLogo.GetComponent<RectTransform>().anchoredPosition = gameLogoOrigPos;
+        teamLogo.GetComponent<RectTransform>().anchoredPosition = teamLogoOrigPos;
+
+        endMessage.text = string.Empty;
+        blackOverlay.color = zeroAlphaBO;
+        gameLogo.color = zeroAlphaGL;
+        endCredits.SetActive(false);
+        hasMovedGameLogo = false;
+        hasStartedCredits = false;
+        hasSkippedCredits = false;
+    }
+
+    // Checks when the game logo can move with the text
+    private void MoveGameLogoCheck()
+    {
+        if (teamLogoRef.transform.position.y > gameLogoRef.transform.position.y && !hasMovedGameLogo)
+        {
+            gameLogo.transform.SetParent(teamLogo.transform);
+            hasMovedGameLogo = true;
+        }
+    }
+
+    // Checks to fade out the zone audio (audio loops and music)
+    private void FadeOutZoneAudioCheck()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        if (currentScene != "MainMenu")
+        {
+            audioManagerScript.FadeOutBackgroundMusic();
+            audioManagerScript.FadeOutLoopingAmbientSFX();
+            originalVolumeLFSFX = loopingFireSFX.volume;
+            loopingFireSFX.volume = 0;
+        }
+    }
+
+    // Starts the coroutine that fades out the audio
+    private void FadeOutAudio()
+    {
+        if (fadeOutAudioCoroutine != null)
+            StopCoroutine(fadeOutAudioCoroutine);
+
+        fadeOutAudioCoroutine = FadeOutAudioSequence();
+        StartCoroutine(fadeOutAudioCoroutine);
+    }
+
+    // Starts the coroutine that fades in the game logo
+    private void FadeInGameLogo()
+    {
+        if (gameLogoCoroutine != null)
+            StopCoroutine(gameLogoCoroutine);
+
+        gameLogoCoroutine = LerpGameLogo(fadeLogoLength);
+        StartCoroutine(gameLogoCoroutine);
+    }
+
+    // Starts the coroutine that plays the end credits
+    private void PlayEndCredits()
+    {
+        if (endCreditsCoroutine != null)
+            StopCoroutine(endCreditsCoroutine);
+
+        endCreditsCoroutine = EndCreditsSequence();
+        StartCoroutine(endCreditsCoroutine);
+    }
+
+    // Starts the coroutine that plays a message at the end of credits
+    private void PlayEndMessage()
+    {
+        if (endMessageCorouitne != null)
+            StopCoroutine(endMessageCorouitne);
+
+        endMessageCorouitne = EndMessageSequence();
+        StartCoroutine(endMessageCorouitne);
+    }
+
+    private void FadeOutOfEndCredits()
+    {
+        float fadeOutLength = transitionFadeScript.gameFadeOut;
+
+        if (blackOverlayCoroutine != null)
+            StopCoroutine(blackOverlayCoroutine);
+
+        blackOverlayCoroutine = LerpBlackOverlay(fadeOutLength);
+        StartCoroutine(blackOverlayCoroutine);
+    }
+
+    // Fades out all applicable audio accordingly
+    private IEnumerator FadeOutAudioSequence()
+    {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+        transitionFadeScript.GameFadeOut();
+        // Fade out of the main music here  // Fade out main menu audio if applicable
+
+        yield return new WaitForSeconds(fadeAudioLength);
+        FadeOutZoneAudioCheck(); // Fade out zone audio if applicable
+
+        yield return new WaitForSeconds(fadeAudioLength);
+        FadeInGameLogo();
+    }
+
+    // Lerps the alpha of the game logo over a specific duration (duration = seconds) - fades in game logo
+    private IEnumerator LerpGameLogo(float duration)
+    {
+        float time = 0;
+        audioManagerScript.FadeInEndCreditsMusic();
+
+        while (time < duration)
+        {
+            gameLogo.color = Color.Lerp(zeroAlphaGL, fullAlphaGL, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        gameLogo.color = fullAlphaGL;
+        PlayEndCredits();
+    }
+
+    // Plays the end credits (duration = seconds)
+    // Note: normally we'd use anchorPosition rather than localPosition, but we want the center of teamLogo to equal the center of any screen (ignores its anchors but respects its pivots)
+    private IEnumerator EndCreditsSequence()
+    {
+        float time = 0;
+        float duration = endCreditsLength;
+
+        Vector2 startPos = new Vector2(teamLogo.transform.localPosition.x, teamLogo.transform.localPosition.y); // Center of teamLogo (ignores UI anchors, but respects pivot position)
+        Vector2 endPos = Vector2.zero; // Center of screen
+
+        while (time < duration)
+        {
+            SkipEndCreditsCheck();
+            MoveGameLogoCheck();
+            teamLogo.transform.localPosition = Vector2.Lerp(startPos, endPos, time / duration);
+
+            // Checks to speed up credits
+            if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))
+                time += Time.deltaTime * scrollSpeedMutiplier;
             else
-                scrollSpeed = 90f;
+                time += Time.deltaTime;
+
+            yield return null;
         }
+
+        teamLogo.transform.localPosition = endPos;
+        PlayEndMessage();
     }
 
-    // Checks to see if the credits can be skipped - can only skip in the main menu
-    private void CanSkipCreditsCheck()
+    // Types a message that plays at the end of the credits - when it stops moving
+    private IEnumerator EndMessageSequence()
     {
-        if (SceneManager.GetActiveScene().name == "MainMenu" && Input.GetKeyDown(KeyCode.Escape) && canSkipCredits)
+        yield return new WaitForSeconds(1f);
+        string endCreditsMessage = "Thanks for playing";
+
+        for (int i = 0; i <= endCreditsMessage.Length; i++)
         {
-            Debug.Log("Credits Have Been Skipped");
-            StartCoroutine("StopPlayingCredits");
-            canSkipCredits = false;
+            endMessage.text = endCreditsMessage.Substring(0, i);
+
+            foreach (char letter in endMessage.text)
+            {
+                charNoiseSFX.Play();
+            }
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        if (!hasSkippedCredits && hasStartedCredits)
+        {
+            yield return new WaitForSeconds(4f);
+            audioManagerScript.FadeOutEndCreditsMusic();
+            FadeOutOfEndCredits();
         }
     }
 
-    // Sets all of the bools to false
-    private void SetCreditsBoolsFalse()
+    // Lerps the alpha of the black overlay over a specific duration (duration = seconds) - fades out black overlay
+    private IEnumerator LerpBlackOverlay(float duration)
     {
-        canSpeedUpCredits = false;
-        canMoveCredits = false;
-        canMoveGameLogo = false;
+        float time = 0;
+        string currentScene = SceneManager.GetActiveScene().name;
 
-        hasEndedCredits = false;
-        hasPlayedEndMessage = false;
+        while (time < duration)
+        {
+            blackOverlay.color = Color.Lerp(zeroAlphaBO, fullAlphaBO, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        blackOverlay.color = fullAlphaBO;
+
+        if (!hasSkippedCredits)
+        {
+            yield return new WaitForSeconds(1.5f);
+            if (currentScene == "MainMenu")
+                Debug.Log("Need to set and load main menu canvas here");
+            else
+                gameManagerScript.LoadMainMenu();
+        }
+        else if (hasSkippedCredits)
+            ResetEndCredits();
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        if (SceneManager.GetActiveScene().name == "MainMenu")
+            mainMenuMusicScript = FindObjectOfType<MainMenuMusicScript>();
+
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        {
+            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "EndCredits")
+            {
+                endCredits = child;
+
+                for (int j = 0; j < endCredits.transform.childCount; j++)
+                {
+                    GameObject child02 = endCredits.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "GameLogo") // set the team logo as the game logos paret if you want it to move it along with the end credits
+                    {
+                        gameLogo = child02.GetComponent<Image>();
+
+                        for (int k = 0; k < gameLogo.transform.childCount; k++)
+                        {
+                            GameObject child03 = gameLogo.transform.GetChild(k).gameObject;
+
+                            if (child03.name == "RefGL")
+                                gameLogoRef = child03;
+                        }
+                    }
+                    if (child02.name == "TeamLogo")
+                    {
+                        teamLogo = child02; //lerp the team logo to zero
+
+                        for (int l = 0; l < teamLogo.transform.childCount; l++)
+                        {
+                            GameObject child04 = teamLogo.transform.GetChild(l).gameObject;
+
+                            if (child04.name == "RefTL")
+                                teamLogoRef = child04;
+                            if (child04.name == "EndMessage")
+                                endMessage = child04.GetComponent<TextMeshProUGUI>();
+                        }
+                    }
+                    if (child02.name == "BlackOverlay")
+                        blackOverlay = child02.GetComponent<Image>(); // call the function to fade out via transition fade?
+                }
+            }
+        }
+
         charNoiseSFX = audioManagerScript.charNoiseAS;
         loopingFireSFX = audioManagerScript.loopingFireAS;
+        typingSpeed = gameManagerScript.typingSpeed;
     }
+
+    // Plays the end credits (duration = seconds) - OLD VERSION
+    /*private IEnumerator EndCreditsSequence()
+    {
+        float time = 0;
+        float duration = endCreditsLength;
+        Vector2 startPos = teamLogo.GetComponent<RectTransform>().anchoredPosition;
+        Vector2 endPos = Vector2.zero;
+
+        while (time < duration)
+        {
+            // Checks to move the game logo along with the credits
+            if (teamLogo.GetComponent<RectTransform>().anchoredPosition.y > moveGameLogoAtLength && !hasMovedGameLogo)
+            {
+                gameLogo.transform.SetParent(teamLogo.transform);
+                hasMovedGameLogo = true;
+            }
+            teamLogo.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(startPos, endPos, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        teamLogo.GetComponent<RectTransform>().anchoredPosition = endPos;
+        PlayEndMessage();
+    }*/
 
 }

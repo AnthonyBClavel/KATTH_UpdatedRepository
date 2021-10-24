@@ -45,6 +45,15 @@ public class PlayerFidgetController : MonoBehaviour
         CurrentAnimationCheck();
     }
 
+    // Returns the current animation playing
+    public string CurrentAnimPlaying
+    {
+        get
+        {
+            return currentAnimPlaying;
+        }
+    }
+
     // Sets the idle index to zero
     public void SetIdleIndexToZero()
     {

@@ -42,6 +42,7 @@ public class PauseMenu : MonoBehaviour
     private Animator deathScreenAnim;
 
     private GameObject lastSelectedObject;
+    private GraphicRaycaster graphicsRaycaster;
     private EventSystem eventSystem;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
@@ -234,7 +235,7 @@ public class PauseMenu : MonoBehaviour
         audioManagerScript.UnPauseAllAudio();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClickSFX();
+            audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         pauseMenuAnim.SetTrigger("PS_PopOut");
@@ -257,7 +258,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenOptionsDelay()
     {
         DisableMenuInputsPS();
-        audioManagerScript.PlayButtonClickSFX();
+        audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
@@ -297,7 +298,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenSafetyMenuDelay()
     {
         DisableMenuInputsPS();
-        audioManagerScript.PlayButtonClickSFX();
+        audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = true;
@@ -340,7 +341,7 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClickSFX();
+            audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -363,7 +364,7 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClickSFX();
+            audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -386,8 +387,11 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator CloseSafetyMenuDelay02()
     {
         DisableMenuInputsPS();
+        audioManagerScript.PlayButtonClick01SFX();
         transitionFadeScript.GameFadeOut();
-        audioManagerScript.PlayButtonClickSFX();
+        playerScript.SetPlayerBoolsFalse();
+        playerScript.CanSetBoolsTrue = false;
+        isChangingScenes = true;
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -514,6 +518,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuBGAnim = pauseMenuBG.GetComponent<Animator>();
         optionsMenuAnim = optionsMenu.GetComponent<Animator>();
         safetyMenuAnim = safetyMenu.GetComponent<Animator>();
+        graphicsRaycaster = GetComponent<GraphicRaycaster>();
     }
 
     private void EnableMenuInputPS()
@@ -521,16 +526,16 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = true;
         isChangingMenus = false;
         hasPressedESC = false;
+        graphicsRaycaster.enabled = true;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        GetComponent<GraphicRaycaster>().enabled = true;
     }
 
     private void DisableMenuInputsPS()
     {
         canPlayButtonSFX = false;
         isChangingMenus = true;
+        graphicsRaycaster.enabled = false;
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        GetComponent<GraphicRaycaster>().enabled = false;
     }
 
 }

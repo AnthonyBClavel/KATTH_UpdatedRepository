@@ -151,6 +151,8 @@ public class SkipSceneButton : MonoBehaviour
         {
             hasSkippedScene = true;
             playerScript.HasFinishedZone = true;
+            playerScript.CanSetBoolsTrue = false;
+            playerScript.SetPlayerBoolsFalse();
             content.fillAmount = endFillAmount;
             audioManagerScript.PlayChime02SFX();
             gameManagerScript.FinishedZoneCheck();
@@ -166,9 +168,11 @@ public class SkipSceneButton : MonoBehaviour
         FadeSkipSceneText(zeroAlpha, textFadeLength);
     }
 
-     // lerps the fill amount 
+    // Lerps the fill amount 
     private IEnumerator ResetFillAmount()
     {
+        // When the fill amount is approximately equal to zero
+        // Note: The content.fillAmount in lerp will always get closer to zero, but never equal it, so the coroutine would endlessly play
         while (content.fillAmount > 0.01f)
         {
             content.fillAmount = Mathf.Lerp(content.fillAmount, 0f, Time.deltaTime * lerpSpeed);

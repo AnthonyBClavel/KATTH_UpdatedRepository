@@ -600,7 +600,7 @@ public class CharacterDialogue : MonoBehaviour
                     else
                         dialogueOptionsIndex--;
 
-                    audioManagerScript.PlayDialogueArrowSFX();
+                    audioManagerScript.PlayButtonClick02SFX();
                     hasMovedDialogueArrow = false;
                 }
             }
@@ -614,7 +614,7 @@ public class CharacterDialogue : MonoBehaviour
                     else
                         dialogueOptionsIndex++;
 
-                    audioManagerScript.PlayDialogueArrowSFX();
+                    audioManagerScript.PlayButtonClick02SFX();
                     hasMovedDialogueArrow = false;
                 }
             }
@@ -685,7 +685,7 @@ public class CharacterDialogue : MonoBehaviour
                     }    
                     else
                     {
-                        playerScript.PlayInteractionAnim();
+                        playerScript.ChangeAnimationState("Interacting");
                         artifactScript.hasCollectedArtifact = true;
                         artifactScript.SaveCollectedArtifact();
                         artifactScript.CloseChest();
@@ -729,7 +729,7 @@ public class CharacterDialogue : MonoBehaviour
                     }
                     else
                     {
-                        playerScript.PlayInteractionAnim();
+                        playerScript.ChangeAnimationState("Interacting");
                         artifactScript.CloseChest();
                         StartCoroutine("EndDialogueDelay");
                         FadeOutDialogueMusic();
@@ -1284,7 +1284,7 @@ public class CharacterDialogue : MonoBehaviour
         hasMovedDialogueArrow = false;
         dialogueArrowHolder.SetActive(true);
         dialogueArrowScript.PlayDialogueArrowAnim();
-        audioManagerScript.PlayDialogueArrowSFX();
+        audioManagerScript.PlayButtonClick02SFX();
 
         if (dialogueOptionsIndex == 0)
             optionOneText.color = selectedTextColor;

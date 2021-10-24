@@ -7,35 +7,47 @@ using TMPro;
 public class TorchMeter : MonoBehaviour  
 {
     private bool isTorchMeter = true;
-    private float lerpSpeed = 2f;
+
+    [Range(1f, 10f)]
+    public float lerpSpeed = 2f;
+    [Range(0.01f, 1f)]
+    public float torchIconSpeed = 0.08f;
+    private int torchIconIndex;
     private float fillAmount = 1f; // Set this to zero if you want to mute the fire loop sfx during intro
     private float maxValue = 1f; // Do not set to zero
     private float currentValue = 1f; // Do not set to zero
 
-    private Animator torchAnim;
-    private AudioSource loopingFireSFX;
-    private ParticleSystem torchFireParticle;
-    private ParticleSystem.MainModule torchFireMain;
-
+    public Sprite[] torchIconSprites;
     private TextMeshProUGUI valueText;
     private Image mask;
     private Image content;
-    private Image torchFlameIcon;
     private Image torchIcon;
+    private Image otherTorchIcon;
     private Image bar;
+
+    private GameObject torchMeter;
+    private Animator torchAnim;
+    private AudioSource loopingFireSFX;
 
     private Color32 fullBarColor = new Color32(255, 130, 188, 255);
     private Color32 lowBarColor = new Color32(254, 104, 174, 255);
     private Color32 fullAlpha = new Color32(255, 255, 255, 255);
     private Color32 zeroAlpha = new Color32(255, 255, 255, 0);
 
+    private ParticleSystem torchFireParticle;
+    private ParticleSystem.MainModule torchFireMain;
+    private IEnumerator flameIconCoroutine;
+    private IEnumerator lerpFillAmountCoroutine;
+
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
+    private GameHUD gameHUDScript;
 
     void Awake()
     {
         audioManagerScript = FindObjectOfType<AudioManager>();
         playerScript = FindObjectOfType<TileMovementController>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
 
         SetElements();
     }
@@ -43,13 +55,9 @@ public class TorchMeter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        RadialBar();
+        torchIconIndex = 0;
+        torchIcon.sprite = torchIconSprites[torchIconIndex];
+        PlayTorchFlameIconAnim();
     }
 
     // Returns or sets the valeu of currentValue
@@ -67,6 +75,7 @@ public class TorchMeter : MonoBehaviour
             currentValue = Mathf.Clamp(value, 0, maxValue);
             valueText.text = currentValue.ToString();
             fillAmount = currentValue / maxValue;
+            StartTorchMeterCoroutine();
         }
     }
 
@@ -89,9 +98,10 @@ public class TorchMeter : MonoBehaviour
         bar.enabled = true;
         mask.enabled = true;
         content.enabled = true;
+        otherTorchIcon.enabled = true;
         torchIcon.enabled = true;
-        torchFlameIcon.enabled = true;
         valueText.color = fullAlpha;
+        PlayTorchFlameIconAnim();
     }
 
     // Disables all of the torch meter's sprites
@@ -100,19 +110,19 @@ public class TorchMeter : MonoBehaviour
         bar.enabled = false;
         mask.enabled = false;
         content.enabled = false;
+        otherTorchIcon.enabled = false;
         torchIcon.enabled = false;
-        torchFlameIcon.enabled = false;
         valueText.color = zeroAlpha;
     }
 
     // Enables/disables the torch meter's sprites
-    public void isTorchMeterCheck()
+    public void IsTorchMeterCheck()
     {
         isTorchMeter = !isTorchMeter;
 
         if (isTorchMeter)
             TurnOnTorchMeter();
-        if (!isTorchMeter)
+        else if (!isTorchMeter)
             TurnOffTorchMeter();
     }
 
@@ -128,55 +138,115 @@ public class TorchMeter : MonoBehaviour
         torchAnim.SetTrigger("PopOut");
     }
 
-    // Reset the torch meter's values and variables
+    // Resets the torch meter's values and variables
     public void ResetTorchMeterElements()
     {
         content.fillAmount = 1f;
         content.color = fullBarColor;
-        torchFlameIcon.color = fullAlpha;
+        torchIcon.color = fullAlpha;
         loopingFireSFX.volume = 0.9f;
         torchFireMain.startLifetime = 0.72f;
+    }
+
+    // Starts the coroutine for the torch meter
+    private void StartTorchMeterCoroutine()
+    {
+        if (lerpFillAmountCoroutine != null)
+            StopCoroutine(lerpFillAmountCoroutine);
+
+        lerpFillAmountCoroutine = LerpFillAmount();
+        StartCoroutine(lerpFillAmountCoroutine);
+    }
+
+    // Lerps the torch meter's fill amount - adjusts its color, value, and volume
+    private IEnumerator LerpFillAmount()
+    {
+        // While the absolute value of the floats is greater than 0.0001f - until they are approximately equal to one another
+        // Note: The content.fillAmount in lerp will always get closer to fillAmount, but never equal it, so the coroutine would endlessly play
+        while (Mathf.Abs(fillAmount - content.fillAmount) > 0.001f)
+        {
+            content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
+            content.color = Color.Lerp(lowBarColor, fullBarColor, fillAmount);
+            torchIcon.color = Color.Lerp(zeroAlpha, fullAlpha, fillAmount);
+            loopingFireSFX.volume = Mathf.Lerp(0f, 0.9f, fillAmount);
+            torchFireMain.startLifetime = Mathf.Lerp(0f, 0.72f, fillAmount);
+            yield return null;
+        }
+    }
+
+    // Starts the corouitne to play the torch icon animation
+    public void PlayTorchFlameIconAnim()
+    {
+        if (flameIconCoroutine != null)
+            StopCoroutine(flameIconCoroutine);
+
+        flameIconCoroutine = TorchIconAnimation();
+        StartCoroutine(flameIconCoroutine);
+    }
+
+    // Sets the next/new sprite for the flame icon at the end of each time interval
+    private IEnumerator TorchIconAnimation()
+    {
+        //spriteIndex = 0;
+        //torchFlameIcon.sprite = flameIconSprites[spriteIndex];
+
+        while (torchIcon.isActiveAndEnabled) 
+        {
+            yield return new WaitForSeconds(torchIconSpeed);
+            torchIconIndex++;
+            if (torchIconIndex > torchIconSprites.Length - 1 || torchIconIndex < 0)
+                torchIconIndex = 0;
+            torchIcon.sprite = torchIconSprites[torchIconIndex];
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
         // Sets the images by looking at names of children
-        for (int i = 0; i < transform.childCount; i++)
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
         {
-            GameObject child = transform.GetChild(i).gameObject;
-            Image image = child.GetComponent<Image>();
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
 
-            if (child.name == "Mask")
+            if (child.name == "TorchMeter")
             {
-                mask = image;
+                torchMeter = child;
 
-                for (int j = 0; j < child.transform.childCount; j++)
+                for (int j = 0; j < torchMeter.transform.childCount; j++)
                 {
-                    GameObject child02 = child.transform.GetChild(j).gameObject;
-                    Image image02 = child02.GetComponent<Image>();
+                    GameObject child02 = torchMeter.transform.GetChild(j).gameObject;
 
-                    if (child02.name == "Content")
-                        content = image02;
+                    if (child02.name == "Mask")
+                    {
+                        mask = child02.GetComponent<Image>();
 
+                        for (int k = 0; k < mask.transform.childCount; k++)
+                        {
+                            GameObject child03 = mask.transform.GetChild(k).gameObject;
+
+                            if (child03.name == "Content")
+                                content = child03.GetComponent<Image>();
+                        }
+                    }
+                    if (child02.name == "Icons")
+                    {
+                        GameObject iconsHolder = child02;
+
+                        for (int l = 0; l < iconsHolder.transform.childCount; l++)
+                        {
+                            GameObject child04 = iconsHolder.transform.GetChild(l).gameObject;
+
+                            if (child04.name == "TorchFlameIcon")
+                                torchIcon = child04.GetComponent<Image>();
+
+                            if (child04.name == "TorchIcon")
+                                otherTorchIcon = child04.GetComponent<Image>();
+                        }
+                    }
+                    if (child02.name == "ValueText")
+                        valueText = child02.GetComponent<TextMeshProUGUI>();
                 }
             }
-            if (child.name == "Icons")
-            {
-                for (int k = 0; k < child.transform.childCount; k++)
-                {
-                    GameObject child03 = child.transform.GetChild(k).gameObject;
-                    Image image03 = child03.GetComponent<Image>();
-
-                    if (child03.name == "TorchFlameIcon")
-                        torchFlameIcon = image03;
-
-                    if (child03.name == "TorchIcon")
-                        torchIcon = image03;
-                }
-            }
-            if (child.name == "ValueText")
-                valueText = child.GetComponent<TextMeshProUGUI>();
         }
 
         for (int i = 0; i < playerScript.transform.childCount; i++)
@@ -197,27 +267,10 @@ public class TorchMeter : MonoBehaviour
             }
         }
 
-        bar = GetComponent<Image>();
-        torchAnim = GetComponent<Animator>();
+        bar = torchMeter.GetComponent<Image>();
+        torchAnim = torchMeter.GetComponent<Animator>();
         torchFireMain = torchFireParticle.main;
         loopingFireSFX = audioManagerScript.loopingFireAS;
-    }
-
-    // Adjusts the torch meter's color, value, and volume
-    private void RadialBar()
-    {
-        if (fillAmount != content.fillAmount)
-        {
-            content.fillAmount = Mathf.Lerp(content.fillAmount, fillAmount, Time.deltaTime * lerpSpeed);
-
-            content.color = Color.Lerp(lowBarColor, fullBarColor, fillAmount);
-
-            torchFlameIcon.color = Color.Lerp(zeroAlpha, fullAlpha, fillAmount);
-
-            loopingFireSFX.volume = Mathf.Lerp(0f, 0.9f, fillAmount);
-
-            torchFireMain.startLifetime = Mathf.Lerp(0f, 0.72f, fillAmount);
-        }
     }
 
     // Checks to increase or decrease the torch meter's current value - For Debugging Purposes Only!

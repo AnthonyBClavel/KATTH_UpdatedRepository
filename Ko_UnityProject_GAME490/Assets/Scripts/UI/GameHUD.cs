@@ -55,7 +55,8 @@ public class GameHUD : MonoBehaviour
     // Turns the HUD on
     public void TurnOnHUD()
     {
-        torchMeter.SetActive(true); 
+        torchMeter.SetActive(true);
+        torchMeterScript.PlayTorchFlameIconAnim();
         notificationBubblesHolder.SetActive(true);
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
@@ -129,7 +130,7 @@ public class GameHUD : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 notificationBubblesScript.KeybindBubblesCheck();
-                torchMeterScript.isTorchMeterCheck();
+                torchMeterScript.IsTorchMeterCheck();
             }
         }
     }
@@ -199,6 +200,8 @@ public class GameHUD : MonoBehaviour
                 deathScreen = child;
             if (child.name == "NotificationBubblesHolder")
                 notificationBubblesHolder = child;
+            if (child.name == "TorchMeter")
+                torchMeter = child;
         }
 
         for (int i = 0; i < puzzleBubbleColorText.transform.childCount; i++)
@@ -219,8 +222,6 @@ public class GameHUD : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             skipSceneButton = FindObjectOfType<SkipSceneButton>().gameObject;
-
-        torchMeter = torchMeterScript.gameObject;
     }
 
 }

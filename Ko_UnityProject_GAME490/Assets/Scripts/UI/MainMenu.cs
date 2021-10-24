@@ -137,7 +137,8 @@ public class MainMenu : MonoBehaviour
         DisableMenuInputMM();
         mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
         canFadeLogo = false;
-        endCreditsScript.StartEndCreditsManually();
+        //endCreditsScript.StartEndCreditsManually();
+        endCreditsScript.StartEndCredits();
     }
 
     // Gets triggered by the quit game button
@@ -255,7 +256,7 @@ public class MainMenu : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     loadingScreen.GetComponent<Image>().color = Color.black;
-                    loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false);
+                    //loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false); // refine this
                     loadingText.gameObject.SetActive(false);
                     loadingBar.gameObject.SetActive(false);
                     loadingIcon.gameObject.SetActive(false);

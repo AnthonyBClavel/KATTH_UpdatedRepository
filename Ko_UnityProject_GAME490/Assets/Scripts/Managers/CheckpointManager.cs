@@ -89,9 +89,8 @@ public class CheckpointManager : MonoBehaviour
     {
         iceMaterialScript.ResetIceAlphas();
 
-        player.SetActive(false);
+        playerScript.StopPlayerCoroutines();
         playerAnimator.enabled = true;
-        player.SetActive(true);
         pauseMenuScript.canPause = true;
 
         player.transform.position = checkpointPosition;

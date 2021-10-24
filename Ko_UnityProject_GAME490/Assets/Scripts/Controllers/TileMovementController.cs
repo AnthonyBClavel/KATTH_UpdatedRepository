@@ -13,9 +13,6 @@ public class TileMovementController : MonoBehaviour
     private bool canMove = true;
     private bool canInteract = true;
     private bool canRestartPuzzle = true;
-    private bool isWalking = false;
-    private bool isPushing = false;                                     
-    private bool isInteracting = false;
     private bool hasFinishedZone = false;
     private bool alreadyPlayedSFX = false;
     private bool hasAlreadyPopedOut = false;
@@ -95,10 +92,6 @@ public class TileMovementController : MonoBehaviour
         checkIfOnCheckpoint();
         checkForNextBridgeTile();
         AlertBubbleCheck();
-
-        playerAnimator.SetBool("isWalking", isWalking);
-        playerAnimator.SetBool("isPushing", isPushing);
-        playerAnimator.SetBool("isInteracting", isInteracting);
     }
 
     // Returns or sets the current puzzle
@@ -236,8 +229,6 @@ public class TileMovementController : MonoBehaviour
                     SubractFromTorchMeter();
             }
         }
-
-        CheckToPlayAnims();
     }
 
     // Updates the keyboard input - returns true if input is recieved, false otherwise 
@@ -323,13 +314,11 @@ public class TileMovementController : MonoBehaviour
             objectToShakeName = objectToShake.name;
         }
 
-        isWalking = false;
-        isPushing = true;
         switch (collider.tag)
         {
             case ("StaticBlock"):
                 objectShakeScript.ShakeObject(objectToShake);
-                CheckToPlayAnims();
+                ChangeAnimationState("Pushing");
                 if (objectToShakeName == "Tree")
                     audioManagerScript.PlayTreeHitSFX();
                 else if (objectToShakeName == "SnowTree" || objectToShakeName == "BarrenTree")
@@ -348,19 +337,18 @@ public class TileMovementController : MonoBehaviour
                 gameManagerScript.CheckForBlockMovementDebug(blockMovementScript);
                 if (blockMovementScript.MoveBlock())
                     SubractFromTorchMeter();
-                CheckToPlayAnims();
+                ChangeAnimationState("Pushing");
                 break;
 
             case ("DestroyableBlock"):
                 objectShakeScript.ShakeObject(objectToShake);
                 audioManagerScript.PlayRockHitSFX();
-                CheckToPlayAnims();
+                ChangeAnimationState("Pushing");
                 break;
 
             default:
                 //Debug.Log("Unrecognizable Tag");
-                isPushing = false;
-                CheckToPlayAnims();
+                playerFidgetScript.SetIdleIndexToZero();
                 break;
         }
         return true;
@@ -388,8 +376,7 @@ public class TileMovementController : MonoBehaviour
         audioManagerScript.PlayRockBreakSFX();
         destroyableBlock.SetActive(false);
 
-        isInteracting = true;
-        CheckToPlayAnims();
+        ChangeAnimationState("Interacting");
     }
 
     // Turns on the generator if the player is colliding/interacting with it
@@ -403,8 +390,7 @@ public class TileMovementController : MonoBehaviour
             generatorScript.TurnOnGenerator();
             SubractFromTorchMeter();
 
-            isInteracting = true;
-            CheckToPlayAnims();
+            ChangeAnimationState("Interacting");
         }
     }
 
@@ -419,8 +405,7 @@ public class TileMovementController : MonoBehaviour
             torchMeterScript.CurrentVal = torchMeterScript.MaxVal;
             audioManagerScript.PlayTorchFireIgniteSFX();
 
-            isInteracting = true;
-            CheckToPlayAnims();
+            ChangeAnimationState("Interacting");
         }
 
         firestoneLight.enabled = false;
@@ -435,8 +420,7 @@ public class TileMovementController : MonoBehaviour
         dialogueViewsHolder.transform.position = collider.transform.position;
         nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
 
-        isInteracting = false;
-        CheckToPlayAnims();
+        ChangeAnimationState("Interacting");
     }
 
     // Calls the scripts and functions to begin/trigger the Artifact dialogue
@@ -450,8 +434,7 @@ public class TileMovementController : MonoBehaviour
             dialogueViewsHolder.transform.position = collider.transform.position;
             artifactScript.SetVariablesForCharacterDialogueScript();
 
-            isInteracting = true;
-            CheckToPlayAnims();
+            ChangeAnimationState("Interacting");
         }
     }
 
@@ -610,8 +593,10 @@ public class TileMovementController : MonoBehaviour
                 // Checks if the player has completed the zone - by landing on the final bridge
                 if (!hasFinishedZone)
                 {
+                    SetPlayerBoolsFalse();
                     audioManagerScript.PlayChimeSFX();
                     gameManagerScript.FinishedZoneCheck();
+                    canSetBoolsTrue = false;
                     canPlaySecondFootstep = false;
                     hasFinishedZone = true;
                 }
@@ -830,32 +815,12 @@ public class TileMovementController : MonoBehaviour
     }
 
     // Plays a new animation state
-    private void ChangeAnimationState(string newState)
+    public void ChangeAnimationState(string newState)
     {
-        playerAnimator.Play(newState);
-    }
-
-    // Plays the interaction animation for Ko 
-    public void PlayInteractionAnim()
-    {
-        isInteracting = true;
-        CheckToPlayAnims();
-    }
-
-    // Determines which animation state to play
-    private void CheckToPlayAnims()
-    {
-        if (isPushing) 
-            ChangeAnimationState("Pushing");
-
-        else if (isInteracting)
-        {
-            ChangeAnimationState("Interacting");
+        if (newState == "Interacting")
             audioManagerScript.PlaySwooshSFX();
-        }
 
-        isPushing = false;
-        isInteracting = false;
+        playerAnimator.Play(newState);
         playerFidgetScript.SetIdleIndexToZero();
     }
 
@@ -900,20 +865,6 @@ public class TileMovementController : MonoBehaviour
         }
     }
 
-    // Starts/overrides the coroutine for the player movement - PRIMARILY FOR FINDING NEXT BRIDGE TILE
-    private void StartMovementCoroutine()
-    {
-        // Stops the player movement coroutine if active
-        if (playerMovementCoroutine != null)
-            StopCoroutine(playerMovementCoroutine);
-
-        playerMovementCoroutine = MovePlayerPosition(destination, lerpLength);
-        StartCoroutine(playerMovementCoroutine);
-
-        // Plays the sfx for the player's footsteps
-        PlayerFootstepsSFX();
-    }
-
     // Checks to move the player's position (over a duration, or instantly)
     private void MoveToNextPosition()
     {
@@ -934,6 +885,32 @@ public class TileMovementController : MonoBehaviour
             transform.position = destination;
     }
 
+    // Stops the player's movement and footstep coroutines
+    public void StopPlayerCoroutines()
+    {
+        ChangeAnimationState("Idle");
+
+        if (playerMovementCoroutine != null)
+            StopCoroutine(playerMovementCoroutine);
+
+        if (playerFootstepsCoroutine != null)
+            StopCoroutine(playerFootstepsCoroutine);
+    }
+
+    // Starts/overrides the coroutine for the player movement - PRIMARILY FOR FINDING NEXT BRIDGE TILE
+    private void StartMovementCoroutine()
+    {
+        // Stops the player movement coroutine if active
+        if (playerMovementCoroutine != null)
+            StopCoroutine(playerMovementCoroutine);
+
+        playerMovementCoroutine = MovePlayerPosition(destination, lerpLength);
+        StartCoroutine(playerMovementCoroutine);
+
+        // Plays the sfx for the player's footsteps
+        PlayerFootstepsSFX();
+    }
+
     // Plays the footsteps coroutine for the player
     private void PlayerFootstepsSFX()
     {
@@ -952,7 +929,8 @@ public class TileMovementController : MonoBehaviour
 
         while (time < duration)
         {
-            isWalking = true;
+            if (playerFidgetScript.CurrentAnimPlaying != "Walking")
+                ChangeAnimationState("Walking");
             transform.position = Vector3.MoveTowards(startPosition, endPosition, time / duration);
             time += Time.deltaTime;
             yield return null;
@@ -962,7 +940,7 @@ public class TileMovementController : MonoBehaviour
 
         if (!onBridge() && canSetBoolsTrue)
         {
-            isWalking = false;
+            playerAnimator.SetTrigger("Idle");
 
             if (!canMove)
                 canMove = true;

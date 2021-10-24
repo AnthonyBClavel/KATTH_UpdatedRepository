@@ -34,12 +34,7 @@ public class TransitionFade : MonoBehaviour
 
     void Awake()
     {
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        introManagerScript = FindObjectOfType<IntroManager>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-
+        SetScripts();
         SetElements();
     }
 
@@ -71,9 +66,6 @@ public class TransitionFade : MonoBehaviour
     public void GameFadeOut()
     {
         pauseMenuScript.isChangingScenes = true;
-        //playerScript.canSetBoolsTrue = false;
-        playerScript.SetPlayerBoolsFalse();
-        DisableMenuInputs();
 
         if (Time.timeScale != 1f)
             Time.timeScale = 1f;
@@ -175,6 +167,16 @@ public class TransitionFade : MonoBehaviour
         pauseMenuScript.canPause = true;
     }
 
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        introManagerScript = FindObjectOfType<IntroManager>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
@@ -212,18 +214,6 @@ public class TransitionFade : MonoBehaviour
                 StartCoroutine(LerpGameFade(zeroAlpha, gameFadeIn));
             }
         }
-    }  
-
-    // Enables all UI inputs
-    private void EnableMenuInputs()
-    {
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-    }
-
-    // Disables all UI inputs
-    private void DisableMenuInputs()
-    {
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
     }
 
 }

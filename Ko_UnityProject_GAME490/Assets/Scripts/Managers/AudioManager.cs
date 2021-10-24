@@ -13,11 +13,13 @@ public class AudioManager : MonoBehaviour
     private Slider musicSlider;
     private Slider sfxSlider;
 
-    private float fadeAudioLength; //2f
     private float originalVolumeBGM; // BGM = background music
     private float originalVolumeDM; // DM = dialogue music
+    private float originalVolumeECM; // ECM = end credits music
     private float originalVolumeLASFX; // LASFX = looping ambience sfx
-    private bool isDialogueMusic = true;
+    private float originalVolumeCNSFX; // CNSFX = char noise sfx
+    private bool isDialogueMusic = false;
+    private bool isEndCreditsMusic = false;
 
     private GameObject musicHolder;
     private GameObject audioLoopsHolder;
@@ -25,7 +27,9 @@ public class AudioManager : MonoBehaviour
 
     private IEnumerator backgroundMusicCoroutine;
     private IEnumerator dialogueMusicCoroutine;
+    private IEnumerator endCreditsMusicCoroutine;
     private IEnumerator loopingAmbienceCoroutine;
+    private IEnumerator charNoiseCoroutine;
 
     [Header("Music")]
     private AudioSource mainMenuMusic;
@@ -46,11 +50,11 @@ public class AudioManager : MonoBehaviour
     public AudioClip chimeSFX;
     public AudioClip chime02SFX; // For skipping tutorial
     public AudioClip popUpSFX; // For popping up tutorial button
-    public AudioClip buttonClickSFX;  
+    public AudioClip buttonClick01SFX;
+    public AudioClip buttonClick02SFX;
     public AudioClip buttonSelectSFX;
     public AudioClip deathScreenSFX;
     public AudioClip dialoguePopUpSFX;
-    public AudioClip dialogueArrowSFX;
     public AudioClip openingChestSFX;
     public AudioClip closingChestSFX;
     public AudioClip pushCrateSFX;
@@ -66,12 +70,12 @@ public class AudioManager : MonoBehaviour
     private AudioSource chimeAS;
     private AudioSource chime02AS;
     private AudioSource popUpAS;
-    private AudioSource buttonClickAS;
+    private AudioSource buttonClick01AS;
+    private AudioSource buttonClick02AS;
     private AudioSource buttonSelectAS;
     private AudioSource winsGushAS;
     private AudioSource deathScreenAS;
     private AudioSource dialoguePopUpAS;
-    private AudioSource dialogueArrowAS;
     private AudioSource openingChestAS;
     private AudioSource closingChestAS;
     private AudioSource treeHitAS;
@@ -129,7 +133,7 @@ public class AudioManager : MonoBehaviour
 
     private OptionsMenu optionsMenuScript;
     private TileMovementController playerScript;
-    private GameManager gameManagerScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -153,7 +157,7 @@ public class AudioManager : MonoBehaviour
     }*/
 
     // Returns or sets the value of fadeAudioLength
-    public float FadeAudioLength
+    /*public float FadeAudioLength
     {
         get
         {
@@ -163,7 +167,7 @@ public class AudioManager : MonoBehaviour
         {
             fadeAudioLength = value;
         }
-    }
+    }*/
 
     public AudioSource TurnOnGeneratorAS
     {
@@ -242,13 +246,14 @@ public class AudioManager : MonoBehaviour
     // Fades in the background music
     public void FadeInBackgroundMusic()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeIn;
+
         if (!backgroundMusic.gameObject.activeSelf)
             backgroundMusic.gameObject.SetActive(true);
 
         if (backgroundMusicCoroutine != null)
             StopCoroutine(backgroundMusicCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         backgroundMusicCoroutine = LerpAudio(backgroundMusic, originalVolumeBGM, fadeAudioLength);
 
         backgroundMusic.volume = 0f;
@@ -258,10 +263,11 @@ public class AudioManager : MonoBehaviour
     // Fades out the background music
     public void FadeOutBackgroundMusic()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+
         if (backgroundMusicCoroutine != null)
             StopCoroutine(backgroundMusicCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         backgroundMusicCoroutine = LerpAudio(backgroundMusic, 0f, fadeAudioLength);
 
         backgroundMusic.volume = originalVolumeBGM;
@@ -271,13 +277,14 @@ public class AudioManager : MonoBehaviour
     // Fades in the looping ambient sfx
     public void FadeInLoopingAmbientSFX()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeIn;
+
         if (!loopingAmbienceAS.gameObject.activeSelf)
             loopingAmbienceAS.gameObject.SetActive(true);
 
         if (loopingAmbienceCoroutine != null)
             StopCoroutine(loopingAmbienceCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         loopingAmbienceCoroutine = LerpAudio(loopingAmbienceAS, originalVolumeLASFX, fadeAudioLength);
 
         loopingAmbienceAS.volume = 0f;
@@ -287,12 +294,12 @@ public class AudioManager : MonoBehaviour
     // Fades out the looping ambient sfx
     public void FadeOutLoopingAmbientSFX()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+
         if (loopingAmbienceCoroutine != null)
             StopCoroutine(loopingAmbienceCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         loopingAmbienceCoroutine = LerpAudio(loopingAmbienceAS, 0f, fadeAudioLength);
-        isDialogueMusic = true;
 
         loopingAmbienceAS.volume = originalVolumeLASFX;
         StartCoroutine(loopingAmbienceCoroutine);
@@ -301,13 +308,14 @@ public class AudioManager : MonoBehaviour
     // Fades in the dilaogue music
     public void FadeInDialogueMusic()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeIn;
+
         if (!dialogueMusic.gameObject.activeSelf)
             dialogueMusic.gameObject.SetActive(true);
 
         if (dialogueMusicCoroutine != null)
             StopCoroutine(dialogueMusicCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         dialogueMusicCoroutine = LerpAudio(dialogueMusic, originalVolumeDM, fadeAudioLength);
         isDialogueMusic = true;
 
@@ -319,15 +327,64 @@ public class AudioManager : MonoBehaviour
     // Fades out the dialogue music
     public void FadeOutDialogueMusic()
     {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+
         if (dialogueMusicCoroutine != null)
             StopCoroutine(dialogueMusicCoroutine);
 
-        gameManagerScript.CheckForAudioManagerDebug();
         dialogueMusicCoroutine = LerpAudio(dialogueMusic, 0f, fadeAudioLength);
         isDialogueMusic = false;
 
         dialogueMusic.volume = originalVolumeDM;
         StartCoroutine(dialogueMusicCoroutine);
+    }
+
+    // Fades in the end credits music
+    public void FadeInEndCreditsMusic()
+    {
+        float fadeAudioLength = transitionFadeScript.gameFadeIn; // original credits faded for 1 second
+
+        if (!endCreditsMusic.gameObject.activeSelf)
+            endCreditsMusic.gameObject.SetActive(true);
+
+        if (endCreditsMusicCoroutine != null)
+            StopCoroutine(endCreditsMusicCoroutine);
+
+        endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, originalVolumeECM, fadeAudioLength);
+        isEndCreditsMusic = true;
+
+        endCreditsMusic.volume = 0f;
+        endCreditsMusic.Play();
+        StartCoroutine(endCreditsMusicCoroutine);
+    }
+
+    // Fades out the end credits music
+    public void FadeOutEndCreditsMusic()
+    {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut; // original credits faded for 1 second
+
+        if (endCreditsMusicCoroutine != null)
+            StopCoroutine(endCreditsMusicCoroutine);
+
+        endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, 0f, fadeAudioLength);
+        isEndCreditsMusic = false;
+
+        endCreditsMusic.volume = originalVolumeECM;
+        StartCoroutine(endCreditsMusicCoroutine);
+    }
+
+    // Fades out the char noise sfx
+    public void FadeOutCharNoiseSFX()
+    {
+        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+
+        if (charNoiseCoroutine != null)
+            StopCoroutine(charNoiseCoroutine);
+
+        charNoiseCoroutine = LerpAudio(charNoiseAS, 0f, fadeAudioLength);
+
+        charNoiseAS.volume = originalVolumeCNSFX;
+        StartCoroutine(charNoiseCoroutine);
     }
 
     public void PlayTorchFireIgniteSFX()
@@ -372,12 +429,20 @@ public class AudioManager : MonoBehaviour
         popUpAS.PlayOneShot(popUpSFX);
     }
 
-    public void PlayButtonClickSFX()
+    public void PlayButtonClick01SFX()
     {
-        //buttonClickAS.volume = 1f;
-        //buttonClickAS.pitch = 1f;
-        buttonClickAS.PlayOneShot(buttonClickSFX);
+        //buttonClick01AS.volume = 1f;
+        //buttonClick01AS.pitch = 1f;
+        buttonClick01AS.PlayOneShot(buttonClick01SFX);
     }
+
+    public void PlayButtonClick02SFX()
+    {
+        //buttonClick02AS.volume = 1f;
+        //buttonClick02AS.pitch = 3f;
+        buttonClick02AS.PlayOneShot(buttonClick02SFX);
+    }
+
     public void PlayButtonSelectSFX()
     {
         //buttonSelectAS.volume = 1f;
@@ -406,13 +471,6 @@ public class AudioManager : MonoBehaviour
         dialoguePopUpAS.volume = 0.24f;
         dialoguePopUpAS.pitch = 0.6f;
         dialoguePopUpAS.PlayOneShot(dialoguePopUpSFX);
-    }
-
-    public void PlayDialogueArrowSFX()
-    {
-        //dialogueArrowAS.volume = 1f;
-        //dialogueArrowAS.pitch = 3f;
-        dialogueArrowAS.PlayOneShot(dialogueArrowSFX);
     }
 
     public void PlayOpeningChestSFX()
@@ -792,7 +850,20 @@ public class AudioManager : MonoBehaviour
         audioSource.volume = endVolume;
 
         if (audioSource == dialogueMusic && !isDialogueMusic)
+        {
+            dialogueMusic.Stop();
             dialogueMusic.gameObject.SetActive(false);
+        }
+        else if (audioSource == endCreditsMusic && !isEndCreditsMusic)
+        {
+            endCreditsMusic.Stop();
+            endCreditsMusic.gameObject.SetActive(false);
+        }
+        else if (audioSource == charNoiseAS)
+        {
+            charNoiseAS.Stop();
+            charNoiseAS.volume = originalVolumeCNSFX;
+        }
     }
 
     // Sets the volume sliders in the options menu to the last saved value - MUST be called in start
@@ -870,7 +941,7 @@ public class AudioManager : MonoBehaviour
         else
             optionsMenuScript = FindObjectOfType<MainMenu>().optionsScreen.GetComponent<OptionsMenu>();
 
-        gameManagerScript = FindObjectOfType<GameManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
@@ -937,8 +1008,10 @@ public class AudioManager : MonoBehaviour
                         chime02AS = childAudioSource;
                     if (childAudioSource.name == "PopUpSFX")
                         popUpAS = childAudioSource;
-                    if (childAudioSource.name == "ButtonClickSFX")
-                        buttonClickAS = childAudioSource;
+                    if (childAudioSource.name == "ButtonClick01SFX")
+                        buttonClick01AS = childAudioSource;
+                    if (childAudioSource.name == "ButtonClick02SFX")
+                        buttonClick02AS = childAudioSource;
                     if (childAudioSource.name == "ButtonSelectSFX")
                         buttonSelectAS = childAudioSource;
                     if (childAudioSource.name == "WindGushSFX")
@@ -947,10 +1020,6 @@ public class AudioManager : MonoBehaviour
                         deathScreenAS = childAudioSource;
                     if (childAudioSource.name == "DialoguePopUpSFX")
                         dialoguePopUpAS = childAudioSource;
-                    if (childAudioSource.name == "DialogueArrowSFX")
-                        dialogueArrowAS = childAudioSource;
-                    if (childAudioSource.name == "DialogueArrowSFX")
-                        dialogueArrowAS = childAudioSource;
                     if (childAudioSource.name == "OpeningChestSFX")
                         openingChestAS = childAudioSource;
                     if (childAudioSource.name == "ClosingChestSFX")
@@ -985,8 +1054,9 @@ public class AudioManager : MonoBehaviour
 
         originalVolumeBGM = backgroundMusic.volume;
         originalVolumeDM = dialogueMusic.volume;
+        originalVolumeECM = endCreditsMusic.volume;
         originalVolumeLASFX = loopingAmbienceAS.volume;
-        fadeAudioLength = gameManagerScript.fadeAudioLength;
+        originalVolumeCNSFX = charNoiseAS.volume;
         SetMusic();
     }
 

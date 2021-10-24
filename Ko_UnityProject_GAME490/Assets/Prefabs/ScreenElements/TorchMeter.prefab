@@ -48,7 +48,6 @@ GameObject:
   - component: {fileID: 9028952016622533617}
   - component: {fileID: 9028952016622533618}
   - component: {fileID: 9028952016622533619}
-  - component: {fileID: 9028952016622533616}
   m_Layer: 5
   m_Name: TorchFlameIcon
   m_TagString: Untagged
@@ -65,15 +64,15 @@ RectTransform:
   m_GameObject: {fileID: 9028952016622533622}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.11, y: 0.11, z: 0.11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9028952016499351688}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 50, y: 4.021309}
-  m_SizeDelta: {x: 4000, y: 5001.221}
+  m_AnchoredPosition: {x: 50, y: 4}
+  m_SizeDelta: {x: 440, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9028952016622533618
 CanvasRenderer:
@@ -113,25 +112,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!95 &9028952016622533616
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9028952016622533622}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 7c187fe68184ec346b28db52244901af, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &9028952016707619112
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,9 +259,8 @@ GameObject:
   - component: {fileID: 9028952016999894977}
   - component: {fileID: 9028952016999894988}
   - component: {fileID: 9028952016999894978}
-  - component: {fileID: 9028952016999894979}
   m_Layer: 5
-  m_Name: TorchMeterBar
+  m_Name: TorchMeter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -381,18 +360,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
---- !u!114 &9028952016999894979
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9028952016999894983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afc44c50e22bf244c9f2f85b6ffefe64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9028952017456693280
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,7 +552,7 @@ RectTransform:
   m_GameObject: {fileID: 9028952018350374265}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.11, y: 0.11, z: 0.11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9028952016499351688}
   m_RootOrder: 1
@@ -593,7 +560,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 50, y: 6}
-  m_SizeDelta: {x: 4000, y: 5001.221}
+  m_SizeDelta: {x: 440, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9028952018350374213
 CanvasRenderer:
