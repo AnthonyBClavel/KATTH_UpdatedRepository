@@ -901,6 +901,8 @@ public class AudioManager : MonoBehaviour
             musicTrackToPlay = backgroundMusicTracks[4];
         else if (sceneName == "FifthMap")
             musicTrackToPlay = backgroundMusicTracks[5];
+        else if (sceneName != "MainMenu")
+            musicTrackToPlay = backgroundMusicTracks[1];
 
         // Note: no need to Stop() and Play() since this is called in awake
         //backgroundMusic.Stop();

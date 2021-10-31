@@ -116,11 +116,12 @@ public class TransitionFade : MonoBehaviour
 
         transitionFade.color = endValue;
 
-        // Players can pause after the game fades in
-        if (!pauseMenuScript.canPause && !pauseMenuScript.isChangingScenes)
+        //if (!pauseMenuScript.canPause && !pauseMenuScript.isChangingScenes)
+        // Can pause after the game fades in
+        if (endValue == zeroAlpha)
             pauseMenuScript.canPause = true;
         // Loads the next scene if applicable
-        if (pauseMenuScript.isChangingScenes)
+        if (endValue == fullAlpha)
             gameManagerScript.LoadNextSceneCheck();
     }
 

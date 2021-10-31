@@ -506,7 +506,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
                 {
                     //ResetTorchMeter();
                     audioManagerScript.PlayChimeSFX();
-                    gameManagerScript.FinishedZoneCheck();
+                    //gameManagerScript.FinishedZoneCheck();
                     //footstepsControllerScript.canPlaySecondFootstep = false;
                     hasFinishedZone = true;
                 }

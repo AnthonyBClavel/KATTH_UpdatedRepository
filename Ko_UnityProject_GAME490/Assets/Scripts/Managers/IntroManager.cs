@@ -12,17 +12,19 @@ public class IntroManager : MonoBehaviour
 
     private string zoneNameText;
     private string currentText = string.Empty;
+    private bool isZoneIntro = false;
 
     private GameObject zoneName;
     private GameObject pixelatedCamera;
     private GameObject notificationBubblesHolder;
 
-    private TextMeshProUGUI zoneTextComponent;
-    private AudioSource charNoiseSFX;
-
     private Vector3 originalCameraPos;
     private Vector3 newCameraPosition;
     private Vector3 cameraDestination;
+
+    private TextMeshProUGUI zoneTextComponent;
+    private AudioSource charNoiseSFX;
+    private IEnumerator cameraCoroutine;
 
     private TileMovementController playerScript;
     private BlackBars blackBarsScript;
@@ -80,14 +82,16 @@ public class IntroManager : MonoBehaviour
 
         if (sceneName == "FirstMap")
             newCameraPosition = new Vector3(23f, 7f, -5.75f);
-        if (sceneName == "SecondMap")
-            newCameraPosition = new Vector3(24f, 7f, -9f);
-        if (sceneName == "ThirdMap")
+        else if (sceneName == "SecondMap")
+            newCameraPosition = new Vector3(24f, 7f, -8f);
+        else if (sceneName == "ThirdMap")
             newCameraPosition = new Vector3(10f, 7f, -2.75f);
-        if (sceneName == "FourthMap")
+        else if (sceneName == "FourthMap")
             newCameraPosition = new Vector3(16f, 7f, -4f);
-        if (sceneName == "FifthMap")
+        else if (sceneName == "FifthMap")
             newCameraPosition = new Vector3(31f, 7f, -6f);
+        else
+            newCameraPosition = pixelatedCamera.transform.position;
 
         cameraDestination = new Vector3(newCameraPosition.x + 70f, newCameraPosition.y, newCameraPosition.z);
     }
@@ -107,39 +111,47 @@ public class IntroManager : MonoBehaviour
             zoneNameText = "Zone 4: Barren Lands";
         else if (sceneName == "FifthMap")
             zoneNameText = "Zone 5: Power Station";
+        else
+            zoneNameText = "Zone 0: Sample Zone";
     }
 
     // Checks if the zone intro can start - only occurs at the begging of each zone (1st puzzle)
     private void StartIntroCheck()
     {
-        if (!playerScript.checkIfOnCheckpoint())
-        {           
-            StartCoroutine("StartZoneIntro");
-        }
+        if (!playerScript.checkIfOnCheckpoint())    
+            StartCoroutine(StartZoneIntro());
         else
-        {
-            //Debug.Log("Did not start intro");
             gameObject.SetActive(false);
-        }
     }
 
-    // Moves the position of the camera towards a new position (endPosition = position to move towards)
-    private IEnumerator MoveCamera(Vector3 endPosition)
+    // Starts the coroutine that moves the camera
+    private void StartCameraCoroutine()
+    {
+        if (cameraCoroutine != null)
+            StopCoroutine(cameraCoroutine);
+
+        cameraCoroutine = MoveCamera();
+        StartCoroutine(cameraCoroutine);
+    }
+
+    // Moves the camera to the right until the intro coroutine is finished
+    private IEnumerator MoveCamera()
     {
         gameManagerScript.CheckForIntroManagerDebug();
 
-        while (pixelatedCamera.transform.position != endPosition)
+        while (isZoneIntro)
         {
-            pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, endPosition, introCameraSpeed * Time.deltaTime);
+            //pixelatedCamera.transform.position = Vector3.MoveTowards(pixelatedCamera.transform.position, cameraDestination, introCameraSpeed * Time.deltaTime);
+            float newCameraPosX = pixelatedCamera.transform.position.x + (Time.deltaTime * introCameraSpeed);
+            pixelatedCamera.transform.position = new Vector3(newCameraPosX, newCameraPosition.y, newCameraPosition.z);
             yield return null;
         }
-
-        pixelatedCamera.transform.position = endPosition;
     }
 
     // Sets up and starts the zone intro
     private IEnumerator StartZoneIntro()
     {
+        isZoneIntro = true;
         blackBarsScript.TurnOnBlackBars();
         playerScript.SetPlayerBoolsFalse();
 
@@ -149,7 +161,7 @@ public class IntroManager : MonoBehaviour
         notificationBubblesHolder.SetActive(false);
 
         pixelatedCamera.transform.position = newCameraPosition;
-        StartCoroutine(MoveCamera(cameraDestination));
+        StartCameraCoroutine();
 
         yield return new WaitForSeconds(transitionFadeScript.introFadeIn);
         DisplayZoneName();
@@ -170,6 +182,9 @@ public class IntroManager : MonoBehaviour
         zoneName.SetActive(false);
 
         yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
+        if (cameraCoroutine != null)
+            StopCoroutine(cameraCoroutine);
+
         audioManagerScript.FadeInBackgroundMusic();
         audioManagerScript.FadeInLoopingAmbientSFX();
         blackBarsScript.TurnOffBlackBars();
@@ -178,9 +193,9 @@ public class IntroManager : MonoBehaviour
         torchMeterScript.TurnOnTorchMeter();
         notificationBubblesHolder.SetActive(true);
 
-        StopAllCoroutines();
         pixelatedCamera.transform.position = originalCameraPos;
         gameObject.SetActive(false);
+        isZoneIntro = false;
     }
 
     // Sets the scripts to use

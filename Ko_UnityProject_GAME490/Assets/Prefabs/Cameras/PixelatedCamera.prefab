@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9015946853732087515}
   - component: {fileID: 9015946853732087508}
-  - component: {fileID: 9015946853732087513}
+  - component: {fileID: 6486115804607750893}
   - component: {fileID: 9015946853732087509}
   - component: {fileID: 9015946853732087512}
   m_Layer: 0
@@ -60,7 +60,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 100
+  far clip plane: 22
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -79,7 +79,7 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &9015946853732087513
+--- !u!114 &6486115804607750893
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -88,19 +88,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 9015946853732087510}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf746f83735b0fa4696fdba83a414923, type: 3}
+  m_Script: {fileID: 11500000, guid: 103fa8c32edc6cc4e8422300cc9a7d88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitonSpeed: 3
-  currentIndex: 0
-  canMoveCamera: 1
-  canMoveToDialogueViews: 0
-  canMoveToArtifactView: 0
-  hasCheckedDialogueViews: 0
-  windGushClips:
-  - {fileID: 8300000, guid: e0186ab5a9c468646b13dd77c5b8e9d9, type: 3}
-  - {fileID: 8300000, guid: 0247fed8ebefad9449415ef1dede0a19, type: 3}
-  - {fileID: 8300000, guid: 0c83eb6520fad3c40a24820d85b356e6, type: 3}
 --- !u!81 &9015946853732087509
 AudioListener:
   m_ObjectHideFlags: 0

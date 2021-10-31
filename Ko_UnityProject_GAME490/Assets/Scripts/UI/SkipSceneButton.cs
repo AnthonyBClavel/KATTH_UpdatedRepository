@@ -149,19 +149,17 @@ public class SkipSceneButton : MonoBehaviour
 
         if (time >= duration)
         {
-            hasSkippedScene = true;
-            playerScript.HasFinishedZone = true;
-            playerScript.CanSetBoolsTrue = false;
-            playerScript.SetPlayerBoolsFalse();
             content.fillAmount = endFillAmount;
             audioManagerScript.PlayChime02SFX();
-            gameManagerScript.FinishedZoneCheck();
+            playerScript.SetExitZoneElements();
+            playerScript.HasFinishedZone = true;
+            hasSkippedScene = true;
         }
         else if (time < duration)
         {
-            pauseMenuScript.canPause = true;
-            playerScript.SetPlayerBoolsTrue();
             ResetSkipSceneBar();
+            playerScript.SetPlayerBoolsTrue();
+            pauseMenuScript.canPause = true;
         }
 
         skipButtonAnimator.SetTrigger("NotHolding");

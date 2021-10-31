@@ -111,6 +111,36 @@ Transform:
   m_Father: {fileID: 8407551694068031932}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6868839349301860754
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6533156469711215498}
+  m_Layer: 0
+  m_Name: EdgeCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6533156469711215498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6868839349301860754}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8407551694068031932}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8407551692898335346
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +171,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8407551694068031932}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8407551692898335345
 MeshFilter:
@@ -222,7 +252,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8407551694068031932}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8407551693811472883
 MeshFilter:
@@ -302,11 +332,12 @@ Transform:
   m_LocalPosition: {x: -9.704846, y: 7.384116, z: -7.6129627}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 5241357468719608785}
   - {fileID: 8407551692898335347}
   - {fileID: 8407551693811472877}
-  - {fileID: 5241357468719608785}
   - {fileID: 1555360122}
   - {fileID: 5602049248117615679}
+  - {fileID: 6533156469711215498}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -336,7 +367,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numMovements: 7
-  bridgeTileCheck: {fileID: 2327180402703683357}
 --- !u!1001 &8126482454034689553
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -374,7 +404,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4069594236087033280, guid: 2c680d9822eb8fd4da4e250c1c9771f7, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4069594236087033280, guid: 2c680d9822eb8fd4da4e250c1c9771f7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

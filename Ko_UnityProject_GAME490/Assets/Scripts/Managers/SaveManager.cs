@@ -7,6 +7,7 @@ public class SaveManager : MonoBehaviour
 {
     private GameObject player;
     private GameObject savedInvisibleBlock;
+    private GameObject[] checkpoints;
     private string sceneName;
 
     // Floats for saving the player's position
@@ -31,6 +32,7 @@ public class SaveManager : MonoBehaviour
             LoadPlayerPosition();
             LoadPlayerRotation();
             cameraScript.CameraIndex = PlayerPrefs.GetInt("cameraIndex");
+            cameraScript.SetCameraPosition();
             OnFirstPuzzleCheck();
 
             PlayerPrefs.SetInt("TimeToLoad", 0);
@@ -146,14 +148,15 @@ public class SaveManager : MonoBehaviour
         {
             int puzzleNumber = gameManagerScript.puzzleNumber;
 
-            if (puzzleNumber >= 1 && puzzleNumber <= gameManagerScript.checkpoints.Length)
+            if (puzzleNumber >= 1 && puzzleNumber <= checkpoints.Length)
             {
                 Debug.Log("Debugging: Loaded Puzzle " + puzzleNumber);
-                Vector3 checkpointPosition = gameManagerScript.checkpoints[puzzleNumber - 1].position;
+                Vector3 checkpointPosition = checkpoints[puzzleNumber - 1].transform.position;
 
                 // Sets the player's position to loaded checkpoint's position
                 player.transform.position = new Vector3(checkpointPosition.x, 0, checkpointPosition.z);
                 cameraScript.CameraIndex = puzzleNumber - 1;
+                cameraScript.SetCameraPosition();
                 LoadPlayerRotation();
             }
         }     
@@ -174,6 +177,8 @@ public class SaveManager : MonoBehaviour
         gameManagerScript = FindObjectOfType<GameManager>();
         cameraScript = FindObjectOfType<CameraController>();
         player = FindObjectOfType<TileMovementController>().gameObject;
+
+        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
     }
 
 }

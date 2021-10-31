@@ -44,8 +44,6 @@ public class GameManager : MonoBehaviour
     private GameObject savedInvisibleBlock;
 
     [Header("Arrays")]
-    public Transform[] puzzleViews;
-    public Transform[] checkpoints;
     public Sprite[] loadingScreenImages;
     public Sprite[] loadingIconSprites;
 
@@ -206,25 +204,18 @@ public class GameManager : MonoBehaviour
     // Checks which scene to load next
     public void LoadNextSceneCheck()
     {
-        string currentScene = SceneManager.GetActiveScene().name;
-
-        if (/*currentScene != "MainMeu" || currentScene != "FifthMap"*/ !endCreditsScript.enabled)
+        if (!endCreditsScript.HasStartedEndCredits)
         {
-            // Return to main menu if the player hasn't finished the zone
-            if (!playerScript.HasFinishedZone)
-            {
+            // Returns to the main menu if the player hasn't finished the zone
+            if (playerScript != null && !playerScript.HasFinishedZone)
                 LoadMainMenu();
-            }
-            // Load the next zone if the player has finished the zone
+            // Loads the next sceen if the player has finsihed the zone
             else
-            {
-                LevelToLoadCheck();
-                StartCoroutine(LoadNextLevelAsync());
-            }
+                LoadNextScene();
         }
     }
 
-    // Loads the main menu
+    // Sets and loads the main menu
     public void LoadMainMenu()
     {
         levelToLoad = "MainMenu";
@@ -233,13 +224,17 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadSceneAsync(levelToLoad);
     }
 
-    // Disables player bools, plays chimeSFX, and triggers the fade to next level
-    public void FinishedZoneCheck()
+    // Sets and loads the next scene
+    public void LoadNextScene()
+    {
+        LevelToLoadCheck();
+        StartCoroutine(LoadNextLevelAsync());
+    }
+
+    // Checks if the saves for the artifacts should be deleted
+    public void ResetCollectedArtifactsCheck()
     {
         string currentScene = SceneManager.GetActiveScene().name;
-
-        //if (currentScene != "FifthMap")
-        transitionFadeScript.GameFadeOut();
 
         // Creates new save file - ONLY delete artifact saves here
         if (currentScene == "FifthMap" || currentScene == "TutorialMap")
@@ -269,6 +264,9 @@ public class GameManager : MonoBehaviour
             levelToLoad = "MainMenu";
         else if (currentScene == "MainMenu")
             levelToLoad = "FirstMap";
+        else
+            levelToLoad = "FirstMap";
+
     }
 
     // Sets a random image/sprite for the loading screen

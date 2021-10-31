@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 217230102313995880}
   - component: {fileID: 2198416894668903529}
   - component: {fileID: 3830829810108874947}
+  - component: {fileID: 5177209747709618301}
   - component: {fileID: 217230102313995883}
   m_Layer: 0
   m_Name: AnimationManager
@@ -138,6 +139,21 @@ MonoBehaviour:
   lerpLength: 3
   lerpSpeed: 10
   textFadeLength: 0.75
+--- !u!114 &5177209747709618301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217230102313995887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 492149d6a17f92d44a8de83c509e335a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  endCreditsLength: 40
+  fadeLogoLength: 2
+  scrollSpeedMutiplier: 3
 --- !u!114 &217230102313995883
 MonoBehaviour:
   m_ObjectHideFlags: 0

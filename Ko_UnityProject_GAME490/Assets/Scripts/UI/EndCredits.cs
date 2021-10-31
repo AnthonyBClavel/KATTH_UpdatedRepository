@@ -65,12 +65,6 @@ public class EndCredits : MonoBehaviour
         teamLogoOrigPos = teamLogo.GetComponent<RectTransform>().anchoredPosition;
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.I))
-            StartEndCredits();
-    }
-
     // Resets the end credits elements to defaults - called at the end of the secondFade's animation via animation event
     /*public void ResetEndCredits()
     {
@@ -124,12 +118,22 @@ public class EndCredits : MonoBehaviour
             mainMenuMusicScript.FadeOutMusicVolume();
     }*/
 
+    // Returns the value of the bool hasStartedCredits
+    public bool HasStartedEndCredits
+    {
+        get
+        {
+            return hasStartedCredits;
+        }
+    }
+
     // Checks to start the end credits
     public void StartEndCredits()
     {
         if (!hasStartedCredits)
-        {
-            Debug.Log("Has Started End Credits");
+        { 
+            //Debug.Log("Has Started End Credits");
+            //transitionFadeScript.GameFadeOut();
             endCredits.SetActive(true);
             FadeOutAudio();
             hasStartedCredits = true;
@@ -166,6 +170,7 @@ public class EndCredits : MonoBehaviour
         gameLogo.GetComponent<RectTransform>().anchoredPosition = gameLogoOrigPos;
         teamLogo.GetComponent<RectTransform>().anchoredPosition = teamLogoOrigPos;
 
+        blackOverlay.transform.SetAsLastSibling();
         endMessage.text = string.Empty;
         blackOverlay.color = zeroAlphaBO;
         gameLogo.color = zeroAlphaGL;
@@ -239,6 +244,7 @@ public class EndCredits : MonoBehaviour
         StartCoroutine(endMessageCorouitne);
     }
 
+    // Starts the coroutine that fades out the black overlay
     private void FadeOutOfEndCredits()
     {
         float fadeOutLength = transitionFadeScript.gameFadeOut;
@@ -254,8 +260,7 @@ public class EndCredits : MonoBehaviour
     private IEnumerator FadeOutAudioSequence()
     {
         float fadeAudioLength = transitionFadeScript.gameFadeOut;
-        transitionFadeScript.GameFadeOut();
-        // Fade out of the main music here  // Fade out main menu audio if applicable
+        // Fade out main menu audio if applicable here
 
         yield return new WaitForSeconds(fadeAudioLength);
         FadeOutZoneAudioCheck(); // Fade out zone audio if applicable
@@ -350,16 +355,21 @@ public class EndCredits : MonoBehaviour
 
         blackOverlay.color = fullAlphaBO;
 
-        if (!hasSkippedCredits)
+        if (currentScene == "MainMenu")
         {
-            yield return new WaitForSeconds(1.5f);
-            if (currentScene == "MainMenu")
-                Debug.Log("Need to set and load main menu canvas here");
-            else
-                gameManagerScript.LoadMainMenu();
-        }
-        else if (hasSkippedCredits)
             ResetEndCredits();
+            // Need to set and load main menu canvas here
+        }
+        else
+        {
+            if (endCreditsCoroutine != null)
+                StopCoroutine(endCreditsCoroutine);
+            if (endMessageCorouitne != null)
+                StopCoroutine(endMessageCorouitne);
+
+            yield return new WaitForSeconds(1.5f);
+            gameManagerScript.LoadMainMenu();
+        }
     }
 
     // Sets the scripts to use

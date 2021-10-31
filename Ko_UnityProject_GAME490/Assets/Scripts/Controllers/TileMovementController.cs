@@ -29,6 +29,7 @@ public class TileMovementController : MonoBehaviour
     private float resetPuzzleDelay;
     private int bridgeTileCount;
     private int bridgeNumber;
+    private int puzzleNumber;
     private new string tag;
     private new string name;
     private string objectToShakeName;
@@ -70,6 +71,8 @@ public class TileMovementController : MonoBehaviour
     private IntroManager introManagerScript;
     private ObjectShakeController objectShakeScript;
     private PuzzleManager puzzleManagerScript;
+    private TransitionFade transitionFadeScript;
+    private EndCredits endCreditsScript;
 
     void Awake()
     {
@@ -117,6 +120,19 @@ public class TileMovementController : MonoBehaviour
         set
         {
             checkpoint = value;
+        }
+    }
+
+    // Returns the value of puzzleNumber
+    public int PuzzleNumber
+    {
+        get
+        {
+            return puzzleNumber;
+        }
+        set
+        {
+            puzzleNumber = value;
         }
     }
 
@@ -419,8 +435,6 @@ public class TileMovementController : MonoBehaviour
 
         dialogueViewsHolder.transform.position = collider.transform.position;
         nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
-
-        ChangeAnimationState("Interacting");
     }
 
     // Calls the scripts and functions to begin/trigger the Artifact dialogue
@@ -498,6 +512,7 @@ public class TileMovementController : MonoBehaviour
 
             puzzle = currentTile.transform.parent.parent.gameObject;
             CheckpointManager checkpointManagerScript = checkpoint.GetComponent<CheckpointManager>();
+            ConvertObjectNameToNumber(puzzle, "Puzzle", ref puzzleNumber);
 
             int newNumMovements = checkpointManagerScript.getNumMovements();
             torchMeterScript.MaxVal = newNumMovements; // Sets the new max value for the torch meter
@@ -593,24 +608,21 @@ public class TileMovementController : MonoBehaviour
                 // Checks if the player has completed the zone - by landing on the final bridge
                 if (!hasFinishedZone)
                 {
-                    SetPlayerBoolsFalse();
+                    SetExitZoneElements();
                     audioManagerScript.PlayChimeSFX();
-                    gameManagerScript.FinishedZoneCheck();
-                    canSetBoolsTrue = false;
-                    canPlaySecondFootstep = false;
                     hasFinishedZone = true;
                 }
 
                 // Disables the SFX for the player's footsteps - ONLY disabled when transitioning to another zone/scene
-                if (bridgeTileCount == 8 && canPlayFootsteps != false)
-                {
-                    //Debug.Log("Disabled Footsteps SFX");
+                if (bridgeTileCount == 8 && canPlayFootsteps)
                     canPlayFootsteps = false;
-                }
 
                 // Doesn't look for the next bridge tile - ONLY occurs when the player is at the end of the final bridge (EndBridge)
                 if (bridgeTileCount == bridgeTileParentObject.transform.childCount)
+                {
                     canCheckForNextBridgeTile = false;
+                    StopPlayerCoroutines();
+                }
             }
 
             // Looks for the next bridge tile and sets it as the destination
@@ -731,6 +743,21 @@ public class TileMovementController : MonoBehaviour
         //hasDied = true;
     }
 
+    public void SetExitZoneElements()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+
+        // Plays the end credits after completing the final zone
+        if (currentScene == "FifthMap")
+            endCreditsScript.StartEndCredits();
+
+        gameManagerScript.ResetCollectedArtifactsCheck();
+        transitionFadeScript.GameFadeOut();
+        SetPlayerBoolsFalse();
+        canSetBoolsTrue = false;
+        canPlaySecondFootstep = false;
+    }
+
     // Sets the bools to false - prevents the player from moving, restarting puzzles, and interacting with anything
     public void SetPlayerBoolsFalse()
     {
@@ -798,13 +825,14 @@ public class TileMovementController : MonoBehaviour
     // Checks if the camera can move to the next puzzle view - does not move if on final puzzle
     private void NextPuzzleViewCheck()
     {
-        // Make sure the parent objects for the first and last bridge are correct (first bridge = "EntryBridge", last bridge = "EndBridge")
+        // Note: make sure the parent objects for the first and last bridge are correct (first bridge = "EntryBridge", last bridge = "EndBridge")
+        // The camera doesnt lerp if you land on these bridges...
         if (bridge.name != "EndBridge" && bridge.name != "EntryBridge" && !hasMovedPuzzleView)
         {
             ConvertObjectNameToNumber(bridge, "Bridge", ref bridgeNumber);
 
             //Debug.Log("Next Puzzle View Activated");
-            if (bridgeNumber == cameraScript.CameraIndex)
+            if (bridgeNumber != puzzleNumber)
                 cameraScript.PreviousPuzzleView();
             else
                 cameraScript.NextPuzzleView();
@@ -981,6 +1009,8 @@ public class TileMovementController : MonoBehaviour
         introManagerScript = FindObjectOfType<IntroManager>();
         objectShakeScript = FindObjectOfType<ObjectShakeController>();
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        endCreditsScript = FindObjectOfType<EndCredits>();
     }
 
     // Sets private variables, objects, and components
