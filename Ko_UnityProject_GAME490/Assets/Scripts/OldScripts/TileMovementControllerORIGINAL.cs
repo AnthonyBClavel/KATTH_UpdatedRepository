@@ -354,7 +354,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         Artifact artifactScript = collider.GetComponent<Artifact>();
 
-        if (!artifactScript.hasCollectedArtifact)
+        if (!artifactScript.HasCollectedArtifact)
         {
             //Debug.Log("Player has interacted with Artifact");
             //dialogueViewsHolder.transform.position = collider.transform.position;
@@ -595,7 +595,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             {
                 Artifact artifactScript = hit.collider.GetComponent<Artifact>();
 
-                if (!artifactScript.hasCollectedArtifact)
+                if (!artifactScript.HasCollectedArtifact)
                 {
                     characterDialogueScript.SetAlertBubbleActive();
                     return true;

@@ -122,9 +122,9 @@ public class TutorialDialogueManager : MonoBehaviour
         blackOverlay.SetActive(false);
         pauseMenuScript.enabled = true;
 
-        if (artifactScript.isInspectingArtifact)
+        if (artifactScript.IsInspectingArtifact)
         {
-            artifactScript.canRotateArtifact = true;
+            artifactScript.CanRotateArtifact = true;
             continueButtonCD.SetActive(true);
         }
         else

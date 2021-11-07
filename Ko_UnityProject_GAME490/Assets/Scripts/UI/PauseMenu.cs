@@ -18,37 +18,40 @@ public class PauseMenu : MonoBehaviour
     private bool canPlayButtonSFX;
     private bool hasPressedESC;
     private bool hasPlayedSelectedSFX;
+    private float fadeLength = 0.15f; // 9/60 fps
 
     [Header("Pause Menu Elements")]
-    private GameObject pauseMenuButtons;
-    private GameObject safetyMenuButtons;
     private GameObject optionsMenu;
     private GameObject safetyMenu;
     private GameObject pauseMenu;
-    private GameObject pauseMenuBG;
+    private GameObject background;
     private GameObject pauseFirstButton;
     private GameObject optionsClosedButton;
-    private GameObject mainMenuButton;
+    private GameObject quitToMainButton;
     private GameObject safetyFirstButton;
     private GameObject safetySecondButton;
     private GameObject safetyMenuText;
     private GameObject safetyMenuDeathScreenText;
+    private GameObject lastSelectedObject;
     //private GameObject optionsFirstButton;
 
     private Animator pauseMenuAnim;
-    private Animator pauseMenuBGAnim;
     private Animator optionsMenuAnim;
     private Animator safetyMenuAnim;
     private Animator deathScreenAnim;
 
-    private GameObject lastSelectedObject;
+    private Image pauseMenuBG;
+    private Color finalAlpha = new Color(0, 0, 0, 0.78f);
+    private Color zeroAlpha = new Color(0, 0, 0, 0);
     private GraphicRaycaster graphicsRaycaster;
+    private IEnumerator fadeBackgroundCoroutine;
+
     private EventSystem eventSystem;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
-    private TransitionFade transitionFadeScript;
+    private OptionsMenu optionsMenuScript;
 
     void Awake()
     {
@@ -59,6 +62,7 @@ public class PauseMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        DisableMenuInputsPS();
         isChangingScenes = false;
         isChangingMenus = false;
     }
@@ -82,14 +86,15 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         hasPlayedSelectedSFX = false;
-        pauseMenu.SetActive(true);
-        pauseMenuBG.SetActive(true);
         playerScript.SetPlayerBoolsFalse();
         audioManagerScript.PauseAllAudio();
+        pauseMenu.SetActive(true);
+        background.SetActive(true);
+        LerpPauseMenuBG(finalAlpha, fadeLength);
 
         eventSystem.SetSelectedGameObject(null); // Clear last selected object then...
         eventSystem.SetSelectedGameObject(pauseFirstButton); // Set new selected object
-        EnableMenuInputPS();
+        //EnableMenuInputPS(); // Now called at the end of LerpAlpha()
     }
 
     // Opens the options menu
@@ -151,12 +156,12 @@ public class PauseMenu : MonoBehaviour
             eventSystem.SetSelectedGameObject(optionsClosedButton);
         }
     }
-    public void SelectMainMenuButton()
+    public void SelectQuitToMainButton()
     {
-        if (lastSelectedObject != mainMenuButton)
+        if (lastSelectedObject != quitToMainButton)
         {
             eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(mainMenuButton);
+            eventSystem.SetSelectedGameObject(quitToMainButton);
         }
     }
     public void SelectYesButton()
@@ -228,6 +233,41 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+    // Starts the coroutine that fades the pause menu background
+    private void LerpPauseMenuBG(Color endAlpha, float duration)
+    {
+        if (fadeBackgroundCoroutine != null)
+            StopCoroutine(fadeBackgroundCoroutine);
+
+        fadeBackgroundCoroutine = LerpAlpha(endAlpha, duration);
+        StartCoroutine(fadeBackgroundCoroutine);
+    }
+
+    // Lerps the alpha of an image to another over a duration (endAlpha = alpha to lerp to, duration = seconds)
+    private IEnumerator LerpAlpha(Color endAlpha, float duration)
+    {
+        float time = 0;
+        Color startAlpha = pauseMenuBG.color;
+
+        while (time < duration)
+        {
+            pauseMenuBG.color = Color.Lerp(startAlpha, endAlpha, time / duration);
+            time += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        pauseMenuBG.color = endAlpha;
+
+        if (endAlpha == zeroAlpha)
+        {
+            isPaused = false;
+            isChangingMenus = false;
+            background.SetActive(false);
+            pauseMenu.SetActive(false);
+        }
+        else if (endAlpha == finalAlpha)
+            EnableMenuInputPS();
+    }
+
     // Delays the button input so you can actually see the button press animations
     private IEnumerator ResumeDelay()
     {
@@ -238,8 +278,8 @@ public class PauseMenu : MonoBehaviour
             audioManagerScript.PlayButtonClick01SFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
+        LerpPauseMenuBG(zeroAlpha, fadeLength);
         pauseMenuAnim.SetTrigger("PS_PopOut");
-        pauseMenuBGAnim.SetTrigger("PS_FadeOut");
         optionsMenu.SetActive(false);
         safetyMenu.SetActive(false);
         Time.timeScale = 1f;
@@ -247,11 +287,11 @@ public class PauseMenu : MonoBehaviour
         if (characterDialogueScript.canStartDialogue)  // When the player isn't interacting with an npc/artifact
             playerScript.SetPlayerBoolsTrue();
 
-        yield return new WaitForSecondsRealtime(0.15f);
+        // Lines below are now called at the end of LerpAlpha()
+        /*yield return new WaitForSecondsRealtime(fadeLength);
         isChangingMenus = false;
         isPaused = false;
-        pauseMenu.SetActive(false);
-        pauseMenuBG.SetActive(false);
+        pauseMenu.SetActive(false);*/
     }
 
     // For opening the options menu
@@ -353,7 +393,7 @@ public class PauseMenu : MonoBehaviour
             pauseMenu.SetActive(true);
 
         eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(mainMenuButton);
+        eventSystem.SetSelectedGameObject(quitToMainButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the pause menu's pop in animation
         EnableMenuInputPS();
     }
@@ -404,82 +444,101 @@ public class PauseMenu : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        optionsMenuScript = FindObjectOfType<OptionsMenu>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
 
-            if (child.name == "PauseMenuHolder")
+            if (child.name == "PauseMenuBG")
             {
-                GameObject pauseMenuHolder = child;
+                background = child;
+                pauseMenuBG = background.GetComponent<Image>();
+            }
 
-                for (int j = 0; j < pauseMenuHolder.transform.childCount; j++)
+            if (child.name == "PauseMenu")
+            {
+                pauseMenu = child;
+
+                for (int j = 0; j < pauseMenu.transform.childCount; j++)
                 {
-                    GameObject child02 = pauseMenuHolder.transform.GetChild(j).gameObject;
+                    GameObject child02 = pauseMenu.transform.GetChild(j).gameObject;
 
-                    if (child02.name == "PauseMenuBG")
-                        pauseMenuBG = child02;
-
-                    if (child02.name == "PauseMenu")
+                    if (child02.name == "ButtonLayout")
                     {
-                        pauseMenu = child02;
+                        GameObject pauseMenuButtonLayout = child02;
 
-                        for (int k = 0; k < pauseMenu.transform.childCount; k++)
+                        for (int k = 0; k < pauseMenuButtonLayout.transform.childCount; k++)
                         {
-                            GameObject child03 = pauseMenu.transform.GetChild(k).gameObject;
+                            GameObject child03 = pauseMenuButtonLayout.transform.GetChild(k).gameObject;
 
-                            if (child03.name == "ButtonHolder")
-                                pauseMenuButtons = child03;
+                            if (child03.name == "ResumeButton")
+                                pauseFirstButton = child03;
+                            if (child03.name == "OptionsButton")
+                                optionsClosedButton = child03;
+                            if (child03.name == "QuitToMainButton")
+                                quitToMainButton = child03;
                         }
                     }
                 }
             }
+        }
+
+        // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.parent.childCount; i++)
+        {
+            GameObject child = transform.parent.GetChild(i).gameObject;
 
             if (child.name == "SafetyMenu")
             {
                 safetyMenu = child;
 
-                for (int h = 0; h < safetyMenu.transform.childCount; h++)
+                for (int j = 0; j < safetyMenu.transform.childCount; j++)
                 {
-                    GameObject child04 = safetyMenu.transform.GetChild(h).gameObject;
+                    GameObject child02 = safetyMenu.transform.GetChild(j).gameObject;
 
-                    if (child04.name == "SafetyMenuAnim")
+                    if (child02.name == "SafetyMenuAnim")
                     {
-                        GameObject safteyMenuAnim = child04;
+                        GameObject safteyMenuAnim = child02;
 
-                        for (int g = 0; g < safteyMenuAnim.transform.childCount; g++)
+                        for (int k = 0; k < safteyMenuAnim.transform.childCount; k++)
                         {
-                            GameObject child05 = safteyMenuAnim.transform.GetChild(g).gameObject;
+                            GameObject child03 = safteyMenuAnim.transform.GetChild(k).gameObject;
 
-                            if (child05.name == "SafetyMenuRegularText")
-                                safetyMenuText = child05;
-                            if (child05.name == "SafetyMenuDeathScreenText")
-                                safetyMenuDeathScreenText = child05;
-                            if (child05.name == "ButtonHolder")
-                                safetyMenuButtons = child05;
+                            if (child03.name == "SafetyMenuRegularText")
+                                safetyMenuText = child03;
+                            if (child03.name == "SafetyMenuDeathScreenText")
+                                safetyMenuDeathScreenText = child03;
+                            if (child03.name == "ButtonHolder")
+                            {
+                                GameObject safetyMenuButtonLayout = child03;
+
+                                for (int l = 0; l < safetyMenuButtonLayout.transform.childCount; l++)
+                                {
+                                    GameObject child04 = safetyMenuButtonLayout.transform.GetChild(l).gameObject;
+
+                                    if (child04.name == "YesButton")
+                                        safetyFirstButton = child04;
+                                    if (child04.name == "NoButton")
+                                        safetySecondButton = child04;
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
 
-            if (child.name == "OptionsMenuHolder")
-            {
-                GameObject optionsMenuHolder = child;
+        for (int i = 0; i < optionsMenuScript.transform.childCount; i++)
+        {
+            GameObject child = optionsMenuScript.transform.GetChild(i).gameObject;
 
-                for (int f = 0; f < optionsMenuHolder.transform.childCount; f++)
-                {
-                    GameObject child06 = optionsMenuHolder.transform.GetChild(f).gameObject;
-
-                    if (child06.name == "OptionsMenu")
-                        optionsMenu = child06;
-                }
-            }
+            if (child.name == "OptionsMenu")
+                optionsMenu = child;
         }
 
         for (int i = 0; i < gameHUDScript.transform.childCount; i++)
@@ -490,33 +549,10 @@ public class PauseMenu : MonoBehaviour
                 deathScreenAnim = child.GetComponent<Animator>();
         }
 
-        for (int i = 0; i < pauseMenuButtons.transform.childCount; i++)
-        {
-            GameObject child = pauseMenuButtons.transform.GetChild(i).gameObject;
-
-            if (child.name == "ResumeButton")
-                pauseFirstButton = child;
-            if (child.name == "OptionsButton")
-                optionsClosedButton = child;
-            if (child.name == "MainMenuButton")
-                mainMenuButton = child;
-        }
-
-        for (int i = 0; i < safetyMenuButtons.transform.childCount; i++)
-        {
-            GameObject child = safetyMenuButtons.transform.GetChild(i).gameObject;
-
-            if (child.name == "YesButton")
-                safetyFirstButton = child;
-            if (child.name == "NoButton")
-                safetySecondButton = child;
-        }
-
         pauseMenuAnim = pauseMenu.GetComponent<Animator>();
-        pauseMenuBGAnim = pauseMenuBG.GetComponent<Animator>();
         optionsMenuAnim = optionsMenu.GetComponent<Animator>();
         safetyMenuAnim = safetyMenu.GetComponent<Animator>();
-        graphicsRaycaster = GetComponent<GraphicRaycaster>();
+        graphicsRaycaster = transform.parent.GetComponent<GraphicRaycaster>();
     }
 
     private void EnableMenuInputPS()

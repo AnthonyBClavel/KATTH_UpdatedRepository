@@ -156,14 +156,14 @@ public class Tutorial : MonoBehaviour
             hasPassedBridge = true;
         }
 
-        if (artifactScript.isInspectingArtifact && !hasPlayedArtifacts)
+        if (artifactScript.IsInspectingArtifact && !hasPlayedArtifacts)
         {
             setDialogue(artifcatsDialogue);
             currentDialogue = artifcatsDialogue;
             startDialogue();
 
             continueButtonCD.SetActive(false);
-            artifactScript.canRotateArtifact = false;
+            artifactScript.CanRotateArtifact = false;
             hasPlayedArtifacts = true;
         }
 

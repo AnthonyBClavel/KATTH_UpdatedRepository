@@ -7,12 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
-    public AudioMixer theMixer;
-
-    private Slider masterSlider;
-    private Slider musicSlider;
-    private Slider sfxSlider;
-
     private float originalVolumeBGM; // BGM = background music
     private float originalVolumeDM; // DM = dialogue music
     private float originalVolumeECM; // ECM = end credits music
@@ -131,7 +125,6 @@ public class AudioManager : MonoBehaviour
     private AudioClip lastWoodFootstepClip;
     private AudioClip lastCrateFootstepClip;
 
-    private OptionsMenu optionsMenuScript;
     private TileMovementController playerScript;
     private TransitionFade transitionFadeScript;
 
@@ -145,7 +138,6 @@ public class AudioManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SetVolumeSliders();
         SetAudioLoopsActiveCheck();
     }
 
@@ -866,23 +858,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    // Sets the volume sliders in the options menu to the last saved value - MUST be called in start
-    private void SetVolumeSliders()
-    {
-        masterSlider = optionsMenuScript.masterSlider;
-        musicSlider = optionsMenuScript.musicSlider;
-        sfxSlider = optionsMenuScript.sfxSlider;
-
-        if (PlayerPrefs.HasKey("MasterVol"))
-            masterSlider.value = PlayerPrefs.GetFloat("MasterVol", masterSlider.value);
-
-        if (PlayerPrefs.HasKey("MusicVol"))
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVol", musicSlider.value);
-
-        if (PlayerPrefs.HasKey("SFXVol"))
-            sfxSlider.value = PlayerPrefs.GetFloat("SFXVol", sfxSlider.value);
-    }
-
     // Determines the music to play for each scene
     private void SetMusic()
     {
@@ -916,32 +891,7 @@ public class AudioManager : MonoBehaviour
         string sceneName = SceneManager.GetActiveScene().name;
 
         if (sceneName != "MainMenu")
-        {
-            PauseMenu pauseMenuScript = FindObjectOfType<PauseMenu>();
-
-            // Sets the game objects by looking at names of children
-            for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
-            {
-                GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
-
-                if (child.name == "OptionsMenuHolder")
-                {
-                    GameObject optionsMenuHolder = child;
-
-                    for (int j = 0; j < optionsMenuHolder.transform.childCount; j++)
-                    {
-                        GameObject child02 = optionsMenuHolder.transform.GetChild(j).gameObject;
-
-                        if (child02.name == "OptionsMenu")
-                            optionsMenuScript = child02.GetComponent<OptionsMenu>();
-                    }
-                }
-            }
-
             playerScript = FindObjectOfType<TileMovementController>();
-        }
-        else
-            optionsMenuScript = FindObjectOfType<MainMenu>().optionsScreen.GetComponent<OptionsMenu>();
 
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }

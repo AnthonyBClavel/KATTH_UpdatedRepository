@@ -48,7 +48,7 @@ public class EndCredits : MonoBehaviour
 
     private AudioManager audioManagerScript;
     private MainMenuMusicScript mainMenuMusicScript;
-    private PauseMenu pauseMenuScript;
+    private OptionsMenu optionsMenuScript;
     private GameManager gameManagerScript;
     private TransitionFade transitionFadeScript;
 
@@ -379,7 +379,7 @@ public class EndCredits : MonoBehaviour
             mainMenuMusicScript = FindObjectOfType<MainMenuMusicScript>();
 
         audioManagerScript = FindObjectOfType<AudioManager>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        optionsMenuScript = FindObjectOfType<OptionsMenu>();
         gameManagerScript = FindObjectOfType<GameManager>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
@@ -388,9 +388,9 @@ public class EndCredits : MonoBehaviour
     private void SetElements()
     {
         // Sets the game objects by looking at names of children
-        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        for (int i = 0; i < optionsMenuScript.transform.parent.childCount; i++)
         {
-            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+            GameObject child = optionsMenuScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "EndCredits")
             {

@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator loadingIconCoroutine;
     private TileMovementController playerScript;
-    private PauseMenu pauseMenuScript;
+    private OptionsMenu optionsMenuScript;
     private TransitionFade transitionFadeScript;
     private BlackBars blackBarsScript;
     private SaveManager saveManagerScript;
@@ -359,7 +359,7 @@ public class GameManager : MonoBehaviour
     private void SetScripts()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        optionsMenuScript = FindObjectOfType<OptionsMenu>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
         saveManagerScript = FindObjectOfType<SaveManager>();
         blockMovementScript = FindObjectOfType<BlockMovementController>();
@@ -378,9 +378,9 @@ public class GameManager : MonoBehaviour
     private void SetElements()
     {
         // Sets the game objects by looking at names of children
-        for (int i = 0; i < pauseMenuScript.transform.childCount; i++)
+        for (int i = 0; i < optionsMenuScript.transform.parent.childCount; i++)
         {
-            GameObject child = pauseMenuScript.transform.GetChild(i).gameObject;
+            GameObject child = optionsMenuScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "BlackLoadingScreen")
                 blackLoadingScreen = child;

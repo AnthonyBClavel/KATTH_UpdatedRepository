@@ -195,7 +195,7 @@ public class NPCFidgetController : MonoBehaviour
     // Sets the canLookForCurrentAnimation bool - false if the NPC doesn't have enough fidget animations
     private void CanFidgetDuringIdleCheck()
     {
-        string characterName = nPCScript.ReturnCharacterName();
+        string characterName = nPCScript.CharacterName;
 
         if (characterName == "BabyMammoth" || characterName == "Fisherman")
             canFidgetDuringIdle = false;

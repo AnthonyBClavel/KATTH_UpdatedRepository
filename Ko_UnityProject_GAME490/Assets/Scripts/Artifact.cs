@@ -5,11 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class Artifact : MonoBehaviour
 {
-    [Header("Bools")]
-    public bool canRotateArtifact = false;
-    public bool hasInspectedArtifact = false;
-    public bool hasCollectedArtifact = false;
-    public bool isInspectingArtifact = false;
+    private bool canRotateArtifact = false;
+    private bool hasInspectedArtifact = false;
+    private bool hasCollectedArtifact = false;
+    private bool isInspectingArtifact = false;
 
     private float rotateWithKeysSpeed; // 200f
     private float rotateWithMouseSpeed; // 500f
@@ -41,9 +40,8 @@ public class Artifact : MonoBehaviour
     private IEnumerator previousViewCoroutine;
     private IEnumerator closeChestCoroutine;
 
-    [Header("Artifact Dialogue Array")]
-    public TextAsset[] artifactDialogueFiles;
     public TextAsset dialogueOptionsFile;
+    public TextAsset[] artifactDialogueFiles;
 
     private CameraController cameraScript;
     private CharacterDialogue characterDialogueScript;
@@ -76,6 +74,45 @@ public class Artifact : MonoBehaviour
         CanRotateArtifactCheck();
     }
 
+    // Return or sets the value of the bool canRotateArtifact
+    public bool CanRotateArtifact
+    {
+        get
+        {
+            return canRotateArtifact;
+        }
+        set
+        {
+            canRotateArtifact = value;
+        }
+    }
+
+    // Return or sets the value of the bool hasInspectedArtifact
+    public bool HasInspectedArtifact
+    {
+        get
+        {
+            return hasInspectedArtifact;
+        }
+        set
+        {
+            hasInspectedArtifact = value;
+        }
+    }
+
+    // Return or sets the value of the bool HasCollectedArtifact
+    public bool HasCollectedArtifact
+    {
+        get
+        {
+            return hasCollectedArtifact;
+        }
+        set
+        {
+            hasCollectedArtifact = value;
+        }
+    }
+
     // Returns or sets the value of rotateWithKeysSpeed
     public float RotateWithKeysSpeed
     {
@@ -86,6 +123,19 @@ public class Artifact : MonoBehaviour
         set
         {
             rotateWithKeysSpeed = value;
+        }
+    }
+
+    // Return or sets the value of the bool isInspectingArtifact
+    public bool IsInspectingArtifact
+    {
+        get
+        {
+            return isInspectingArtifact;
+        }
+        set
+        {
+            isInspectingArtifact = value;
         }
     }
 

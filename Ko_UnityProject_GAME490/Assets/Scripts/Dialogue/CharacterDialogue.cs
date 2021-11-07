@@ -595,7 +595,7 @@ public class CharacterDialogue : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
-                    if (isInteractingWithArtifact && !artifactScript.hasInspectedArtifact)
+                    if (isInteractingWithArtifact && !artifactScript.HasInspectedArtifact)
                         dialogueOptionsIndex = 0;
                     else
                         dialogueOptionsIndex--;
@@ -609,7 +609,7 @@ public class CharacterDialogue : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
                 {
-                    if (isInteractingWithArtifact && !artifactScript.hasInspectedArtifact)
+                    if (isInteractingWithArtifact && !artifactScript.HasInspectedArtifact)
                         dialogueOptionsIndex = dialogueQuestions.Length - 1;
                     else
                         dialogueOptionsIndex++;
@@ -626,11 +626,11 @@ public class CharacterDialogue : MonoBehaviour
                 {
                     if (!isInteractingWithArtifact)
                     {
-                        if (!nPCScript.hasPlayedOptionOne)
+                        if (!nPCScript.HasPlayedOptionOne)
                         {
                             setPlayerDialogue(nPCScript.playerDialogueFiles[2]);
                             setNPCDialogue(nPCScript.nPCDialogueFiles[2]);
-                            nPCScript.hasPlayedOptionOne = true;
+                            nPCScript.HasPlayedOptionOne = true;
                         }
                         else
                         {
@@ -643,7 +643,7 @@ public class CharacterDialogue : MonoBehaviour
                     }
                     else
                     {
-                        artifactScript.hasInspectedArtifact = true;
+                        artifactScript.HasInspectedArtifact = true;
                         artifactScript.InspectArtifact();
                         CloseDialogueOptionsBuble();
                     }                                         
@@ -668,11 +668,11 @@ public class CharacterDialogue : MonoBehaviour
                 {
                     if (!isInteractingWithArtifact)
                     {
-                        if (!nPCScript.hasPlayedOptionTwo)
+                        if (!nPCScript.HasPlayedOptionTwo)
                         {
                             setPlayerDialogue(nPCScript.playerDialogueFiles[4]);
                             setNPCDialogue(nPCScript.nPCDialogueFiles[4]);
-                            nPCScript.hasPlayedOptionTwo = true;                          
+                            nPCScript.HasPlayedOptionTwo = true;                        
                         }
                         else
                         {
@@ -686,7 +686,7 @@ public class CharacterDialogue : MonoBehaviour
                     else
                     {
                         playerScript.ChangeAnimationState("Interacting");
-                        artifactScript.hasCollectedArtifact = true;
+                        artifactScript.HasCollectedArtifact = true;
                         artifactScript.SaveCollectedArtifact();
                         artifactScript.CloseChest();
                         StartCoroutine("EndDialogueDelay");
@@ -1127,15 +1127,15 @@ public class CharacterDialogue : MonoBehaviour
     {
         StartCoroutine("SetDialogueArrowActiveDelay");
 
-        if (!nPCScript.hasLoadedInitialDialogue && !isInteractingWithArtifact)
-            nPCScript.hasLoadedInitialDialogue = true;
+        if (!nPCScript.HasPlayedInitialDialogue && !isInteractingWithArtifact)
+            nPCScript.HasPlayedInitialDialogue = true;
 
         dialogueOptionOne.SetActive(true);
         dialogueOptionThree.SetActive(true);
         optionOneText.text = dialogueQuestions[0];
         optionThreeText.text = dialogueQuestions[2];
 
-        if (isInteractingWithArtifact && artifactScript.hasInspectedArtifact || isInteractingWithNPC)
+        if (isInteractingWithArtifact && artifactScript.HasInspectedArtifact || isInteractingWithNPC)
         {
             dialogueOptionTwo.SetActive(true);
             optionTwoText.text = dialogueQuestions[1];
@@ -1261,15 +1261,15 @@ public class CharacterDialogue : MonoBehaviour
         if (isInteractingWithNPC)
         {
             nPCScript.SetRotationNPC();
-            nPCForegroundText.color = nPCScript.ReturnTextColor();
+            nPCForegroundText.color = nPCScript.DialogueTextColor;
 
-            if (!nPCScript.hasLoadedInitialDialogue)
+            if (!nPCScript.HasPlayedInitialDialogue)
             {
                 setPlayerDialogue(nPCScript.playerDialogueFiles[0]);
                 setNPCDialogue(nPCScript.nPCDialogueFiles[0]);         
             }
 
-            else if (nPCScript.hasLoadedInitialDialogue)
+            else if (nPCScript.HasPlayedInitialDialogue)
             {
                 setPlayerDialogue(nPCScript.playerDialogueFiles[1]);
                 setNPCDialogue(nPCScript.nPCDialogueFiles[1]);
