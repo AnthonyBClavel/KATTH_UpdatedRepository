@@ -232,7 +232,7 @@ public class Artifact : MonoBehaviour
     // Checks if the player can reset the artifact's rotation
     private void ResetArtifactRotationCheck()
     {
-        if (Input.GetKeyDown(KeyCode.R) && canRotateArtifact && !pauseMenuScript.isChangingScenes && pauseMenuScript.canPause)
+        if (Input.GetKeyDown(KeyCode.R) && canRotateArtifact && !transitionFadeScript.IsChangingScenes && pauseMenuScript.CanPause)
         {
             if (isInspectingArtifact)
                 SetInspectingRotation();
@@ -318,7 +318,7 @@ public class Artifact : MonoBehaviour
     // Checks if the artifact can be rotated
     private void CanRotateArtifactCheck()
     {
-        if (canRotateArtifact && !pauseMenuScript.isChangingScenes && pauseMenuScript.canPause)
+        if (canRotateArtifact && !transitionFadeScript.IsChangingScenes && pauseMenuScript.CanPause)
         {
             //DebuggingCheck();
 

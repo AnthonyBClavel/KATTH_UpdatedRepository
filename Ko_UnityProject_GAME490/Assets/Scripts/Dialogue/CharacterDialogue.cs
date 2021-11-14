@@ -154,6 +154,7 @@ public class CharacterDialogue : MonoBehaviour
     private BlackBars blackBarsScript;
     private GameHUD gameHUDScript;
     private DialogueArrow dialogueArrowScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -361,7 +362,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks for when the player can load the next dialogue sentence
     private void ContinueButtonCheck()
     {
-        if (!pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.canPause && pauseMenuScript.enabled)
+        if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && pauseMenuScript.enabled)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
@@ -391,7 +392,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see if the dialogue can continue
     private void ContinueDialogueCheck()
     {
-        if (!pauseMenuScript.isChangingScenes)
+        if (!transitionFadeScript.IsChangingScenes)
         {
             NextDialogueSentenceCheck();
             hasSetBubbleDefaultPosX = false;
@@ -589,7 +590,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see when the dialogue arrow can be move and execute functions
     private void DialogueArrowCheck()
     {
-        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !pauseMenuScript.isChangingScenes && !pauseMenuScript.isPaused && pauseMenuScript.canPause)
+        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause)
         {
             if (dialogueOptionsIndex != 0)
             {
@@ -1442,6 +1443,7 @@ public class CharacterDialogue : MonoBehaviour
         blackBarsScript = FindObjectOfType<BlackBars>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         dialogueArrowScript = FindObjectOfType<DialogueArrow>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components

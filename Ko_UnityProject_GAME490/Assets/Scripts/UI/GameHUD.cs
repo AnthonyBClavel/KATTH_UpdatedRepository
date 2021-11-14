@@ -8,7 +8,6 @@ using TMPro;
 public class GameHUD : MonoBehaviour
 {
     [Header("Bools")]
-    public bool isDeathScreen;
     public bool canToggleHUD;
 
     [Header("Text Meshes")]
@@ -29,6 +28,7 @@ public class GameHUD : MonoBehaviour
     private NotificationBubbles notificationBubblesScript;
     private GameManager gameManagerScript;
     private PuzzleManager puzzleManagerScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -55,21 +55,25 @@ public class GameHUD : MonoBehaviour
     // Turns the HUD on
     public void TurnOnHUD()
     {
+        string sceneName = SceneManager.GetActiveScene().name;
+
         torchMeter.SetActive(true);
         torchMeterScript.PlayTorchFlameIconAnim();
         notificationBubblesHolder.SetActive(true);
 
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
+        if (sceneName == "TutorialMap")
             skipSceneButton.SetActive(true);
     }
 
     // Turns the HUD off
     public void TurnOffHUD()
     {
+        string sceneName = SceneManager.GetActiveScene().name;
+
         torchMeter.SetActive(false);
         notificationBubblesHolder.SetActive(false);
 
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
+        if (sceneName == "TutorialMap")
             skipSceneButton.SetActive(false);
     }
 
@@ -91,15 +95,7 @@ public class GameHUD : MonoBehaviour
     public void SetDeathScreenActive()
     {
         deathScreen.SetActive(true);
-        isDeathScreen = true;
         audioManagerScript.PlayDeathScreenSFX();
-    }
-
-    // Sets the death screen inactive
-    public void SetDeathScreenInactive()
-    {
-        deathScreen.SetActive(false);
-        isDeathScreen = false;
     }
 
     // Updates the artifact notification bubble with the current amount of artifacts collected
@@ -138,7 +134,7 @@ public class GameHUD : MonoBehaviour
     // Checks when the HUD elements can be toggled
     private void CanToggleCheck()
     {
-        if (pauseMenuScript.canPause && !pauseMenuScript.isPaused && !pauseMenuScript.isChangingScenes && pauseMenuScript.isActiveAndEnabled && !playerScript.onBridge())
+        if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && pauseMenuScript.isActiveAndEnabled && !playerScript.onBridge())
         {
             if (canToggleHUD != true)
                 canToggleHUD = true;
@@ -153,27 +149,18 @@ public class GameHUD : MonoBehaviour
     // Checks when death screen can recieve input
     private void DeathScreenInputCheck()
     {
-        if (isDeathScreen && !pauseMenuScript.isChangingMenus)
+        if (deathScreen.activeSelf && !pauseMenuScript.IsChangingMenus)
         {
-            if (Input.GetKeyDown(KeyCode.Q) && !pauseMenuScript.isSafetyMenu)
+            if (Input.GetKeyDown(KeyCode.Q) && !pauseMenuScript.IsSafetyMenu)
                 pauseMenuScript.OpenSafetyMenu();
 
             if (Input.GetKeyDown(KeyCode.R))
             {
                 playerScript.CurrentCheckpoint.GetComponent<CheckpointManager>().ResetPlayer();
                 puzzleManagerScript.ResetPuzzle(0f);
-                SetDeathScreenInactive();
+                deathScreen.SetActive(false);
             }           
         }
-    }
-
-    // Sets the death screen elements active after a delay
-    private IEnumerator SetDeathScreenActiveDelay(float seconds)
-    {
-        yield return new WaitForSeconds(gameManagerScript.resetPuzzleDelay);
-        deathScreen.SetActive(true);
-        isDeathScreen = true;
-        audioManagerScript.PlayDeathScreenSFX();
     }
 
     // Sets the scripts to use
@@ -186,6 +173,7 @@ public class GameHUD : MonoBehaviour
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         gameManagerScript = FindObjectOfType<GameManager>();
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
@@ -202,6 +190,8 @@ public class GameHUD : MonoBehaviour
                 notificationBubblesHolder = child;
             if (child.name == "TorchMeter")
                 torchMeter = child;
+            if (child.name == "SkipSceneButton")
+                skipSceneButton = child;
         }
 
         for (int i = 0; i < puzzleBubbleColorText.transform.childCount; i++)
@@ -219,9 +209,6 @@ public class GameHUD : MonoBehaviour
             if (child.name == "ForegroundText")
                 artifactForegroundText = child.GetComponent<TextMeshProUGUI>();
         }
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            skipSceneButton = FindObjectOfType<SkipSceneButton>().gameObject;
     }
 
 }

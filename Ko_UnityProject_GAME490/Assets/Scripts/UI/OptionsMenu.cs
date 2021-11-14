@@ -9,8 +9,7 @@ public class OptionsMenu : MonoBehaviour
 {
     public AudioMixer theMixer;
 
-    public ResItem[] resolutions; // Resolutions: (540 X 960), (720 x 1280), (1080 x 1920)
-    public ResItem[] resolutions2; // Resolutions: (540 X 960), (720 x 1280), (1080 x 1920)
+    private ResItem[] resolutions;
     private int selectedResolution;
 
     private Slider masterSlider;
@@ -48,17 +47,16 @@ public class OptionsMenu : MonoBehaviour
         SetVSyncCheck();
         SetResolutionCheck();
         SetVolumeSliders();
-        SetResolutionsArray();
     }
 
     // Closes the options menu
     public void CloseOptionsMenu()
     {
-        pauseMenuScript.CloseOptions();
+        pauseMenuScript.CloseOptionsMenu();
     }
 
-    // Selects the next smallest resolution - for pressing the left arrow on the resolution label
-    public void ResLeft()
+    // Selects the previous resolution - for pressing the left arrow on the resolution label
+    public void PreviousResolution()
     {
         selectedResolution--;
 
@@ -68,8 +66,8 @@ public class OptionsMenu : MonoBehaviour
         UpdateCurrentResolutionLabel();
     }
 
-    // Selects the next biggest resolution - for pressing the right arrow on the resolution label
-    public void ResRight()
+    // Selects the next resolution - for pressing the right arrow on the resolution label
+    public void NextResolution()
     {
         selectedResolution++;
 
@@ -141,12 +139,6 @@ public class OptionsMenu : MonoBehaviour
             sFXSlider.value = PlayerPrefs.GetFloat("SFXVol");
     }
 
-    // Updates the current resolution text
-    private void UpdateCurrentResolutionLabel()
-    {
-        currentResolutionText.text = resolutions[selectedResolution].horizontal.ToString() + " x " + resolutions[selectedResolution].vertical.ToString();
-    }
-
     // Checks if vsync is on/off
     private void SetVSyncCheck()
     {
@@ -175,11 +167,24 @@ public class OptionsMenu : MonoBehaviour
             currentResolutionText.text = Screen.width.ToString() + " x " + Screen.height.ToString();
     }
 
+    // Updates the current resolution text
+    private void UpdateCurrentResolutionLabel()
+    {
+        currentResolutionText.text = resolutions[selectedResolution].horizontal.ToString() + " x " + resolutions[selectedResolution].vertical.ToString();
+    }
 
+    // Sets the resolutions to use - (540 X 960), (720 x 1280), (1080 x 1920)
     private void SetResolutionsArray()
     {
-        //resolutions2 = new ResItem[3];
-        resolutions2[0].vertical = 100;
+        resolutions = new ResItem[3];
+
+        ResItem firstResolution = new ResItem { vertical = 540, horizontal = 960 };
+        ResItem secondResolution = new ResItem { vertical = 720, horizontal = 1280 };
+        ResItem thirdResolution = new ResItem { vertical = 1080, horizontal = 1920 };
+
+        resolutions[0] = firstResolution;
+        resolutions[1] = secondResolution;
+        resolutions[2] = thirdResolution;
     }
 
     // Sets private variables, game objects, and components
@@ -297,8 +302,8 @@ public class OptionsMenu : MonoBehaviour
                 }
             }
         }
+        SetResolutionsArray();
     }
-
 }
 
 [System.Serializable]

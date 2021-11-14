@@ -91,7 +91,7 @@ public class CheckpointManager : MonoBehaviour
 
         playerScript.StopPlayerCoroutines();
         playerAnimator.enabled = true;
-        pauseMenuScript.canPause = true;
+        pauseMenuScript.CanPause = true;
 
         player.transform.position = checkpointPosition;
         saveManagerScript.LoadPlayerRotation();
@@ -116,7 +116,7 @@ public class CheckpointManager : MonoBehaviour
         iceMaterialScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
-        pauseMenuScript.canPause = false;
+        pauseMenuScript.CanPause = false;
 
         yield return new WaitForSeconds(seconds);
         if (!gameManagerScript.canDeathScreen)

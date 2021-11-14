@@ -8,19 +8,18 @@ using TMPro;
 
 public class PauseMenu : MonoBehaviour
 {
-    [Header("Bools")]
-    public bool canPause;
-    public bool isPaused;
-    public bool isOptionsMenu;
-    public bool isSafetyMenu;
-    public bool isChangingMenus;
-    public bool isChangingScenes;
-    private bool canPlayButtonSFX;
-    private bool hasPressedESC;
-    private bool hasPlayedSelectedSFX;
     private float fadeLength = 0.15f; // 9/60 fps
 
-    [Header("Pause Menu Elements")]
+    private bool canPause = true;
+    private bool isPaused = false;
+    private bool isOptionsMenu = false;
+    private bool isSafetyMenu = false;
+    private bool isChangingMenus = false;
+    private bool canPlayButtonSFX = false;
+    private bool hasPressedESC = true;
+    private bool hasPlayedSelectedSFX = true;
+
+    private GameObject deathScreen;
     private GameObject optionsMenu;
     private GameObject safetyMenu;
     private GameObject pauseMenu;
@@ -46,12 +45,14 @@ public class PauseMenu : MonoBehaviour
     private GraphicRaycaster graphicsRaycaster;
     private IEnumerator fadeBackgroundCoroutine;
 
-    private EventSystem eventSystem;
+    private EventSystem eventSystemScript;
     private GameHUD gameHUDScript;
     private CharacterDialogue characterDialogueScript;
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
     private OptionsMenu optionsMenuScript;
+    private SafetyMenu safetyMenuScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -62,9 +63,8 @@ public class PauseMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        DisableMenuInputsPS();
-        isChangingScenes = false;
-        isChangingMenus = false;
+        graphicsRaycaster.enabled = false;
+        eventSystemScript.sendNavigationEvents = false;
     }
 
     // Update is called once per frame
@@ -74,10 +74,50 @@ public class PauseMenu : MonoBehaviour
         PressingESC();
     }
 
+    // Returns the value of isChangingMenus
+    public bool IsChangingMenus
+    {
+        get
+        {
+            return isChangingMenus;
+        }
+    }
+
+    // Returns the value of isSafetyMenu
+    public bool IsSafetyMenu
+    {
+        get
+        {
+            return isSafetyMenu;
+        }
+    }
+
+    // Returns the value of isPaused
+    public bool IsPaused
+    {
+        get
+        {
+            return isPaused;
+        }
+    }
+
+    // Returns or sets the value of canPause
+    public bool CanPause
+    {
+        get
+        {
+            return canPause;
+        }
+        set
+        {
+            canPause = value;
+        }
+    }
+
     // Resumes the game
     public void Resume()
     {
-        StartCoroutine("ResumeDelay");
+        StartCoroutine(ResumeDelay());
     }
 
     // Pauses the game
@@ -86,57 +126,51 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         hasPlayedSelectedSFX = false;
-        playerScript.SetPlayerBoolsFalse();
-        audioManagerScript.PauseAllAudio();
         pauseMenu.SetActive(true);
         background.SetActive(true);
+        playerScript.SetPlayerBoolsFalse();
+        audioManagerScript.PauseAllAudio();
         LerpPauseMenuBG(finalAlpha, fadeLength);
 
-        eventSystem.SetSelectedGameObject(null); // Clear last selected object then...
-        eventSystem.SetSelectedGameObject(pauseFirstButton); // Set new selected object
+        eventSystemScript.SetSelectedGameObject(null); // Clear last selected object then...
+        eventSystemScript.SetSelectedGameObject(pauseFirstButton); // Set new selected object
         //EnableMenuInputPS(); // Now called at the end of LerpAlpha()
     }
 
     // Opens the options menu
-    public void OpenOptions()
+    public void OpenOptionsMenu()
     {
-        StartCoroutine("OpenOptionsDelay");
+        StartCoroutine(OpenOptionsDelay());
     }
 
     // Closes the options menu
-    public void CloseOptions()
+    public void CloseOptionsMenu()
     {
-        StartCoroutine("CloseOptionsDelay");
+        StartCoroutine(CloseOptionsDelay());
     }
-
-    // Load the main menu scene
-    /*public void QuitToMain()
-    {
-        gameManagerScript.LoadNextSceneCheck();
-    }*/
 
     // Opens the safety menu
     public void OpenSafetyMenu()
     {
-        if (gameHUDScript.isDeathScreen)
-            StartCoroutine("OpenSafetyMenuDelay_DS");
+        if (deathScreen.activeSelf)
+            StartCoroutine(OpenSafetyMenuDelay_DS());
         else
-            StartCoroutine("OpenSafetyMenuDelay");
+            StartCoroutine(OpenSafetyMenuDelay());
     }
 
     // Closes the saftey menu (after pressing "no" button)
     public void CloseSafetyMenu()
     {
-        if (gameHUDScript.isDeathScreen)
-            StartCoroutine("CloseSafetyMenuDelay_DS");
+        if (deathScreen.activeSelf)
+            StartCoroutine(CloseSafetyMenuDelay_DS());
         else
-            StartCoroutine("CloseSafetyMenuDelay");
+            StartCoroutine(CloseSafetyMenuDelay());
     }
 
     // Closes the saftey menu (after pressing "yes" button)
     public void CloseSafetyMenu02()
     {
-        StartCoroutine("CloseSafetyMenuDelay02");
+        StartCoroutine(CloseSafetyMenuDelay02());
     }
 
     /*** "On Pointer Enter" functions start here ***/
@@ -144,40 +178,40 @@ public class PauseMenu : MonoBehaviour
     {
         if (lastSelectedObject != pauseFirstButton)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(pauseFirstButton);
+            eventSystemScript.SetSelectedGameObject(null);
+            eventSystemScript.SetSelectedGameObject(pauseFirstButton);
         }
     }
     public void SelectOptionsButton()
     {
         if (lastSelectedObject != optionsClosedButton)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(optionsClosedButton);
+            eventSystemScript.SetSelectedGameObject(null);
+            eventSystemScript.SetSelectedGameObject(optionsClosedButton);
         }
     }
     public void SelectQuitToMainButton()
     {
         if (lastSelectedObject != quitToMainButton)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(quitToMainButton);
+            eventSystemScript.SetSelectedGameObject(null);
+            eventSystemScript.SetSelectedGameObject(quitToMainButton);
         }
     }
     public void SelectYesButton()
     {
         if (lastSelectedObject != safetyFirstButton)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(safetyFirstButton);
+            eventSystemScript.SetSelectedGameObject(null);
+            eventSystemScript.SetSelectedGameObject(safetyFirstButton);
         }
     }
     public void SelectNoButton()
     {
         if (lastSelectedObject != safetySecondButton)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(safetySecondButton);
+            eventSystemScript.SetSelectedGameObject(null);
+            eventSystemScript.SetSelectedGameObject(safetySecondButton);
         }
     }
     /*** "On Pointer Enter" functions end here ***/
@@ -185,14 +219,14 @@ public class PauseMenu : MonoBehaviour
     // Checks for the last selected button AND when to play the button selected sfx
     private void LastSelectedButtonCheck()
     {
-        if (lastSelectedObject != eventSystem.currentSelectedGameObject)
+        if (eventSystemScript.currentSelectedGameObject != null && lastSelectedObject != eventSystemScript.currentSelectedGameObject)
         {
             if (canPlayButtonSFX && !isOptionsMenu)
             {
                 audioManagerScript.PlayButtonSelectSFX();
                 hasPlayedSelectedSFX = true;
             }
-            lastSelectedObject = eventSystem.currentSelectedGameObject;
+            lastSelectedObject = eventSystemScript.currentSelectedGameObject;
         }
         else if (lastSelectedObject == pauseFirstButton && !hasPlayedSelectedSFX)
         {
@@ -205,10 +239,10 @@ public class PauseMenu : MonoBehaviour
     private void PressingESC()
     {
         // Pressing ESC...
-        if (Input.GetKeyDown(KeyCode.Escape) && !isChangingMenus)
+        if (Input.GetKeyDown(KeyCode.Escape) && !transitionFadeScript.IsChangingScenes && !isChangingMenus)
         {
             // Opens/closes the pause menu (pause/resume game)
-            if (!isOptionsMenu && !isSafetyMenu && !isChangingScenes)
+            if (!isOptionsMenu && !isSafetyMenu)
             {
                 if (isPaused)
                 {
@@ -222,7 +256,7 @@ public class PauseMenu : MonoBehaviour
             if (isOptionsMenu)
             {
                 hasPressedESC = true;
-                StartCoroutine("CloseOptionsDelay");
+                StartCoroutine(CloseOptionsDelay());
             }
             // Closes the safety menu
             if (isSafetyMenu)
@@ -307,12 +341,12 @@ public class PauseMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "PS_PopOut" animation
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(true);
+        //eventSystemScript.SetSelectedGameObject(null);
+        //eventSystemScript.SetSelectedGameObject(optionsFirstButton);
 
-        //eventSystem.SetSelectedGameObject(null);
-        //eventSystem.SetSelectedGameObject(optionsFirstButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the option menu's pop in animation
         EnableMenuInputPS();
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
+        eventSystemScript.sendNavigationEvents = false;
     }
 
     // For closing the options menu
@@ -327,9 +361,9 @@ public class PauseMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "OS_PopOut" animation
         optionsMenu.SetActive(false);
         pauseMenu.SetActive(true);
+        eventSystemScript.SetSelectedGameObject(null);
+        eventSystemScript.SetSelectedGameObject(optionsClosedButton);
 
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(optionsClosedButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the pause menu's pop in animation   
         EnableMenuInputPS();
     }
@@ -347,9 +381,9 @@ public class PauseMenu : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "PS_PopOut" animation
         pauseMenu.SetActive(false);
         safetyMenu.SetActive(true);
+        eventSystemScript.SetSelectedGameObject(null);
+        eventSystemScript.SetSelectedGameObject(safetyFirstButton);
 
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(safetyFirstButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the safety menu's pop in animation
         EnableMenuInputPS();
     }
@@ -368,9 +402,9 @@ public class PauseMenu : MonoBehaviour
         safetyMenu.SetActive(true);
         safetyMenuText.SetActive(false);
         safetyMenuDeathScreenText.SetActive(true);
+        eventSystemScript.SetSelectedGameObject(null);
+        eventSystemScript.SetSelectedGameObject(safetyFirstButton);
 
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(safetyFirstButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the safety menu's pop in animation
         EnableMenuInputPS();
     }
@@ -389,11 +423,11 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
         safetyMenu.SetActive(false);
-        if (!isChangingScenes)
+        if (!transitionFadeScript.IsChangingScenes)
             pauseMenu.SetActive(true);
+        eventSystemScript.SetSelectedGameObject(null);
+        eventSystemScript.SetSelectedGameObject(quitToMainButton);
 
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(quitToMainButton);
         yield return new WaitForSecondsRealtime(0.1f); // At the end of the pause menu's pop in animation
         EnableMenuInputPS();
     }
@@ -412,7 +446,7 @@ public class PauseMenu : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.15f); // At the end of the "SM_PopOut" animation
         safetyMenu.SetActive(false);
-        if (!isChangingScenes)
+        if (!transitionFadeScript.IsChangingScenes)
         {
             safetyMenuDeathScreenText.SetActive(false);
             safetyMenuText.SetActive(true);
@@ -429,7 +463,6 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
         audioManagerScript.PlayButtonClick01SFX();
         playerScript.SetExitZoneElements();
-        isChangingScenes = true;
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -439,17 +472,20 @@ public class PauseMenu : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        eventSystem = FindObjectOfType<EventSystem>();
+        eventSystemScript = FindObjectOfType<EventSystem>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         optionsMenuScript = FindObjectOfType<OptionsMenu>();
+        safetyMenuScript = FindObjectOfType<SafetyMenu>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
+        // Sets the game objects by looking at names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -488,10 +524,9 @@ public class PauseMenu : MonoBehaviour
             }
         }
 
-        // Sets the game objects by looking at names of children
-        for (int i = 0; i < transform.parent.childCount; i++)
+        for (int i = 0; i < safetyMenuScript.transform.childCount; i++)
         {
-            GameObject child = transform.parent.GetChild(i).gameObject;
+            GameObject child = safetyMenuScript.transform.GetChild(i).gameObject;
 
             if (child.name == "SafetyMenu")
             {
@@ -501,32 +536,22 @@ public class PauseMenu : MonoBehaviour
                 {
                     GameObject child02 = safetyMenu.transform.GetChild(j).gameObject;
 
-                    if (child02.name == "SafetyMenuAnim")
+                    if (child02.name == "SafetyMenuRegularText")
+                        safetyMenuText = child02;
+                    if (child02.name == "SafetyMenuDeathScreenText")
+                        safetyMenuDeathScreenText = child02;
+                    if (child02.name == "ButtonLayout")
                     {
-                        GameObject safteyMenuAnim = child02;
+                        GameObject safetyMenuButtonLayout = child02;
 
-                        for (int k = 0; k < safteyMenuAnim.transform.childCount; k++)
+                        for (int k = 0; k < safetyMenuButtonLayout.transform.childCount; k++)
                         {
-                            GameObject child03 = safteyMenuAnim.transform.GetChild(k).gameObject;
+                            GameObject child03 = safetyMenuButtonLayout.transform.GetChild(k).gameObject;
 
-                            if (child03.name == "SafetyMenuRegularText")
-                                safetyMenuText = child03;
-                            if (child03.name == "SafetyMenuDeathScreenText")
-                                safetyMenuDeathScreenText = child03;
-                            if (child03.name == "ButtonHolder")
-                            {
-                                GameObject safetyMenuButtonLayout = child03;
-
-                                for (int l = 0; l < safetyMenuButtonLayout.transform.childCount; l++)
-                                {
-                                    GameObject child04 = safetyMenuButtonLayout.transform.GetChild(l).gameObject;
-
-                                    if (child04.name == "YesButton")
-                                        safetyFirstButton = child04;
-                                    if (child04.name == "NoButton")
-                                        safetySecondButton = child04;
-                                }
-                            }
+                            if (child03.name == "YesButton")
+                                safetyFirstButton = child03;
+                            if (child03.name == "NoButton")
+                                safetySecondButton = child03;
                         }
                     }
                 }
@@ -546,12 +571,13 @@ public class PauseMenu : MonoBehaviour
             GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
 
             if (child.name == "OptionalDeathScreen")
-                deathScreenAnim = child.GetComponent<Animator>();
+                deathScreen = child;            
         }
 
         pauseMenuAnim = pauseMenu.GetComponent<Animator>();
         optionsMenuAnim = optionsMenu.GetComponent<Animator>();
         safetyMenuAnim = safetyMenu.GetComponent<Animator>();
+        deathScreenAnim = deathScreen.GetComponent<Animator>();
         graphicsRaycaster = transform.parent.GetComponent<GraphicRaycaster>();
     }
 
@@ -561,7 +587,7 @@ public class PauseMenu : MonoBehaviour
         isChangingMenus = false;
         hasPressedESC = false;
         graphicsRaycaster.enabled = true;
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
+        eventSystemScript.sendNavigationEvents = true;
     }
 
     private void DisableMenuInputsPS()
@@ -569,7 +595,7 @@ public class PauseMenu : MonoBehaviour
         canPlayButtonSFX = false;
         isChangingMenus = true;
         graphicsRaycaster.enabled = false;
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
+        eventSystemScript.sendNavigationEvents = false;
     }
 
 }

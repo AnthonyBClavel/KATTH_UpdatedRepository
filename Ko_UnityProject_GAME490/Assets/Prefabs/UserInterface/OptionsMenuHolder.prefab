@@ -372,7 +372,7 @@ GameObject:
   - component: {fileID: 3075950350483152142}
   - component: {fileID: 8757701736418683440}
   m_Layer: 5
-  m_Name: MoveLeft
+  m_Name: PreviousRes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -481,7 +481,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5245114509266384882}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: ResLeft
+        m_MethodName: PreviousResolution
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 3075950349188756603}
   - component: {fileID: 8757701737313567557}
   m_Layer: 5
-  m_Name: MoveRight
+  m_Name: NextRes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -689,7 +689,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5245114509266384882}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: ResRight
+        m_MethodName: NextResolution
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1685,14 +1685,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   theMixer: {fileID: 24100000, guid: ce495300901c5df42922dc5ff559ad3f, type: 2}
-  resolutions:
-  - horizontal: 960
-    vertical: 540
-  - horizontal: 1280
-    vertical: 720
-  - horizontal: 1920
-    vertical: 1080
-  resolutions2: []
 --- !u!1 &2633446536054544347
 GameObject:
   m_ObjectHideFlags: 0

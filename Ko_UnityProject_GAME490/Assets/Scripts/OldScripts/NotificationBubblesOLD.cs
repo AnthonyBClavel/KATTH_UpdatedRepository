@@ -133,7 +133,7 @@ public class NotificationBubblesOLD : MonoBehaviour
     // Plays the puzzle notification
     private void PlayPuzzleNotification()
     {
-        if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification && pauseMenuScript.canPause)
+        if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification && pauseMenuScript.CanPause)
         {
             if (pkbRectTransform.localPosition == pkbOriginalPosition)
             {
@@ -148,7 +148,7 @@ public class NotificationBubblesOLD : MonoBehaviour
     // Plays the artifact notification
     private void PlayArtifactNotification()
     {
-        if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification && pauseMenuScript.canPause)
+        if (artifactNotificationBubble.activeSelf && canToggleArtifactBubble && !isArtifactNotification && pauseMenuScript.CanPause)
         {
             if (akbRectTransform.localPosition == akbOriginalPosition)
             {

@@ -37,6 +37,7 @@ public class SkipSceneButton : MonoBehaviour
     private TorchMeter torchMeterScript;
     private AudioManager audioManagerScript;
     private GameHUD gameHUDScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -78,7 +79,7 @@ public class SkipSceneButton : MonoBehaviour
     {
         if (canHoldButton && skipSceneButton.activeSelf)
         {
-            if (!pauseMenuScript.isPaused && !pauseMenuScript.isChangingScenes && pauseMenuScript.canPause && playerScript.CanMove && torchMeterScript.CurrentVal > 0)
+            if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && playerScript.CanMove && torchMeterScript.CurrentVal > 0)
             {
                 if (Input.GetKeyDown(skipSceneKeyCode) || Input.GetKey(skipSceneKeyCode))
                 {
@@ -129,7 +130,7 @@ public class SkipSceneButton : MonoBehaviour
 
         skipSceneText.color = fullAlpha;
         skipButtonAnimator.SetTrigger("Holding");
-        pauseMenuScript.canPause = false;
+        pauseMenuScript.CanPause = false;
         playerScript.SetPlayerBoolsFalse();
         audioManagerScript.PlayPopUpSFX();
 
@@ -159,7 +160,7 @@ public class SkipSceneButton : MonoBehaviour
         {
             ResetSkipSceneBar();
             playerScript.SetPlayerBoolsTrue();
-            pauseMenuScript.canPause = true;
+            pauseMenuScript.CanPause = true;
         }
 
         skipButtonAnimator.SetTrigger("NotHolding");
@@ -220,6 +221,7 @@ public class SkipSceneButton : MonoBehaviour
         audioManagerScript = FindObjectOfType<AudioManager>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components

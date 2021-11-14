@@ -208,7 +208,7 @@ public class PlayerFidgetController : MonoBehaviour
     {
         yield return new WaitForSeconds(idleClipLength / idleSpeedMultiplier);
 
-        if (currentAnimPlaying == "Idle" && !characterDialogueScript.hasStartedPlayerDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.canPause)
+        if (currentAnimPlaying == "Idle" && !characterDialogueScript.hasStartedPlayerDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.CanPause)
         {
             if (idleCount < timesToRepeat)
                 idleCount++;

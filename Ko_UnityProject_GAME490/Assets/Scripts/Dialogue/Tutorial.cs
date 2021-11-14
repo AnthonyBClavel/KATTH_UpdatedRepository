@@ -39,17 +39,11 @@ public class Tutorial : MonoBehaviour
     private Artifact artifactScript;
     private SkipSceneButton skipTurorialButtonScript;
     private CharacterDialogue characterDialogueScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
-        playerScript = FindObjectOfType<TileMovementController>();
-        tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        artifactScript = FindObjectOfType<Artifact>();
-        skipTurorialButtonScript = FindObjectOfType<SkipSceneButton>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        torchMeterScript = FindObjectOfType<TorchMeter>();
-
+        SetScripts();
         SetElements();
     }
 
@@ -72,7 +66,7 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (/*!playerScript.isWalking*/ playerScript.CanMove && !pauseMenuScript.isChangingScenes)
+        if (/*!playerScript.isWalking*/ playerScript.CanMove && !transitionFadeScript.IsChangingScenes)
         {
             Collider collider = playerScript.getCollider();
 
@@ -191,6 +185,19 @@ public class Tutorial : MonoBehaviour
             if (child.name == "ContinueButton")
                 continueButtonCD = child;
         }
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        playerScript = FindObjectOfType<TileMovementController>();
+        tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        artifactScript = FindObjectOfType<Artifact>();
+        skipTurorialButtonScript = FindObjectOfType<SkipSceneButton>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
 }

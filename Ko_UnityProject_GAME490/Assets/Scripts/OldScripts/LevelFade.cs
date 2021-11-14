@@ -26,7 +26,7 @@ public class LevelFade : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
-            pauseMenuScript.canPause = true; // Might need to refine later - works in tutorial because pause menu script component is disabled during dialogue
+            pauseMenuScript.CanPause = true; // Might need to refine later - works in tutorial because pause menu script component is disabled during dialogue
             //playerSoundsScript.canPlaySecondFootstep = true; // This is only false when the player enters and leaves a scene
         }         
     }
@@ -58,7 +58,7 @@ public class LevelFade : MonoBehaviour
     public void FadeOutOfLevel()
     {
         //playerScript.canSetBoolsTrue = false;
-        pauseMenuScript.isChangingScenes = true;
+        //pauseMenuScript.isChangingScenes = true;
         disableMenuInputs();
         Time.timeScale = 1f;
         animator.SetTrigger("FadeOutLevel");

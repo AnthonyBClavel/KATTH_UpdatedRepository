@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class TransitionFade : MonoBehaviour
 {
+    private bool isChangingScenes = false;
+
     [Header("Fade Durations (in seconds)")]
     [Range(0.1f, 5.0f)]
     public float gameFadeIn = 2f;
@@ -41,10 +43,23 @@ public class TransitionFade : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        pauseMenuScript.canPause = false;
+        pauseMenuScript.CanPause = false;
 
         if (playerScript.checkIfOnCheckpoint())
             GameFadeIn();
+    }
+
+    // Returns or sets the value of isChangingScenes
+    public bool IsChangingScenes
+    {
+        get
+        {
+            return isChangingScenes;
+        }
+        set
+        {
+            isChangingScenes = value;
+        }
     }
 
     // Fades into the game
@@ -65,7 +80,7 @@ public class TransitionFade : MonoBehaviour
     // Fades out of the game
     public void GameFadeOut()
     {
-        pauseMenuScript.isChangingScenes = true;
+        isChangingScenes = true;
 
         if (Time.timeScale != 1f)
             Time.timeScale = 1f;
@@ -116,10 +131,10 @@ public class TransitionFade : MonoBehaviour
 
         transitionFade.color = endValue;
 
-        //if (!pauseMenuScript.canPause && !pauseMenuScript.isChangingScenes)
+        //if (!pauseMenuScript.canPause && !isChangingScenes)
         // Can pause after the game fades in
         if (endValue == zeroAlpha)
-            pauseMenuScript.canPause = true;
+            pauseMenuScript.CanPause = true;
         // Loads the next scene if applicable
         if (endValue == fullAlpha)
             gameManagerScript.LoadNextSceneCheck();
@@ -144,7 +159,7 @@ public class TransitionFade : MonoBehaviour
     // Lerps the color of the image to another, over a specific duration - for the zone intro ONLY
     private IEnumerator LerpTransitionFade(float duration)
     {
-        pauseMenuScript.canPause = false;
+        pauseMenuScript.CanPause = false;
         float time01 = 0;
         while (time01 < (duration / 2))
         {
@@ -165,7 +180,7 @@ public class TransitionFade : MonoBehaviour
         }
 
         transitionFade.color = zeroAlpha;
-        pauseMenuScript.canPause = true;
+        pauseMenuScript.CanPause = true;
     }
 
     // Sets the scripts to use

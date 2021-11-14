@@ -94,7 +94,7 @@ public class NotificationBubbles : MonoBehaviour
     // Plays the puzzle notification
     public void PlayPuzzleNotificationCheck()
     {
-        if (pauseMenuScript.canPause && puzzleNotificationBubble.activeSelf)
+        if (pauseMenuScript.CanPause && puzzleNotificationBubble.activeSelf)
         {
             if (!isPuzzleNotification && canTogglePuzzleBubble && !hasPlayedPuzzleNotif)
             {
@@ -109,7 +109,7 @@ public class NotificationBubbles : MonoBehaviour
     // Plays the artifact notification
     public void PlayArtifactNotificationCheck()
     {
-        if (pauseMenuScript.canPause && artifactNotificationBubble.activeSelf)
+        if (pauseMenuScript.CanPause && artifactNotificationBubble.activeSelf)
         {
             if (!isArtifactNotification && canToggleArtifactBubble && !hasPlayedArtifactNotif)
             {

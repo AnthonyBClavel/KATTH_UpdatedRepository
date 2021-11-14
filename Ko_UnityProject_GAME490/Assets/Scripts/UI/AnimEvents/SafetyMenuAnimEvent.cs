@@ -33,7 +33,7 @@ public class SafetyMenuAnimEvent : MonoBehaviour
                 mainCanvas.SetActive(true);
         }
 
-        if (SceneManager.GetActiveScene().name != "MainMenu")
+        /*if (SceneManager.GetActiveScene().name != "MainMenu")
         {
             if (!pauseMenuScript.isChangingScenes)
             {
@@ -42,12 +42,12 @@ public class SafetyMenuAnimEvent : MonoBehaviour
 
                 if (gameHUDScript.isDeathScreen)
                 {
-                    //gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
-                    //gameHUDScript.safetyMenuText.SetActive(true);
-                    //pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
+                    gameHUDScript.safetyMenuDeathScreenText.SetActive(false);
+                    gameHUDScript.safetyMenuText.SetActive(true);
+                    pauseMenuScript.deathScreenAnim.SetTrigger("DS_PopIn");
                 }
             }
-        }
+        }*/
 
         /*if (SceneManager.GetActiveScene().name != "MainMenu")
         {

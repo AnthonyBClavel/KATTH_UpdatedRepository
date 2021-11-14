@@ -31,17 +31,17 @@ public class DeathScreenAnimEvent : MonoBehaviour
 
     }
 
-    public void SetSafetyMenuActive()
+    /*public void SetSafetyMenuActive()
     {
         if (pauseMenuScript.isSafetyMenu && !gameHUDScript.isDeathScreen)
-            //pauseMenuScript.safetyMenu.SetActive(true);
+            pauseMenuScript.safetyMenu.SetActive(true);
         if (pauseMenuScript.isSafetyMenu && gameHUDScript.isDeathScreen)
         {
-            //pauseMenuScript.safetyMenu.SetActive(true);
-            //gameHUDScript.safetyMenuText.SetActive(false);
-            //gameHUDScriptsafetyMenuDeathScreenText.SetActive(true);
+            pauseMenuScript.safetyMenu.SetActive(true);
+            gameHUDScript.safetyMenuText.SetActive(false);
+            gameHUDScriptsafetyMenuDeathScreenText.SetActive(true);
         }
-    }
+    }*/
 
     // Sets private variables, objects, and components
     private void SetElements()

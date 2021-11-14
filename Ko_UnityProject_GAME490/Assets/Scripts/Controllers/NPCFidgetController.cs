@@ -206,7 +206,7 @@ public class NPCFidgetController : MonoBehaviour
     {
         yield return new WaitForSeconds(idleClipLength / idleSpeedMultiplier);
 
-        if (currentAnimPlaying == "Idle" && !characterDialogueScript.hasStartedNPCDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.canPause)
+        if (currentAnimPlaying == "Idle" && !characterDialogueScript.hasStartedNPCDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.CanPause)
         {
             if (idleCount < timesToRepeat)
                 idleCount++;
