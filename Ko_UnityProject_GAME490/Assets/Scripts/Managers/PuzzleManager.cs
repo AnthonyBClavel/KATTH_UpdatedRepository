@@ -15,11 +15,13 @@ public class PuzzleManager : MonoBehaviour
 
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
+    private GameManager gameManagerScript;
 
     void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
     }
 
     // Start is called before the first frame update
@@ -42,6 +44,7 @@ public class PuzzleManager : MonoBehaviour
     public void ResetPuzzle(float delayDuration)
     {
         currentPuzzle = playerScript.CurrentPuzzle;
+        DestroyAllPuzzleParticles();
 
         for (int i = 0; i < currentPuzzle.transform.childCount; i++)
         {
@@ -79,7 +82,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    // Fades out the generator loop (generator is reseted after the its audio fades out)
+    // Fades out the generator loop (generator is reseted after its audio fades out to zero volume)
     public void ResetGeneratorCheck()
     {
         currentPuzzle = playerScript.CurrentPuzzle;
@@ -94,9 +97,19 @@ public class PuzzleManager : MonoBehaviour
 
                 for (int j = 0; j < generators.transform.childCount; j++)
                 {
-                    generators.transform.GetChild(j).GetComponent<Generator>().FadeOutGeneratorLoop();
+                    generators.transform.GetChild(j).GetComponent<Generator>().FadeOutGeneratorLoop(0f);
                 }
             }
+        }
+    }
+
+    // Destroys all of the puzzle-related particle effects
+    private void DestroyAllPuzzleParticles()
+    {
+        // NOTE: All puzzle-related particles are instantiated as children of the game manager
+        foreach (Transform child in gameManagerScript.transform)
+        {
+            Destroy(child.gameObject);
         }
     }
 

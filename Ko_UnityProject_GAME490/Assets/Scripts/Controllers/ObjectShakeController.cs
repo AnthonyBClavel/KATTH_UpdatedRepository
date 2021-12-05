@@ -49,10 +49,12 @@ public class ObjectShakeController : MonoBehaviour
     private Quaternion zeroRotation = Quaternion.Euler(0, 0, 0);
     private ParticleSystem.MainModule treeHitparticleSystem;
     private GameManager gameManagerScript;
+    private TileMovementController playerScript;
 
     void Awake()
     {
         gameManagerScript = FindObjectOfType<GameManager>();
+        playerScript = FindObjectOfType<TileMovementController>();
 
         treeHitParticle = gameManagerScript.treeHitParticle;
         snowTreeHitParticle = gameManagerScript.snowTreeHitParticle;
@@ -79,7 +81,9 @@ public class ObjectShakeController : MonoBehaviour
                 lastTree = objectToShake;
             }
 
-            Instantiate(treeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            GameObject newTreeHitParticle = Instantiate(treeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            newTreeHitParticle.transform.parent = gameManagerScript.transform;
+
             shakeTreeCoroutine = StartShake(objectToShake, treeShakePower, treeShakeDuration);
             StartCoroutine(shakeTreeCoroutine);
         }
@@ -94,7 +98,9 @@ public class ObjectShakeController : MonoBehaviour
             if (objectToShake != lastSnowTree)
                 lastSnowTree = objectToShake;
 
-            Instantiate(snowTreeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            GameObject newSnowTreeHitParticle = Instantiate(snowTreeHitParticle, objectToShake.transform.position, objectToShake.transform.rotation);
+            newSnowTreeHitParticle.transform.parent = gameManagerScript.transform;
+
             shakeSnowTreeCoroutine = StartShake(objectToShake, treeShakePower, treeShakeDuration);
             StartCoroutine(shakeSnowTreeCoroutine);
         }
@@ -156,9 +162,13 @@ public class ObjectShakeController : MonoBehaviour
             //shakePower = Mathf.MoveTowards(shakePower, 0f, shakeFadeTime * Time.deltaTime);
             //objectToShake.transform.position += new Vector3((Random.Range(-1f, 1f) * shakePower), (Random.Range(-1f, 1f) * shakePower), 0);
 
-            // When the game is paused, the coroutine will pause as well
+            // Pauses the coroutine if the game is paused (WaitForSeconds respects timeScale)
             if (Time.timeScale == 0f)
                 yield return new WaitForSeconds(0.01f);
+
+            // Stops the shake (while loop) if the puzzle was restarted
+            if (playerScript.CanRestartPuzzle && Input.GetKeyDown(KeyCode.R))
+                break;
 
             shakeRotation = Mathf.MoveTowards(shakeRotation, 0f, shakeFadeTime * rotationMultiplier * Time.deltaTime);
             objectToShake.transform.rotation = Quaternion.Euler(0f, 0f, shakeRotation * Random.Range(-1f, 1f));

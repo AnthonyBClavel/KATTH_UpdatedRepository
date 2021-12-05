@@ -70,7 +70,6 @@ public class GameManager : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private DialogueArrow dialogueArrowScript;
     private NotificationBubbles notificationBubblesScript;
-    private EndCredits endCreditsScript;
 
     [Header("Debugging Elements")]
     public bool isDebugging;
@@ -204,15 +203,12 @@ public class GameManager : MonoBehaviour
     // Checks which scene to load next
     public void LoadNextSceneCheck()
     {
-        if (!endCreditsScript.HasStartedEndCredits)
-        {
-            // Returns to the main menu if the player hasn't finished the zone
-            if (playerScript != null && !playerScript.HasFinishedZone)
-                LoadMainMenu();
-            // Loads the next sceen if the player has finsihed the zone
-            else
-                LoadNextScene();
-        }
+        // Returns to the main menu if the player hasn't finished the zone
+        if (playerScript != null && !playerScript.HasFinishedZone)
+            LoadMainMenu();
+        // Loads the next sceen if the player has finsihed the zone
+        else
+            LoadNextScene();
     }
 
     // Sets and loads the main menu
@@ -371,7 +367,6 @@ public class GameManager : MonoBehaviour
         blackBarsScript = FindObjectOfType<BlackBars>();
         dialogueArrowScript = FindObjectOfType<DialogueArrow>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        endCreditsScript = FindObjectOfType<EndCredits>();
     }
 
     // Sets private variables, objects, and components

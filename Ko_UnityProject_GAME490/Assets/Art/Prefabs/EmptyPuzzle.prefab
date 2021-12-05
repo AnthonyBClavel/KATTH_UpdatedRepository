@@ -69,7 +69,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 945503058427422934}
-  - component: {fileID: 945503058427422935}
   m_Layer: 0
   m_Name: PushableBlocks
   m_TagString: Untagged
@@ -91,18 +90,6 @@ Transform:
   m_Father: {fileID: 945503059033437053}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &945503058427422935
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 945503058427422929}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4af95568ae1d97140aeafc102fc6005a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &945503058471694341
 GameObject:
   m_ObjectHideFlags: 0
@@ -112,7 +99,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 945503058471694394}
-  - component: {fileID: 945503058471694395}
   m_Layer: 0
   m_Name: Firestones
   m_TagString: Untagged
@@ -134,18 +120,6 @@ Transform:
   m_Father: {fileID: 945503059033437053}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &945503058471694395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 945503058471694341}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2760e5d90bb0a5b41a58e163a13853c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &945503059033437052
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +165,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 945503059201462131}
-  - component: {fileID: 945503059201462128}
   m_Layer: 0
   m_Name: BreakableBlocks
   m_TagString: Untagged
@@ -213,18 +186,6 @@ Transform:
   m_Father: {fileID: 945503059033437053}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &945503059201462128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 945503059201462130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38194abd391faf54ebb60822a273e4bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &945503059759808043
 GameObject:
   m_ObjectHideFlags: 0

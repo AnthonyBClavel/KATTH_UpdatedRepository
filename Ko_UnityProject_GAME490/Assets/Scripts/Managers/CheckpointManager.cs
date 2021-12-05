@@ -22,10 +22,11 @@ public class CheckpointManager : MonoBehaviour
     private GameManager gameManagerScript;
     private PauseMenu pauseMenuScript;
     private GameHUD gameHUDScript;
+    private AudioManager audioManagerScript;
 
     void Awake()
     {
-        SetScript();
+        SetScripts();
         SetElements();
     }
 
@@ -88,6 +89,7 @@ public class CheckpointManager : MonoBehaviour
     public void ResetPlayer()
     {
         iceMaterialScript.ResetIceAlphas();
+        audioManagerScript.StopAllPuzzleSFX();
 
         playerScript.StopPlayerCoroutines();
         playerAnimator.enabled = true;
@@ -138,7 +140,7 @@ public class CheckpointManager : MonoBehaviour
     }*/
 
     // Sets the scripts to use
-    private void SetScript()
+    private void SetScripts()
     {
         iceMaterialScript = FindObjectOfType<IceMaterial>();
         playerScript = FindObjectOfType<TileMovementController>();
@@ -147,6 +149,7 @@ public class CheckpointManager : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         gameManagerScript = FindObjectOfType<GameManager>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
     }
 
     // Sets private variables, objects, and components

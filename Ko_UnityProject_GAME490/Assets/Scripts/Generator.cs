@@ -9,6 +9,7 @@ public class Generator : MonoBehaviour
     private float fadeAudioLength = 1f;
     private float rotateGearlength = 2f;
     private float originalVolumeGLSFX; // GLSFX = generator loop sfx
+    private float finalVolumeGLSFX = 0f; // GLSFX = generator loop sfx
 
     private Material heatDoorMat;
     private Material generatorLightMat01;
@@ -98,12 +99,12 @@ public class Generator : MonoBehaviour
 
         generatorLoopCoroutine = LerpAudio(generatorLoopAS, originalVolumeGLSFX, fadeAudioLength);
 
-        generatorLoopAS.volume = 0f;
+        generatorLoopAS.volume = finalVolumeGLSFX;
         StartCoroutine(generatorLoopCoroutine);
     }
 
-    // Fades out the generatorLoopSFX
-    public void FadeOutGeneratorLoop()
+    // Fades out the generatorLoopSFX (finalVolume = volume to fade out to)
+    public void FadeOutGeneratorLoop(float finalVolume)
     {
         // Only fade out the audio if the generator is active
         if (isActive)
@@ -111,7 +112,8 @@ public class Generator : MonoBehaviour
             if (generatorLoopCoroutine != null)
                 StopCoroutine(generatorLoopCoroutine);
 
-            generatorLoopCoroutine = LerpAudio(generatorLoopAS, 0f, fadeAudioLength);
+            finalVolumeGLSFX = finalVolume;
+            generatorLoopCoroutine = LerpAudio(generatorLoopAS, finalVolume, fadeAudioLength);
 
             generatorLoopAS.volume = originalVolumeGLSFX;
             StartCoroutine(generatorLoopCoroutine);

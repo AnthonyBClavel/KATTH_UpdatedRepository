@@ -119,7 +119,7 @@ public class EndCredits : MonoBehaviour
     }*/
 
     // Returns the value of the bool hasStartedCredits
-    public bool HasStartedEndCredits
+    public bool HasStartedCredits
     {
         get
         {

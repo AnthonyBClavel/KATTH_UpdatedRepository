@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     private float originalVolumeECM; // ECM = end credits music
     private float originalVolumeLASFX; // LASFX = looping ambience sfx
     private float originalVolumeCNSFX; // CNSFX = char noise sfx
+    private float originalVolumeGLSFX; // GLSFX = generator loop sfx
     private bool isDialogueMusic = false;
     private bool isEndCreditsMusic = false;
 
@@ -127,6 +128,7 @@ public class AudioManager : MonoBehaviour
 
     private TileMovementController playerScript;
     private TransitionFade transitionFadeScript;
+    private Generator generatorScript;
 
     void Awake()
     {
@@ -177,6 +179,15 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    // Stops playing all of the lengthy puzzle-related sfx
+    public void StopAllPuzzleSFX()
+    {
+        if (torchFireIgniteAS.isPlaying)
+            torchFireIgniteAS.Stop();
+        if (crateSlideAS.isPlaying)
+            crateSlideAS.Stop();
+    }
+
     // Pauses all of the playing audio sources in the scene
     public void PauseAllAudio()
     {
@@ -185,6 +196,7 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = musicHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.Pause();
         }*/
@@ -193,6 +205,7 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = audioLoopsHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.Pause();
         }
@@ -201,6 +214,7 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = sfxHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.Pause();
         }
@@ -214,6 +228,7 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = musicHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (!childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.UnPause();
         }*/
@@ -222,6 +237,7 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = audioLoopsHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (!childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.UnPause();
         }
@@ -230,9 +246,30 @@ public class AudioManager : MonoBehaviour
         {
             GameObject child = sfxHolder.transform.GetChild(i).gameObject;
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
+
             if (!childAudioSource.isPlaying && child.activeSelf)
                 childAudioSource.UnPause();
         }
+    }
+
+    // Assigns a new script to the generator script
+    public void SetGeneratorScript(Generator newScript)
+    {
+        generatorScript = newScript;
+    }
+
+    // Fades in the generator loop sfx - ONLY USED when transitioning out of a dialogue view
+    public void FadeInGeneratorLoopCheck()
+    {
+        if (generatorLoopAS.isPlaying && generatorScript != null)
+            generatorScript.FadeInGeneratorLoop();
+    }
+
+    // Fades out the generator loop sfx - ONLY USED when transitioning to a dialogue view
+    public void FadeOutGeneratorLoopCheck()
+    {
+        if (generatorLoopAS.isPlaying && generatorScript != null)
+            generatorScript.FadeOutGeneratorLoop(0.25f);
     }
 
     // Fades in the background music
@@ -835,7 +872,8 @@ public class AudioManager : MonoBehaviour
         while (time < duration)
         {
             audioSource.volume = Mathf.Lerp(startVolume, endVolume, time / duration);
-            time += Time.deltaTime;
+            //time += Time.deltaTime;
+            time += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -891,7 +929,10 @@ public class AudioManager : MonoBehaviour
         string sceneName = SceneManager.GetActiveScene().name;
 
         if (sceneName != "MainMenu")
+        {
             playerScript = FindObjectOfType<TileMovementController>();
+            //generatorScript = null;
+        }
 
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
@@ -1009,6 +1050,7 @@ public class AudioManager : MonoBehaviour
         originalVolumeECM = endCreditsMusic.volume;
         originalVolumeLASFX = loopingAmbienceAS.volume;
         originalVolumeCNSFX = charNoiseAS.volume;
+        originalVolumeGLSFX = generatorLoopAS.volume;
         SetMusic();
     }
 

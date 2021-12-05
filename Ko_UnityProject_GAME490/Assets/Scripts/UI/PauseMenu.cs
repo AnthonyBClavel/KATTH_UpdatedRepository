@@ -280,6 +280,7 @@ public class PauseMenu : MonoBehaviour
     // Lerps the alpha of an image to another over a duration (endAlpha = alpha to lerp to, duration = seconds)
     private IEnumerator LerpAlpha(Color endAlpha, float duration)
     {
+        DisableMenuInputsPS();
         float time = 0;
         Color startAlpha = pauseMenuBG.color;
 

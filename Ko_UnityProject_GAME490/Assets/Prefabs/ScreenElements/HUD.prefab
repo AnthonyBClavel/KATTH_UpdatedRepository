@@ -54,24 +54,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7100c87dc8a593541b2d983cd29e7e92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDeathScreen: 0
   canToggleHUD: 0
   puzzleBubbleColorText: {fileID: 287462620}
   artifactBubbleColorText: {fileID: 198015659}
---- !u!114 &9032815302997630822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3909929227467994757}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AspectMode: 4
-  m_AspectRatio: 1.78
 --- !u!1001 &206823841921038864
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169,11 +154,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 636d0b34d9c54004c8a50f0b9cb572b6, type: 3}
---- !u!1 &3909929227467994757 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3790925716282756245, guid: 636d0b34d9c54004c8a50f0b9cb572b6, type: 3}
-  m_PrefabInstance: {fileID: 206823841921038864}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &3909929227467994756 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3790925716282756244, guid: 636d0b34d9c54004c8a50f0b9cb572b6, type: 3}
@@ -400,10 +380,6 @@ PrefabInstance:
     - target: {fileID: 4115361138498840861, guid: 3de084b3dc137e240a915b954ef6ebf7, type: 3}
       propertyPath: m_Name
       value: FrostedBorder
-      objectReference: {fileID: 0}
-    - target: {fileID: 4115361138498840863, guid: 3de084b3dc137e240a915b954ef6ebf7, type: 3}
-      propertyPath: m_Color.a
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3de084b3dc137e240a915b954ef6ebf7, type: 3}

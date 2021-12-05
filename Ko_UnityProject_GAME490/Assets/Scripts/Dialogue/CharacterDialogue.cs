@@ -283,8 +283,8 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (canStartDialogue)
         {
-            StartCoroutine("StartDialogueDelay");           
-            canStartDialogue = false;        
+            StartCoroutine(StartDialogueDelay());     
+            canStartDialogue = false;    
         }
     }
 
@@ -1247,6 +1247,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         audioManagerScript.FadeInDialogueMusic();
         audioManagerScript.FadeOutBackgroundMusic();
+        audioManagerScript.FadeOutGeneratorLoopCheck();
     }
 
     // Fades out the dialogue music
@@ -1254,6 +1255,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         audioManagerScript.FadeOutDialogueMusic();
         audioManagerScript.FadeInBackgroundMusic();
+        audioManagerScript.FadeInGeneratorLoopCheck();
     }
 
     // Sets the correct dialogue files for the player, npc, artifacts, and dialogue bubble

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class TransitionFade : MonoBehaviour
 {
     private bool isChangingScenes = false;
+    private bool isDebuggingFade = false;
 
     [Header("Fade Durations (in seconds)")]
     [Range(0.1f, 5.0f)]
@@ -33,6 +34,7 @@ public class TransitionFade : MonoBehaviour
     private TileMovementController playerScript;
     private GameHUD gameHUDScript;
     private GameManager gameManagerScript;
+    private EndCredits endCreditsScript;
 
     void Awake()
     {
@@ -73,6 +75,7 @@ public class TransitionFade : MonoBehaviour
         if (blackOverlay.activeSelf)
             blackOverlay.SetActive(false);
 
+        isDebuggingFade = false;
         transitionFade.color = fullAlpha;
         StartCoroutine(LerpGameFade(zeroAlpha, gameFadeIn));
     }
@@ -85,6 +88,7 @@ public class TransitionFade : MonoBehaviour
         if (Time.timeScale != 1f)
             Time.timeScale = 1f;
 
+        isDebuggingFade = false;
         transitionFade.color = zeroAlpha;
         StartCoroutine(LerpGameFade(fullAlpha, gameFadeOut));
     }
@@ -131,13 +135,18 @@ public class TransitionFade : MonoBehaviour
 
         transitionFade.color = endValue;
 
-        //if (!pauseMenuScript.canPause && !isChangingScenes)
-        // Can pause after the game fades in
-        if (endValue == zeroAlpha)
-            pauseMenuScript.CanPause = true;
-        // Loads the next scene if applicable
-        if (endValue == fullAlpha)
-            gameManagerScript.LoadNextSceneCheck();
+        if (!isDebuggingFade)
+        {
+            //if (!pauseMenuScript.canPause && !isChangingScenes)
+            // Can pause after the game fades in
+            if (endValue == zeroAlpha)
+                pauseMenuScript.CanPause = true;
+            // Loads the next scene if applicable
+            else if (endValue == fullAlpha && !endCreditsScript.HasStartedCredits)
+                gameManagerScript.LoadNextSceneCheck();
+        }
+        else if (isDebuggingFade)
+            isDebuggingFade = false;
     }
 
     // Lerps the color of the image to another, over a specific duration - for the zone intro ONLY
@@ -191,6 +200,7 @@ public class TransitionFade : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         gameManagerScript = FindObjectOfType<GameManager>();
+        endCreditsScript = FindObjectOfType<EndCredits>();
     }
 
     // Sets private variables, objects, and components
@@ -222,11 +232,13 @@ public class TransitionFade : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Semicolon) && transitionFade.color == zeroAlpha) // ;
             {
                 Debug.Log("Debugging: Game Is Fading Out");
+                isDebuggingFade = true;
                 StartCoroutine(LerpGameFade(fullAlpha, gameFadeOut));
             }
             if (Input.GetKeyDown(KeyCode.Quote) && transitionFade.color == fullAlpha) // '
             {
                 Debug.Log("Debugging: Game Is Fading In");
+                isDebuggingFade = true;
                 StartCoroutine(LerpGameFade(zeroAlpha, gameFadeIn));
             }
         }

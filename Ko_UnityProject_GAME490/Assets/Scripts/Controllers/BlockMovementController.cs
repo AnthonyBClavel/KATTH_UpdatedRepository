@@ -12,6 +12,7 @@ public class BlockMovementController : MonoBehaviour
 
     private bool canMoveBlock = true;
     private bool canPlayThumpSFX = false;
+    private bool hasUpdatedOriginalPosition = false;
 
     private GameObject edgeCheck;
     private GameObject emptyBlock;
@@ -19,6 +20,7 @@ public class BlockMovementController : MonoBehaviour
     private Vector3 nextBlockPos;
     private Vector3 destination;
     private Vector3 originalPosition;
+    private Vector3 debugOriginalPosition;
 
     Vector3 up = Vector3.zero, // Look North
     right = new Vector3(0, 90, 0), // Look East
@@ -43,8 +45,9 @@ public class BlockMovementController : MonoBehaviour
     void Start()
     {
         nextBlockPos = Vector3.forward;
-        destination = transform.position;
         originalPosition = transform.position;
+        debugOriginalPosition = transform.position;
+        destination = transform.position;
     }
 
     // Returns or sets the value of lerpLength
@@ -64,12 +67,23 @@ public class BlockMovementController : MonoBehaviour
     public void ResetBlockPosition()
     {
         StopAllCoroutines();
-        transform.position = originalPosition;
-        destination = originalPosition;
         canMoveBlock = true;
 
         if (emptyBlock != null)
             emptyBlock.SetActive(true);
+
+        if (!gameManagerScript.isDebugging)
+        {
+            transform.position = originalPosition;
+            destination = originalPosition;
+            debugOriginalPosition = originalPosition; // Resets the debug original positions
+        }
+        else
+        {
+            transform.position = debugOriginalPosition;
+            destination = debugOriginalPosition;
+            hasUpdatedOriginalPosition = false;
+        }
     }
 
     // Checks of the block can move - returns true if so, false otherwise
@@ -78,8 +92,11 @@ public class BlockMovementController : MonoBehaviour
         /*** Old Movement Code ***/
         //transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
 
+        // Note: ONLY while debugging, after restarting a puzzle, you can adjust the original position of each pushable block
+        UpdateOriginalPositionCheck();
+
         // If the block is within 0.00001 units of its destination
-        if (Vector3.Distance(destination, transform.position) <= 0.00001f && canMoveBlock)
+        if (canMoveBlock /*&& Vector3.Distance(destination, transform.position) <= 0.00001f*/)
         {
             SetNextBlockPosition();
 
@@ -95,6 +112,17 @@ public class BlockMovementController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    // Checks to update the block's original position (ONLY while debugging)
+    private void UpdateOriginalPositionCheck()
+    {
+        if (gameManagerScript.isDebugging && !hasUpdatedOriginalPosition)
+        {
+            debugOriginalPosition = transform.position;
+            destination = transform.position;
+            hasUpdatedOriginalPosition = true;
+        }
     }
 
     // Sets the position to move to and moves the edgeCheck to that position

@@ -183,14 +183,15 @@ public class GameHUD : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
+            string childName = child.name;
 
-            if (child.name == "OptionalDeathScreen")
+            if (childName == "OptionalDeathScreen")
                 deathScreen = child;
-            if (child.name == "NotificationBubblesHolder")
+            if (childName == "NotificationBubblesHolder")
                 notificationBubblesHolder = child;
-            if (child.name == "TorchMeter")
+            if (childName == "TorchMeter")
                 torchMeter = child;
-            if (child.name == "SkipSceneButton")
+            if (childName == "SkipSceneButton")
                 skipSceneButton = child;
         }
 

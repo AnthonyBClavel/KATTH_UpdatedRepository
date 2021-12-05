@@ -184,6 +184,15 @@ public class TileMovementController : MonoBehaviour
         }
     }
 
+    // Returns the value of canRestartPuzzle
+    public bool CanRestartPuzzle
+    {
+        get
+        {
+            return canRestartPuzzle;
+        }
+    }
+
     // Sets the value of canSetBoolsTrue
     public bool CanSetBoolsTrue
     {
@@ -387,8 +396,10 @@ public class TileMovementController : MonoBehaviour
         //Debug.Log("Destroyed Block");
         GameObject destroyableBlock = collider.gameObject;
 
+        GameObject newDestroyedRockParticle = Instantiate(destroyedRockParticle, destroyableBlock.transform.position + new Vector3(0, -0.25f, 0), destroyableBlock.transform.rotation);
+        newDestroyedRockParticle.transform.parent = gameManagerScript.transform;
+
         SubractFromTorchMeter();
-        Instantiate(destroyedRockParticle, destroyableBlock.transform.position + new Vector3(0, -0.25f, 0), destroyableBlock.transform.rotation);
         audioManagerScript.PlayRockBreakSFX();
         destroyableBlock.SetActive(false);
 
@@ -399,6 +410,7 @@ public class TileMovementController : MonoBehaviour
     public void turnOnGenerator(Collider collider)
     {
         Generator generatorScript = collider.gameObject.GetComponent<Generator>();
+        audioManagerScript.SetGeneratorScript(generatorScript);
 
         if (generatorScript.IsActive == false)
         {
