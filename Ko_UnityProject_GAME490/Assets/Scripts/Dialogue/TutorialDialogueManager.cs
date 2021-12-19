@@ -25,7 +25,6 @@ public class TutorialDialogueManager : MonoBehaviour
 
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
-    private SkipSceneButton skipSceneButtonScript;
     private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
     private NotificationBubbles notificationBubblesScript;
@@ -33,15 +32,7 @@ public class TutorialDialogueManager : MonoBehaviour
 
     void Awake()
     {
-        playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
-        artifactScript = FindObjectOfType<Artifact>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-
-        skipSceneButton = skipSceneButtonScript.gameObject;
+        SetScripts();
         SetElements();
     }
 
@@ -84,7 +75,7 @@ public class TutorialDialogueManager : MonoBehaviour
     // Begins the dialogue - call this whenever you want to display dialogue
     public void startDialogue()
     {
-        notificationBubblesScript.DisableNotificationsToggle();
+        //notificationBubblesScript.DisableNotificationsToggle();
         pauseMenuScript.enabled = false;
         inDialogue = true;
 
@@ -135,7 +126,7 @@ public class TutorialDialogueManager : MonoBehaviour
     public void EndTutorialDialogueManager()
     {
         skipSceneButton.SetActive(true);
-        notificationBubblesScript.EnableNotificationsToggle();
+        //notificationBubblesScript.EnableNotificationsToggle();
         //playerScript.hasDied = false;
         inDialogue = false;
 
@@ -148,7 +139,7 @@ public class TutorialDialogueManager : MonoBehaviour
     {
         if (!hasEnteredTutorial)
         {
-            notificationBubblesScript.DisableNotificationsToggle();
+            //notificationBubblesScript.DisableNotificationsToggle();
             skipSceneButton.SetActive(false);
             playerScript.SetPlayerBoolsFalse();
             playerScript.WalkIntoScene();
@@ -173,6 +164,17 @@ public class TutorialDialogueManager : MonoBehaviour
         continueButtonDM.SetActive(true); // Shows the continue button after the sentence is finished
     }
 
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        playerScript = FindObjectOfType<TileMovementController>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
+        artifactScript = FindObjectOfType<Artifact>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
@@ -183,6 +185,14 @@ public class TutorialDialogueManager : MonoBehaviour
 
             if (child.name == "ContinueButton")
                 continueButtonCD = child;
+        }
+
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "SkipSceneButton")
+                skipSceneButton = child;
         }
     }
 

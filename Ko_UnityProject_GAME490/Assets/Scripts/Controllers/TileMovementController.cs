@@ -259,7 +259,7 @@ public class TileMovementController : MonoBehaviour
     // Updates the keyboard input - returns true if input is recieved, false otherwise 
     bool updateKeyboardInput()
     {
-        if (!onBridge()) // Note: cannot update input while on bridge!
+        if (!onBridge() && !transitionFadeScript.IsChangingScenes) // Note: cannot update input while on bridge, or while exiting a scene!
         {
             /*** Movement inputs START here ***/
             if (canMove)
@@ -858,9 +858,15 @@ public class TileMovementController : MonoBehaviour
     public void ChangeAnimationState(string newState)
     {
         if (newState == "Interacting")
+        {
             audioManagerScript.PlaySwooshSFX();
+            playerAnimator.SetTrigger("Interacting");
+        }
+        else if (newState == "Pushing")
+            playerAnimator.SetTrigger("Pushing");
+        else
+            playerAnimator.Play(newState);
 
-        playerAnimator.Play(newState);
         playerFidgetScript.SetIdleIndexToZero();
     }
 
@@ -928,8 +934,6 @@ public class TileMovementController : MonoBehaviour
     // Stops the player's movement and footstep coroutines
     public void StopPlayerCoroutines()
     {
-        ChangeAnimationState("Idle");
-
         if (playerMovementCoroutine != null)
             StopCoroutine(playerMovementCoroutine);
 

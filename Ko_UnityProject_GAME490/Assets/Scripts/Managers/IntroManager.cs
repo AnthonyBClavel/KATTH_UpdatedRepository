@@ -118,10 +118,17 @@ public class IntroManager : MonoBehaviour
     // Checks if the zone intro can start - only occurs at the begging of each zone (1st puzzle)
     private void StartIntroCheck()
     {
-        if (!playerScript.checkIfOnCheckpoint())    
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (!playerScript.checkIfOnCheckpoint() && sceneName != "TutorialMap") 
             StartCoroutine(StartZoneIntro());
         else
+        {
             gameObject.SetActive(false);
+            transitionFadeScript.GameFadeIn();
+            audioManagerScript.FadeInBackgroundMusic();
+            audioManagerScript.FadeInLoopingAmbientSFX();
+        }
     }
 
     // Starts the coroutine that moves the camera

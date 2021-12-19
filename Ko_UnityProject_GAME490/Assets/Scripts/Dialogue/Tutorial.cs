@@ -37,8 +37,6 @@ public class Tutorial : MonoBehaviour
     private TorchMeter torchMeterScript;
     private PauseMenu pauseMenuScript;
     private Artifact artifactScript;
-    private SkipSceneButton skipTurorialButtonScript;
-    private CharacterDialogue characterDialogueScript;
     private TransitionFade transitionFadeScript;
 
     void Awake()
@@ -194,8 +192,6 @@ public class Tutorial : MonoBehaviour
         tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         artifactScript = FindObjectOfType<Artifact>();
-        skipTurorialButtonScript = FindObjectOfType<SkipSceneButton>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }

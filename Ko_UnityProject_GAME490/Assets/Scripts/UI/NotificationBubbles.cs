@@ -78,7 +78,7 @@ public class NotificationBubbles : MonoBehaviour
     }
 
     // Sets the toggle bools to true - enables toggle
-    public void EnableNotificationsToggle()
+    /*public void EnableNotificationsToggle()
     {
         canTogglePuzzleBubble = true;
         canToggleArtifactBubble = true;
@@ -89,7 +89,7 @@ public class NotificationBubbles : MonoBehaviour
     {
         canTogglePuzzleBubble = false;
         canToggleArtifactBubble = false;
-    }
+    }*/
 
     // Plays the puzzle notification
     public void PlayPuzzleNotificationCheck()
@@ -141,7 +141,7 @@ public class NotificationBubbles : MonoBehaviour
     // Checks if the notifcation bubbles can be toggled
     private void ToggleNotificationBubblesCheck()
     {
-        if (gameHUDScript.canToggleHUD && notificationBubblesHolder.activeSelf)
+        if (gameHUDScript.CanToggleHUD && notificationBubblesHolder.activeSelf)
         {
             // Toggle puzzle notification bubble
             if (puzzleNotificationBubble.activeSelf)

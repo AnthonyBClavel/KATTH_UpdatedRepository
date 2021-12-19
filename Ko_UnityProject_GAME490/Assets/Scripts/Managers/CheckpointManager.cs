@@ -91,6 +91,10 @@ public class CheckpointManager : MonoBehaviour
         iceMaterialScript.ResetIceAlphas();
         audioManagerScript.StopAllPuzzleSFX();
 
+        // Resets all animator layers to their entry state (Idle)
+        playerAnimator.Rebind();
+        playerAnimator.Update(0f);
+
         playerScript.StopPlayerCoroutines();
         playerAnimator.enabled = true;
         pauseMenuScript.CanPause = true;

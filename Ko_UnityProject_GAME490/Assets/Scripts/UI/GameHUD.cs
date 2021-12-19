@@ -7,10 +7,8 @@ using TMPro;
 
 public class GameHUD : MonoBehaviour
 {
-    [Header("Bools")]
-    public bool canToggleHUD;
+    private bool canToggleHUD;
 
-    [Header("Text Meshes")]
     public TextMeshProUGUI puzzleBubbleColorText;
     public TextMeshProUGUI artifactBubbleColorText;
     private TextMeshProUGUI puzzleForegroundText;
@@ -50,6 +48,19 @@ public class GameHUD : MonoBehaviour
         CanToggleCheck();
         DeathScreenInputCheck();
         ToggleHUDCheck();
+    }
+
+    // Returns or sets the value of the bool canToggleHUD
+    public bool CanToggleHUD
+    {
+        get
+        {
+            return canToggleHUD;
+        }
+        set
+        {
+            canToggleHUD = value;
+        }
     }
 
     // Turns the HUD on

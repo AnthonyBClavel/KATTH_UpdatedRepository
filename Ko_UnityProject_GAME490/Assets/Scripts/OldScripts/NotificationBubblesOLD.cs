@@ -163,7 +163,7 @@ public class NotificationBubblesOLD : MonoBehaviour
     // Checks if the notifcation bubbles can be toggled
     private void ToggleNotificationBubblesCheck()
     {
-        if (gameHUDScript.canToggleHUD && notificationBubblesHolder.activeSelf)
+        if (gameHUDScript.CanToggleHUD && notificationBubblesHolder.activeSelf)
         {
             // Toggle puzzle notification bubble
             if (puzzleNotificationBubble.activeSelf && canTogglePuzzleBubble && !isPuzzleNotification && !hasPlayedPuzzleNotif)
