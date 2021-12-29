@@ -348,7 +348,7 @@ public class Artifact : MonoBehaviour
     {
         // Ends the tutorial dialogue properly if in tutorial scene
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueManager.EndTutorialDialogueManager();
+            tutorialDialogueManager.EndTutorialDialogue();
 
         // Sets the artifact inactive if the player has collected it
         if (hasCollectedArtifact)

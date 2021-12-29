@@ -1,34 +1,40 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class TutorialDialogueManager : MonoBehaviour
 {
-    public bool inDialogue = false;
-    private bool hasEnteredTutorial = false;
+    [Range(0, 3f)]
+    public float fadeLength = 1f;
+    [Range(0.005f, 0.1f)]
+    public float typingSpeed = 0.03f;
 
-    public GameObject dialogueText;
-    public GameObject continueButtonDM;
-    public GameObject blackOverlay;
+    private float originalTypingSpeed;
+    private string[] sentences;
+    private int sentenceIndex;
+    private bool inDialogue = false;
+
     private GameObject skipSceneButton;
+    private GameObject continueButtonTD;
     private GameObject continueButtonCD;
 
-    private TextMeshProUGUI textDisplay;
-    private AudioSource charNoise;
+    private Image blackOverlay;
+    private TextMeshProUGUI tutorialDialogueText;
+    private Color zeroAlpha = new Color(0, 0, 0, 0);
+    private Color halfAlpha = new Color(0, 0, 0, 0.5f);
 
-    private string[] sentences;
-    public float typingSpeed;
-    private float OGtypingSpeed;
-    private int index;
+    private AudioSource charNoise;
+    private IEnumerator fadeOverlayCorouitne;
 
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
     private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
-    private NotificationBubbles notificationBubblesScript;
     private GameHUD gameHUDScript;
+    private AudioManager audioManagerScript;
 
     void Awake()
     {
@@ -38,27 +44,27 @@ public class TutorialDialogueManager : MonoBehaviour
 
     void Start()
     {
-        textDisplay = dialogueText.GetComponent<TextMeshProUGUI>();
-        charNoise = GetComponent<AudioSource>();
-
-        OGtypingSpeed = typingSpeed;;
+        playerScript.SetPlayerBoolsFalse();
+        playerScript.CanSetBoolsTrue = false;
+        skipSceneButton.SetActive(false);
     }
 
     void LateUpdate()
     {
-        CheckToEnterTutorial();
+        TutorialDialogueInputCheck();
+    }
 
-        if (continueButtonDM.activeSelf == true)
+    // Returns or sets the value of the bool inDialogue
+    public bool InDialogue
+    {
+        get
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                nextSentence();
+            return inDialogue;
         }
-
-        else if (typingSpeed > OGtypingSpeed / 2)
+        set
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                typingSpeed /= 2;
-        }       
+            inDialogue = value;
+        }
     }
 
     // Sets the dialogue
@@ -72,46 +78,39 @@ public class TutorialDialogueManager : MonoBehaviour
         return textFile.text.Split("\n"[0]);
     }
 
-    // Begins the dialogue - call this whenever you want to display dialogue
-    public void startDialogue()
+    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
+    public void EndTutorialDialogue()
     {
-        //notificationBubblesScript.DisableNotificationsToggle();
+        skipSceneButton.SetActive(true);
+        inDialogue = false;
+
+        if (characterDialogueScript.canStartDialogue)
+            playerScript.SetPlayerBoolsTrue();
+    }
+
+    // Begins the tutorial dialogue
+    public void StartDialogue()
+    {
         pauseMenuScript.enabled = false;
         inDialogue = true;
 
-        playerScript.SetPlayerBoolsFalse(); // Disabling player movement
-        typingSpeed = OGtypingSpeed;
-        textDisplay.text = string.Empty;
-        index = 0;
-
-        continueButtonDM.SetActive(false);
+        continueButtonTD.SetActive(false);
         skipSceneButton.SetActive(false);
-        blackOverlay.SetActive(true);
-        dialogueText.SetActive(true);
-        StartCoroutine("TypeDialogue");
+
+        playerScript.SetPlayerBoolsFalse();
+        tutorialDialogueText.text = string.Empty;
+        sentenceIndex = 0;
+
+        FadeBlackOverlay(halfAlpha, fadeLength);
+        StartCoroutine(TypeTutorialDialogue());
     }
 
-    // Displays the next sentence
-    private void nextSentence()
+    // Ends the tutorial dialogue
+    private void EndDialogue()
     {
-        typingSpeed = OGtypingSpeed;
-
-        if (index < sentences.Length - 1 && sentences[index + 1] != string.Empty)
-        {
-            index++;
-            textDisplay.text = string.Empty;
-            StartCoroutine("TypeDialogue");
-        }
-        else endDialogue();
-    }
-    
-    // Ends the dialogue - call this when the dialogue is finished
-    private void endDialogue()
-    {
-        dialogueText.SetActive(false);
-        continueButtonDM.SetActive(false);
-        blackOverlay.SetActive(false);
         pauseMenuScript.enabled = true;
+        tutorialDialogueText.text = string.Empty;
+        FadeBlackOverlay(zeroAlpha, 0f);
 
         if (artifactScript.IsInspectingArtifact)
         {
@@ -119,49 +118,79 @@ public class TutorialDialogueManager : MonoBehaviour
             continueButtonCD.SetActive(true);
         }
         else
-            EndTutorialDialogueManager();
+            EndTutorialDialogue();
     }
 
-    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
-    public void EndTutorialDialogueManager()
+    // Checks to play the next sentence in the tutorial dialogue
+    private void NextSentenceCheck()
     {
-        skipSceneButton.SetActive(true);
-        //notificationBubblesScript.EnableNotificationsToggle();
-        //playerScript.hasDied = false;
-        inDialogue = false;
+        continueButtonTD.SetActive(false);
+        typingSpeed = originalTypingSpeed;
 
-        if (characterDialogueScript.canStartDialogue)
-            playerScript.SetPlayerBoolsTrue();
-    }
-
-    // Checks to see if the player has loaded into the tutorial zone
-    private void CheckToEnterTutorial()
-    {
-        if (!hasEnteredTutorial)
+        if (sentenceIndex < sentences.Length - 1 && sentences[sentenceIndex + 1] != string.Empty)
         {
-            //notificationBubblesScript.DisableNotificationsToggle();
-            skipSceneButton.SetActive(false);
-            playerScript.SetPlayerBoolsFalse();
-            playerScript.WalkIntoScene();
-            playerScript.CanSetBoolsTrue = false;
-            hasEnteredTutorial = true;
+            sentenceIndex++;
+            tutorialDialogueText.text = string.Empty;
+            StartCoroutine(TypeTutorialDialogue());
+        }
+        else 
+            EndDialogue();
+    }
+
+    // Checks for the input that continues or speeds up the tutorial dialogue
+    private void TutorialDialogueInputCheck()
+    {
+        if (continueButtonTD.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                NextSentenceCheck();
+        }
+        else if (typingSpeed > originalTypingSpeed / 2)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                typingSpeed /= 2;
         }
     }
 
-    // Shows the text dialogue in the dialogue Box
-    private IEnumerator TypeDialogue()
+    // Starts the coroutine that fades the black overlay
+    private void FadeBlackOverlay(Color endValue, float duration)
+    {
+        if (fadeOverlayCorouitne != null)
+            StopCoroutine(fadeOverlayCorouitne);
+
+        fadeOverlayCorouitne = FadeOverlay(endValue, duration);
+        StartCoroutine(fadeOverlayCorouitne);
+    }
+
+    // Fades the alpha of the overlay to another over a specific duartion (duration = seconds)
+    private IEnumerator FadeOverlay(Color endValue, float duration)
+    {
+        float time = 0;
+        Color startValue = blackOverlay.color;
+
+        while (time < duration)
+        {
+            blackOverlay.color = Color.Lerp(startValue, endValue, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        blackOverlay.color = endValue;
+    }
+
+    // Types out the tutorial dialogue text
+    private IEnumerator TypeTutorialDialogue()
     {
         yield return new WaitForSeconds(0.03f);
-        continueButtonDM.SetActive(false); // Removes continue button until sentence is finished
 
-        foreach (char letter in sentences[index].ToCharArray())
+        foreach (char letter in sentences[sentenceIndex].ToCharArray())
         {
-            textDisplay.text += letter;
+            tutorialDialogueText.text += letter;
             charNoise.Play();
-            yield return new WaitForSeconds(typingSpeed); // Adds delay between characters
+            yield return new WaitForSeconds(typingSpeed);
         }
 
-        continueButtonDM.SetActive(true); // Shows the continue button after the sentence is finished
+        continueButtonTD.SetActive(true);
     }
 
     // Sets the scripts to use
@@ -171,14 +200,27 @@ public class TutorialDialogueManager : MonoBehaviour
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         artifactScript = FindObjectOfType<Artifact>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         gameHUDScript = FindObjectOfType<GameHUD>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
         // Sets the game objects by looking at names of children
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+            string childName = child.name;
+
+            if (childName == "BlackOverlay")
+                blackOverlay = child.GetComponent<Image>();
+            if (childName == "ContinueButtonTD")
+                continueButtonTD = child;
+            if (childName == "TutorialDialogueText")
+                tutorialDialogueText = child.GetComponent<TextMeshProUGUI>();
+        }
+
         for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
         {
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
@@ -194,6 +236,9 @@ public class TutorialDialogueManager : MonoBehaviour
             if (child.name == "SkipSceneButton")
                 skipSceneButton = child;
         }
+
+        charNoise = audioManagerScript.charNoiseAS;
+        originalTypingSpeed = typingSpeed;
     }
 
 }

@@ -30,7 +30,7 @@ public class Interactable : MonoBehaviour
         if (dialogue == null) return;
 
         tutorialDialogueManager.setDialogue(dialogue);
-        tutorialDialogueManager.startDialogue();
+        tutorialDialogueManager.StartDialogue();
 
         if (transform.childCount > 1)
             GameObject.Destroy(child.gameObject);

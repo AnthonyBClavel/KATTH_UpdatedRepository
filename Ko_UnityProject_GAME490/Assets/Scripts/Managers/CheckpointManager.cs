@@ -88,6 +88,8 @@ public class CheckpointManager : MonoBehaviour
     // Resets all player elements (position, animation, rotation, torch meter)
     public void ResetPlayer()
     {
+        //string sceneName = SceneManager.GetActiveScene().name;
+
         iceMaterialScript.ResetIceAlphas();
         audioManagerScript.StopAllPuzzleSFX();
 
@@ -137,7 +139,7 @@ public class CheckpointManager : MonoBehaviour
         iceMaterialScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
-        pauseMenuScript.canPause = false;
+        //pauseMenuScript.canPause = false;
 
         yield return new WaitForSeconds(seconds);
         ResetPlayer();

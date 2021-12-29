@@ -221,15 +221,14 @@ public class TileMovementController : MonoBehaviour
             // Checks of the torch meter ran out - resest the puzzle and plays torch meter sfx
             if (torchMeterScript.CurrentVal <= 0 && canTorchMeter && !alreadyPlayedSFX)
             {
-                if (SceneManager.GetActiveScene().name == "TutorialMap")
-                    resetPuzzleWithDelayInTutorial();
-                else
-                {
-                    checkpoint.GetComponent<CheckpointManager>().ResetPlayerDelay(resetPuzzleDelay);
+                //if (SceneManager.GetActiveScene().name == "TutorialMap")
+                //resetPuzzleWithDelayInTutorial();
+                //else
 
-                    if (!gameManagerScript.canDeathScreen)
-                        puzzleManagerScript.ResetPuzzle(resetPuzzleDelay);
-                }
+                checkpoint.GetComponent<CheckpointManager>().ResetPlayerDelay(resetPuzzleDelay);
+
+                if (!gameManagerScript.canDeathScreen)
+                    puzzleManagerScript.ResetPuzzle(resetPuzzleDelay);
 
                 audioManagerScript.PlayTorchFireExtinguishSFX();
                 audioManagerScript.PlayFreezeingSFX();
@@ -811,13 +810,6 @@ public class TileMovementController : MonoBehaviour
             torchMeterScript.TorchMeterPopIn();
             hasAlreadyPopedOut = false;
         }
-    }
-
-    // Sets the destination to the first block in each world - ONLY for when the player enters a new scene/zone
-    public void WalkIntoScene()
-    {
-        destination = new Vector3(0, 0, 0);
-        //destination = gameManagerScript.checkpoints[0].position;
     }
 
     // Removes the string (prefixToRemove) from the parent object's name and converst what left into 

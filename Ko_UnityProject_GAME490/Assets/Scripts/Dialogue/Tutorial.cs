@@ -58,7 +58,7 @@ public class Tutorial : MonoBehaviour
 
     private void startDialogue()
     {
-        tutorialDialogueManagerScript.startDialogue();
+        tutorialDialogueManagerScript.StartDialogue();
     }
 
     // Update is called once per frame
@@ -163,7 +163,7 @@ public class Tutorial : MonoBehaviour
         {
             playerScript.SetPlayerBoolsFalse();
 
-            if (!tutorialDialogueManagerScript.inDialogue)
+            if (!tutorialDialogueManagerScript.InDialogue)
             {
                 setDialogue(deathDialogue);
                 currentDialogue = deathDialogue;
