@@ -49,7 +49,7 @@ public class Artifact : MonoBehaviour
     private TileMovementController playerScript;
     private GameHUD gameHUDScript;
     private SaveManager saveManagerScript;
-    private TutorialDialogueManager tutorialDialogueManager;
+    private TutorialDialogue tutorialDialogueScript;
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
     private NotificationBubbles notificationBubblesScript;
@@ -348,7 +348,7 @@ public class Artifact : MonoBehaviour
     {
         // Ends the tutorial dialogue properly if in tutorial scene
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueManager.EndTutorialDialogue();
+            tutorialDialogueScript.EndTutorialDialogue();
 
         // Sets the artifact inactive if the player has collected it
         if (hasCollectedArtifact)
@@ -405,7 +405,7 @@ public class Artifact : MonoBehaviour
         transitionFadeScript = FindObjectOfType<TransitionFade>();
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+            tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
     }
 
     // Sets private variables, objects, and components

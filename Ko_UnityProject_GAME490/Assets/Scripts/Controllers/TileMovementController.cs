@@ -9,9 +9,13 @@ public class TileMovementController : MonoBehaviour
 {
     //private bool hasDied = false;
     [Header("Bools")]
+    [SerializeField]
     private bool canSetBoolsTrue = true;
+    [SerializeField]
     private bool canMove = true;
+    [SerializeField]
     private bool canInteract = true;
+    [SerializeField]
     private bool canRestartPuzzle = true;
     private bool hasFinishedZone = false;
     private bool alreadyPlayedSFX = false;
@@ -560,7 +564,7 @@ public class TileMovementController : MonoBehaviour
         // Checks to see if the player has landed on the last green block in the first puzzle of tutorial
         if (name == "LastTileBlockInPuzzle")
         {
-            canSetBoolsTrue = true;
+            //canSetBoolsTrue = true;
             return true;
         }
         return false;
@@ -974,19 +978,22 @@ public class TileMovementController : MonoBehaviour
 
         transform.position = endPosition;
 
-        if (!onBridge() && canSetBoolsTrue)
+        if (!onBridge())
         {
             playerAnimator.SetTrigger("Idle");
 
-            if (!canMove)
-                canMove = true;
+            if (canSetBoolsTrue)
+            {
+                if (!canMove)
+                    canMove = true;
 
-            if (!canRestartPuzzle)
-                canRestartPuzzle = true;
+                if (!canRestartPuzzle)
+                    canRestartPuzzle = true;
 
-            if (!canInteract)
-                canInteract = true;
-        }         
+                if (!canInteract)
+                    canInteract = true;
+            }
+        }
     }
 
     // Plays the footsteps sfx based on the player's lerpLength (time it takes to move from its current position to the destination)

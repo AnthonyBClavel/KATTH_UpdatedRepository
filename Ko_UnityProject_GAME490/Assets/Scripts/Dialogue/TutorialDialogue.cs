@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class TutorialDialogueManager : MonoBehaviour
+public class TutorialDialogue : MonoBehaviour
 {
     [Range(0, 3f)]
     public float fadeLength = 1f;
@@ -16,6 +16,16 @@ public class TutorialDialogueManager : MonoBehaviour
     private string[] sentences;
     private int sentenceIndex;
     private bool inDialogue = false;
+
+    private bool hasPlayedStart = false;
+    private bool hasPlayedPush = false;
+    private bool hasPlayedBreak = false;
+    private bool hasPlayedHole = false;
+    private bool hasPlayedFirestone = false;
+    private bool hasPassedBridge = false;
+    private bool hasPlayedInteractables = false;
+    private bool hasPlayedArtifacts = false;
+    private bool hasplayedFinishedTutorial = false;
 
     private GameObject skipSceneButton;
     private GameObject continueButtonTD;
@@ -29,12 +39,28 @@ public class TutorialDialogueManager : MonoBehaviour
     private AudioSource charNoise;
     private IEnumerator fadeOverlayCorouitne;
 
+    public TextAsset welcomeDialogue;
+    public TextAsset pushDialogue;
+    public TextAsset breakDialogue;
+    public TextAsset holeDialogue;
+    public TextAsset firestoneDialogue;
+    public TextAsset interactablesDialogue;
+    public TextAsset artifcatsDialogue;
+    public TextAsset finishedTutorialDialogue;
+
+    public TextAsset bridgeDialogue;
+    public TextAsset torchMeterDialogue;
+    public TextAsset deathDialogue;
+    private TextAsset currentDialogue;
+
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
     private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
+    private TorchMeter torchMeterScript;
+    private TransitionFade transitionFadeScript;
 
     void Awake()
     {
@@ -49,31 +75,19 @@ public class TutorialDialogueManager : MonoBehaviour
         skipSceneButton.SetActive(false);
     }
 
-    void LateUpdate()
+    void Update()
     {
         TutorialDialogueInputCheck();
-    }
-
-    // Returns or sets the value of the bool inDialogue
-    public bool InDialogue
-    {
-        get
-        {
-            return inDialogue;
-        }
-        set
-        {
-            inDialogue = value;
-        }
+        TutorialDialogueCheck();
     }
 
     // Sets the dialogue
-    public void setDialogue(string[] dialogue)
+    public void SetDialogue(string[] dialogue)
     {
         sentences = dialogue;
     }
 
-    public string[] readTextFile(TextAsset textFile)
+    public string[] ReadTextFile(TextAsset textFile)
     {
         return textFile.text.Split("\n"[0]);
     }
@@ -85,7 +99,10 @@ public class TutorialDialogueManager : MonoBehaviour
         inDialogue = false;
 
         if (characterDialogueScript.canStartDialogue)
+        {
+            playerScript.CanSetBoolsTrue = true;
             playerScript.SetPlayerBoolsTrue();
+        }      
     }
 
     // Begins the tutorial dialogue
@@ -96,7 +113,10 @@ public class TutorialDialogueManager : MonoBehaviour
 
         continueButtonTD.SetActive(false);
         skipSceneButton.SetActive(false);
+        originalTypingSpeed = typingSpeed;
+        //typingSpeed = originalTypingSpeed;
 
+        playerScript.CanSetBoolsTrue = false;
         playerScript.SetPlayerBoolsFalse();
         tutorialDialogueText.text = string.Empty;
         sentenceIndex = 0;
@@ -125,7 +145,8 @@ public class TutorialDialogueManager : MonoBehaviour
     private void NextSentenceCheck()
     {
         continueButtonTD.SetActive(false);
-        typingSpeed = originalTypingSpeed;
+        originalTypingSpeed = typingSpeed;
+        //typingSpeed = originalTypingSpeed;
 
         if (sentenceIndex < sentences.Length - 1 && sentences[sentenceIndex + 1] != string.Empty)
         {
@@ -140,15 +161,127 @@ public class TutorialDialogueManager : MonoBehaviour
     // Checks for the input that continues or speeds up the tutorial dialogue
     private void TutorialDialogueInputCheck()
     {
-        if (continueButtonTD.activeSelf)
+        if (!pauseMenuScript.enabled)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                NextSentenceCheck();
+            {
+                if (continueButtonTD.activeSelf)
+                    NextSentenceCheck();
+
+                else if (!continueButtonTD.activeSelf && typingSpeed > originalTypingSpeed / 2)
+                    typingSpeed /= 2;
+            }
         }
-        else if (typingSpeed > originalTypingSpeed / 2)
+    }
+
+    // Checks when and which dialogue should play throughout the tutorial zone
+    private void TutorialDialogueCheck()
+    {
+        if (playerScript.CanMove && !transitionFadeScript.IsChangingScenes)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                typingSpeed /= 2;
+            Collider collider = playerScript.getCollider();
+
+            if (collider != null)
+                switch (collider.tag)
+                {
+                    case ("PushableBlock"):
+                        if (!hasPlayedPush)
+                        {
+                            SetDialogue(ReadTextFile(pushDialogue));
+                            currentDialogue = pushDialogue;
+                            StartDialogue();
+                            hasPlayedPush = true;
+                        }
+                        break;
+                    case ("DestroyableBlock"):
+                        if (!hasPlayedBreak)
+                        {
+                            SetDialogue(ReadTextFile(breakDialogue));
+                            currentDialogue = breakDialogue;
+                            StartDialogue();
+                            hasPlayedBreak = true;
+                        }
+                        break;
+                    case ("Firestone"):
+                        if (!hasPlayedFirestone)
+                        {
+                            SetDialogue(ReadTextFile(firestoneDialogue));
+                            currentDialogue = firestoneDialogue;
+                            StartDialogue();
+                            hasPlayedFirestone = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            if (playerScript.checkIfOnCheckpoint())
+            {
+                string currentPuzzle = playerScript.CurrentPuzzle.name;
+
+                if (currentPuzzle == "Puzzle01" && !hasPlayedStart)
+                {
+                    SetDialogue(ReadTextFile(welcomeDialogue));
+                    currentDialogue = welcomeDialogue;
+                    StartDialogue();
+                    hasPlayedStart = true;
+                }
+
+                else if (currentPuzzle == "Puzzle03" && !hasPlayedHole)
+                {
+                    SetDialogue(ReadTextFile(holeDialogue));
+                    currentDialogue = holeDialogue;
+                    StartDialogue();
+                    hasPlayedHole = true;
+                }
+
+                else if (currentPuzzle == "Puzzle05" && !hasPlayedInteractables)
+                {
+                    SetDialogue(ReadTextFile(interactablesDialogue));
+                    currentDialogue = interactablesDialogue;
+                    StartDialogue();
+                    hasPlayedInteractables = true;
+                }
+
+                else if (currentPuzzle == "Puzzle06" && !hasplayedFinishedTutorial)
+                {
+                    SetDialogue(ReadTextFile(finishedTutorialDialogue));
+                    currentDialogue = finishedTutorialDialogue;
+                    StartDialogue();
+                    hasplayedFinishedTutorial = true;
+                }
+            }
+        }
+
+        else if (playerScript.onLastTileBlock() && !hasPassedBridge)
+        {
+            SetDialogue(ReadTextFile(bridgeDialogue));
+            currentDialogue = bridgeDialogue;
+            StartDialogue();
+            hasPassedBridge = true;
+        }
+
+        if (artifactScript.IsInspectingArtifact && !hasPlayedArtifacts)
+        {
+            SetDialogue(ReadTextFile(artifcatsDialogue));
+            currentDialogue = artifcatsDialogue;
+            StartDialogue();
+
+            continueButtonCD.SetActive(false);
+            artifactScript.CanRotateArtifact = false;
+            hasPlayedArtifacts = true;
+        }
+
+        if (torchMeterScript.CurrentVal <= 0)
+        {
+            playerScript.SetPlayerBoolsFalse();
+
+            if (!inDialogue)
+            {
+                SetDialogue(ReadTextFile(deathDialogue));
+                currentDialogue = deathDialogue;
+                StartDialogue();
+            }
         }
     }
 
@@ -190,6 +323,7 @@ public class TutorialDialogueManager : MonoBehaviour
             yield return new WaitForSeconds(typingSpeed);
         }
 
+        typingSpeed = originalTypingSpeed;
         continueButtonTD.SetActive(true);
     }
 
@@ -202,6 +336,8 @@ public class TutorialDialogueManager : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
     // Sets private variables, objects, and components

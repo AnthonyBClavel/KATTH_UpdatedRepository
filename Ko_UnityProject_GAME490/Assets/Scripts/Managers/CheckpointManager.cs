@@ -88,7 +88,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets all player elements (position, animation, rotation, torch meter)
     public void ResetPlayer()
     {
-        //string sceneName = SceneManager.GetActiveScene().name;
+        bool hasFoundTutorialDialogue = false;
 
         iceMaterialScript.ResetIceAlphas();
         audioManagerScript.StopAllPuzzleSFX();
@@ -105,7 +105,22 @@ public class CheckpointManager : MonoBehaviour
         saveManagerScript.LoadPlayerRotation();
         playerScript.setDestination(checkpointPosition);
         playerScript.ResetTorchMeter();
-        playerScript.SetPlayerBoolsTrue();
+
+        // Checks to see if there's a tutorial dialogue manager in the scene
+        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
+
+            if (!hasFoundTutorialDialogue && child.name == "TutorialDialogueHolder")
+                hasFoundTutorialDialogue = true;
+        }
+        // Note: Check to set player bools to true MUST come after the for loop above!
+        if (!hasFoundTutorialDialogue)
+            playerScript.SetPlayerBoolsTrue();
+
+        // Only sets the player bools to true while not in the tutorial zone - OLD VERSION
+        /*if (sceneName != "TutorialMap")
+            playerScript.SetPlayerBoolsTrue();*/
     }
 
     // Resets all player elements after a delay (set float to zero for instant reset)
@@ -132,18 +147,6 @@ public class CheckpointManager : MonoBehaviour
         if (gameManagerScript.canDeathScreen)
             gameHUDScript.SetDeathScreenActive();
     }
-
-    // Resets the player's position and other elements after a certain amount of seconds - ONLY USED IN TUTORIAL
-    /*public IEnumerator resetPlayerPositionInTutorialWithDelay(float seconds)
-    {
-        iceMaterialScript.LerpIceAlphas();
-        playerScript.SetPlayerBoolsFalse();
-        playerAnimator.enabled = false;
-        //pauseMenuScript.canPause = false;
-
-        yield return new WaitForSeconds(seconds);
-        ResetPlayer();
-    }*/
 
     // Sets the scripts to use
     private void SetScripts()

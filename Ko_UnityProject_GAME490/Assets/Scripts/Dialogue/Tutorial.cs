@@ -32,7 +32,7 @@ public class Tutorial : MonoBehaviour
     //private bool hasPlayedTorch = false;
     //private bool hasDied = false;
 
-    private TutorialDialogueManager tutorialDialogueManagerScript;
+    private TutorialDialogue tutorialDialogueScript;
     private TileMovementController playerScript;
     private TorchMeter torchMeterScript;
     private PauseMenu pauseMenuScript;
@@ -53,12 +53,12 @@ public class Tutorial : MonoBehaviour
 
     private void setDialogue(TextAsset dialogue)
     {
-        tutorialDialogueManagerScript.setDialogue(tutorialDialogueManagerScript.readTextFile(dialogue));
+        tutorialDialogueScript.SetDialogue(tutorialDialogueScript.ReadTextFile(dialogue));
     }
 
     private void startDialogue()
     {
-        tutorialDialogueManagerScript.StartDialogue();
+        tutorialDialogueScript.StartDialogue();
     }
 
     // Update is called once per frame
@@ -163,12 +163,12 @@ public class Tutorial : MonoBehaviour
         {
             playerScript.SetPlayerBoolsFalse();
 
-            if (!tutorialDialogueManagerScript.InDialogue)
+            /*if (!tutorialDialogueScript.InDialogue)
             {
                 setDialogue(deathDialogue);
                 currentDialogue = deathDialogue;
                 startDialogue();
-            }
+            }*/
         }
     }
 
@@ -189,7 +189,7 @@ public class Tutorial : MonoBehaviour
     private void SetScripts()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        tutorialDialogueManagerScript = FindObjectOfType<TutorialDialogueManager>();
+        tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         artifactScript = FindObjectOfType<Artifact>();
         torchMeterScript = FindObjectOfType<TorchMeter>();

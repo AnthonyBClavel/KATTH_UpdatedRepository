@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    private TutorialDialogueManager tutorialDialogueManager;
+    private TutorialDialogue tutorialDialogueScript;
     private string[] dialogue;
 
     /***
@@ -14,7 +14,7 @@ public class Interactable : MonoBehaviour
 
     void Awake()
     {
-        tutorialDialogueManager = FindObjectOfType<TutorialDialogueManager>();
+        tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
     }
 
     public void Interact()
@@ -29,8 +29,8 @@ public class Interactable : MonoBehaviour
         dialogue = child.GetComponent<Dialogue>().readTextFile();
         if (dialogue == null) return;
 
-        tutorialDialogueManager.setDialogue(dialogue);
-        tutorialDialogueManager.StartDialogue();
+        tutorialDialogueScript.SetDialogue(dialogue);
+        tutorialDialogueScript.StartDialogue();
 
         if (transform.childCount > 1)
             GameObject.Destroy(child.gameObject);
