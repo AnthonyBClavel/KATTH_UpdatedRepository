@@ -17,7 +17,7 @@ public class TutorialDialogue : MonoBehaviour
     private int sentenceIndex;
     private bool inDialogue = false;
 
-    private bool hasPlayedStart = false;
+    private bool hasPlayedWelcome = false;
     private bool hasPlayedPush = false;
     private bool hasPlayedBreak = false;
     private bool hasPlayedHole = false;
@@ -25,7 +25,8 @@ public class TutorialDialogue : MonoBehaviour
     private bool hasPassedBridge = false;
     private bool hasPlayedInteractables = false;
     private bool hasPlayedArtifacts = false;
-    private bool hasplayedFinishedTutorial = false;
+    private bool hasplayedFinished = false;
+    private bool canPlayDeathDialogue = false;
 
     private GameObject skipSceneButton;
     private GameObject continueButtonTD;
@@ -47,11 +48,8 @@ public class TutorialDialogue : MonoBehaviour
     public TextAsset interactablesDialogue;
     public TextAsset artifcatsDialogue;
     public TextAsset finishedTutorialDialogue;
-
     public TextAsset bridgeDialogue;
-    public TextAsset torchMeterDialogue;
     public TextAsset deathDialogue;
-    private TextAsset currentDialogue;
 
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
@@ -81,28 +79,18 @@ public class TutorialDialogue : MonoBehaviour
         TutorialDialogueCheck();
     }
 
-    // Sets the dialogue
-    public void SetDialogue(string[] dialogue)
+    // Returns or sets the value of the bool canPlayDeathDialogue
+    public bool CanPlayDeathDialogue
     {
-        sentences = dialogue;
+        get { return canPlayDeathDialogue; }
+        set { canPlayDeathDialogue = value; }
     }
 
-    public string[] ReadTextFile(TextAsset textFile)
+    // Sets the array of dialogue sentences
+    private void SetDialogue(TextAsset textFile)
     {
-        return textFile.text.Split("\n"[0]);
-    }
-
-    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
-    public void EndTutorialDialogue()
-    {
-        skipSceneButton.SetActive(true);
-        inDialogue = false;
-
-        if (characterDialogueScript.canStartDialogue)
-        {
-            playerScript.CanSetBoolsTrue = true;
-            playerScript.SetPlayerBoolsTrue();
-        }      
+        string[] textFileSentences = textFile.text.Split("\n"[0]);
+        sentences = textFileSentences;
     }
 
     // Begins the tutorial dialogue
@@ -139,6 +127,22 @@ public class TutorialDialogue : MonoBehaviour
         }
         else
             EndTutorialDialogue();
+    }
+
+    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
+    public void EndTutorialDialogue()
+    {
+        skipSceneButton.SetActive(true);
+        inDialogue = false;
+
+        if (characterDialogueScript.canStartDialogue)
+        {
+            if (canPlayDeathDialogue)
+                canPlayDeathDialogue = false;
+
+            playerScript.CanSetBoolsTrue = true;
+            playerScript.SetPlayerBoolsTrue();
+        }      
     }
 
     // Checks to play the next sentence in the tutorial dialogue
@@ -179,7 +183,8 @@ public class TutorialDialogue : MonoBehaviour
     {
         if (playerScript.CanMove && !transitionFadeScript.IsChangingScenes)
         {
-            Collider collider = playerScript.getCollider();
+            Collider collider = playerScript.GetCollider();
+            string currentPuzzle = playerScript.CurrentPuzzle.name;
 
             if (collider != null)
                 switch (collider.tag)
@@ -187,84 +192,82 @@ public class TutorialDialogue : MonoBehaviour
                     case ("PushableBlock"):
                         if (!hasPlayedPush)
                         {
-                            SetDialogue(ReadTextFile(pushDialogue));
-                            currentDialogue = pushDialogue;
+                            SetDialogue(pushDialogue);
                             StartDialogue();
                             hasPlayedPush = true;
-                        }
-                        break;
-                    case ("DestroyableBlock"):
-                        if (!hasPlayedBreak)
-                        {
-                            SetDialogue(ReadTextFile(breakDialogue));
-                            currentDialogue = breakDialogue;
-                            StartDialogue();
-                            hasPlayedBreak = true;
-                        }
-                        break;
-                    case ("Firestone"):
-                        if (!hasPlayedFirestone)
-                        {
-                            SetDialogue(ReadTextFile(firestoneDialogue));
-                            currentDialogue = firestoneDialogue;
-                            StartDialogue();
-                            hasPlayedFirestone = true;
                         }
                         break;
                     default:
                         break;
                 }
 
-            if (playerScript.checkIfOnCheckpoint())
-            {
-                string currentPuzzle = playerScript.CurrentPuzzle.name;
-
-                if (currentPuzzle == "Puzzle01" && !hasPlayedStart)
+            if (currentPuzzle != null)
+                switch (currentPuzzle)
                 {
-                    SetDialogue(ReadTextFile(welcomeDialogue));
-                    currentDialogue = welcomeDialogue;
-                    StartDialogue();
-                    hasPlayedStart = true;
+                    case ("Puzzle01"):
+                        if (!hasPlayedWelcome)
+                        {
+                            SetDialogue(welcomeDialogue);
+                            StartDialogue();
+                            hasPlayedWelcome = true;
+                        }
+                        break;
+                    case ("Puzzle02"):
+                        if (!hasPlayedBreak)
+                        {
+                            SetDialogue(breakDialogue);
+                            StartDialogue();
+                            hasPlayedBreak = true;
+                        }
+                        break;
+                    case ("Puzzle03"):
+                        if (!hasPlayedHole)
+                        {
+                            SetDialogue(holeDialogue);
+                            StartDialogue();
+                            hasPlayedHole = true;
+                        }
+                        break;
+                    case ("Puzzle04"):
+                        if (!hasPlayedFirestone)
+                        {
+                            SetDialogue(firestoneDialogue);
+                            StartDialogue();
+                            hasPlayedFirestone = true;
+                        }
+                        break;
+                    case ("Puzzle05"):
+                        if (!hasPlayedInteractables)
+                        {
+                            SetDialogue(interactablesDialogue);
+                            StartDialogue();
+                            hasPlayedInteractables = true;
+                        }
+                        break;
+                    case ("Puzzle06"):
+                        if (!hasplayedFinished)
+                        {
+                            SetDialogue(finishedTutorialDialogue);
+                            StartDialogue();
+                            hasplayedFinished = true;
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
-                else if (currentPuzzle == "Puzzle03" && !hasPlayedHole)
-                {
-                    SetDialogue(ReadTextFile(holeDialogue));
-                    currentDialogue = holeDialogue;
-                    StartDialogue();
-                    hasPlayedHole = true;
-                }
-
-                else if (currentPuzzle == "Puzzle05" && !hasPlayedInteractables)
-                {
-                    SetDialogue(ReadTextFile(interactablesDialogue));
-                    currentDialogue = interactablesDialogue;
-                    StartDialogue();
-                    hasPlayedInteractables = true;
-                }
-
-                else if (currentPuzzle == "Puzzle06" && !hasplayedFinishedTutorial)
-                {
-                    SetDialogue(ReadTextFile(finishedTutorialDialogue));
-                    currentDialogue = finishedTutorialDialogue;
-                    StartDialogue();
-                    hasplayedFinishedTutorial = true;
-                }
-            }
         }
 
-        else if (playerScript.onLastTileBlock() && !hasPassedBridge)
+        else if (playerScript.OnLastTileBlock() && !hasPassedBridge)
         {
-            SetDialogue(ReadTextFile(bridgeDialogue));
-            currentDialogue = bridgeDialogue;
+            SetDialogue(bridgeDialogue);
             StartDialogue();
             hasPassedBridge = true;
         }
 
         if (artifactScript.IsInspectingArtifact && !hasPlayedArtifacts)
         {
-            SetDialogue(ReadTextFile(artifcatsDialogue));
-            currentDialogue = artifcatsDialogue;
+            SetDialogue(artifcatsDialogue);
             StartDialogue();
 
             continueButtonCD.SetActive(false);
@@ -272,17 +275,15 @@ public class TutorialDialogue : MonoBehaviour
             hasPlayedArtifacts = true;
         }
 
-        if (torchMeterScript.CurrentVal <= 0)
-        {
-            playerScript.SetPlayerBoolsFalse();
+        if (torchMeterScript.CurrentVal <= 0 && !playerScript.CanRestartPuzzle && !inDialogue && !canPlayDeathDialogue)
+            canPlayDeathDialogue = true;
+    }
 
-            if (!inDialogue)
-            {
-                SetDialogue(ReadTextFile(deathDialogue));
-                currentDialogue = deathDialogue;
-                StartDialogue();
-            }
-        }
+    // Plays the death dialogue
+    public void PlayDeathDialogue()
+    {
+        SetDialogue(deathDialogue);
+        StartDialogue();
     }
 
     // Starts the coroutine that fades the black overlay

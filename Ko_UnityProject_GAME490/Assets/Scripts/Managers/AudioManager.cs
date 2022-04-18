@@ -856,7 +856,7 @@ public class AudioManager : MonoBehaviour
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
-        if (sceneName != "MainMenu" && playerScript.checkIfOnCheckpoint())
+        if (sceneName != "MainMenu" && playerScript.OnCheckpoint())
         {
             backgroundMusic.gameObject.SetActive(true);
             loopingAmbienceAS.gameObject.SetActive(true);

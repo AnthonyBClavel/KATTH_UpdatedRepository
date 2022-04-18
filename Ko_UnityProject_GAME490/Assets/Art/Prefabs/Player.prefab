@@ -243,7 +243,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6310575049256854424}
   m_Layer: 0
-  m_Name: NextBridgeTileCheck
+  m_Name: BridgeTileCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -439,6 +439,36 @@ Transform:
   m_Father: {fileID: 8052692257201914328}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 7.9151893, y: 47.652214, z: 9.332922}
+--- !u!1 &3035830405217704826
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3032116304854293997}
+  m_Layer: 0
+  m_Name: TileCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3032116304854293997
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3035830405217704826}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 8893811602064672361}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3243674475238469245
 GameObject:
   m_ObjectHideFlags: 0
@@ -1271,36 +1301,6 @@ Transform:
   m_Father: {fileID: 5026965683199062936}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -0.0000003706339, y: 0.00000039860703, z: 36.905994}
---- !u!1 &8893811600782353687
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8893811600782353686}
-  m_Layer: 0
-  m_Name: EdgeCheck
-  m_TagString: Untagged
-  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8893811600782353686
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811600782353687}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 8893811602064672361}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8893811602064672366
 GameObject:
   m_ObjectHideFlags: 0
@@ -1334,7 +1334,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 543450652384366646}
-  - {fileID: 8893811600782353686}
+  - {fileID: 3032116304854293997}
   - {fileID: 6310575049256854424}
   - {fileID: 334652540}
   m_Father: {fileID: 0}
@@ -1366,6 +1366,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canSetBoolsTrue: 1
+  canMove: 1
+  canInteract: 1
+  canRestartPuzzle: 1
 --- !u!114 &335815886686903731
 MonoBehaviour:
   m_ObjectHideFlags: 0

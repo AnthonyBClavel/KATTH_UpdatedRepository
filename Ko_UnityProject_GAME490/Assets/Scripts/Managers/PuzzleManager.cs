@@ -4,106 +4,138 @@ using UnityEngine;
 
 public class PuzzleManager : MonoBehaviour
 {
-    private bool canPlayChimeSFX = true;
+    private bool hasLitAllCrystals = false;
 
     private GameObject staticBlocks;
     private GameObject pushableBlocks;
     private GameObject breakableBlocks;
     private GameObject firestones;
     private GameObject generators;
-    private GameObject currentPuzzle;
+    private GameObject deathScreen;
 
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
+    private GameHUD gameHUDScript;
+    private TorchMeter torchMeterScript;
 
     void Awake()
     {
-        playerScript = FindObjectOfType<TileMovementController>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
+        SetScripts();
+        SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    // Updates the parent objects - the game objects that hold puzzle blocks (trees, rocks, crates, crystals, etc.)
+    public void UpdateParentObjects()
     {
-        
-    }
+        GameObject currentPuzzle = playerScript.CurrentPuzzle;
 
-    // Plays the chimeSFX when all crystals in a puzzle are lit
-    public void PlayAllCrystalsLitSFX()
-    {
-        if (canPlayChimeSFX)
-        {
-            audioManagerScript.PlayChimeSFX();
-            canPlayChimeSFX = false;
-        }
-    }
-
-    // Resets all the blocks and game objects within the current puzzle (set float to zero for an instant reset)
-    public void ResetPuzzle(float delayDuration)
-    {
-        currentPuzzle = playerScript.CurrentPuzzle;
-        DestroyAllPuzzleParticles();
+        staticBlocks = null;
+        pushableBlocks = null;
+        breakableBlocks = null;
+        firestones = null;
+        generators = null;
 
         for (int i = 0; i < currentPuzzle.transform.childCount; i++)
         {
             GameObject child = currentPuzzle.transform.GetChild(i).gameObject;
-            string childName = child.name;
 
             if (child.activeSelf)
             {
-                if (childName == "StaticBlocks")
+                switch (child.name)
                 {
-                    staticBlocks = child;
-                    StartCoroutine(ResetCrystals(delayDuration));
+                    case ("StaticBlocks"):
+                        staticBlocks = child;
+                        break;
+                    case ("PushableBlocks"):
+                        pushableBlocks = child;
+                        break;
+                    case ("BreakableBlocks"):
+                        breakableBlocks = child;
+                        break;
+                    case ("Firestones"):
+                        firestones = child;
+                        break;
+                    case ("Generators"):
+                        generators = child;
+                        break;
+                    default:
+                        break;
                 }
-                if (childName == "PushableBlocks")
+            }
+        }
+        //Debug.Log("The puzzle's parent objects have been updated");
+    }
+
+    // Resets both the player and the puzzle (delay = seconds, set float to zero for instant reset)
+    public void ResetPuzzle(float delay)
+    {
+        GameObject currentCheckpoint = playerScript.CurrentCheckpoint;
+        currentCheckpoint.GetComponent<CheckpointManager>().ResetPlayer(delay);
+        DestroyAllPuzzleParticles();
+
+        // Avoids reseting the puzzle elements if the following argument is true...
+        if (gameManagerScript.canDeathScreen && torchMeterScript.CurrentVal <= 0 && !deathScreen.activeSelf)
+            return;
+
+        if (staticBlocks != null)
+            StartCoroutine(ResetCrystals(delay));
+        if (pushableBlocks != null)
+            StartCoroutine(ResetPushableBlocks(delay));
+        if (breakableBlocks != null)
+            StartCoroutine(ResetBreakableBlocks(delay));
+        if (firestones != null)
+            StartCoroutine(ResetFirestone(delay));
+        if (generators != null)
+            StartCoroutine(ResetGenerator(delay));
+    }
+
+    // // Checks if all crystals within a puzzle are lit - plays the chimeSFX sfx if so
+    public void AllCrystalsLitCheck()
+    {
+        if (!hasLitAllCrystals)
+        {
+            bool allCrystalsLit = true;
+
+            // If the light intesnity within any crystal is not greater than the minLightIntesity, then allCrystalsLit is set to false
+            for (int i = 0; i < staticBlocks.transform.childCount; i++)
+            {
+                GameObject child = staticBlocks.transform.GetChild(i).gameObject;
+
+                if (child.activeSelf && child.name.Contains("Crystal") && child.GetComponent<Crystal>().CrystalLitCheck() == false)
+                    allCrystalsLit = false;
+            }
+
+            // If the light intensity within all crystals is greater than the minLightIntesity
+            if (allCrystalsLit)
+            {
+                for (int i = 0; i < staticBlocks.transform.childCount; i++)
                 {
-                    pushableBlocks = child;
-                    StartCoroutine(ResetPushableBlocks(delayDuration));
+                    GameObject child = staticBlocks.transform.GetChild(i).gameObject;
+
+                    if (child.activeSelf && child.name.Contains("Crystal"))
+                        child.GetComponent<Crystal>().LeaveCrystalLightOn();
                 }
-                if (childName == "BreakableBlocks")
-                {
-                    breakableBlocks = child;
-                    StartCoroutine(ResetBreakableBlocks(delayDuration));
-                }
-                if (childName == "Firestones")
-                {
-                    firestones = child;
-                    StartCoroutine(ResetFirestone(delayDuration));
-                }
-                if (childName == "Generators")
-                {
-                    generators = child;
-                    StartCoroutine(ResetGenerator(delayDuration));
-                }
+
+                audioManagerScript.PlayChimeSFX();
+                hasLitAllCrystals = true;
             }
         }
     }
 
-    // Fades out the generator loop (generator is reseted after its audio fades out to zero volume)
+    // Checks if there's a generator within the puzzle - resets the generator if so
     public void ResetGeneratorCheck()
     {
-        currentPuzzle = playerScript.CurrentPuzzle;
-
-        for (int i = 0; i < currentPuzzle.transform.childCount; i++)
+        if (generators != null)
         {
-            GameObject child = currentPuzzle.transform.GetChild(i).gameObject;
-
-            if (child.activeSelf && child.name == "Generators")
+            for (int i = 0; i < generators.transform.childCount; i++)
             {
-                generators = child;
-
-                for (int j = 0; j < generators.transform.childCount; j++)
-                {
-                    generators.transform.GetChild(j).GetComponent<Generator>().FadeOutGeneratorLoop(0f);
-                }
+                generators.transform.GetChild(i).GetComponent<Generator>().FadeOutGeneratorLoop(0f);
             }
         }
     }
 
-    // Destroys all of the puzzle-related particle effects
+    // Destroys all of the puzzle-related particle effects that are active
     private void DestroyAllPuzzleParticles()
     {
         // NOTE: All puzzle-related particles are instantiated as children of the game manager
@@ -113,7 +145,7 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    // Resets the postion of each pushable block after delay
+    // Resets the postion of each pushable block after a delay
     private IEnumerator ResetPushableBlocks(float seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -130,7 +162,7 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Num of breakable blocks: " + breakableBlocks.transform.childCount);
+        //Debug.Log("Number of breakable blocks: " + breakableBlocks.transform.childCount);
         for (int i = 0; i < breakableBlocks.transform.childCount; i++)
         {
             breakableBlocks.transform.GetChild(i).gameObject.SetActive(true);
@@ -142,7 +174,7 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Num of crystal blocks: " + staticBlocks.transform.childCount);
+        //Debug.Log("Number of crystal blocks: " + staticBlocks.transform.childCount);
         for (int i = 0; i < staticBlocks.transform.childCount; i++)
         {
             GameObject child = staticBlocks.transform.GetChild(i).gameObject;
@@ -150,7 +182,7 @@ public class PuzzleManager : MonoBehaviour
             if (child.activeSelf && child.name.Contains("Crystal"))
                 child.GetComponent<Crystal>().ResetCrystalLight();
 
-            canPlayChimeSFX = true;
+            hasLitAllCrystals = false;
         }
     }
 
@@ -159,7 +191,7 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Firestone light enabled");
+        //Debug.Log("Firestone has been reseted");
         for (int i = 0; i < firestones.transform.childCount; i++)
         {
             firestones.transform.GetChild(i).GetComponentInChildren<Light>().enabled = true;
@@ -178,10 +210,27 @@ public class PuzzleManager : MonoBehaviour
         }
     }
 
-    // Sets private variables, objects, and components
-    /*private void SetElements()
+    // Sets the scripts to use
+    private void SetScripts()
     {
-        
-    }*/
+        playerScript = FindObjectOfType<TileMovementController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        // Sets the game object by looking at names of children
+        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "OptionalDeathScreen")
+                deathScreen = child;
+        }
+    }
 
 }

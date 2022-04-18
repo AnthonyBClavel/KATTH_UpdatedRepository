@@ -307,7 +307,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         Generator generatorScript = collider.gameObject.GetComponent<Generator>();
 
-        if (generatorScript.IsActive == true)
+        if (generatorScript.IsGenActive == true)
         {
             //Debug.Log("Turned On Generator");
             generatorScript.TurnOnGenerator();
@@ -412,7 +412,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         puzzle = hit.collider.transform.parent.parent.gameObject;
 
         // Sets the new torch meter value based on the checkpoint's value
-        int newNumMovements = checkpointManagerScript.getNumMovements();
+        //int newNumMovements = checkpointManagerScript.GetNumMovements();
         //torchMeterMoves.setMaxValue(newNumMovements);    
 
         // If this is the first time we visited this checkpoint
@@ -588,7 +588,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
             if (tag == "NPC")
             {
-                characterDialogueScript.SetAlertBubbleActive();
+                //characterDialogueScript.SetAlertBubbleActive();
                 return true;
             }
             else if (tag == "Artifact")
@@ -597,12 +597,12 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
                 if (!artifactScript.HasCollectedArtifact)
                 {
-                    characterDialogueScript.SetAlertBubbleActive();
+                    //characterDialogueScript.SetAlertBubbleActive();
                     return true;
                 }
             }
         }
-        characterDialogueScript.SetAlertBubbleInactive();
+        //characterDialogueScript.SetAlertBubbleInactive();
         return false;
     }
 

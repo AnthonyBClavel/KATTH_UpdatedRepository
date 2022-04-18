@@ -18,9 +18,9 @@ public class BridgeMovementController : MonoBehaviour
     }
 
     // Sets a destination for the player to move towards
-    public void MoveToNextBlock()
+    /*public void MoveToNextBlock()
     {
         playerScript.setDestination(blockToMoveTo.transform.position);
-    }
+    }*/
 
 }

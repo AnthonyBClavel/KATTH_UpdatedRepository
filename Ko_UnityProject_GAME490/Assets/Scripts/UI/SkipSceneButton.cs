@@ -152,7 +152,7 @@ public class SkipSceneButton : MonoBehaviour
         {
             content.fillAmount = endFillAmount;
             audioManagerScript.PlayChime02SFX();
-            playerScript.SetExitZoneElements();
+            playerScript.SetFinishedZoneElements();
             playerScript.HasFinishedZone = true;
             hasSkippedScene = true;
         }

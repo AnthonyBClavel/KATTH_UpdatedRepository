@@ -138,7 +138,7 @@ public class TorchMeter : MonoBehaviour
         torchAnim.SetTrigger("PopOut");
     }
 
-    // Resets the torch meter's values and variables
+    // Instantly resets the torch meter's values and variables
     public void ResetTorchMeterElements()
     {
         content.fillAmount = 1f;

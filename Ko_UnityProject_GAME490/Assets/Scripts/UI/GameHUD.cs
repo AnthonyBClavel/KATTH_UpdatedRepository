@@ -145,7 +145,7 @@ public class GameHUD : MonoBehaviour
     // Checks when the HUD elements can be toggled
     private void CanToggleCheck()
     {
-        if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && pauseMenuScript.isActiveAndEnabled && !playerScript.onBridge())
+        if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && pauseMenuScript.isActiveAndEnabled && !playerScript.OnBridge())
         {
             if (canToggleHUD != true)
                 canToggleHUD = true;
@@ -167,7 +167,6 @@ public class GameHUD : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                playerScript.CurrentCheckpoint.GetComponent<CheckpointManager>().ResetPlayer();
                 puzzleManagerScript.ResetPuzzle(0f);
                 deathScreen.SetActive(false);
             }           

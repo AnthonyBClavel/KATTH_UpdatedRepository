@@ -4,21 +4,16 @@ using UnityEngine;
 
 public class Crystal : MonoBehaviour
 {
-    private bool canFadeInCrystalLight = true;
-    private bool canResetCrystalLight = false;
+    private bool canLerpToMax = true;
+    private bool canResetGlowLength = false;
     private bool canStayLit = false;
-    private bool isFadingOut = false;
+    private bool islerpingToMin = false;
 
-    //[Range(0.1f, 3f)]
-    private float fadeLength = 0.5f;
-    //[Range(0f, 5f)]
+    private float lerpLength = 0.5f;
     private float glowLength = 3f;
-    //[Range(0f, 1f)]
     private float minLightIntesity = 0.1f;
-    //[Range(0f, 1f)]
     private float maxLightIntesity = 1f;
 
-    private GameObject parentObject;
     private Light crystalLight;
     private IEnumerator crystalLightCoroutine;
     private PuzzleManager puzzleManagerScript;
@@ -29,8 +24,8 @@ public class Crystal : MonoBehaviour
         SetElements();
     }
 
-    // Checks if the crystal's light component has an intesity value of 1f
-    public bool CrystalLightCheck()
+    // Checks if the crystal's light intesnity is greater than the minLightIntesity - returns true if so, false otherwise
+    public bool CrystalLitCheck()
     {
         if (crystalLight.intensity > minLightIntesity)
             return true;
@@ -38,73 +33,41 @@ public class Crystal : MonoBehaviour
             return false;
     }
 
-    // Checks to fade in or reset the crystal light
+    // Checks to lerp the crystal's light intesity or reset its glow length
     public void PlayCrystalLightAnim()
     {
-        if (canFadeInCrystalLight)
+        if (canLerpToMax)
         {
-            StartCrystalCoroutine(maxLightIntesity, fadeLength);
-            canFadeInCrystalLight = false;
+            StartCrystalCoroutine(maxLightIntesity, lerpLength);
+            canLerpToMax = false;
         }
-        if (canResetCrystalLight)
+        else if (canResetGlowLength)
             StartCrystalCoroutine(maxLightIntesity, glowLength);
     }
 
-    // Resets the crytsal's light component and bools
+    // Resets the crytsal's light intesnity to its minimum intesity
     public void ResetCrystalLight()
     {
         StopAllCoroutines();
         crystalLight.intensity = minLightIntesity;
-        canFadeInCrystalLight = true;
-        canResetCrystalLight = false;
+        canLerpToMax = true;
+        canResetGlowLength = false;
         canStayLit = false;
-        isFadingOut = false;
+        islerpingToMin = false;
     }
 
-    // Prevents the crystal light from fading in or resetting - keeps it lit
+    // Prevents the crystal light from lerping or resetting its light intensity - leaves the light at its max intesity
     public void LeaveCrystalLightOn()
     {
-        canFadeInCrystalLight = false;
-        canResetCrystalLight = false;
+        canLerpToMax = false;
+        canResetGlowLength = false;
+        canStayLit = true;
 
-        if (isFadingOut)
+        // When the crystal light is fading out...
+        if (islerpingToMin)
         {
             StopAllCoroutines();
             crystalLight.intensity = maxLightIntesity;
-        }
-    }
-
-    // Checks if all crystals within a puzzle are lit
-    private void AllCrystalsLitCheck()
-    {
-        if (!canStayLit)
-        {
-            bool allCrystalsLit = true;
-
-            // If any crystal's light is not greater than the minLightIntesity, then allCrystalsLit is false
-            for (int j = 0; j < parentObject.transform.childCount; j++)
-            {
-                GameObject child = parentObject.transform.GetChild(j).gameObject;
-
-                if (child.activeSelf && child.name.Contains("Crystal") && child.GetComponent<Crystal>().CrystalLightCheck() == false)
-                    allCrystalsLit = false;
-            }
-            // If every crystal's light is greater than the minLightIntesity
-            if (allCrystalsLit)
-            {
-                //Debug.Log("Have lit all crystals!");
-                puzzleManagerScript.PlayAllCrystalsLitSFX();
-
-                for (int k = 0; k < parentObject.transform.childCount; k++)
-                {
-                    GameObject child = parentObject.transform.GetChild(k).gameObject;
-
-                    if (child.activeSelf && child.name.Contains("Crystal"))
-                        child.GetComponent<Crystal>().LeaveCrystalLightOn();
-
-                    canStayLit = true;
-                }
-            }
         }
     }
 
@@ -121,7 +84,7 @@ public class Crystal : MonoBehaviour
     // Lerps the crystal's light intensity over a specific duration (endIntesity = intesity to lerp to, duration = seconds)
     private IEnumerator LerpCrystalLight(float endIntensity, float duration)
     {
-        if (canResetCrystalLight)
+        if (canResetGlowLength)
             crystalLight.intensity = maxLightIntesity;
 
         float time = 0;
@@ -131,35 +94,39 @@ public class Crystal : MonoBehaviour
         {
             crystalLight.intensity = Mathf.Lerp(startIntesity, endIntensity, time / duration);
             time += Time.deltaTime;
-            AllCrystalsLitCheck();
+
+            if (!canStayLit)
+                puzzleManagerScript.AllCrystalsLitCheck();
+
             yield return null;
         }
 
         crystalLight.intensity = endIntensity;
     
-        if (!canStayLit)
+        // Checks what to do after the crystal light has lerped to the "endIntesity"
+        if (!canStayLit) // If all crystals are not lit...
         {
-            if (time < glowLength)
+            if (duration == lerpLength)
             {
-                // Checks to reset the crystal bools
-                if (crystalLight.intensity == minLightIntesity)
+                // If the crystal light has lerped to it minimum intesity
+                if (endIntensity == minLightIntesity)
                 {
-                    canFadeInCrystalLight = true;
-                    canResetCrystalLight = false;
-                    isFadingOut = false;
+                    canLerpToMax = true;
+                    canResetGlowLength = false;
+                    islerpingToMin = false;
                 }
-                // Sets the crystal light to glow over a duration (crystalGlowLength)
-                if (crystalLight.intensity == maxLightIntesity)
+                // If the crystal light has lerped to it maximum intesity
+                else if (endIntensity == maxLightIntesity)
                 {
                     StartCrystalCoroutine(maxLightIntesity, glowLength);
-                    canResetCrystalLight = true;
+                    canResetGlowLength = true;
                 }
             }
-            // Checks to fade out the crystal light over a duration (crystalFadeLength)
-            else if (time >= glowLength)
+            // If the crystal light has finished "glowing"
+            else if (duration == glowLength)
             {
-                StartCrystalCoroutine(minLightIntesity, fadeLength);
-                isFadingOut = true;
+                StartCrystalCoroutine(minLightIntesity, lerpLength);
+                islerpingToMin = true;
             }
         }
     }
@@ -180,9 +147,6 @@ public class Crystal : MonoBehaviour
                     crystalLight = child02.GetComponent<Light>();
             }
         }
-
-        parentObject = transform.parent.gameObject;
-        // OR USE crystalLight = GetComponentInChildren<Light>();
     }
 
 }

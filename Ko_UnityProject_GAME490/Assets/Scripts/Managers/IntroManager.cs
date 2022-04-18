@@ -120,7 +120,7 @@ public class IntroManager : MonoBehaviour
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
-        if (!playerScript.checkIfOnCheckpoint() && sceneName != "TutorialMap") 
+        if (!playerScript.OnCheckpoint() && sceneName != "TutorialMap") 
             StartCoroutine(StartZoneIntro());
         else
         {
@@ -163,6 +163,7 @@ public class IntroManager : MonoBehaviour
         playerScript.SetPlayerBoolsFalse();
 
         zoneName.SetActive(true);
+        playerScript.TorchMeterAnimCheck();
         transitionFadeScript.IntroFadeIn();
         torchMeterScript.TurnOffTorchMeter();
         notificationBubblesHolder.SetActive(false);
@@ -198,6 +199,7 @@ public class IntroManager : MonoBehaviour
 
         transitionFadeScript.GameFadeIn();
         torchMeterScript.TurnOnTorchMeter();
+        playerScript.CurrentTileCheck();
         notificationBubblesHolder.SetActive(true);
 
         pixelatedCamera.transform.position = originalCameraPos;

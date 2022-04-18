@@ -23,6 +23,7 @@ public class CheckpointManager : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
+    private TutorialDialogue tutorialDialogueScript;
 
     void Awake()
     {
@@ -36,60 +37,69 @@ public class CheckpointManager : MonoBehaviour
         checkpointPosition = transform.position;
     }
 
-    // Returns the number of movements for the checkpoint - movements determined within the script's component in unity inspector
-    public int getNumMovements() { return numMovements; }
+    // Returns the number of movements for the puzzle - determined within the checkpoint's script component in unity inspector
+    public int GetNumMovements() 
+    {
+        return numMovements; 
+    }
 
     // Checks for the closet bridge tile and sets the savedInvisibleBlock's position to that bridge tile
     public bool LastBridgeTileCheck()
     {
-        int rayDirection = 0;
-
-        for (int i = 0; i <= 270; i += 90)
+        for (int i = 0; i < 360; i += 90)
         {
-            Ray myRayLBT = new Ray(bridgeTileCheck.transform.position + new Vector3(0, -0.1f, 0), bridgeTileCheck.transform.TransformDirection(Vector3.forward));
-            RaycastHit hit;
-            Debug.DrawRay(myRayLBT.origin, myRayLBT.direction, Color.red);
+            bridgeTileCheck.transform.localEulerAngles = new Vector3(0, i, 0);
 
-            if (Physics.Raycast(myRayLBT, out hit, rayLength))
+            Ray myRay = new Ray(bridgeTileCheck.transform.position + new Vector3(0, -0.1f, 0), bridgeTileCheck.transform.TransformDirection(Vector3.forward));
+            RaycastHit hit;
+            Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
+
+            if (Physics.Raycast(myRay, out hit, rayLength))
             {
                 GameObject lastBridgeTile = hit.collider.gameObject;
-                float lastBridgeTileX = lastBridgeTile.transform.position.x;
-                float lastBridgeTileZ = lastBridgeTile.transform.position.z;
-                string name = lastBridgeTile.name;
-                string tag = lastBridgeTile.tag;
 
-                if (name == "BridgeTile" || tag == "BridgeTile")
+                if (lastBridgeTile.name == "BridgeTile" || lastBridgeTile.tag == "BridgeTile")
                 {
-                    //Debug.Log("BridgeBlock Found");
-                    //playerScript.bridge = lastBridgeTile.transform.parent.gameObject;
-                    savedInvisibleBlock.transform.position = new Vector3(lastBridgeTileX, 1, lastBridgeTileZ);
+                    //Debug.Log("Bridge tile was found");
+                    float playerRotation = bridgeTileCheck.transform.localEulerAngles.y - 180; 
+ 
+                    // Sets the player's rotation (ONLY when a puzzle is loaded while debugging)
+                    if (player.transform.position == transform.position && gameManagerScript.isDebugging)
+                        player.transform.localEulerAngles = new Vector3(0, playerRotation, 0);
 
-                    // Saves the player's rotataion as the opposite angle from which the BridgeBlock was found
-                    float playerRotation = bridgeTileCheck.transform.localEulerAngles.y - 180;
+                    // Saves the player's rotataion as the opposite angle from which the last bridge tile was found
                     saveManagerScript.SavePlayerRotation(playerRotation);
-
-                    // Sets the player's rotation (ONLY gets called when a puzzle is loaded while debugging)
-                    if (player.transform.position == transform.position)
-                        player.transform.localEulerAngles = new Vector3(0, playerRotation, 0);                            
+                    savedInvisibleBlock.transform.position = new Vector3(lastBridgeTile.transform.position.x, 1, lastBridgeTile.transform.position.z);
 
                     return true;
                 }
             }
-
-            //Debug.Log("BridgeBlock Not Found");
-            i = rayDirection;
-            rayDirection += 90;
-            bridgeTileCheck.transform.localEulerAngles = new Vector3(0, rayDirection, 0);
+            //Debug.Log("Bridge tile was NOT found");
         }
 
         return false;
     }
 
-    // Resets all player elements (position, animation, rotation, torch meter)
-    public void ResetPlayer()
+    // Starts the coroutine to reset all player elements (delay = seconds, set float to zero for instant reset)
+    public void ResetPlayer(float delay)
     {
-        bool hasFoundTutorialDialogue = false;
+        // Reset the player after the delay
+        if (delay > 0f)
+        {
+            if (resetPlayerCoroutine != null)
+                StopCoroutine(resetPlayerCoroutine);
 
+            resetPlayerCoroutine = ResetPlayerCoroutine(delay);
+            StartCoroutine(resetPlayerCoroutine);
+        }
+        // Instantly reset the player if there's no delay
+        else if (delay <= 0f)
+            ResetPlayerElements();
+    }
+
+    // Resets all player elements
+    private void ResetPlayerElements()
+    {
         iceMaterialScript.ResetIceAlphas();
         audioManagerScript.StopAllPuzzleSFX();
 
@@ -105,36 +115,32 @@ public class CheckpointManager : MonoBehaviour
         saveManagerScript.LoadPlayerRotation();
         playerScript.setDestination(checkpointPosition);
         playerScript.ResetTorchMeter();
+        playerScript.SetPlayerBoolsTrue();
+        playerScript.AlertBubbleCheck();
 
-        // Checks to see if there's a tutorial dialogue manager in the scene
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
+        if (tutorialDialogueScript != null)
         {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (!hasFoundTutorialDialogue && child.name == "TutorialDialogueHolder")
-                hasFoundTutorialDialogue = true;
+            if (tutorialDialogueScript.CanPlayDeathDialogue)
+            {
+                playerScript.SetPlayerBoolsFalse();
+                tutorialDialogueScript.PlayDeathDialogue();
+            }          
+            else
+                tutorialDialogueScript.CanPlayDeathDialogue = false;
         }
-        // Note: Check to set player bools to true MUST come after the for loop above!
-        if (!hasFoundTutorialDialogue)
+            
+        /*if (tutorialDialogueScript != null)
             playerScript.SetPlayerBoolsTrue();
+        else
+            tutorialDialogueScript.HasPlayedDeathDialogue = false;*/
 
         // Only sets the player bools to true while not in the tutorial zone - OLD VERSION
         /*if (sceneName != "TutorialMap")
             playerScript.SetPlayerBoolsTrue();*/
     }
 
-    // Resets all player elements after a delay (set float to zero for instant reset)
-    public void ResetPlayerDelay(float seconds)
-    {
-        if (resetPlayerCoroutine != null)
-            StopCoroutine(resetPlayerCoroutine);
-
-        resetPlayerCoroutine = ResetPlayerPosition(seconds);
-        StartCoroutine(resetPlayerCoroutine);
-    }
-
-    // Resets the player's position and other elements after a delay
-    private IEnumerator ResetPlayerPosition(float seconds)
+    // Resets all player elements elements after a delay
+    private IEnumerator ResetPlayerCoroutine(float seconds)
     {
         iceMaterialScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
@@ -143,8 +149,8 @@ public class CheckpointManager : MonoBehaviour
 
         yield return new WaitForSeconds(seconds);
         if (!gameManagerScript.canDeathScreen)
-            ResetPlayer();
-        if (gameManagerScript.canDeathScreen)
+            ResetPlayerElements();
+        else if (gameManagerScript.canDeathScreen)
             gameHUDScript.SetDeathScreenActive();
     }
 
@@ -159,6 +165,7 @@ public class CheckpointManager : MonoBehaviour
         gameManagerScript = FindObjectOfType<GameManager>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        tutorialDialogueScript = null;
     }
 
     // Sets private variables, objects, and components
@@ -179,6 +186,14 @@ public class CheckpointManager : MonoBehaviour
 
             if (child.name == "SavedInvisibleBlock")
                 savedInvisibleBlock = child;
+        }
+
+        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
+        {
+            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
+
+            if (child.name == "TutorialDialogueHolder")
+                tutorialDialogueScript = child.GetComponent<TutorialDialogue>();
         }
 
         player = playerScript.gameObject;

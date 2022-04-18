@@ -291,21 +291,27 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the alert bubble active
     public void SetAlertBubbleActive()
     {
-        if (!hasAlertBubble && canAlertBubble)
+        /*if (!hasAlertBubble && canAlertBubble)
         {
             playerAlertBubble.SetActive(true);
             hasAlertBubble = true;
-        }
+        }*/
+
+        if (!playerAlertBubble.activeSelf)
+            playerAlertBubble.SetActive(true);
     }
 
     // Sets the alert bubble inactive
     public void SetAlertBubbleInactive()
     {
-        if (hasAlertBubble && canAlertBubble)
+        /*if (hasAlertBubble && canAlertBubble)
         {
             playerAlertBubble.SetActive(false);           
             hasAlertBubble = false;
-        }
+        }*/
+
+        if (playerAlertBubble.activeSelf)
+            playerAlertBubble.SetActive(false);
     }
 
     // Changes the text for the continue button
@@ -1343,6 +1349,8 @@ public class CharacterDialogue : MonoBehaviour
 
         yield return new WaitForSeconds(0.4f);
         canAlertBubble = true;
+        playerScript.AlertBubbleCheck();
+
         yield return new WaitForSeconds(0.1f);
         nPCFidgetScript.ResetInitialFidgetBool();
         playerFidgetScript.ResetInitialFidgetBool();

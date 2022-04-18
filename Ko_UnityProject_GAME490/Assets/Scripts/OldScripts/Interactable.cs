@@ -29,7 +29,7 @@ public class Interactable : MonoBehaviour
         dialogue = child.GetComponent<Dialogue>().readTextFile();
         if (dialogue == null) return;
 
-        tutorialDialogueScript.SetDialogue(dialogue);
+        //tutorialDialogueScript.SetDialogue(dialogue);
         tutorialDialogueScript.StartDialogue();
 
         if (transform.childCount > 1)

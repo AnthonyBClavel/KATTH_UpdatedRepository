@@ -47,7 +47,7 @@ public class TransitionFade : MonoBehaviour
     {
         pauseMenuScript.CanPause = false;
 
-        if (playerScript.checkIfOnCheckpoint())
+        if (playerScript.OnCheckpoint())
             GameFadeIn();
     }
 

@@ -82,7 +82,7 @@ public class CameraControllerOLD : MonoBehaviour
         if (cameraIndex < puzzleViews.Length - 1)
         {
             //Debug.Log("Moved to next puzzle view");
-            puzzleManagerScript.ResetGeneratorCheck();
+            //puzzleManagerScript.ResetGeneratorCheck();
             audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();
             LerpCameraToNextPuzzleView();
@@ -96,7 +96,7 @@ public class CameraControllerOLD : MonoBehaviour
         if (cameraIndex > 0)
         {
             //Debug.Log("Moved to next puzzle view");
-            puzzleManagerScript.ResetGeneratorCheck();
+            //puzzleManagerScript.ResetGeneratorCheck();
             audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();
             LerpCameraToPreviousPuzzleView();

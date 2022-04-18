@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Generator : MonoBehaviour
 {
-    private bool isActive = false;
+    private bool isGenActive = false;
 
     private float fadeAudioLength = 1f;
     private float rotateGearlength = 2f;
@@ -45,19 +45,19 @@ public class Generator : MonoBehaviour
         generatorLightMat02.DisableKeyword("_EMISSION");
     }
 
-    // Returns the value of isActive
-    public bool IsActive
+    // Returns the value of isGenActive
+    public bool IsGenActive
     {
         get
         {
-            return isActive;
+            return isGenActive;
         }
     }
 
     // Turns on the generator immediately
     public void TurnOnGenerator()
     {
-        isActive = true;
+        isGenActive = true;
 
         generatorLoopAS.volume = 0f;
         turnOnGeneratorAS.Play();
@@ -70,7 +70,7 @@ public class Generator : MonoBehaviour
     // Turns off the generator immediately
     public void TurnOffGenerator()
     {
-        isActive = false;
+        isGenActive = false;
 
         StopAllCoroutines();
         if (generatorLoopCoroutine != null)
@@ -107,7 +107,7 @@ public class Generator : MonoBehaviour
     public void FadeOutGeneratorLoop(float finalVolume)
     {
         // Only fade out the audio if the generator is active
-        if (isActive)
+        if (isGenActive)
         {
             if (generatorLoopCoroutine != null)
                 StopCoroutine(generatorLoopCoroutine);

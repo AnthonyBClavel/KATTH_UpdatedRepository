@@ -463,7 +463,7 @@ public class PauseMenu : MonoBehaviour
     {
         DisableMenuInputsPS();
         audioManagerScript.PlayButtonClick01SFX();
-        playerScript.SetExitZoneElements();
+        playerScript.SetFinishedZoneElements();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
