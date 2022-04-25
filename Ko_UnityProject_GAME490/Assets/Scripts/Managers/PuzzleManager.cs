@@ -19,6 +19,7 @@ public class PuzzleManager : MonoBehaviour
     private GameHUD gameHUDScript;
     private TorchMeter torchMeterScript;
 
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
@@ -90,7 +91,7 @@ public class PuzzleManager : MonoBehaviour
             StartCoroutine(ResetGenerator(delay));
     }
 
-    // // Checks if all crystals within a puzzle are lit - plays the chimeSFX sfx if so
+    // Checks if all crystals within a puzzle are lit - plays the chimeSFX sfx if so
     public void AllCrystalsLitCheck()
     {
         if (!hasLitAllCrystals)
@@ -150,11 +151,11 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Number of pushable blocks: " + pushableBlocks.transform.childCount);
         for (int i = 0; i < pushableBlocks.transform.childCount; i++)
         {
             pushableBlocks.transform.GetChild(i).GetComponent<BlockMovementController>().ResetBlockPosition();
         }
+        //Debug.Log("Number of pushable blocks: " + pushableBlocks.transform.childCount);
     }
 
     // Sets all inactive breakable blocks to active after a delay
@@ -162,11 +163,11 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Number of breakable blocks: " + breakableBlocks.transform.childCount);
         for (int i = 0; i < breakableBlocks.transform.childCount; i++)
         {
             breakableBlocks.transform.GetChild(i).gameObject.SetActive(true);
         }
+        //Debug.Log("Number of breakable blocks: " + breakableBlocks.transform.childCount);
     }
 
     // Resets the crystals after a delay
@@ -174,7 +175,6 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Number of crystal blocks: " + staticBlocks.transform.childCount);
         for (int i = 0; i < staticBlocks.transform.childCount; i++)
         {
             GameObject child = staticBlocks.transform.GetChild(i).gameObject;
@@ -184,6 +184,7 @@ public class PuzzleManager : MonoBehaviour
 
             hasLitAllCrystals = false;
         }
+        //Debug.Log("Number of crystal blocks: " + staticBlocks.transform.childCount);
     }
 
     // Resets the firestone after a delay
@@ -191,11 +192,11 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Firestone has been reseted");
         for (int i = 0; i < firestones.transform.childCount; i++)
         {
             firestones.transform.GetChild(i).GetComponentInChildren<Light>().enabled = true;
         }
+        //Debug.Log("Firestone has been reseted");
     }
 
     // Resets the generator after a delay
@@ -203,11 +204,11 @@ public class PuzzleManager : MonoBehaviour
     {
         yield return new WaitForSeconds(seconds);
 
-        //Debug.Log("Generator has been reseted");
         for (int i = 0; i < generators.transform.childCount; i++)
         {
             generators.transform.GetChild(i).GetComponent<Generator>().TurnOffGenerator();
         }
+        //Debug.Log("Generator has been reseted");
     }
 
     // Sets the scripts to use
@@ -223,7 +224,7 @@ public class PuzzleManager : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game object by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < gameHUDScript.transform.childCount; i++)
         {
             GameObject child = gameHUDScript.transform.GetChild(i).gameObject;

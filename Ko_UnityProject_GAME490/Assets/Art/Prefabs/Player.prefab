@@ -1314,7 +1314,6 @@ GameObject:
   - component: {fileID: 8893811602064672363}
   - component: {fileID: 335815886686903731}
   - component: {fileID: 1763956048}
-  - component: {fileID: 543118121}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1366,7 +1365,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canSetBoolsTrue: 1
   canMove: 1
   canInteract: 1
   canRestartPuzzle: 1
@@ -1392,18 +1390,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3d14539c657026045b1ccfbd439e7984, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &543118121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db15bad1509b6894187d317bd35e417f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8903292719559576860

@@ -16,7 +16,7 @@ public class CheckpointManager : MonoBehaviour
     private Animator playerAnimator;
     private IEnumerator resetPlayerCoroutine;
 
-    private IceMaterial iceMaterialScript;
+    private FreezeEffect freezeEffectScript;
     private TileMovementController playerScript;
     private SaveManager saveManagerScript;
     private GameManager gameManagerScript;
@@ -24,6 +24,7 @@ public class CheckpointManager : MonoBehaviour
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
     private TutorialDialogue tutorialDialogueScript;
+    private TorchMeter torchMeterScript;
 
     void Awake()
     {
@@ -100,7 +101,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets all player elements
     private void ResetPlayerElements()
     {
-        iceMaterialScript.ResetIceAlphas();
+        freezeEffectScript.ResetIceAlphas();
         audioManagerScript.StopAllPuzzleSFX();
 
         // Resets all animator layers to their entry state (Idle)
@@ -113,36 +114,22 @@ public class CheckpointManager : MonoBehaviour
 
         player.transform.position = checkpointPosition;
         saveManagerScript.LoadPlayerRotation();
-        playerScript.setDestination(checkpointPosition);
-        playerScript.ResetTorchMeter();
-        playerScript.SetPlayerBoolsTrue();
+        playerScript.Destination = checkpointPosition;
         playerScript.AlertBubbleCheck();
+        playerScript.WriteToGrassMaterial();
+        torchMeterScript.ResetTorchMeterElements();
 
-        if (tutorialDialogueScript != null)
-        {
-            if (tutorialDialogueScript.CanPlayDeathDialogue)
-            {
-                playerScript.SetPlayerBoolsFalse();
-                tutorialDialogueScript.PlayDeathDialogue();
-            }          
-            else
-                tutorialDialogueScript.CanPlayDeathDialogue = false;
-        }
-            
-        /*if (tutorialDialogueScript != null)
-            playerScript.SetPlayerBoolsTrue();
+        // The player bools are not set to true until the death dialogue has finished playing - ONLY called in tutorial zone
+        if (tutorialDialogueScript != null && !playerScript.CanRestartPuzzle)
+            tutorialDialogueScript.PlayDeathDialogue();
         else
-            tutorialDialogueScript.HasPlayedDeathDialogue = false;*/
-
-        // Only sets the player bools to true while not in the tutorial zone - OLD VERSION
-        /*if (sceneName != "TutorialMap")
-            playerScript.SetPlayerBoolsTrue();*/
+            playerScript.SetPlayerBoolsTrue();
     }
 
     // Resets all player elements elements after a delay
     private IEnumerator ResetPlayerCoroutine(float seconds)
     {
-        iceMaterialScript.LerpIceAlphas();
+        freezeEffectScript.LerpIceAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.CanPause = false;
@@ -157,15 +144,19 @@ public class CheckpointManager : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        iceMaterialScript = FindObjectOfType<IceMaterial>();
+        freezeEffectScript = FindObjectOfType<FreezeEffect>();
         playerScript = FindObjectOfType<TileMovementController>();
         saveManagerScript = FindObjectOfType<SaveManager>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         gameManagerScript = FindObjectOfType<GameManager>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        tutorialDialogueScript = null;
+        torchMeterScript = FindObjectOfType<TorchMeter>();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
+        else
+            tutorialDialogueScript = null;
     }
 
     // Sets private variables, objects, and components
@@ -186,14 +177,6 @@ public class CheckpointManager : MonoBehaviour
 
             if (child.name == "SavedInvisibleBlock")
                 savedInvisibleBlock = child;
-        }
-
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "TutorialDialogueHolder")
-                tutorialDialogueScript = child.GetComponent<TutorialDialogue>();
         }
 
         player = playerScript.gameObject;

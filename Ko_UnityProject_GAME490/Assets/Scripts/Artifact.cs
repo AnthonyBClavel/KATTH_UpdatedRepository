@@ -276,7 +276,7 @@ public class Artifact : MonoBehaviour
     private void ResetCameraView()
     {
         //Debug.Log("Has Reset Camera View");
-        cameraScript.SetCameraToCurrentDialogueView();
+        cameraScript.SetToDialogueView();
 
         SetDefaultRotation();
         isInspectingArtifact = false;
@@ -345,11 +345,7 @@ public class Artifact : MonoBehaviour
 
     // Triggers the sequence that closes the wooden chest
     private IEnumerator CloseArtifactChest()
-    {
-        // Ends the tutorial dialogue properly if in tutorial scene
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueScript.EndTutorialDialogue();
-
+    {      
         // Sets the artifact inactive if the player has collected it
         if (hasCollectedArtifact)
             artifactRotationHolder.SetActive(false);
@@ -370,6 +366,9 @@ public class Artifact : MonoBehaviour
         SetChestRotation();
         characterDialogueScript.ChangeContinueButtonText("Go Back");
         continueButton.SetActive(true);
+
+        if (tutorialDialogueScript != null)
+            tutorialDialogueScript.PlayArtifactDialogueCheck();
 
         yield return new WaitForSeconds(duration);
         characterDialogueScript.hasTransitionedToArtifactView = true;
@@ -406,6 +405,8 @@ public class Artifact : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name == "TutorialMap")
             tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
+        else
+            tutorialDialogueScript = null;
     }
 
     // Sets private variables, objects, and components

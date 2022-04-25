@@ -375,7 +375,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     public void ResetTorchMeter()
     {
         //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
-        torchMeterScript.ResetTorchMeterElements();
+        //torchMeterScript.ResetTorchMeterElements();
     }
 
     // Determines if the player is on a bridge - returns true if so, false otherwise
@@ -729,7 +729,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         if (!hasAlreadyPopedOut)
         {
-            torchMeterScript.TorchMeterPopOut();
+            //torchMeterScript.TorchMeterPopOut();
             hasAlreadyPopedOut = true;
         }
     }
@@ -739,7 +739,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         if (hasAlreadyPopedOut)
         {
-            torchMeterScript.TorchMeterPopIn();
+            //torchMeterScript.TorchMeterPopIn();
             hasAlreadyPopedOut = false;
         }
     }
@@ -758,7 +758,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         if (bridge.name != "EndBridge" && bridge.name != "EntryBridge" && !hasMovedPuzzleView)
         {
             //Debug.Log("Next Puzzle View Activated");
-            cameraScript.NextPuzzleView();
+            //cameraScript.NextPuzzleView();
             hasMovedPuzzleView = true;
         }
     }

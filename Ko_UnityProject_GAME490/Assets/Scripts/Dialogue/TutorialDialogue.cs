@@ -15,7 +15,6 @@ public class TutorialDialogue : MonoBehaviour
     private float originalTypingSpeed;
     private string[] sentences;
     private int sentenceIndex;
-    private bool inDialogue = false;
 
     private bool hasPlayedWelcome = false;
     private bool hasPlayedPush = false;
@@ -24,11 +23,9 @@ public class TutorialDialogue : MonoBehaviour
     private bool hasPlayedFirestone = false;
     private bool hasPassedBridge = false;
     private bool hasPlayedInteractables = false;
-    private bool hasPlayedArtifacts = false;
+    private bool hasPlayedArtifact = false;
     private bool hasplayedFinished = false;
-    private bool canPlayDeathDialogue = false;
 
-    private GameObject skipSceneButton;
     private GameObject continueButtonTD;
     private GameObject continueButtonCD;
 
@@ -39,6 +36,7 @@ public class TutorialDialogue : MonoBehaviour
 
     private AudioSource charNoise;
     private IEnumerator fadeOverlayCorouitne;
+    private IEnumerator inputCoroutine;
 
     public TextAsset welcomeDialogue;
     public TextAsset pushDialogue;
@@ -57,60 +55,147 @@ public class TutorialDialogue : MonoBehaviour
     private CharacterDialogue characterDialogueScript;
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
-    private TorchMeter torchMeterScript;
-    private TransitionFade transitionFadeScript;
+    private SkipSceneButton skipSceneButtonScript;
 
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
         SetElements();
     }
 
+    // Start is called before the first frame update
     void Start()
     {
         playerScript.SetPlayerBoolsFalse();
-        playerScript.CanSetBoolsTrue = false;
-        skipSceneButton.SetActive(false);
+        skipSceneButtonScript.SetSkipSceneButtonInactive();
     }
 
-    void Update()
+    // Plays the death dialogue
+    public void PlayDeathDialogue()
     {
-        TutorialDialogueInputCheck();
-        TutorialDialogueCheck();
+        SetDialogue(deathDialogue);
+        StartDialogue();
     }
 
-    // Returns or sets the value of the bool canPlayDeathDialogue
-    public bool CanPlayDeathDialogue
+    // Checks to play the pushable block dialogue 
+    public void PlayPushDialogueCheck()
     {
-        get { return canPlayDeathDialogue; }
-        set { canPlayDeathDialogue = value; }
+        if (!hasPlayedPush && playerScript.PuzzleNumber == 1)
+        {
+            SetDialogue(pushDialogue);
+            StartDialogue();
+            hasPlayedPush = true;
+        }
     }
 
-    // Sets the array of dialogue sentences
-    private void SetDialogue(TextAsset textFile)
+    // Checks to play the welcome dialogue
+    public void PlayWelcomeDialogueCheck()
     {
-        string[] textFileSentences = textFile.text.Split("\n"[0]);
-        sentences = textFileSentences;
+        if (!hasPlayedWelcome)
+        {
+            SetDialogue(welcomeDialogue);
+            StartDialogue();
+            hasPlayedWelcome = true;
+        }
     }
 
-    // Begins the tutorial dialogue
-    public void StartDialogue()
+    // Checks to play the breakable block dialogue
+    public void PlayBreakDialogueCheck()
+    {
+        if (!hasPlayedBreak)
+        {
+            SetDialogue(breakDialogue);
+            StartDialogue();
+            hasPlayedBreak = true;
+        }
+    }
+
+    // Checks to play the hole dialogue
+    public void PlayHoleDialogueCheck()
+    {
+        if (!hasPlayedHole)
+        {
+            SetDialogue(holeDialogue);
+            StartDialogue();
+            hasPlayedHole = true;
+        }
+    }
+
+    // Checks to play the firstone dialogue
+    public void PlayFirstoneDialogueCheck()
+    {
+        if (!hasPlayedFirestone)
+        {
+            SetDialogue(firestoneDialogue);
+            StartDialogue();
+            hasPlayedFirestone = true;
+        }
+    }
+
+    // Checks to play the interactables dialogue (NPCs and Artifacts)
+    public void PlayInteractablesDialogueCheck()
+    {
+        if (!hasPlayedInteractables)
+        {
+            SetDialogue(interactablesDialogue);
+            StartDialogue();
+            hasPlayedInteractables = true;
+        }
+    }
+
+    // Checks to play the finished tutorial dialogue
+    public void PlayFinishedTutorialDialogueCheck()
+    {
+        if (!hasplayedFinished)
+        {
+            SetDialogue(finishedTutorialDialogue);
+            StartDialogue();
+            hasplayedFinished = true;
+        }
+    }
+
+    // Checks to play the bridge dialogue
+    public void PlayBridgeDialogueCheck()
+    {
+        if (!hasPassedBridge && hasPlayedWelcome) // Note: hasPlayedWelcome was added to prevent dialogue issues if debugging
+        {
+            SetDialogue(bridgeDialogue);
+            StartDialogue();
+            hasPassedBridge = true;
+        }
+    }
+
+    // Checks to play the artifact dialogue
+    public void PlayArtifactDialogueCheck()
+    {
+        if (!hasPlayedArtifact)
+        {
+            continueButtonCD.SetActive(false);
+            artifactScript.CanRotateArtifact = false;
+
+            SetDialogue(artifcatsDialogue);
+            StartDialogue();
+            hasPlayedArtifact = true;
+        }
+    }
+
+    // Starts the tutorial dialogue
+    private void StartDialogue()
     {
         pauseMenuScript.enabled = false;
-        inDialogue = true;
-
         continueButtonTD.SetActive(false);
-        skipSceneButton.SetActive(false);
+        skipSceneButtonScript.SetSkipSceneButtonInactive();
         originalTypingSpeed = typingSpeed;
         //typingSpeed = originalTypingSpeed;
 
-        playerScript.CanSetBoolsTrue = false;
         playerScript.SetPlayerBoolsFalse();
         tutorialDialogueText.text = string.Empty;
         sentenceIndex = 0;
 
-        FadeBlackOverlay(halfAlpha, fadeLength);
+        StartFadeOverlayCoroutine(halfAlpha, fadeLength);
         StartCoroutine(TypeTutorialDialogue());
+        StartInputCoroutine();
     }
 
     // Ends the tutorial dialogue
@@ -118,7 +203,7 @@ public class TutorialDialogue : MonoBehaviour
     {
         pauseMenuScript.enabled = true;
         tutorialDialogueText.text = string.Empty;
-        FadeBlackOverlay(zeroAlpha, 0f);
+        StartFadeOverlayCoroutine(zeroAlpha, 0f);
 
         if (artifactScript.IsInspectingArtifact)
         {
@@ -126,23 +211,19 @@ public class TutorialDialogue : MonoBehaviour
             continueButtonCD.SetActive(true);
         }
         else
-            EndTutorialDialogue();
+        {
+            skipSceneButtonScript.SetSkipSceneButtonActive();
+
+            if (characterDialogueScript.canStartDialogue)
+                playerScript.SetPlayerBoolsTrue();
+        }
     }
 
-    // Sets the variables that come after ending the tutorial dialogue - ONLY for when an artifact isn't being inspected in the tutorial
-    public void EndTutorialDialogue()
+    // Sets the array of dialogue sentences
+    private void SetDialogue(TextAsset textFile)
     {
-        skipSceneButton.SetActive(true);
-        inDialogue = false;
-
-        if (characterDialogueScript.canStartDialogue)
-        {
-            if (canPlayDeathDialogue)
-                canPlayDeathDialogue = false;
-
-            playerScript.CanSetBoolsTrue = true;
-            playerScript.SetPlayerBoolsTrue();
-        }      
+        string[] textFileSentences = textFile.text.Split("\n"[0]);
+        sentences = textFileSentences;
     }
 
     // Checks to play the next sentence in the tutorial dialogue
@@ -158,136 +239,12 @@ public class TutorialDialogue : MonoBehaviour
             tutorialDialogueText.text = string.Empty;
             StartCoroutine(TypeTutorialDialogue());
         }
-        else 
+        else
             EndDialogue();
     }
 
-    // Checks for the input that continues or speeds up the tutorial dialogue
-    private void TutorialDialogueInputCheck()
-    {
-        if (!pauseMenuScript.enabled)
-        {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                if (continueButtonTD.activeSelf)
-                    NextSentenceCheck();
-
-                else if (!continueButtonTD.activeSelf && typingSpeed > originalTypingSpeed / 2)
-                    typingSpeed /= 2;
-            }
-        }
-    }
-
-    // Checks when and which dialogue should play throughout the tutorial zone
-    private void TutorialDialogueCheck()
-    {
-        if (playerScript.CanMove && !transitionFadeScript.IsChangingScenes)
-        {
-            Collider collider = playerScript.GetCollider();
-            string currentPuzzle = playerScript.CurrentPuzzle.name;
-
-            if (collider != null)
-                switch (collider.tag)
-                {
-                    case ("PushableBlock"):
-                        if (!hasPlayedPush)
-                        {
-                            SetDialogue(pushDialogue);
-                            StartDialogue();
-                            hasPlayedPush = true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-            if (currentPuzzle != null)
-                switch (currentPuzzle)
-                {
-                    case ("Puzzle01"):
-                        if (!hasPlayedWelcome)
-                        {
-                            SetDialogue(welcomeDialogue);
-                            StartDialogue();
-                            hasPlayedWelcome = true;
-                        }
-                        break;
-                    case ("Puzzle02"):
-                        if (!hasPlayedBreak)
-                        {
-                            SetDialogue(breakDialogue);
-                            StartDialogue();
-                            hasPlayedBreak = true;
-                        }
-                        break;
-                    case ("Puzzle03"):
-                        if (!hasPlayedHole)
-                        {
-                            SetDialogue(holeDialogue);
-                            StartDialogue();
-                            hasPlayedHole = true;
-                        }
-                        break;
-                    case ("Puzzle04"):
-                        if (!hasPlayedFirestone)
-                        {
-                            SetDialogue(firestoneDialogue);
-                            StartDialogue();
-                            hasPlayedFirestone = true;
-                        }
-                        break;
-                    case ("Puzzle05"):
-                        if (!hasPlayedInteractables)
-                        {
-                            SetDialogue(interactablesDialogue);
-                            StartDialogue();
-                            hasPlayedInteractables = true;
-                        }
-                        break;
-                    case ("Puzzle06"):
-                        if (!hasplayedFinished)
-                        {
-                            SetDialogue(finishedTutorialDialogue);
-                            StartDialogue();
-                            hasplayedFinished = true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-        }
-
-        else if (playerScript.OnLastTileBlock() && !hasPassedBridge)
-        {
-            SetDialogue(bridgeDialogue);
-            StartDialogue();
-            hasPassedBridge = true;
-        }
-
-        if (artifactScript.IsInspectingArtifact && !hasPlayedArtifacts)
-        {
-            SetDialogue(artifcatsDialogue);
-            StartDialogue();
-
-            continueButtonCD.SetActive(false);
-            artifactScript.CanRotateArtifact = false;
-            hasPlayedArtifacts = true;
-        }
-
-        if (torchMeterScript.CurrentVal <= 0 && !playerScript.CanRestartPuzzle && !inDialogue && !canPlayDeathDialogue)
-            canPlayDeathDialogue = true;
-    }
-
-    // Plays the death dialogue
-    public void PlayDeathDialogue()
-    {
-        SetDialogue(deathDialogue);
-        StartDialogue();
-    }
-
-    // Starts the coroutine that fades the black overlay
-    private void FadeBlackOverlay(Color endValue, float duration)
+    // Starts the coroutine that fades the overlay int/out
+    private void StartFadeOverlayCoroutine(Color endValue, float duration)
     {
         if (fadeOverlayCorouitne != null)
             StopCoroutine(fadeOverlayCorouitne);
@@ -296,7 +253,17 @@ public class TutorialDialogue : MonoBehaviour
         StartCoroutine(fadeOverlayCorouitne);
     }
 
-    // Fades the alpha of the overlay to another over a specific duartion (duration = seconds)
+    // Starts the coroutine that checks for the tutorial dialogue input
+    private void StartInputCoroutine()
+    {
+        if (inputCoroutine != null)
+            StopCoroutine(inputCoroutine);
+
+        inputCoroutine = TutorialDialogueInputCheck();
+        StartCoroutine(TutorialDialogueInputCheck());
+    }
+
+    // Lerps the alpha of the overlay to another over a specific duartion (duration = seconds)
     private IEnumerator FadeOverlay(Color endValue, float duration)
     {
         float time = 0;
@@ -328,6 +295,25 @@ public class TutorialDialogue : MonoBehaviour
         continueButtonTD.SetActive(true);
     }
 
+    // Checks for the input that continues or speeds up the tutorial dialogue
+    private IEnumerator TutorialDialogueInputCheck()
+    {
+        while (!pauseMenuScript.enabled)
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                if (continueButtonTD.activeSelf)
+                    NextSentenceCheck();
+
+                else if (!continueButtonTD.activeSelf && typingSpeed > originalTypingSpeed / 2)
+                    typingSpeed /= 2;
+            }
+
+            yield return null;
+        }
+        //Debug.Log("Stopped looking for tutorial dialogue inputCheck");
+    }
+
     // Sets the scripts to use
     private void SetScripts()
     {
@@ -337,14 +323,13 @@ public class TutorialDialogue : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        torchMeterScript = FindObjectOfType<TorchMeter>();
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -364,14 +349,6 @@ public class TutorialDialogue : MonoBehaviour
 
             if (child.name == "ContinueButton")
                 continueButtonCD = child;
-        }
-
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "SkipSceneButton")
-                skipSceneButton = child;
         }
 
         charNoise = audioManagerScript.charNoiseAS;

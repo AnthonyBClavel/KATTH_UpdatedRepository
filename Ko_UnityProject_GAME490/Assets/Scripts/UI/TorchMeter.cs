@@ -129,18 +129,19 @@ public class TorchMeter : MonoBehaviour
     // Triggers the torch meter's "PopIn" animation
     public void TorchMeterPopIn()
     {
-        torchAnim.SetTrigger("PopIn");
+        torchAnim.Play("PopIn");
     }
 
     // Triggers the torch meter's "PopOut" animation
     public void TorchMeterPopOut()
     {
-        torchAnim.SetTrigger("PopOut");
+        torchAnim.Play("PopOut");
     }
 
     // Instantly resets the torch meter's values and variables
     public void ResetTorchMeterElements()
     {
+        CurrentVal = MaxVal;
         content.fillAmount = 1f;
         content.color = fullBarColor;
         torchIcon.color = fullAlpha;

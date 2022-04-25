@@ -16,7 +16,6 @@ public class GameHUD : MonoBehaviour
 
     private GameObject torchMeter;
     private GameObject deathScreen;
-    private GameObject skipSceneButton;
     private GameObject notificationBubblesHolder;
 
     private PauseMenu pauseMenuScript;
@@ -24,9 +23,9 @@ public class GameHUD : MonoBehaviour
     private TorchMeter torchMeterScript;
     private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
-    private GameManager gameManagerScript;
     private PuzzleManager puzzleManagerScript;
     private TransitionFade transitionFadeScript;
+    private SkipSceneButton skipSceneButtonScript;
 
     void Awake()
     {
@@ -73,7 +72,7 @@ public class GameHUD : MonoBehaviour
         notificationBubblesHolder.SetActive(true);
 
         if (sceneName == "TutorialMap")
-            skipSceneButton.SetActive(true);
+            skipSceneButtonScript.SetSkipSceneButtonActive();
     }
 
     // Turns the HUD off
@@ -85,7 +84,7 @@ public class GameHUD : MonoBehaviour
         notificationBubblesHolder.SetActive(false);
 
         if (sceneName == "TutorialMap")
-            skipSceneButton.SetActive(false);
+            skipSceneButtonScript.SetSkipSceneButtonInactive();
     }
 
     // Updates the text for the puzzle notification
@@ -181,9 +180,9 @@ public class GameHUD : MonoBehaviour
         torchMeterScript = FindObjectOfType<TorchMeter>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        gameManagerScript = FindObjectOfType<GameManager>();
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
+        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
     }
 
     // Sets private variables, objects, and components
@@ -201,8 +200,6 @@ public class GameHUD : MonoBehaviour
                 notificationBubblesHolder = child;
             if (childName == "TorchMeter")
                 torchMeter = child;
-            if (childName == "SkipSceneButton")
-                skipSceneButton = child;
         }
 
         for (int i = 0; i < puzzleBubbleColorText.transform.childCount; i++)

@@ -10,35 +10,30 @@ public class SaveManager : MonoBehaviour
     private GameObject[] checkpoints;
     private string sceneName;
 
-    // Floats for saving the player's position
-    private float pX;
-    private float pZ;
-    private float rY;
+    private float playerPosX;
+    private float playerPosZ;
+    private float playerRotY;
 
     private CameraController cameraScript;
     private GameManager gameManagerScript;
 
-    // Start is called before the first frame update
+    // Awake is called before Start()
     void Awake()
     {      
         SaveSceneName();
+        SetScripts();
         SetElements();
-        LoadAllPlayerPrefs();
 
-        if (PlayerPrefs.GetInt("Saved") == 1 && PlayerPrefs.GetInt("TimeToLoad") == 1 && SceneManager.GetActiveScene().name != "TutorialMap" && !gameManagerScript.isDebugging)
+        if (!gameManagerScript.isDebugging && sceneName != "TutorialMap")
         {
-            Debug.Log("Save Loaded Successfully");          
-
+            cameraScript.PuzzleViewIndex = PlayerPrefs.GetInt("cameraIndex");
             LoadPlayerPosition();
             LoadPlayerRotation();
-            cameraScript.CameraIndex = PlayerPrefs.GetInt("cameraIndex");
-            cameraScript.SetCameraPosition();
             OnFirstPuzzleCheck();
 
-            PlayerPrefs.SetInt("TimeToLoad", 0);
-            PlayerPrefs.Save();
-        }     
-        if (gameManagerScript.isDebugging)
+            Debug.Log("Save loaded successfully");
+        }
+        else if (gameManagerScript.isDebugging)
         {
             SetPuzzleToLoad();
             OnFirstPuzzleCheck();
@@ -50,11 +45,11 @@ public class SaveManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name != "TutorialMap")
         {
-            PlayerPrefs.SetFloat("p_x", checkpoint.transform.position.x);
-            PlayerPrefs.SetFloat("p_z", checkpoint.transform.position.z);
-        }
+            Vector3 checkpointPosition = checkpoint.transform.position;
 
-        PlayerPrefs.SetInt("Saved", 1);
+            PlayerPrefs.SetFloat("p_x", checkpointPosition.x);
+            PlayerPrefs.SetFloat("p_z", checkpointPosition.z);
+        }
         PlayerPrefs.Save();
     }
 
@@ -62,110 +57,97 @@ public class SaveManager : MonoBehaviour
     public void SavePlayerRotation(float playerRotation)
     {
         PlayerPrefs.SetFloat("r_y", playerRotation);
-        PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
     }
 
     // Saves the camera's position
     public void SaveCameraPosition()
     {
-        if (SceneManager.GetActiveScene().name != "TutorialMap")
+        if (sceneName != "TutorialMap")
         {
-            PlayerPrefs.SetInt("cameraIndex", cameraScript.CameraIndex);
-            PlayerPrefs.SetInt("Saved", 1);
+            PlayerPrefs.SetInt("cameraIndex", cameraScript.PuzzleViewIndex);
             PlayerPrefs.Save();
         }
     }
 
-    // Saves the name of the scene
-    public void SaveSceneName()
-    {
-        sceneName = SceneManager.GetActiveScene().name;
-        PlayerPrefs.SetString("savedScene", sceneName);
-        PlayerPrefs.SetInt("Saved", 1);
-        PlayerPrefs.Save();
-    }
-
-    // Saves the name of the collected artifact - name is added to string
+    // Saves the name of the collected artifact - adds the name to a saved string
     public void SaveCollectedArtifact(string collectedArtifacts)
     {
         PlayerPrefs.SetString("listOfArtifacts", collectedArtifacts);
-        PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
     }
 
-    // Saves the amount of artifacts that have been collected
+    // Saves the amount of collected artifacts 
     public void SaveNumberOfArtifactsCollected(int numberOfArtifactsCollected)
     {
         PlayerPrefs.SetInt("numberOfArtifactsCollected", numberOfArtifactsCollected);
-        PlayerPrefs.SetInt("Saved", 1);
         PlayerPrefs.Save();
     }
 
-    // Loads the player's initial rotation for when a puzzle is restarted/failed - the rotation the player was in after stepping on the first block of a puzzle
+    // Saves the name of the current scene
+    private void SaveSceneName()
+    {
+        sceneName = SceneManager.GetActiveScene().name;
+        PlayerPrefs.SetString("savedScene", sceneName);
+        PlayerPrefs.Save();
+    }
+
+    // Loads the player's initial rotation - for restarting/failing a puzzle
     public void LoadPlayerRotation()
     {
-        rY = player.transform.eulerAngles.y;
-        rY = PlayerPrefs.GetFloat("r_y");
-        player.transform.eulerAngles = new Vector3(0, rY, 0);
+        playerRotY = PlayerPrefs.GetFloat("r_y");
+        player.transform.eulerAngles = new Vector3(0, playerRotY, 0);
     }
 
     // Loads the player's position
     private void LoadPlayerPosition()
     {
-        pX = player.transform.position.x;
-        pZ = player.transform.position.z;
-
-        pX = PlayerPrefs.GetFloat("p_x");
-        pZ = PlayerPrefs.GetFloat("p_z");
-
-        player.transform.position = new Vector3(pX, 0, pZ);
+        playerPosX = PlayerPrefs.GetFloat("p_x");
+        playerPosZ = PlayerPrefs.GetFloat("p_z");
+        player.transform.position = new Vector3(playerPosX, 0, playerPosZ);
     }
 
-    // Loads ALL of the saved values within the PlayerPrefs
-    private void LoadAllPlayerPrefs()
+    // Sets the puzzle to loads - For Debugging Purposes ONLY
+    private void SetPuzzleToLoad()
     {
-        PlayerPrefs.SetInt("TimeToLoad", 1);
-        PlayerPrefs.Save();
+        int puzzleNumber = gameManagerScript.puzzleNumber;
+
+        if (puzzleNumber > 0 && puzzleNumber <= checkpoints.Length)
+        {
+            // Sets the player's position to the loaded checkpoint's position
+            Vector3 checkpointPosition = checkpoints[puzzleNumber - 1].transform.position;
+            player.transform.position = new Vector3(checkpointPosition.x, 0, checkpointPosition.z);
+
+            cameraScript.PuzzleViewIndex = puzzleNumber - 1;
+            LoadPlayerRotation();
+
+            Debug.Log("Debugging: Loaded Puzzle " + puzzleNumber);
+        }
     }
 
-    // Checks if the player is on the first puzzle - if a new save file has been created
+    // Checks if the player is on the first puzzle (if a new save file was created, or if a PlayerPrefs is null)
     private void OnFirstPuzzleCheck()
     {
-        // If a new game is created or if the PlayerPrefs is null, set the savedInvisibleBlock to its default position
+        // Set the savedInvisibleBlock to its default position
         if (savedInvisibleBlock.transform.position == new Vector3(0, 0, 0))
             savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
 
-        // If a new game is created or if the PlayerPrefs is null, set the player to its default position
+        // Set the player to its default position (at the end of the entry bridge)
         if (player.transform.position == new Vector3(0, 0, 0))
             player.transform.position = new Vector3(0, 0, -5);
     }
 
-    // Loads a puzzle - For Debugging Purposes ONLY
-    private void SetPuzzleToLoad()
+    // Sets the scripts to use
+    private void SetScripts()
     {
-        if (SceneManager.GetActiveScene().name != "TutorialMap")
-        {
-            int puzzleNumber = gameManagerScript.puzzleNumber;
-
-            if (puzzleNumber >= 1 && puzzleNumber <= checkpoints.Length)
-            {
-                Debug.Log("Debugging: Loaded Puzzle " + puzzleNumber);
-                Vector3 checkpointPosition = checkpoints[puzzleNumber - 1].transform.position;
-
-                // Sets the player's position to loaded checkpoint's position
-                player.transform.position = new Vector3(checkpointPosition.x, 0, checkpointPosition.z);
-                cameraScript.CameraIndex = puzzleNumber - 1;
-                cameraScript.SetCameraPosition();
-                LoadPlayerRotation();
-            }
-        }     
+        gameManagerScript = FindObjectOfType<GameManager>();
+        cameraScript = FindObjectOfType<CameraController>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -174,10 +156,7 @@ public class SaveManager : MonoBehaviour
                 savedInvisibleBlock = child;
         }
 
-        gameManagerScript = FindObjectOfType<GameManager>();
-        cameraScript = FindObjectOfType<CameraController>();
         player = FindObjectOfType<TileMovementController>().gameObject;
-
         checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
     }
 

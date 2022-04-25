@@ -7,31 +7,28 @@ using TMPro;
 
 public class SkipSceneButton : MonoBehaviour
 {
-    private bool canHoldButton = true;
     private bool hasSkippedScene = false;
+    private bool canRecieveInput = true;
 
     [Range(1f, 5f)]
-    public float lerpLength = 3f;
+    public float lerpLength = 3f; // 3f = Original Value
     [Range(1f, 20f)]
-    public float lerpSpeed = 10f;
+    public float lerpSpeed = 10f; // 10f = Original Value
     [Range(0.1f, 2f)]
-    public float textFadeLength = 0.75f;
+    public float textFadeLength = 0.75f; // 0.75f = Original Value
 
     private GameObject skipSceneButton;
     private Image content;
     private Image skipSceneBar;
     private Animator skipButtonAnimator;
-
     private TextMeshProUGUI skipSceneText;
-    private Color32 zeroAlpha;
-    private Color32 fullAlpha;
 
     private KeyCode skipSceneKeyCode = KeyCode.X;
-    private IEnumerator fadeTextCoroutine;
+    private IEnumerator textAlphaCoroutine;
     private IEnumerator resetFillAmountCoroutine;
     private IEnumerator lerpFillAmountCoroutine;
+    private IEnumerator inputCorouitne;
 
-    private GameManager gameManagerScript;
     private PauseMenu pauseMenuScript;
     private TileMovementController playerScript;
     private TorchMeter torchMeterScript;
@@ -39,6 +36,7 @@ public class SkipSceneButton : MonoBehaviour
     private GameHUD gameHUDScript;
     private TransitionFade transitionFadeScript;
 
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
@@ -48,49 +46,70 @@ public class SkipSceneButton : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SetActiveCheck();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        SkipSceneCheck();
-    }
-
-    // Checks if the object with this script should be active/inactive (only active in the tutorial zone)
-    private void SetActiveCheck()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName == "TutorialMap")
-        {
-            skipSceneButton.SetActive(true);
-            FadeSkipSceneText(fullAlpha, textFadeLength);
-        }         
+        // The skip scene button is only active in the tutorial zone
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            SetSkipSceneButtonActive();
         else
-        {
-            skipSceneButton.SetActive(false);
-            this.enabled = false; // Disables the script - Don't need the code running in update loop if the skipSceneButton is inactive
-        }
+            SetSkipSceneButtonInactive();
     }
 
-    // Checks when the skip scene button can be held/activated
-    private void SkipSceneCheck()
+    // Checks if the skip scene button should be active/inactive
+    public void SetSkipSceneButtonActive()
     {
-        if (canHoldButton && skipSceneButton.activeSelf)
+        skipSceneButton.SetActive(true);
+        StartTextAlphaCoroutine(1f, textFadeLength);
+        StartInputCoroutine();
+    }
+
+    // Checks if the skip scene button should be active/inactive
+    public void SetSkipSceneButtonInactive()
+    {
+        if (textAlphaCoroutine != null)
+            StopCoroutine(textAlphaCoroutine);
+
+        if (inputCorouitne != null)
+            StopCoroutine(inputCorouitne);
+
+        skipButtonAnimator.Rebind(); // Resets the animator
+        skipSceneText.SetTextAlpha(0f);
+        skipSceneButton.SetActive(false);
+    }
+
+    // Checks to loop the text alpha coroutine
+    private void LoopTextAlphaCheck()
+    {
+        if (!hasSkippedScene)
         {
-            if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && playerScript.CanMove && torchMeterScript.CurrentVal > 0)
+            Color skipSceneTextColor = skipSceneText.color;
+
+            if (skipSceneTextColor.a == 0f) // If zero alpha
             {
-                if (Input.GetKeyDown(skipSceneKeyCode) || Input.GetKey(skipSceneKeyCode))
-                {
-                    LerpSkipSceneBar();
-                    canHoldButton = false;
-                }
+                canRecieveInput = true;
+                StartTextAlphaCoroutine(1f, textFadeLength);
             }
+            else if (skipSceneTextColor.a == 1f) // If full alpha
+                StartTextAlphaCoroutine(0f, textFadeLength);
         }
     }
 
-    // Starts the coroutine for lerping the bar's fill amount
+    // Plays a new animation state for the skip scene button
+    private void ChangeAnimationStateSSB(string newState)
+    {
+        switch (newState)
+        {
+            case ("NotHoldingButton"):
+                skipButtonAnimator.Play("NotHoldingButton");
+                break;
+            case ("HoldingButton"):
+                skipButtonAnimator.Play("HoldingButton");
+                break;
+            default:
+                //Debug.Log("Animation state was found");
+                break;
+        }
+    }
+
+    // Starts the coroutine thats lerps the bar's fill amount
     private void LerpSkipSceneBar()
     {
         if (lerpFillAmountCoroutine != null)
@@ -100,7 +119,7 @@ public class SkipSceneButton : MonoBehaviour
         StartCoroutine(lerpFillAmountCoroutine);
     }
 
-    // Starts the coroutine for resetting the skip scene bar
+    // Starts the coroutine thats resets the bar's fill amount
     private void ResetSkipSceneBar()
     {
         if (resetFillAmountCoroutine != null)
@@ -110,44 +129,50 @@ public class SkipSceneButton : MonoBehaviour
         StartCoroutine(resetFillAmountCoroutine);
     }
 
-    // Starts the coroutine for fading the skip scene text (loops)
-    private void FadeSkipSceneText(Color endValue, float duration)
+    // Starts the coroutine that fades the text alpha int/out
+    private void StartTextAlphaCoroutine(float endValue, float duration)
     {
-        if (fadeTextCoroutine != null)
-            StopCoroutine(fadeTextCoroutine);
+        if (textAlphaCoroutine != null)
+            StopCoroutine(textAlphaCoroutine);
 
-        fadeTextCoroutine = LerpTextAlpha(endValue, duration);
-        StartCoroutine(fadeTextCoroutine);
+        textAlphaCoroutine = LerpTextAlpha(endValue, duration);
+        StartCoroutine(textAlphaCoroutine);
     }
 
-    // Lerps the fillAmount over a specific duration (duration = seconds)
+    // Starts the coroutine that checks for the skip scene button input
+    private void StartInputCoroutine()
+    {
+        if (inputCorouitne != null)
+            StopCoroutine(inputCorouitne);
+
+        inputCorouitne = SkipSceneInputCheck();
+        StartCoroutine(inputCorouitne);
+    }
+
+    // Lerps the bar's fillAmount to its max over a duration (duration = seconds)
     private IEnumerator LerpFillAmount(float duration)
     {
-        if (!skipButtonAnimator.enabled)
-            skipButtonAnimator.enabled = true;
-        if (fadeTextCoroutine != null)
-            StopCoroutine(fadeTextCoroutine);
+        if (textAlphaCoroutine != null)
+            StopCoroutine(textAlphaCoroutine);
 
-        skipSceneText.color = fullAlpha;
-        skipButtonAnimator.SetTrigger("Holding");
-        pauseMenuScript.CanPause = false;
+        ChangeAnimationStateSSB("HoldingButton");
+        skipSceneText.SetTextAlpha(1f);
         playerScript.SetPlayerBoolsFalse();
         audioManagerScript.PlayPopUpSFX();
+        pauseMenuScript.CanPause = false;
 
-        float time = 0f;
         float startFillAmount = content.fillAmount;
         float endFillAmount = 1f;
+        float time = 0f;
 
         while (time < duration && Input.GetKey(skipSceneKeyCode))
         {
-            if (Input.GetKeyUp(skipSceneKeyCode))
-                yield break;
-
             content.fillAmount = Mathf.Lerp(startFillAmount, endFillAmount, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
 
+        // Checks if the bar was filled (if the scene can be skipped)
         if (time >= duration)
         {
             content.fillAmount = endFillAmount;
@@ -156,66 +181,74 @@ public class SkipSceneButton : MonoBehaviour
             playerScript.HasFinishedZone = true;
             hasSkippedScene = true;
         }
-        else if (time < duration)
+        // If the bar was not filled
+        else
         {
             ResetSkipSceneBar();
             playerScript.SetPlayerBoolsTrue();
             pauseMenuScript.CanPause = true;
         }
 
-        skipButtonAnimator.SetTrigger("NotHolding");
-        FadeSkipSceneText(zeroAlpha, textFadeLength);
+        ChangeAnimationStateSSB("NotHoldingButton");
+        StartTextAlphaCoroutine(0f, textFadeLength);
     }
 
-    // Lerps the fill amount 
+    // Lerps the bar's fillAmount to its min (zero)
     private IEnumerator ResetFillAmount()
     {
-        // When the fill amount is approximately equal to zero
-        // Note: The content.fillAmount in lerp will always get closer to zero, but never equal it, so the coroutine would endlessly play
         while (content.fillAmount > 0.01f)
         {
+            // Note: content.fillAmount will always get closer to zero, but never equal it
             content.fillAmount = Mathf.Lerp(content.fillAmount, 0f, Time.deltaTime * lerpSpeed);
             yield return null;
         }
 
-        content.fillAmount = 0f;
+        content.fillAmount = 0f;     
     }
 
-    // Lerps the alpha of the text over a specific duration (duration = seconds)
-    private IEnumerator LerpTextAlpha(Color endValue, float duration)
+    // Lerps the alpha of the text over a specific duration (alpha = alpha to lerp to, duration = seconds)
+    // Note: 0f = zero alpha, 1f = full alpha
+    private IEnumerator LerpTextAlpha(float alpha, float duration)
     {
+        Color startColor = skipSceneText.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, alpha);
         float time = 0;
-        Color startValue = skipSceneText.color;
 
         while (time < duration)
         {
-            skipSceneText.color = Color.Lerp(startValue, endValue, time / duration);
+            skipSceneText.color = Color.Lerp(startColor, endColor, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        skipSceneText.color = endValue;
+        skipSceneText.color = endColor;
+        LoopTextAlphaCheck();
+        StartInputCoroutine();
+    }
 
-        // Checks to fade the skipSceneText (to loop it)
-        if (!hasSkippedScene)
+    // Checks for the input that lerps the skip scene button
+    private IEnumerator SkipSceneInputCheck()
+    {
+        while (canRecieveInput && skipSceneButton.activeSelf)
         {
-            if (skipSceneText.color == zeroAlpha)
+            if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && playerScript.CanMove && torchMeterScript.CurrentVal > 0)
             {
-                // Resets the skip scene button
-                if (!canHoldButton)
-                    canHoldButton = true;
-
-                FadeSkipSceneText(fullAlpha, textFadeLength);
+                if (Input.GetKeyDown(skipSceneKeyCode) || Input.GetKey(skipSceneKeyCode))
+                {
+                    LerpSkipSceneBar();
+                    canRecieveInput = false;
+                    yield break;
+                }
             }
-            else if (skipSceneText.color == fullAlpha)
-                FadeSkipSceneText(zeroAlpha, textFadeLength);
+
+            yield return null;
         }
+        //Debug.Log("Stopped looking for tutorial dialogue inputCheck");
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
-        gameManagerScript = FindObjectOfType<GameManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
@@ -227,6 +260,7 @@ public class SkipSceneButton : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
+        // Sets them by looking at the names of children
         for (int i = 0; i < gameHUDScript.transform.childCount; i++)
         {
             GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
@@ -234,12 +268,14 @@ public class SkipSceneButton : MonoBehaviour
             if (child.name == "SkipSceneButton")
             {
                 skipSceneButton = child;
+                skipButtonAnimator = skipSceneButton.GetComponent<Animator>();
 
                 for (int j = 0; j < skipSceneButton.transform.childCount; j++)
                 {
                     GameObject child02 = skipSceneButton.transform.GetChild(j).gameObject;
+                    string childName02 = child02.name;
 
-                    if (child02.name == "Bar")
+                    if (childName02 == "Bar")
                     {
                         skipSceneBar = child02.GetComponent<Image>();
 
@@ -251,20 +287,14 @@ public class SkipSceneButton : MonoBehaviour
                                 content = child03.GetComponent<Image>();
                         }
                     }
-
-                    if (child02.name == "Text")
+                    if (childName02 == "Text")
                         skipSceneText = child02.GetComponent<TextMeshProUGUI>();
                 }
             }
         }
 
-        skipButtonAnimator = skipSceneButton.GetComponent<Animator>();
-        skipButtonAnimator.enabled = false;
-
-        zeroAlpha = new Color(skipSceneText.color.r, skipSceneText.color.g, skipSceneText.color.b, 0);
-        fullAlpha = new Color(skipSceneText.color.r, skipSceneText.color.g, skipSceneText.color.b, 1);
-        skipSceneText.color = zeroAlpha;
-        skipSceneBar.color = Color.clear; // Note: Must disable the animator beforehand for this to work!
+        skipSceneText.SetTextAlpha(0f);
+        skipSceneBar.color = Color.clear;
     }
 
 }

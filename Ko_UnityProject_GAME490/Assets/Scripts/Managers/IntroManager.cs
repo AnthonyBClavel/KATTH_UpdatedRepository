@@ -125,6 +125,7 @@ public class IntroManager : MonoBehaviour
         else
         {
             gameObject.SetActive(false);
+            playerScript.CurrentTileCheck();
             transitionFadeScript.GameFadeIn();
             audioManagerScript.FadeInBackgroundMusic();
             audioManagerScript.FadeInLoopingAmbientSFX();
@@ -193,16 +194,15 @@ public class IntroManager : MonoBehaviour
         if (cameraCoroutine != null)
             StopCoroutine(cameraCoroutine);
 
+        playerScript.CurrentTileCheck();
+        transitionFadeScript.GameFadeIn();
         audioManagerScript.FadeInBackgroundMusic();
         audioManagerScript.FadeInLoopingAmbientSFX();
         blackBarsScript.TurnOffBlackBars();
-
-        transitionFadeScript.GameFadeIn();
         torchMeterScript.TurnOnTorchMeter();
-        playerScript.CurrentTileCheck();
-        notificationBubblesHolder.SetActive(true);
 
         pixelatedCamera.transform.position = originalCameraPos;
+        notificationBubblesHolder.SetActive(true);
         gameObject.SetActive(false);
         isZoneIntro = false;
     }

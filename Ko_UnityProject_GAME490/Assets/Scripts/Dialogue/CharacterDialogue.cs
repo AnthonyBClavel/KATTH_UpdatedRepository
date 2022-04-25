@@ -29,8 +29,6 @@ public class CharacterDialogue : MonoBehaviour
     private bool hasPlayedPopUpSFX = false;
     private bool hasSetDialogueBars = false;
     private bool hasSetPivot = false;
-    private bool hasAlertBubble = false;
-    private bool canAlertBubble = true;
     private bool hasMovedDialogueArrow = false;
     private bool canMoveDialogueArrow = false;
     private bool canSpeedUpDialogue = false;
@@ -291,12 +289,6 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the alert bubble active
     public void SetAlertBubbleActive()
     {
-        /*if (!hasAlertBubble && canAlertBubble)
-        {
-            playerAlertBubble.SetActive(true);
-            hasAlertBubble = true;
-        }*/
-
         if (!playerAlertBubble.activeSelf)
             playerAlertBubble.SetActive(true);
     }
@@ -304,12 +296,6 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the alert bubble inactive
     public void SetAlertBubbleInactive()
     {
-        /*if (hasAlertBubble && canAlertBubble)
-        {
-            playerAlertBubble.SetActive(false);           
-            hasAlertBubble = false;
-        }*/
-
         if (playerAlertBubble.activeSelf)
             playerAlertBubble.SetActive(false);
     }
@@ -1306,8 +1292,7 @@ public class CharacterDialogue : MonoBehaviour
         FadeInDialogueMusic();
         playerAlertBubble.SetActive(false);
         canCheckBubbleBounds = true;
-        canAlertBubble = false;
-        cameraScript.LerpCameraToDialogueView();
+        cameraScript.LerpToDialogueView();
 
         SetDialogueBarsCheck();
         gameHUDScript.TurnOffHUD();
@@ -1336,11 +1321,10 @@ public class CharacterDialogue : MonoBehaviour
         hasSetPivot = false;
         hasSetBubbleDefaultPosX = false;
         hasSetBubbleDefaultPosY = false;
-        hasAlertBubble = false;
         isInteractingWithNPC = false;
         isInteractingWithArtifact = false;
         hasSelectedDialogueOption = false;
-        cameraScript.LerpCameraToCurrentPuzzleView();
+        cameraScript.LerpToPuzzleView();
 
         EmptyTextComponents();
         SetDialogueBarsCheck();
@@ -1348,7 +1332,6 @@ public class CharacterDialogue : MonoBehaviour
         nPCScript.ResetRotationNPC();
 
         yield return new WaitForSeconds(0.4f);
-        canAlertBubble = true;
         playerScript.AlertBubbleCheck();
 
         yield return new WaitForSeconds(0.1f);

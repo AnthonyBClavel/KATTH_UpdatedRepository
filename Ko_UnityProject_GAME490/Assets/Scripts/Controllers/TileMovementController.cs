@@ -1,15 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 public class TileMovementController : MonoBehaviour
 {
     [Header("Bools")]
-    [SerializeField]
-    private bool canSetBoolsTrue = true;
     [SerializeField]
     private bool canMove = true;
     [SerializeField]
@@ -27,17 +25,16 @@ public class TileMovementController : MonoBehaviour
     private int bridgeTileCount;
     private int bridgeNumber;
     private int puzzleNumber;
-    private string objectToShakeName;
 
     [Header("Vectors")]
     private Vector3 nextPos;
     private Vector3 destination;
     private Vector3 currentDirection;
 
-    Vector3 up = Vector3.zero, // Look North
-    right = new Vector3(0, 90, 0), // Look East
-    down = new Vector3(0, 180, 0), // Look South
-    left = new Vector3(0, 270, 0); // Look West
+    Vector3 north = Vector3.zero,
+    east = new Vector3(0, 90, 0),
+    south = new Vector3(0, 180, 0),
+    west = new Vector3(0, 270, 0);
 
     [Header("Current Puzzle/Checkpoint/Bridge")]
     private GameObject checkpoint;
@@ -50,12 +47,15 @@ public class TileMovementController : MonoBehaviour
     private GameObject bridgeTileCheck;
     private GameObject tileCheck;
     private GameObject dialogueViewsHolder;
-    private GameObject objectToShake;
     private GameObject destroyedRockParticle;
     private Animator playerAnimator;
 
     private IEnumerator playerFootstepsCoroutine;
     private IEnumerator playerMovementCoroutine;
+
+    [Header("Variables for Grass Material")]
+    private Material grassMat;
+    private Vector3 grassMatPosition;
 
     [Header("Scripts")]
     private TorchMeter torchMeterScript;
@@ -69,7 +69,61 @@ public class TileMovementController : MonoBehaviour
     private PuzzleManager puzzleManagerScript;
     private TransitionFade transitionFadeScript;
     private EndCredits endCreditsScript;
+    private TutorialDialogue tutorialDialogueScript;
 
+    public GameObject CurrentPuzzle
+    {
+        get { return puzzle; }
+        set { puzzle = value; }
+    }
+
+    public GameObject CurrentCheckpoint
+    {
+        get { return checkpoint; }
+        set { checkpoint = value; }
+    }
+
+    public Vector3 Destination
+    {
+        get { return destination; }
+        set { destination = value; }
+    }
+
+    public int PuzzleNumber
+    {
+        get { return puzzleNumber; }
+        set { puzzleNumber = value; }
+    }
+
+    public float LerpLength
+    {
+        get { return lerpLength; }
+        set { lerpLength = value; }
+    }
+
+    public float ResetPuzzleDelay
+    {
+        get { return resetPuzzleDelay; }
+        set { resetPuzzleDelay = value; }
+    }
+
+    public bool HasFinishedZone
+    {
+        get { return hasFinishedZone; }
+        set { hasFinishedZone = value; }
+    }
+
+    public bool CanMove
+    {
+        get { return canMove; }
+    }
+
+    public bool CanRestartPuzzle
+    {
+        get { return canRestartPuzzle; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
@@ -79,7 +133,7 @@ public class TileMovementController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentDirection = up;
+        currentDirection = north;
         nextPos = Vector3.forward;
         destination = transform.position;
     }
@@ -90,70 +144,20 @@ public class TileMovementController : MonoBehaviour
         Move();
     }
 
-    // Returns or sets the current puzzle
-    public GameObject CurrentPuzzle
+    // Sets the input-related bools to false
+    public void SetPlayerBoolsFalse()
     {
-        get { return puzzle; }
-        set { puzzle = value; }
+        canMove = false;
+        canRestartPuzzle = false;
+        canInteract = false;
     }
 
-    // Returns or sets the current checkpoint
-    public GameObject CurrentCheckpoint
+    // Sets the input-related bools to true
+    public void SetPlayerBoolsTrue()
     {
-        get { return checkpoint; }
-        set { checkpoint = value; }
-    }
-
-    // Returns the value of puzzleNumber
-    public int PuzzleNumber
-    {
-        get { return puzzleNumber; }
-        set { puzzleNumber = value; }
-    }
-
-    // Returns or sets the value of LerpLength
-    public float LerpLength
-    {
-        get { return lerpLength; }
-        set { lerpLength = value; }
-    }
-
-    // Returns or sets the value of resetPuzzleDelay
-    public float ResetPuzzleDelay
-    {
-        get { return resetPuzzleDelay; }
-        set { resetPuzzleDelay = value; }
-    }
-
-    // Returns or sets the value of hasFinishedZone
-    public bool HasFinishedZone
-    {
-        get { return hasFinishedZone; }
-        set { hasFinishedZone = value; }
-    }
-
-    // Returns the value of canMove
-    public bool CanMove
-    {
-        get { return canMove; }
-    }
-
-    // Returns the value of canRestartPuzzle
-    public bool CanRestartPuzzle
-    {
-        get { return canRestartPuzzle; }
-    }
-
-    // Sets the value of canSetBoolsTrue
-    public bool CanSetBoolsTrue
-    {
-        set { canSetBoolsTrue = value; }
-    }
-
-    // Sets the destination - allows the destination to be changed by other scripts
-    public void setDestination(Vector3 newDestination)
-    {
-        destination = newDestination;
+        canMove = true;
+        canRestartPuzzle = true;
+        canInteract = true;
     }
 
     // Draws a ray forward - returns the collider of the object that it hits, null otherwise 
@@ -214,7 +218,7 @@ public class TileMovementController : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     nextPos = Vector3.forward;
-                    currentDirection = up;
+                    currentDirection = north;
                     return true;
                 }
 
@@ -222,7 +226,7 @@ public class TileMovementController : MonoBehaviour
                 else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     nextPos = Vector3.back;
-                    currentDirection = down;
+                    currentDirection = south;
                     return true;
                 }
 
@@ -230,7 +234,7 @@ public class TileMovementController : MonoBehaviour
                 else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
                 {
                     nextPos = Vector3.right;
-                    currentDirection = right;
+                    currentDirection = east;
                     return true;
                 }
 
@@ -238,7 +242,7 @@ public class TileMovementController : MonoBehaviour
                 else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
                 {
                     nextPos = Vector3.left;
-                    currentDirection = left;
+                    currentDirection = west;
                     return true;
                 }
             }
@@ -270,10 +274,10 @@ public class TileMovementController : MonoBehaviour
                             TurnOnGenerator(collider);
                             break;
                         case ("NPC"):
-                            interactWithNPC(collider);
+                            InteractWithNPC(collider);
                             break;
                         case ("Artifact"):
-                            interactWithArtifact(collider);
+                            InteractWithArtifact(collider);
                             break;
                         default:
                             //Debug.Log("Unrecognizable tag");
@@ -282,6 +286,7 @@ public class TileMovementController : MonoBehaviour
                 }
             }
         }
+
         return false;
     }
 
@@ -289,6 +294,7 @@ public class TileMovementController : MonoBehaviour
     private bool ColliderCheck()
     {
         Collider collider = GetCollider();
+        PushBlockCheck(collider);
 
         // Returns false if there's no collider (no obstacles)
         if (collider == null)
@@ -297,48 +303,63 @@ public class TileMovementController : MonoBehaviour
         // Set objectToShake only if the collider object has children
         if (collider.transform.childCount > 0)
         {
-            objectToShake = collider.transform.GetChild(0).gameObject;
-            objectToShakeName = objectToShake.name;
-        }
+            GameObject objectToShake = collider.transform.GetChild(0).gameObject;
+            string tag = collider.tag;
 
-        switch (collider.tag)
-        {
-            case ("StaticBlock"):
-                objectShakeScript.ShakeObject(objectToShake);
+            if (tag == "StaticBlock" || tag == "DestroyableBlock")
                 ChangeAnimationState("Pushing");
-                if (objectToShakeName == "Tree")
+            else
+                playerFidgetScript.SetIdleIndexToZero();
+
+            switch (objectToShake.name)
+            {
+                case ("Tree"):
+                    objectShakeScript.ShakeObject(objectToShake);
                     audioManagerScript.PlayTreeHitSFX();
-                else if (objectToShakeName == "SnowTree" || objectToShakeName == "BarrenTree")
+                    break;
+                case ("SnowTree"):
+                    objectShakeScript.ShakeObject(objectToShake);
                     audioManagerScript.PlaySnowTreeHitSFX();
-                else if (objectToShakeName == "GasBarrel")
+                    break;
+                case ("BarrenTree"):
+                    objectShakeScript.ShakeObject(objectToShake);
+                    audioManagerScript.PlaySnowTreeHitSFX();
+                    break;
+                case ("Rock"):
+                    objectShakeScript.ShakeObject(objectToShake);
+                    audioManagerScript.PlayRockHitSFX();
+                    break;
+                case ("GasBarrel"):
+                    objectShakeScript.ShakeObject(objectToShake);
                     audioManagerScript.PlayMetalHitSFX();
-                else if (objectToShakeName == "Crystal")
-                {
+                    break;
+                case ("Crystal"):
+                    objectShakeScript.ShakeObject(objectToShake);
                     collider.GetComponent<Crystal>().PlayCrystalLightAnim();
                     audioManagerScript.PlayCrystalHitSFX();
-                }
-                break;
-
-            case ("PushableBlock"):
-                BlockMovementController blockMovementScript = collider.GetComponent<BlockMovementController>();
-                gameManagerScript.CheckForBlockMovementDebug(blockMovementScript);
-                if (blockMovementScript.MoveBlock())
-                    SubractFromTorchMeter(1);
-                ChangeAnimationState("Pushing");
-                break;
-
-            case ("DestroyableBlock"):
-                objectShakeScript.ShakeObject(objectToShake);
-                audioManagerScript.PlayRockHitSFX();
-                ChangeAnimationState("Pushing");
-                break;
-
-            default:
-                //Debug.Log("Unrecognizable Tag");
-                playerFidgetScript.SetIdleIndexToZero();
-                break;
+                    break;
+                default:
+                    //Debug.Log("Unrecognizable object name");
+                    break;
+            }
         }
+
         return true;
+    }
+
+    // Checks if the object can be pushed
+    private void PushBlockCheck(Collider collider)
+    {
+        if (collider != null && collider.tag == "PushableBlock")
+        {
+            BlockMovementController blockMovementScript = collider.GetComponent<BlockMovementController>();
+            gameManagerScript.CheckForBlockMovementDebug(blockMovementScript);
+
+            if (blockMovementScript.MoveBlock())
+                SubractFromTorchMeter(1);
+
+            ChangeAnimationState("Pushing");
+        }
     }
 
     // Sets the object inactive
@@ -388,28 +409,27 @@ public class TileMovementController : MonoBehaviour
         }
     }
 
-    // Calls the scripts and functions to begin/trigger the NPC dialogue
-    public void interactWithNPC(Collider collider)
+    // Calls the methods to begin/trigger the NPC dialogue
+    private void InteractWithNPC(Collider collider)
     {
-        //Debug.Log("Player has interacted with NPC");
-        NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
-
         dialogueViewsHolder.transform.position = collider.transform.position;
-        nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
+        collider.GetComponent<NonPlayerCharacter>().SetVariablesForCharacterDialogueScript();
+
+        //Debug.Log("Interacted with NPC");
     }
 
-    // Calls the scripts and functions to begin/trigger the Artifact dialogue
-    public void interactWithArtifact(Collider collider)
+    // Calls the methods to begin/trigger the Artifact dialogue
+    private void InteractWithArtifact(Collider collider)
     {
         Artifact artifactScript = collider.GetComponent<Artifact>();
 
         if (!artifactScript.HasCollectedArtifact)
         {
-            //Debug.Log("Player has interacted with Artifact");
             dialogueViewsHolder.transform.position = collider.transform.position;
             artifactScript.SetVariablesForCharacterDialogueScript();
-
             ChangeAnimationState("Interacting");
+
+            //Debug.Log("Interacted with Artifact");
         }
     }
 
@@ -423,22 +443,11 @@ public class TileMovementController : MonoBehaviour
         if (Physics.Raycast(myRay, out hit, rayLength))
         {
             currentTile = hit.collider.gameObject;
-            TorchMeterAnimCheck();
-            AlertBubbleCheck();
             OnCheckpoint();
-
-            if (OnBridge())
-            {
-                NextBridgeTileCheck();
-
-                // Checks if the player has completed the zone - by stepping on the final bridge
-                if (bridge.name == "EndBridge" && !hasFinishedZone)
-                {
-                    SetFinishedZoneElements();
-                    audioManagerScript.PlayChimeSFX();
-                    hasFinishedZone = true;
-                }
-            }
+            AlertBubbleCheck();
+            TorchMeterAnimCheck();
+            EnablePlayerInputCheck();
+            TutorialDialogueCheck();
         }
     }
 
@@ -457,6 +466,7 @@ public class TileMovementController : MonoBehaviour
             if (tag == "BridgeTile")
             {
                 bridge = currentTile.transform.parent.gameObject;
+                bridgeNumber = ConvertObjectNameToNumber(bridge);
                 return true;
             }
         }
@@ -486,44 +496,48 @@ public class TileMovementController : MonoBehaviour
     // Determines if the player is on a checkpoint tile - returns true if so, false otherwise
     public bool OnCheckpoint()
     {
-        if (!OnBridge() && !hasSetCheckpoint)
+        if (!OnBridge())
         {
             string tag = currentTile.tag;
 
-            if (tag == "Checkpoint")
-                checkpoint = currentTile;
-            else
+            // Checks if the checkpoint has been set
+            if (!hasSetCheckpoint)
             {
-                // If the first tile the player lands on is not a checkpoint, find it (called when moving to a previous puzzle)...
-                for (int i = 0; i < currentTile.transform.parent.childCount; i++)
+                if (tag == "Checkpoint")
+                    checkpoint = currentTile;
+                else
                 {
-                    GameObject child = currentTile.transform.parent.GetChild(i).gameObject;
+                    // If the first tile the player lands on is not a checkpoint, find it (called when moving to a previous puzzle)...
+                    for (int i = 0; i < currentTile.transform.parent.childCount; i++)
+                    {
+                        GameObject child = currentTile.transform.parent.GetChild(i).gameObject;
 
-                    if (child.tag == "Checkpoint")
-                        checkpoint = child;
+                        if (child.tag == "Checkpoint")
+                            checkpoint = child;
+                    }
                 }
+
+                puzzle = currentTile.transform.parent.parent.gameObject;
+                puzzleNumber = ConvertObjectNameToNumber(puzzle);
+                CheckpointManager checkpointManagerScript = checkpoint.GetComponent<CheckpointManager>();
+
+                torchMeterScript.MaxVal = checkpointManagerScript.GetNumMovements(); // Sets the new max value for the torch meter
+                torchMeterScript.ResetTorchMeterElements();
+
+                puzzleManagerScript.UpdateParentObjects();
+                checkpointManagerScript.LastBridgeTileCheck(); // Note: the player's rotation is saved in this method
+                saveManagerScript.SavePlayerPosition(checkpoint);
+                saveManagerScript.SaveCameraPosition();
+
+                bridgeTileCount = 0;
+                previousTile = null;
+                hasMovedPuzzleView = false;
+                hasSetCheckpoint = true;
             }
-
-            puzzle = currentTile.transform.parent.parent.gameObject;
-            ConvertObjectNameToNumber(puzzle, "Puzzle", ref puzzleNumber);
-            CheckpointManager checkpointManagerScript = checkpoint.GetComponent<CheckpointManager>();
-
-            torchMeterScript.MaxVal = checkpointManagerScript.GetNumMovements(); // Sets the new max value for the torch meter
-            ResetTorchMeter();
-
-            puzzleManagerScript.UpdateParentObjects();
-            checkpointManagerScript.LastBridgeTileCheck(); // Note: the player's rotation is saved in this method
-            saveManagerScript.SavePlayerPosition(checkpoint);
-            saveManagerScript.SaveCameraPosition();
-
-            bridgeTileCount = 0;
-            previousTile = null;
-            hasMovedPuzzleView = false;
-            canSetBoolsTrue = true;
-            hasSetCheckpoint = true;
-            return true;
+            
+            if (tag == "Checkpoint")
+                return true;
         }
-
         return false;
     }
 
@@ -594,7 +608,7 @@ public class TileMovementController : MonoBehaviour
                         //Debug.Log("Next Bridge Tile Found");
                         transform.eulerAngles = new Vector3(0, bridgeTileCheck.transform.eulerAngles.y, 0);
                         destination = nextBridgeTile.transform.position;
-                        StartMovementCoroutine();
+                        StartPlayerCoroutines();
 
                         NextPuzzleViewCheck();
                         SetPlayerBoolsFalse();
@@ -653,13 +667,6 @@ public class TileMovementController : MonoBehaviour
         return false;
     }
 
-    // Resets the current value of the torch meter to its maximum value
-    public void ResetTorchMeter()
-    {
-        torchMeterScript.CurrentVal = torchMeterScript.MaxVal;
-        torchMeterScript.ResetTorchMeterElements();
-    }
-
     // Checks when the torch meter can pop in/out
     public void TorchMeterAnimCheck()
     {
@@ -684,6 +691,80 @@ public class TileMovementController : MonoBehaviour
             torchMeterScript.CurrentVal = newTorchMeterVal;
     }
 
+    // Converts the name of an object to an integer
+    private int ConvertObjectNameToNumber(GameObject theObject)
+    {
+        // If the object has a number in its name
+        if (theObject.name.Any(char.IsDigit))
+        {
+            string newObjectName = Regex.Replace(theObject.name, "[A-Za-z ]", "");
+            return int.Parse(newObjectName);
+        }
+
+        //Debug.Log("Object does NOT have a number in its name");
+        return 0;
+    }
+
+    // Plays a new animation state
+    public void ChangeAnimationState(string newState)
+    {
+        switch (newState)
+        {
+            case ("Interacting"):
+                audioManagerScript.PlaySwooshSFX();
+                playerAnimator.SetTrigger("Interacting");
+                break;
+            case ("Pushing"):
+                playerAnimator.SetTrigger("Pushing");
+                break;
+            default:
+                playerAnimator.Play(newState);
+                break;
+        }
+
+        playerFidgetScript.SetIdleIndexToZero();
+    }
+
+    // Checks if the camera can move to the next puzzle view
+    private void NextPuzzleViewCheck()
+    {
+        // The camera will not lerp if the player is on the first/last bridge
+        if (!OnFirstOrLastBridge() && !hasMovedPuzzleView)
+        {
+            //Debug.Log("Next Puzzle View Activated");
+            if (bridgeNumber != puzzleNumber)
+                cameraScript.PreviousPuzzleView();
+            else
+                cameraScript.NextPuzzleView();
+
+            hasMovedPuzzleView = true;
+        }
+    }
+
+    // Checks for the methods to call depending on the tile the player landed/is on
+    private void EnablePlayerInputCheck()
+    {
+        // Checks if the player can recieve input
+        if (!OnBridge())
+        {
+            playerAnimator.SetTrigger("Idle");
+            SetPlayerBoolsTrue();
+        }
+        else if (OnBridge())
+        {
+            NextBridgeTileCheck();
+
+            // Checks if the player has completed the zone - by stepping on the final bridge
+            if (bridge.name == "EndBridge" && !hasFinishedZone)
+            {
+                SetFinishedZoneElements();
+                audioManagerScript.PlayChimeSFX();
+                hasFinishedZone = true;
+            }
+        }
+    }
+
+    // Calls the appropriate methods before transitioning to the next zone
     public void SetFinishedZoneElements()
     {
         // Plays the end credits after completing the final zone
@@ -693,76 +774,9 @@ public class TileMovementController : MonoBehaviour
         gameManagerScript.ResetCollectedArtifactsCheck();
         transitionFadeScript.GameFadeOut();
         SetPlayerBoolsFalse();
-        canSetBoolsTrue = false;
     }
 
-    // Sets the bools to false - prevents the player from moving, restarting puzzles, and interacting with anything
-    public void SetPlayerBoolsFalse()
-    {
-        canRestartPuzzle = false;
-        canMove = false;
-        canInteract = false;
-    }
-
-    // Sets the bools to true - allows the player to move, restart puzzles, and interact with anything
-    public void SetPlayerBoolsTrue()
-    {
-        canRestartPuzzle = true;
-        canMove = true;
-        canInteract = true;
-    }
-
-    // Removes the string (prefixToRemove) from the parent object's name and converst what left into 
-    private void ConvertObjectNameToNumber(GameObject parentObject, string prefixToRemove, ref int integer)
-    {
-        // Checks if the parent object's name has a number in it (returns true if so)
-        string parentObjectName = parentObject.name;
-        bool hasNumberInName = parentObjectName.Any(char.IsDigit);
-
-        if (parentObjectName.Contains(prefixToRemove) && hasNumberInName)
-        {
-            parentObjectName = parentObjectName.Replace(prefixToRemove, "");
-            integer = int.Parse(parentObjectName);
-        }
-    }
-
-    // Checks if the camera can move to the next puzzle view - does not move if on final puzzle
-    private void NextPuzzleViewCheck()
-    {
-        // Note: make sure the parent objects for the first and last bridge are correct (first bridge = "EntryBridge", last bridge = "EndBridge")
-        // The camera doesnt lerp if you land on these bridges...
-        if (!OnFirstOrLastBridge() && !hasMovedPuzzleView)
-        {
-            ConvertObjectNameToNumber(bridge, "Bridge", ref bridgeNumber);
-
-            //Debug.Log("Next Puzzle View Activated");
-            if (bridgeNumber != puzzleNumber)
-                cameraScript.PreviousPuzzleView();
-            else
-                cameraScript.NextPuzzleView();
-
-            canSetBoolsTrue = false;
-            hasMovedPuzzleView = true;
-        }
-    }
-
-    // Plays a new animation state
-    public void ChangeAnimationState(string newState)
-    {
-        if (newState == "Interacting")
-        {
-            audioManagerScript.PlaySwooshSFX();
-            playerAnimator.SetTrigger("Interacting");
-        }
-        else if (newState == "Pushing")
-            playerAnimator.SetTrigger("Pushing");
-        else
-            playerAnimator.Play(newState);
-
-        playerFidgetScript.SetIdleIndexToZero();
-    }
-
-    // Checks which footstep sfx to play for the player - determined by the tag/name of the tile the player walks on
+    // Checks which footstep sfx to play - determined by the tag/name of the tile the player is on
     private void PlayerFootstepSFXCheck()
     {
         // Doesnt play the footstep sfx after crossing a certain amount of tiles on the final bridge
@@ -779,51 +793,112 @@ public class TileMovementController : MonoBehaviour
                 string tag = hit.collider.tag;
                 string name = hit.collider.name;
 
-                // Checks to play a footstep sfx for grass
+                // Footstep sfx for grass tiles
                 if (tag == "GrassTile" || name == "Checkpoint_GrassTile")
                     audioManagerScript.PlayGrassFootstepSFX();
 
-                // Checks to play a footstep sfx for snow
+                // Footstep sfx for snow tiles
                 else if (tag == "SnowTile" || name == "Checkpoint_SnowTile" || name == "Checkpoint_SnowTile02")
                     audioManagerScript.PlaySnowFootstepSFX();
 
-                // Checks to play a footstep sfx for stone
+                // Footstep sfx for stone tiles
                 else if (tag == "StoneTile" || name == "Checkpoint_StoneTile")
                     audioManagerScript.PlayStoneFootstepSFX();
 
-                // Checks to play a footstep sfx for metal
+                // Footstep sfx for metal tiles
                 else if (tag == "MetalTile" || name == "Checkpoint_MetalTile")
                     audioManagerScript.PlayMetalFootstepSFX();
 
-                // Checks to play a footstep sfx for wood (bridge tiles)
+                // Footstep sfx for wood (bridge tiles)
                 else if (tag == "BridgeTile" || name == "BridgeTile")
                     audioManagerScript.PlayWoodFootstepSFX();
 
-                // Checks to play a footstep sfx for crates (wooden crates)
+                // Footstep sfx for crates (wooden crates)
                 else if (tag == "PushableBlock")
                     audioManagerScript.PlayCrateFootstepSFX();
             }
-        }      
+        }
     }
 
-    // Checks to move the player's position (over a duration, or instantly)
+    // Checks which tutorial dialogue to play - for tutorial zone ONLY
+    private void TutorialDialogueCheck()
+    {
+        if (tutorialDialogueScript != null && !transitionFadeScript.IsChangingScenes && torchMeterScript.CurrentVal > 0 && canMove)
+        {
+            Collider collider = GetCollider();
+
+            if (!OnBridge() && OnLastTileBlock())
+                tutorialDialogueScript.PlayBridgeDialogueCheck();
+
+            if (collider != null)
+            {
+                switch (collider.tag)
+                {
+                    case ("PushableBlock"):
+                        tutorialDialogueScript.PlayPushDialogueCheck();
+                        break;
+                    default:
+                        //Debug.Log("Unrecognizable tag");
+                        break;
+                }
+            }
+
+            switch (puzzleNumber)
+            {
+                case (1): // Puzzle 1
+                    tutorialDialogueScript.PlayWelcomeDialogueCheck();
+                    break;
+                case (2): // Puzzle 2
+                    tutorialDialogueScript.PlayBreakDialogueCheck();
+                    break;
+                case (3): // Puzzle 3
+                    tutorialDialogueScript.PlayHoleDialogueCheck();
+                    break;
+                case (4): // Puzzle 4
+                    tutorialDialogueScript.PlayFirstoneDialogueCheck();
+                    break;
+                case (5): // Puzzle 5
+                    tutorialDialogueScript.PlayInteractablesDialogueCheck();
+                    break;
+                case (6): // Puzzle 6
+                    tutorialDialogueScript.PlayFinishedTutorialDialogueCheck();
+                    break;
+                default: // Any other puzzle
+                    //Debug.Log("Unrecognizable tutorial puzzle");
+                    break;
+            }
+        }
+    }
+
+    // Checks how to move the player's position (lerps over a duration, or instantly)
     private void MoveToNextPosition()
     {
         gameManagerScript.CheckForPlayerScriptDebug();
 
-        // Moves position over duration...
-        if (lerpLength != 0)
+        // Lerps the player's position only if there's a duration
+        if (lerpLength > 0)
         {
             // Only move if at destination and not on bridge
             if (canMove)
             {
-                StartMovementCoroutine();
+                StartPlayerCoroutines();
+                canInteract = false;
                 canMove = false;
             }
         }
-        // Moves position instantly...
+        // Moves the player's position instantly...
         else
             transform.position = destination;
+    }
+
+    // Sets the player's position to the grass material's vector position
+    public void WriteToGrassMaterial()
+    {
+        if (grassMatPosition != transform.position)
+        {
+            grassMatPosition = transform.position;
+            grassMat.SetVector("_position", grassMatPosition);
+        }
     }
 
     // Stops the player's movement and footstep coroutines
@@ -836,27 +911,19 @@ public class TileMovementController : MonoBehaviour
             StopCoroutine(playerFootstepsCoroutine);
     }
 
-    // Starts/overrides the coroutine for the player movement - PRIMARILY FOR FINDING NEXT BRIDGE TILE
-    private void StartMovementCoroutine()
+    // Starts/overrides the player's movement and footstep coroutines
+    private void StartPlayerCoroutines()
     {
-        // Stops the player movement coroutine if active
         if (playerMovementCoroutine != null)
             StopCoroutine(playerMovementCoroutine);
 
         playerMovementCoroutine = MovePlayerPosition(destination, lerpLength);
         StartCoroutine(playerMovementCoroutine);
 
-        // Plays the sfx for the player's footsteps
-        PlayerFootstepsSFX();
-    }
-
-    // Plays the footsteps coroutine for the player
-    private void PlayerFootstepsSFX()
-    {
         if (playerFootstepsCoroutine != null)
             StopCoroutine(playerFootstepsCoroutine);
 
-        playerFootstepsCoroutine = PlayerFootsteps();
+        playerFootstepsCoroutine = PlayerFootsteps(lerpLength);
         StartCoroutine(playerFootstepsCoroutine);
     }
 
@@ -871,6 +938,7 @@ public class TileMovementController : MonoBehaviour
             if (playerFidgetScript.CurrentAnimPlaying != "Walking")
                 ChangeAnimationState("Walking");
 
+            WriteToGrassMaterial();
             transform.position = Vector3.MoveTowards(startPosition, endPosition, time / duration);
             time += Time.deltaTime;
             yield return null;
@@ -878,36 +946,20 @@ public class TileMovementController : MonoBehaviour
 
         transform.position = endPosition;
         CurrentTileCheck();
-
-        if (!OnBridge())
-        {
-            playerAnimator.SetTrigger("Idle");
-
-            if (canSetBoolsTrue)
-            {
-                if (!canMove)
-                    canMove = true;
-
-                if (!canRestartPuzzle)
-                    canRestartPuzzle = true;
-
-                if (!canInteract)
-                    canInteract = true;
-            }
-        }
     }
 
-    // Plays the footsteps sfx based on the player's lerpLength (time it takes to move from its current position to the destination)
-    private IEnumerator PlayerFootsteps()
+    // Plays sfx for the player's footsteps - determined by lerpLength
+    // Note: lerpLength is the time it takes for the player to move from its current position to its destination
+    private IEnumerator PlayerFootsteps(float duration)
     {
-        float duration = lerpLength / 4f;
+        float fourthOfDuration = duration / 4f;
 
         // Plays a footstep sfx when the player has traveled for 1/4th of the lerpLength
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSeconds(fourthOfDuration);
         PlayerFootstepSFXCheck();
 
         // Plays a footstep sfx when the player has traveled for 3/4th of the lerpLength 
-        yield return new WaitForSeconds(duration * 2f);
+        yield return new WaitForSeconds(fourthOfDuration * 2f);
         if (!OnFirstOrLastBridge())
             PlayerFootstepSFXCheck();
     }
@@ -926,12 +978,17 @@ public class TileMovementController : MonoBehaviour
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
         endCreditsScript = FindObjectOfType<EndCredits>();
+
+        if (SceneManager.GetActiveScene().name == "TutorialMap")
+            tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
+        else
+            tutorialDialogueScript = null;
     }
 
     // Sets private variables, objects, and components
     private void SetElemenets()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -956,6 +1013,7 @@ public class TileMovementController : MonoBehaviour
         destroyedRockParticle = gameManagerScript.destroyedRockParticle;
         lerpLength = gameManagerScript.playerLerpLength;
         resetPuzzleDelay = gameManagerScript.resetPuzzleDelay;
+        grassMat = gameManagerScript.grassMaterial;
     }
 
 }

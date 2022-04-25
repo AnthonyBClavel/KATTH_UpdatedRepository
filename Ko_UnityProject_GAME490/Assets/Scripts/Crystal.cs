@@ -18,6 +18,7 @@ public class Crystal : MonoBehaviour
     private IEnumerator crystalLightCoroutine;
     private PuzzleManager puzzleManagerScript;
 
+    // Awake is called before Start()
     void Awake()
     {
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
@@ -134,7 +135,7 @@ public class Crystal : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;

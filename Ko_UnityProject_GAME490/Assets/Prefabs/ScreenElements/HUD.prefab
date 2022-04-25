@@ -54,7 +54,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7100c87dc8a593541b2d983cd29e7e92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canToggleHUD: 0
   puzzleBubbleColorText: {fileID: 287462620}
   artifactBubbleColorText: {fileID: 198015659}
 --- !u!1001 &206823841921038864
@@ -166,18 +165,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3188198461446877856}
     m_Modifications:
-    - target: {fileID: 9028952016499351689, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9028952016707619112, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9028952016999894978, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 9028952016999894982, guid: b29441f66f0893549ab303816277666a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -264,22 +251,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9028952016999894983, guid: b29441f66f0893549ab303816277666a, type: 3}
       propertyPath: m_Name
-      value: TorchMeterBar
+      value: TorchMeter
       objectReference: {fileID: 0}
-    - target: {fileID: 9028952016999894983, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9028952016999894988, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_UpdateMode
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 9028952018142547675, guid: b29441f66f0893549ab303816277666a, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 9028952016999894989, guid: b29441f66f0893549ab303816277666a, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b29441f66f0893549ab303816277666a, type: 3}
 --- !u!224 &8145712573911279051 stripped
 RectTransform:
@@ -779,7 +753,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 160285131749771024, guid: 8e90a18df11b11e4495127ad0a6fc081, type: 3}
       propertyPath: m_Name
-      value: SkipTutorialButton
+      value: SkipSceneButton
       objectReference: {fileID: 0}
     - target: {fileID: 160285131749771024, guid: 8e90a18df11b11e4495127ad0a6fc081, type: 3}
       propertyPath: m_IsActive

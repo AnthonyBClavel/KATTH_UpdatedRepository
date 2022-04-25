@@ -319,7 +319,8 @@ public class PauseMenu : MonoBehaviour
         safetyMenu.SetActive(false);
         Time.timeScale = 1f;
 
-        if (characterDialogueScript.canStartDialogue)  // When the player isn't interacting with an npc/artifact
+        // When the player isn't moving, crossing a bridge, or interacting with an npc/artifact
+        if (characterDialogueScript.canStartDialogue && !playerScript.OnBridge() && playerScript.transform.position == playerScript.Destination)
             playerScript.SetPlayerBoolsTrue();
 
         // Lines below are now called at the end of LerpAlpha()
