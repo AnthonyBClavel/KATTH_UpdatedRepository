@@ -669,6 +669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8970333470256375865}
   - component: {fileID: 8590289112322142853}
+  - component: {fileID: 3923373727098807504}
   m_Layer: 0
   m_Name: CharacterHolder
   m_TagString: Untagged
@@ -712,6 +713,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3923373727098807504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8590289112322142851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectTag: 
+  lol: 
 --- !u!1 &8882789997537184197
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,7 +738,6 @@ GameObject:
   - component: {fileID: 8882789997537184198}
   - component: {fileID: 8882789997537184201}
   - component: {fileID: 8882789997537184199}
-  - component: {fileID: 7475039921216200349}
   m_Layer: 0
   m_Name: FriendlyGhost
   m_TagString: NPC
@@ -772,10 +786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69857766fb6e5642926825c847dcc9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
-  characterName: FriendlyGhost
+  dialogueOptionsFile: {fileID: 4900000, guid: 18fb6923adfa0c84d88e0966e7661014, type: 3}
   nPCDialogueFiles:
   - {fileID: 4900000, guid: 0c9d3cf20e9835d44b9af79b13ed78c2, type: 3}
   - {fileID: 4900000, guid: 9b8b81dc84ff3e54a872a4c3e77bf2d4, type: 3}
@@ -794,20 +805,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: db5d88c1cba3e704ea1b42e4e2c68113, type: 3}
   - {fileID: 4900000, guid: 9a35bf64a93fa1347a05a32b8baba8a8, type: 3}
   - {fileID: 4900000, guid: 2418fa2b00a52b340a832f5f294b4b3d, type: 3}
-  dialogueOptionsFile: {fileID: 4900000, guid: 18fb6923adfa0c84d88e0966e7661014, type: 3}
---- !u!114 &7475039921216200349
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8882789997537184197}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa23ee420380570499b2e9e1f204b9d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inCharacterDialogue: 0
 --- !u!1 &8882789999014664567
 GameObject:
   m_ObjectHideFlags: 0

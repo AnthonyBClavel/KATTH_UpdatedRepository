@@ -753,6 +753,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5994851011015965422}
   - component: {fileID: 6375458349501063250}
+  - component: {fileID: 429627991274356917}
   m_Layer: 0
   m_Name: CharacterHolder
   m_TagString: Untagged
@@ -795,6 +796,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &429627991274356917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6375458349501063252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectTag: 
+  lol: 
 --- !u!1 &6446031123398881838
 GameObject:
   m_ObjectHideFlags: 0
@@ -1224,7 +1239,6 @@ GameObject:
   - component: {fileID: 8757862368346975546}
   - component: {fileID: 8757862368346975495}
   - component: {fileID: 8757862368346975545}
-  - component: {fileID: 5289663143752256957}
   m_Layer: 0
   m_Name: Fisherman
   m_TagString: NPC
@@ -1273,10 +1287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69857766fb6e5642926825c847dcc9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
-  characterName: Fisherman
+  dialogueOptionsFile: {fileID: 4900000, guid: 7bd54db37dad883468005117fc0d0947, type: 3}
   nPCDialogueFiles:
   - {fileID: 4900000, guid: 717c05bcbf1c4c540bbc8e3320e0c961, type: 3}
   - {fileID: 4900000, guid: a10c0dbf80bfe2c48a195a4ef2377cfa, type: 3}
@@ -1295,20 +1306,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: a05a6551643658c4dacaea885cbc6742, type: 3}
   - {fileID: 4900000, guid: 0e159483f86e6324b95bb90150656762, type: 3}
   - {fileID: 4900000, guid: 233964a6df8451844a3fa75108ad1d2c, type: 3}
-  dialogueOptionsFile: {fileID: 4900000, guid: 7bd54db37dad883468005117fc0d0947, type: 3}
---- !u!114 &5289663143752256957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8757862368346975547}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa23ee420380570499b2e9e1f204b9d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inCharacterDialogue: 0
 --- !u!1 &8757862368404226563
 GameObject:
   m_ObjectHideFlags: 0

@@ -358,7 +358,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         {
             //Debug.Log("Player has interacted with Artifact");
             //dialogueViewsHolder.transform.position = collider.transform.position;
-            artifactScript.SetVariablesForCharacterDialogueScript();
+            //artifactScript.SetVariablesForCharacterDialogueScript();
 
             isInteracting = true;
             CheckToPlayAnims();

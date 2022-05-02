@@ -721,7 +721,7 @@ GameObject:
   - component: {fileID: 4437592994415911539}
   - component: {fileID: 4437592994415911536}
   m_Layer: 0
-  m_Name: BabyMammoth_ArtifactChest
+  m_Name: BabyMammoth_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -768,49 +768,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: BabyMammoth
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
   dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
   artifactDialogueFiles:
   - {fileID: 4900000, guid: fbb133f87ac9bf94eafe26a6e1dbd528, type: 3}
   - {fileID: 4900000, guid: 36c48c6d5215a8b4aa0b3ba01426e893, type: 3}
   - {fileID: 4900000, guid: e33ac6b55bea4d34398fb34f9e3a3ebd, type: 3}
---- !u!1 &4437592994552831940
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4437592994552831992}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4437592994552831992
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4437592994552831940}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 6357798319054880869}
-  m_Father: {fileID: 4437592995513159200}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &4437592994793527910
 GameObject:
   m_ObjectHideFlags: 0
@@ -865,14 +827,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4437592995513159203}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4437592994552831992}
+  - {fileID: 8525547358495356724}
   m_Father: {fileID: 4437592994415911538}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &5250811637315557635
 GameObject:
   m_ObjectHideFlags: 0
@@ -963,37 +925,6 @@ Transform:
   m_LocalScale: {x: 0.9999999, y: 0.9999999, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 8525547358495356724}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &6357798319054880868
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6357798319054880869}
-  m_Layer: 0
-  m_Name: BabyMammothHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6357798319054880869
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6357798319054880868}
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 8525547358495356724}
-  m_Father: {fileID: 4437592994552831992}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6455645530353701684
@@ -1474,8 +1405,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9014804071480225166}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.1, y: -0.16, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: -0.22, z: 0.09}
   m_LocalScale: {x: 0.38, y: 0.38, z: 0.38}
   m_Children:
   - {fileID: 2348647789773414981}
@@ -1485,9 +1416,9 @@ Transform:
   - {fileID: 1179640871078098932}
   - {fileID: 8637524098702211115}
   - {fileID: 5491758989435393255}
-  m_Father: {fileID: 6357798319054880869}
+  m_Father: {fileID: 4437592995513159200}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &9131811392080756945
 GameObject:
   m_ObjectHideFlags: 0

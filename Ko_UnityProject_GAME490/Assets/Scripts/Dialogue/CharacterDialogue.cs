@@ -142,11 +142,11 @@ public class CharacterDialogue : MonoBehaviour
 
     private Artifact artifactScript;
     private NonPlayerCharacter nPCScript;
-    private NPCFidgetController nPCFidgetScript;
+    private FidgetController nPCFidgetScript;
+    private FidgetController playerFidgetScript;
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
     private CameraController cameraScript;
-    private PlayerFidgetController playerFidgetScript;
     private GameManager gameManagerScript;
     private AudioManager audioManagerScript;
     private BlackBars blackBarsScript;
@@ -259,7 +259,7 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     // Assigns a new script to the fidget controller script (NPC)
-    public void UpdateFidgetScriptForNPC(NPCFidgetController newScript)
+    public void UpdateFidgetScriptForNPC(FidgetController newScript)
     {
         nPCFidgetScript = newScript;
     }
@@ -271,10 +271,7 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     // Assigns a new script to the artifact Script
-    public void UpdateScriptForArtifact(Artifact newScript)
-    {
-        artifactScript = newScript;
-    }
+    public void UpdateArtifactScript(Artifact newScript) => artifactScript = newScript;
 
     // Starts the dialogue with an npc
     public void StartDialogue()
@@ -298,12 +295,6 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (playerAlertBubble.activeSelf)
             playerAlertBubble.SetActive(false);
-    }
-
-    // Changes the text for the continue button
-    public void ChangeContinueButtonText(string newText)
-    {
-        continueButtonText.text = newText;
     }
 
     /*** Reading and setting dialogue text files START HERE ***/
@@ -364,7 +355,7 @@ public class CharacterDialogue : MonoBehaviour
                     {
                         artifactScript.StopInspectingArtifact();
                         continueButton.SetActive(false);
-                        ChangeContinueButtonText("Continue");
+                        continueButtonText.text = "Continue";
                         hasTransitionedToArtifactView = false;
                     }
 
@@ -679,8 +670,8 @@ public class CharacterDialogue : MonoBehaviour
                     else
                     {
                         playerScript.ChangeAnimationState("Interacting");
-                        artifactScript.HasCollectedArtifact = true;
-                        artifactScript.SaveCollectedArtifact();
+                        //artifactScript.HasCollectedArtifact = true;
+                        artifactScript.CollectArtifact();
                         artifactScript.CloseChest();
                         StartCoroutine("EndDialogueDelay");
                         FadeOutDialogueMusic();
@@ -1146,7 +1137,7 @@ public class CharacterDialogue : MonoBehaviour
         hasStartedPlayerDialogue = false;
         hasStartedNPCDialogue = false;
         canMoveDialogueArrow = true;
-        playerFidgetScript.FidgetAnimationCheck();
+        playerFidgetScript.Fidget();
     }
 
     // Sets the dialogue options bubble inactive
@@ -1335,8 +1326,8 @@ public class CharacterDialogue : MonoBehaviour
         playerScript.AlertBubbleCheck();
 
         yield return new WaitForSeconds(0.1f);
-        nPCFidgetScript.ResetInitialFidgetBool();
-        playerFidgetScript.ResetInitialFidgetBool();
+        nPCFidgetScript.HasPlayedInitialFidget = false;
+        playerFidgetScript.HasPlayedInitialFidget = false;
         playerScript.SetPlayerBoolsTrue();
         canCheckBubbleBounds = false;
         hasPlayedPopUpSFX = false;
@@ -1352,7 +1343,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedPlayerDialogue = true;
-            playerFidgetScript.FidgetAnimationCheck();                 
+            playerFidgetScript.Fidget();                 
         }
 
         SetDialogueBubblePivot();
@@ -1391,7 +1382,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             canPlayBubbleAnim = true;
             hasStartedNPCDialogue = true;
-            nPCFidgetScript.FidgetAnimationCheck();
+            nPCFidgetScript.Fidget();
         }
 
         SetDialogueBubblePivot();
@@ -1425,11 +1416,9 @@ public class CharacterDialogue : MonoBehaviour
     private void SetScripts()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
         nPCScript = FindObjectOfType<NonPlayerCharacter>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
         cameraScript = FindObjectOfType<CameraController>();
-        nPCFidgetScript = FindObjectOfType<NPCFidgetController>();
-        playerFidgetScript = FindObjectOfType<PlayerFidgetController>();
         artifactScript = FindObjectOfType<Artifact>();
         gameManagerScript = FindObjectOfType<GameManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
@@ -1437,6 +1426,8 @@ public class CharacterDialogue : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         dialogueArrowScript = FindObjectOfType<DialogueArrow>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
+        nPCFidgetScript = nPCScript.GetComponentInChildren<FidgetController>();
+        playerFidgetScript = playerScript.GetComponentInChildren<FidgetController>();
     }
 
     // Sets private variables, objects, and components

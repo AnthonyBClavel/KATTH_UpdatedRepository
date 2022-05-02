@@ -26,13 +26,13 @@ public class NonPlayerCharacter : MonoBehaviour
 
     private TileMovementController playerScript;
     private CharacterDialogue characterDialogueScript;
-    private NPCFidgetController nPCFidgetScript;
+    private FidgetController nPCFidgetScript;
 
     void Awake()
     {
         playerScript = FindObjectOfType<TileMovementController>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        nPCFidgetScript = GetComponent<NPCFidgetController>();
+        nPCFidgetScript = GetComponentInChildren<FidgetController>();
 
         SetElements();
     }

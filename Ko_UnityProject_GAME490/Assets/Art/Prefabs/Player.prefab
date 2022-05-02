@@ -304,6 +304,7 @@ GameObject:
   m_Component:
   - component: {fileID: 543450652384366646}
   - component: {fileID: 3233626653359124507}
+  - component: {fileID: 4714225510971964755}
   m_Layer: 0
   m_Name: PlayerModel
   m_TagString: Untagged
@@ -346,6 +347,21 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4714225510971964755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148196395660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleRepetitions: 3
+  fidgetIndex: 0
+  idleCount: 0
 --- !u!1 &2057439147178995355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1312,7 +1328,6 @@ GameObject:
   - component: {fileID: 8893811602064672361}
   - component: {fileID: 543118122}
   - component: {fileID: 8893811602064672363}
-  - component: {fileID: 335815886686903731}
   - component: {fileID: 1763956048}
   m_Layer: 0
   m_Name: Player
@@ -1368,18 +1383,6 @@ MonoBehaviour:
   canMove: 1
   canInteract: 1
   canRestartPuzzle: 1
---- !u!114 &335815886686903731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893811602064672366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1763956048
 MonoBehaviour:
   m_ObjectHideFlags: 0

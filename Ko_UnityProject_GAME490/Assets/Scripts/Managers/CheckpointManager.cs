@@ -152,11 +152,7 @@ public class CheckpointManager : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
-        else
-            tutorialDialogueScript = null;
+        tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
     }
 
     // Sets private variables, objects, and components

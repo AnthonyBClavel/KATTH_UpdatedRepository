@@ -333,7 +333,6 @@ GameObject:
   - component: {fileID: 182756545712792998}
   - component: {fileID: 182756545712792993}
   - component: {fileID: 182756545712792999}
-  - component: {fileID: 3770247318561205454}
   m_Layer: 0
   m_Name: VillageExplorer02
   m_TagString: NPC
@@ -382,10 +381,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69857766fb6e5642926825c847dcc9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hasPlayedOptionOne: 0
-  hasPlayedOptionTwo: 0
-  hasLoadedInitialDialogue: 0
-  characterName: VillageExplorer02
+  dialogueOptionsFile: {fileID: 4900000, guid: 73c3457dcab440542b4a1bbcc803348d, type: 3}
   nPCDialogueFiles:
   - {fileID: 4900000, guid: f34a1ed08f60eca4daba347322fbb76e, type: 3}
   - {fileID: 4900000, guid: a05303ec8ed092545bd01a113fbd2d99, type: 3}
@@ -404,20 +400,6 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 2f46454e1ee18f344b874db5077858c5, type: 3}
   - {fileID: 4900000, guid: 3872b7a559992b242b9e425743c7771d, type: 3}
   - {fileID: 4900000, guid: 185f120f1dc616740969e45faee2f4e1, type: 3}
-  dialogueOptionsFile: {fileID: 4900000, guid: 73c3457dcab440542b4a1bbcc803348d, type: 3}
---- !u!114 &3770247318561205454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 182756545712792997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa23ee420380570499b2e9e1f204b9d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inCharacterDialogue: 0
 --- !u!1 &182756545749378205
 GameObject:
   m_ObjectHideFlags: 0
@@ -861,6 +843,7 @@ GameObject:
   m_Component:
   - component: {fileID: 182756546290183641}
   - component: {fileID: 182756546290183643}
+  - component: {fileID: 2237514037186727814}
   m_Layer: 0
   m_Name: CharacterHolder
   m_TagString: Untagged
@@ -903,6 +886,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2237514037186727814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182756546290183640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectTag: 
+  lol: 
 --- !u!1 &182756546317455866
 GameObject:
   m_ObjectHideFlags: 0

@@ -62,7 +62,7 @@ public class TileMovementController : MonoBehaviour
     private SaveManager saveManagerScript;
     private CharacterDialogue characterDialogueScript;
     private CameraController cameraScript;
-    private PlayerFidgetController playerFidgetScript;
+    private FidgetController playerFidgetScript;
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
     private ObjectShakeController objectShakeScript;
@@ -192,6 +192,7 @@ public class TileMovementController : MonoBehaviour
         // Checks if a movement key is pressed
         if (RecievedMovementInput())
         {
+            playerFidgetScript.SetIdleCountToZero();
             transform.localEulerAngles = currentDirection;
             AlertBubbleCheck();
 
@@ -250,7 +251,10 @@ public class TileMovementController : MonoBehaviour
 
             // Reset puzzle
             if (Input.GetKeyDown(KeyCode.R) && canRestartPuzzle)
+            {
                 puzzleManagerScript.ResetPuzzle(0f);
+                playerFidgetScript.SetIdleCountToZero();
+            }
 
             // Interact/Break
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -308,8 +312,6 @@ public class TileMovementController : MonoBehaviour
 
             if (tag == "StaticBlock" || tag == "DestroyableBlock")
                 ChangeAnimationState("Pushing");
-            else
-                playerFidgetScript.SetIdleIndexToZero();
 
             switch (objectToShake.name)
             {
@@ -426,7 +428,8 @@ public class TileMovementController : MonoBehaviour
         if (!artifactScript.HasCollectedArtifact)
         {
             dialogueViewsHolder.transform.position = collider.transform.position;
-            artifactScript.SetVariablesForCharacterDialogueScript();
+            artifactScript.StartArtifactDialogue();
+            artifactScript.OpenChest();
             ChangeAnimationState("Interacting");
 
             //Debug.Log("Interacted with Artifact");
@@ -722,7 +725,7 @@ public class TileMovementController : MonoBehaviour
                 break;
         }
 
-        playerFidgetScript.SetIdleIndexToZero();
+        playerFidgetScript.SetIdleCountToZero();
     }
 
     // Checks if the camera can move to the next puzzle view
@@ -935,7 +938,7 @@ public class TileMovementController : MonoBehaviour
 
         while (time < duration)
         {
-            if (playerFidgetScript.CurrentAnimPlaying != "Walking")
+            if (!playerFidgetScript.IsPlayingAnimation("Walking"))
                 ChangeAnimationState("Walking");
 
             WriteToGrassMaterial();
@@ -969,7 +972,6 @@ public class TileMovementController : MonoBehaviour
     {
         torchMeterScript = FindObjectOfType<TorchMeter>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        playerFidgetScript = FindObjectOfType<PlayerFidgetController>();
         cameraScript = FindObjectOfType<CameraController>();
         saveManagerScript = FindObjectOfType<SaveManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
@@ -978,11 +980,8 @@ public class TileMovementController : MonoBehaviour
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
         endCreditsScript = FindObjectOfType<EndCredits>();
-
-        if (SceneManager.GetActiveScene().name == "TutorialMap")
-            tutorialDialogueScript = FindObjectOfType<TutorialDialogue>();
-        else
-            tutorialDialogueScript = null;
+        playerFidgetScript = GetComponentInChildren<FidgetController>();
+        tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
     }
 
     // Sets private variables, objects, and components
