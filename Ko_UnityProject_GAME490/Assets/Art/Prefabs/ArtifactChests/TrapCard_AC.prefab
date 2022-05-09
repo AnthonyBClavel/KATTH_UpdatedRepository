@@ -54,14 +54,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7478653743329025779}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 7478653743978909480}
+  - {fileID: 3001413626810768934}
   m_Father: {fileID: 7478653744448238242}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &7478653743699357301
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,37 +345,6 @@ Transform:
   m_Father: {fileID: 7478653743699689459}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7478653743978909460
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7478653743978909480}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7478653743978909480
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7478653743978909460}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 3001413626810768934}
-  m_Father: {fileID: 7478653743329025776}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &7478653744448238253
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,7 +357,7 @@ GameObject:
   - component: {fileID: 7478653744448238243}
   - component: {fileID: 7478653744448238240}
   m_Layer: 0
-  m_Name: TrapCard_ArtifactChest
+  m_Name: TrapCard_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -435,24 +404,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: TrapCard
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: e23f04ad83a5ebe49af34d8320b3e419, type: 3}
-  - {fileID: 4900000, guid: d0ef94c0a8cd4af4baf59503a1dee3c5, type: 3}
-  - {fileID: 4900000, guid: 7b0c9db0c7a81a84cb0bb635cd2a702e, type: 3}
+  artifact: {fileID: 11400000, guid: 588d1fa68c832b24485bafb9cfc0bee7, type: 2}
 --- !u!1001 &7478653744280149637
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 7478653743978909480}
+    m_TransformParent: {fileID: 7478653743329025776}
     m_Modifications:
     - target: {fileID: 4982523334287972889, guid: 177ce0df12386464ab1e3f26ae7e8868, type: 3}
       propertyPath: m_Name

@@ -23,14 +23,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7083129998373530159}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 7083129999056714740}
+  - {fileID: 4574940775779075829}
   m_Father: {fileID: 7083129999402288766}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &7083129998756511338
 GameObject:
   m_ObjectHideFlags: 0
@@ -62,37 +62,6 @@ Transform:
   m_Father: {fileID: 7083129999402288766}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!1 &7083129999056714696
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7083129999056714740}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7083129999056714740
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7083129999056714696}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 4574940775779075829}
-  m_Father: {fileID: 7083129998373530156}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &7083129999402288753
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,7 +74,7 @@ GameObject:
   - component: {fileID: 7083129999402288767}
   - component: {fileID: 7083129999402288764}
   m_Layer: 0
-  m_Name: Walkman_ArtifactChest
+  m_Name: Walkman_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,18 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: Walkman
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: 673281b027874434697b6393fbc30758, type: 3}
-  - {fileID: 4900000, guid: 317cf255405ac2345a91f40c1e87fca3, type: 3}
-  - {fileID: 4900000, guid: aedccf6c1759e2b4484eddbba9ad366a, type: 3}
+  artifact: {fileID: 11400000, guid: f3daf818fc2c8164f8e56f272bbe079f, type: 2}
 --- !u!1 &7083129999748352959
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,7 +410,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 7083129999056714740}
+    m_TransformParent: {fileID: 7083129998373530156}
     m_Modifications:
     - target: {fileID: 1234412468934386824, guid: 3620fd5529e769849b5ca576e5ef2f1d, type: 3}
       propertyPath: m_CastShadows

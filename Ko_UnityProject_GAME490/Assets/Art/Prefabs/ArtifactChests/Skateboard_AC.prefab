@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 851881347936239270}
   - component: {fileID: 851881347936239269}
   m_Layer: 0
-  m_Name: Skateboard_ArtifactChest
+  m_Name: Skateboard_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,49 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: Skateboard
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: be9ae6b0e03313c4ea67d0fb984899b4, type: 3}
-  - {fileID: 4900000, guid: 0009cfd7e2b7ddd4180505321f25b6ef, type: 3}
-  - {fileID: 4900000, guid: 047db849023f53c4dbc2c79ef5ee84bc, type: 3}
---- !u!1 &851881348053091089
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 851881348053091117}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &851881348053091117
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 851881348053091089}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 977515403211287861}
-  m_Father: {fileID: 851881348971614965}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
+  artifact: {fileID: 11400000, guid: 566bd118db939c0418f034ee27f28fd9, type: 2}
 --- !u!1 &851881348668173718
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,14 +366,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 851881348971614966}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 851881348053091117}
+  - {fileID: 977515403211287861}
   m_Father: {fileID: 851881347936239271}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &851881349421139635
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,7 +410,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 851881348053091117}
+    m_TransformParent: {fileID: 851881348971614965}
     m_Modifications:
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalPosition.x
@@ -468,19 +426,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -6.2273786e-15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.000000021855694
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.00000028212997
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_RootOrder
@@ -492,7 +450,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -180
       objectReference: {fileID: 0}
     - target: {fileID: 2319469466494685019, guid: 7a8aa771c14fe1c4b994a5054bc71d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

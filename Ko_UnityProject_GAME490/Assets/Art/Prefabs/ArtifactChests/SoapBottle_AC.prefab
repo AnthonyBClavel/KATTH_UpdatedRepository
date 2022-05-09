@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 6067087342840918737}
   - component: {fileID: 6067087342840918738}
   m_Layer: 0
-  m_Name: SoapBottle_ArtifactChest
+  m_Name: SoapBottle_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,49 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: SoapBottle
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: 78e02f03ebfffca4cafa562524d4095f, type: 3}
-  - {fileID: 4900000, guid: 435823cdf042efa4a85b0ff7133c905d, type: 3}
-  - {fileID: 4900000, guid: ce61ff26d1a764044a82fa646dd59817, type: 3}
---- !u!1 &6067087343199997798
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6067087343199997786}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6067087343199997786
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6067087343199997798}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 2242455412735932170}
-  m_Father: {fileID: 6067087343892029058}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
+  artifact: {fileID: 11400000, guid: 48bbe7266cbc15b48828c53f2355fe46, type: 2}
 --- !u!1 &6067087343503739588
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,20 +397,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6067087343892029057}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 6067087343199997786}
+  - {fileID: 2242455412735932170}
   m_Father: {fileID: 6067087342840918736}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1001 &6067087344183025480
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 6067087343199997786}
+    m_TransformParent: {fileID: 6067087343892029058}
     m_Modifications:
     - target: {fileID: 4640821113582695160, guid: 55b5a61f6982b3c4e82cf86169b5db0c, type: 3}
       propertyPath: m_Name

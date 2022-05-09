@@ -354,7 +354,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         Artifact artifactScript = collider.GetComponent<Artifact>();
 
-        if (!artifactScript.HasCollectedArtifact)
+        /*if (!artifactScript.HasCollectedArtifact)
         {
             //Debug.Log("Player has interacted with Artifact");
             //dialogueViewsHolder.transform.position = collider.transform.position;
@@ -362,7 +362,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
             isInteracting = true;
             CheckToPlayAnims();
-        }
+        }*/
     }
 
     // Sets the destination - allows the destination to be changed by other scripts
@@ -595,11 +595,11 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             {
                 Artifact artifactScript = hit.collider.GetComponent<Artifact>();
 
-                if (!artifactScript.HasCollectedArtifact)
+                /*if (!artifactScript.HasCollectedArtifact)
                 {
                     //characterDialogueScript.SetAlertBubbleActive();
                     return true;
-                }
+                }*/
             }
         }
         //characterDialogueScript.SetAlertBubbleInactive();

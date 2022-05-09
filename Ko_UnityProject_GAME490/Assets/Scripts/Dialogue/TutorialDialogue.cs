@@ -26,13 +26,12 @@ public class TutorialDialogue : MonoBehaviour
     private bool hasPlayedArtifact = false;
     private bool hasplayedFinished = false;
 
-    private GameObject continueButtonTD;
-    private GameObject continueButtonCD;
-
+    private TextMeshProUGUI continueButtonText;
+    private GameObject continueButton;
     private Image blackOverlay;
-    private TextMeshProUGUI tutorialDialogueText;
     private Color zeroAlpha = new Color(0, 0, 0, 0);
     private Color halfAlpha = new Color(0, 0, 0, 0.5f);
+    private TextMeshProUGUI tutorialDialogueText;
 
     private AudioSource charNoise;
     private IEnumerator fadeOverlayCorouitne;
@@ -167,24 +166,24 @@ public class TutorialDialogue : MonoBehaviour
     }
 
     // Checks to play the artifact dialogue
-    public void PlayArtifactDialogueCheck()
+    public bool PlayArtifactDialogueCheck()
     {
         if (!hasPlayedArtifact)
         {
-            continueButtonCD.SetActive(false);
-            artifactScript.CanRotateArtifact = false;
-
+            continueButton.SetActive(false);
             SetDialogue(artifcatsDialogue);
             StartDialogue();
             hasPlayedArtifact = true;
+            return true;
         }
+
+        return false;
     }
 
     // Starts the tutorial dialogue
     private void StartDialogue()
     {
         pauseMenuScript.enabled = false;
-        continueButtonTD.SetActive(false);
         skipSceneButtonScript.SetSkipSceneButtonInactive();
         originalTypingSpeed = typingSpeed;
         //typingSpeed = originalTypingSpeed;
@@ -204,18 +203,16 @@ public class TutorialDialogue : MonoBehaviour
         pauseMenuScript.enabled = true;
         tutorialDialogueText.text = string.Empty;
         StartFadeOverlayCoroutine(zeroAlpha, 0f);
-
-        if (artifactScript.IsInspectingArtifact)
+       
+        if (characterDialogueScript.hasTransitionedToArtifactView)
         {
-            artifactScript.CanRotateArtifact = true;
-            continueButtonCD.SetActive(true);
+            continueButton.SetActive(true);
+            artifactScript.StartInputCoroutine();
         }
         else
         {
             skipSceneButtonScript.SetSkipSceneButtonActive();
-
-            if (characterDialogueScript.canStartDialogue)
-                playerScript.SetPlayerBoolsTrue();
+            playerScript.SetPlayerBoolsTrue();
         }
     }
 
@@ -229,7 +226,7 @@ public class TutorialDialogue : MonoBehaviour
     // Checks to play the next sentence in the tutorial dialogue
     private void NextSentenceCheck()
     {
-        continueButtonTD.SetActive(false);
+        continueButton.SetActive(false);
         originalTypingSpeed = typingSpeed;
         //typingSpeed = originalTypingSpeed;
 
@@ -292,7 +289,7 @@ public class TutorialDialogue : MonoBehaviour
         }
 
         typingSpeed = originalTypingSpeed;
-        continueButtonTD.SetActive(true);
+        continueButton.SetActive(true);
     }
 
     // Checks for the input that continues or speeds up the tutorial dialogue
@@ -302,10 +299,10 @@ public class TutorialDialogue : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                if (continueButtonTD.activeSelf)
+                if (continueButton.activeSelf)
                     NextSentenceCheck();
 
-                else if (!continueButtonTD.activeSelf && typingSpeed > originalTypingSpeed / 2)
+                else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2)
                     typingSpeed /= 2;
             }
 
@@ -337,8 +334,6 @@ public class TutorialDialogue : MonoBehaviour
 
             if (childName == "BlackOverlay")
                 blackOverlay = child.GetComponent<Image>();
-            if (childName == "ContinueButtonTD")
-                continueButtonTD = child;
             if (childName == "TutorialDialogueText")
                 tutorialDialogueText = child.GetComponent<TextMeshProUGUI>();
         }
@@ -348,7 +343,10 @@ public class TutorialDialogue : MonoBehaviour
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
             if (child.name == "ContinueButton")
-                continueButtonCD = child;
+            {
+                continueButtonText = child.GetComponent<TextMeshProUGUI>();
+                continueButton = child;
+            }           
         }
 
         charNoise = audioManagerScript.charNoiseAS;

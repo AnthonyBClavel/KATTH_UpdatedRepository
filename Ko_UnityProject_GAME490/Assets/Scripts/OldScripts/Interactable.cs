@@ -5,7 +5,7 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
     private TutorialDialogue tutorialDialogueScript;
-    private string[] dialogue;
+    //private string[] dialogue;
 
     /***
      * Interact function
@@ -26,8 +26,8 @@ public class Interactable : MonoBehaviour
         }
 
         Transform child = transform.GetChild(0);
-        dialogue = child.GetComponent<Dialogue>().readTextFile();
-        if (dialogue == null) return;
+        //dialogue = child.GetComponent<Dialogue>().readTextFile();
+        //if (dialogue == null) return;
 
         //tutorialDialogueScript.SetDialogue(dialogue);
         //tutorialDialogueScript.StartDialogue();

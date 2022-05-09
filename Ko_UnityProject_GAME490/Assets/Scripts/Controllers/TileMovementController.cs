@@ -136,6 +136,7 @@ public class TileMovementController : MonoBehaviour
         currentDirection = north;
         nextPos = Vector3.forward;
         destination = transform.position;
+        WriteToGrassMaterial();
     }
 
     // Update is called once per frame
@@ -425,10 +426,9 @@ public class TileMovementController : MonoBehaviour
     {
         Artifact artifactScript = collider.GetComponent<Artifact>();
 
-        if (!artifactScript.HasCollectedArtifact)
+        if (artifactScript.enabled)
         {
             dialogueViewsHolder.transform.position = collider.transform.position;
-            artifactScript.StartArtifactDialogue();
             artifactScript.OpenChest();
             ChangeAnimationState("Interacting");
 
@@ -658,7 +658,7 @@ public class TileMovementController : MonoBehaviour
                 Artifact artifactScript = collider.GetComponent<Artifact>();
 
                 // If the player hasn't collected the artifact within an artifact chest
-                if (!artifactScript.HasCollectedArtifact)
+                if (artifactScript.enabled)
                 {
                     characterDialogueScript.SetAlertBubbleActive();
                     return true;

@@ -23,14 +23,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8958828953422219978}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8958828954113858321}
+  - {fileID: 3808581884902803094}
   m_Father: {fileID: 8958828954534913691}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &8958828953872342671
 GameObject:
   m_ObjectHideFlags: 0
@@ -62,37 +62,6 @@ Transform:
   m_Father: {fileID: 8958828954534913691}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!1 &8958828954113858349
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8958828954113858321}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8958828954113858321
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8958828954113858349}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 3808581884902803094}
-  m_Father: {fileID: 8958828953422219977}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &8958828954534913684
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,7 +74,7 @@ GameObject:
   - component: {fileID: 8958828954534913690}
   - component: {fileID: 8958828954534913689}
   m_Layer: 0
-  m_Name: RecordPlayer_ArtifactChest
+  m_Name: RecordPlayer_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,18 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: RecordPlayer
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: f7cf3f4b1223c084996a328d9e9cc37e, type: 3}
-  - {fileID: 4900000, guid: 97cd93aa0f9597944820368e1a8e4ca9, type: 3}
-  - {fileID: 4900000, guid: a5b11a651244e464f98d8c4d822d0c0e, type: 3}
+  artifact: {fileID: 11400000, guid: 26d287bc3573d3f479c7d4661599fd90, type: 2}
 --- !u!1 &8958828954729917274
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,7 +410,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 8958828954113858321}
+    m_TransformParent: {fileID: 8958828953422219977}
     m_Modifications:
     - target: {fileID: 4883374038311690723, guid: b78625af9da4ecd46aafaf62bff845b6, type: 3}
       propertyPath: m_Name
@@ -508,7 +466,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5228374035995212633, guid: b78625af9da4ecd46aafaf62bff845b6, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.9
+      value: 0.90000004
       objectReference: {fileID: 0}
     - target: {fileID: 5228374035995212633, guid: b78625af9da4ecd46aafaf62bff845b6, type: 3}
       propertyPath: m_LocalScale.z

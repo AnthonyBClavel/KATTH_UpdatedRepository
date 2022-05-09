@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 5496286257892182793}
   - component: {fileID: 5496286257892182794}
   m_Layer: 0
-  m_Name: ArcadeMachine_ArtifactChest
+  m_Name: ArcadeMachine_AC
   m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,49 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3aacc5d25792343b0fb13acecbc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  artifactName: ArcadeMachine
-  hasFinsihedTransition: 0
-  canRotateArtifact: 0
-  canTransitionFade: 1
-  hasInspectedArtifact: 0
-  hasCollectedArtifact: 0
-  isInspectingArtifact: 0
-  dialogueOptionsFile: {fileID: 4900000, guid: ea8b8e7f2aeceef438f127f15e446e63, type: 3}
-  artifactDialogueFiles:
-  - {fileID: 4900000, guid: ee483711751d4044e9433f7aedb24464, type: 3}
-  - {fileID: 4900000, guid: 5ef03f1c86909c74d84b5fefe23467cf, type: 3}
-  - {fileID: 4900000, guid: 776bf74950c67544f8217dc6ca61aa89, type: 3}
---- !u!1 &5496286258311149246
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5496286258311149186}
-  m_Layer: 0
-  m_Name: ArtifactRotationHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5496286258311149186
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5496286258311149246}
-  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1453701033232136582}
-  m_Father: {fileID: 5496286258994390874}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
+  artifact: {fileID: 11400000, guid: 84c03cccefb334744ac07cb8e0b50ec3, type: 2}
 --- !u!1 &5496286258537984796
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,20 +397,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5496286258994390873}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 5496286258311149186}
+  - {fileID: 1453701033232136582}
   m_Father: {fileID: 5496286257892182792}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1001 &5496286258391103022
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 5496286258311149186}
+    m_TransformParent: {fileID: 5496286258994390874}
     m_Modifications:
     - target: {fileID: 5197438213810533575, guid: 9ffd59eef5ae34049bab7b8f40d4d1fd, type: 3}
       propertyPath: m_CastShadows
@@ -508,15 +466,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6370955578363629480, guid: 9ffd59eef5ae34049bab7b8f40d4d1fd, type: 3}
       propertyPath: m_LocalScale.x
-      value: -1.7085615
+      value: -1.7085619
       objectReference: {fileID: 0}
     - target: {fileID: 6370955578363629480, guid: 9ffd59eef5ae34049bab7b8f40d4d1fd, type: 3}
       propertyPath: m_LocalScale.y
-      value: -0.85428077
+      value: -0.8542809
       objectReference: {fileID: 0}
     - target: {fileID: 6370955578363629480, guid: 9ffd59eef5ae34049bab7b8f40d4d1fd, type: 3}
       propertyPath: m_LocalScale.z
-      value: -2.5628424
+      value: -2.5628426
       objectReference: {fileID: 0}
     - target: {fileID: 8108090730665796440, guid: 9ffd59eef5ae34049bab7b8f40d4d1fd, type: 3}
       propertyPath: m_CastShadows
