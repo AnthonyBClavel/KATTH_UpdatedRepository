@@ -9,8 +9,8 @@ public class Artifact : MonoBehaviour
     private bool hasInspectedArtifact = false;
 
     private string artifactName;
-    private float rotateWithKeysSpeed = 200f; // Original Value = 200f
-    private float rotateWithMouseSpeed = 500f; // Original Value = 500f
+    private float rotationSpeedWithKeys = 26f; // Original Value = 26f
+    private float rotationSpeedWithMouse = 20f; // Original Value = 20f
     private float horizontalAxis;
     private float verticalAxis;
     private int currentDialogueIndex;
@@ -18,10 +18,9 @@ public class Artifact : MonoBehaviour
     private Animator woodenChestAnim;
     private GameObject woodenChestHolder;
     private GameObject artifactHolder;
-    private GameObject continueButton;
+    private GameObject artifactButtons;
     private GameObject player;
     private GameObject mainCamera;
-    private TextMeshProUGUI continueButtonText;
 
     private Vector3 wchOriginalRotation;
     private Vector3 ahOriginalRotation;
@@ -129,12 +128,17 @@ public class Artifact : MonoBehaviour
         mainCamera.transform.eulerAngles = mainCamera.transform.eulerAngles + new Vector3(0, playerRotationY, 0);
 
         // Rotates the artifact and the chest to look towards the player
-        artifactHolder.transform.eulerAngles += new Vector3(0, playerRotationY, 0);
-        woodenChestHolder.transform.eulerAngles = new Vector3(0, playerRotationY + 180, 0);
+        woodenChestHolder.transform.LookAt(player.transform.position);
+        artifactHolder.transform.LookAt(mainCamera.transform.position);
+        artifactHolder.transform.Rotate(artifactHolder.transform.up, 180, Space.World);
         ahInspectingRotation = artifactHolder.transform.eulerAngles;
+
+        // Alternative rotation methods - For Reference
+        //artifactHolder.transform.eulerAngles += new Vector3(0, playerRotationY, 0);
+        //woodenChestHolder.transform.eulerAngles = new Vector3(0, playerRotationY + 180, 0);
     }
 
-    // Sets the camera view back to it's previous position and rotation
+    // Sets the camera view back to it's previous position and rotation (dialogue view)
     private void SetPreviousView()
     {
         cameraScript.SetToDialogueView();
@@ -213,20 +217,18 @@ public class Artifact : MonoBehaviour
         transitionFadeScript.PlayTransitionFade();
 
         yield return new WaitForSeconds(duration);
-        continueButton.SetActive(true);
         SetArtifactView();
 
         if (tutorialDialogueScript != null && tutorialDialogueScript.PlayArtifactDialogueCheck())
             inTutorialDialogue = true;
+        else
+            artifactButtons.SetActive(true);
 
         yield return new WaitForSeconds(duration);
         characterDialogueScript.hasTransitionedToArtifactView = true;
 
         if (!inTutorialDialogue)
             StartInputCoroutine();
-            
-        // Coroutine doesnt work when ending tutorial dialogue
-        // maybe try finding the opacity of a image - use the tutorial null thing to set a variable to null or somehting in awake
     }
 
     // Transitions to the camera's previous view
@@ -246,42 +248,46 @@ public class Artifact : MonoBehaviour
     private IEnumerator ArtifactInputCheck()
     {
         yield return new WaitForSeconds(0.01f);
-        while (continueButton.activeSelf && !transitionFadeScript.IsChangingScenes)
+
+        while (artifactButtons.activeSelf && !transitionFadeScript.IsChangingScenes)
         {
-            if (Time.deltaTime <= 0)
-                yield return null;
-
-            // Resets the artifact's rotation
-            if (Input.GetKeyDown(KeyCode.R))
-                artifactHolder.transform.eulerAngles = ahInspectingRotation;
-
-            // Stops inspecting the artifact
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (Time.deltaTime > 0)
             {
-                StopInspectingArtifact();
-                characterDialogueScript.hasTransitionedToArtifactView = false;
-                continueButton.SetActive(false);
+                //DebuggingCheck();
+
+                // Stops inspecting the artifact
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                {
+                    characterDialogueScript.hasTransitionedToArtifactView = false;
+                    StopInspectingArtifact();
+                    artifactButtons.SetActive(false);
+                }
+
+                // Resets the artifact's rotation
+                if (Input.GetKeyDown(KeyCode.R))
+                    artifactHolder.transform.eulerAngles = ahInspectingRotation;
+
+                // Rotates the artifact via keys
+                if (!Input.GetMouseButton(0))
+                {
+                    horizontalAxis = Input.GetAxisRaw("Horizontal") * rotationSpeedWithKeys * 10 * Time.deltaTime;
+                    verticalAxis = Input.GetAxisRaw("Vertical") * rotationSpeedWithKeys * 10 * Time.deltaTime;
+
+                    artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
+                    artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
+                }
+
+                // Rotates the artifact via mouse
+                if (Input.GetMouseButton(0))
+                {
+                    horizontalAxis = Input.GetAxisRaw("Mouse X") * rotationSpeedWithMouse * 100 * Time.deltaTime;
+                    verticalAxis = Input.GetAxisRaw("Mouse Y") * rotationSpeedWithMouse * 100 * Time.deltaTime;
+
+                    artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
+                    artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
+                }
             }
 
-            // Rotates the artifact via keys
-            if (!Input.GetMouseButton(0))
-            {
-                horizontalAxis = Input.GetAxis("Horizontal") * rotateWithKeysSpeed * Time.deltaTime;
-                verticalAxis = Input.GetAxis("Vertical") * rotateWithKeysSpeed * Time.deltaTime;
-
-                artifactHolder.transform.Rotate(Vector3.up, -horizontalAxis);
-                artifactHolder.transform.Rotate(Vector3.right, verticalAxis);
-            }
-
-            // Rotates the artifact via mouse
-            if (Input.GetMouseButton(0))
-            {
-                horizontalAxis = Input.GetAxis("Mouse X") * rotateWithMouseSpeed * Time.deltaTime;
-                verticalAxis = Input.GetAxis("Mouse Y") * rotateWithMouseSpeed * Time.deltaTime;
-
-                artifactHolder.transform.Rotate(Vector3.up, -horizontalAxis);
-                artifactHolder.transform.Rotate(Vector3.right, verticalAxis);
-            }
             yield return null;
         }
     }
@@ -323,10 +329,17 @@ public class Artifact : MonoBehaviour
         {
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
-            if (child.name == "ContinueButton")
+            if (child.name == "KeybindButtons")
             {
-                continueButtonText = child.GetComponent<TextMeshProUGUI>();
-                continueButton = child;
+                GameObject keybindButtons = child;
+
+                for (int j = 0; j < keybindButtons.transform.childCount; j++)
+                {
+                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "ArtifactButtons")
+                        artifactButtons = child02;
+                }
             }
         }
 
@@ -343,16 +356,16 @@ public class Artifact : MonoBehaviour
         DebuggingCheck();
     }
 
-    // Updates the rotation speeds if their value changes
+    // Updates the rotation speeds if applicable
     private void DebuggingCheck()
     {
         if (gameManagerScript.isDebugging)
         {
-            if (rotateWithKeysSpeed != gameManagerScript.rotateWithKeysSpeed)
-                rotateWithKeysSpeed = gameManagerScript.rotateWithKeysSpeed;
+            if (rotationSpeedWithKeys != gameManagerScript.rotationSpeedWithKeys)
+                rotationSpeedWithKeys = gameManagerScript.rotationSpeedWithKeys;
 
-            if (rotateWithMouseSpeed != gameManagerScript.rotateWithMouseSpeed)
-                rotateWithMouseSpeed = gameManagerScript.rotateWithMouseSpeed;
+            if (rotationSpeedWithMouse != gameManagerScript.rotationSpeedWithMouse)
+                rotationSpeedWithMouse = gameManagerScript.rotationSpeedWithMouse;
         }
     }
 

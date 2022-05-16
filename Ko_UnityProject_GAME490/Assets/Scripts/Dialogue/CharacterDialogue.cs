@@ -1512,8 +1512,18 @@ public class CharacterDialogue : MonoBehaviour
         {
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
-            if (child.name == "ContinueButton")
-                continueButton = child;
+            if (child.name == "KeybindButtons")
+            {
+                GameObject keybindButtons = child;
+
+                for (int j = 0; j < keybindButtons.transform.childCount; j++)
+                {
+                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "ContinueButton")
+                        continueButton = child02;
+                }
+            }
         }
 
         for (int i = 0; i < cameraScript.transform.childCount; i++)

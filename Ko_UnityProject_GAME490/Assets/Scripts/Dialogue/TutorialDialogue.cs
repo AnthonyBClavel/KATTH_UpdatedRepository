@@ -26,11 +26,9 @@ public class TutorialDialogue : MonoBehaviour
     private bool hasPlayedArtifact = false;
     private bool hasplayedFinished = false;
 
-    private TextMeshProUGUI continueButtonText;
+    private GameObject artifactButtons;
     private GameObject continueButton;
     private Image blackOverlay;
-    private Color zeroAlpha = new Color(0, 0, 0, 0);
-    private Color halfAlpha = new Color(0, 0, 0, 0.5f);
     private TextMeshProUGUI tutorialDialogueText;
 
     private AudioSource charNoise;
@@ -170,7 +168,6 @@ public class TutorialDialogue : MonoBehaviour
     {
         if (!hasPlayedArtifact)
         {
-            continueButton.SetActive(false);
             SetDialogue(artifcatsDialogue);
             StartDialogue();
             hasPlayedArtifact = true;
@@ -192,7 +189,7 @@ public class TutorialDialogue : MonoBehaviour
         tutorialDialogueText.text = string.Empty;
         sentenceIndex = 0;
 
-        StartFadeOverlayCoroutine(halfAlpha, fadeLength);
+        StartFadeOverlayCoroutine(0.5f, fadeLength);
         StartCoroutine(TypeTutorialDialogue());
         StartInputCoroutine();
     }
@@ -202,11 +199,11 @@ public class TutorialDialogue : MonoBehaviour
     {
         pauseMenuScript.enabled = true;
         tutorialDialogueText.text = string.Empty;
-        StartFadeOverlayCoroutine(zeroAlpha, 0f);
+        StartFadeOverlayCoroutine(0f, 0f);
        
         if (characterDialogueScript.hasTransitionedToArtifactView)
         {
-            continueButton.SetActive(true);
+            artifactButtons.SetActive(true);
             artifactScript.StartInputCoroutine();
         }
         else
@@ -241,12 +238,12 @@ public class TutorialDialogue : MonoBehaviour
     }
 
     // Starts the coroutine that fades the overlay int/out
-    private void StartFadeOverlayCoroutine(Color endValue, float duration)
+    private void StartFadeOverlayCoroutine(float endAlpha, float duration)
     {
         if (fadeOverlayCorouitne != null)
             StopCoroutine(fadeOverlayCorouitne);
 
-        fadeOverlayCorouitne = FadeOverlay(endValue, duration);
+        fadeOverlayCorouitne = FadeOverlay(endAlpha, duration);
         StartCoroutine(fadeOverlayCorouitne);
     }
 
@@ -261,19 +258,20 @@ public class TutorialDialogue : MonoBehaviour
     }
 
     // Lerps the alpha of the overlay to another over a specific duartion (duration = seconds)
-    private IEnumerator FadeOverlay(Color endValue, float duration)
+    private IEnumerator FadeOverlay(float endAlpha, float duration)
     {
+        Color startColor = blackOverlay.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, endAlpha);
         float time = 0;
-        Color startValue = blackOverlay.color;
 
         while (time < duration)
         {
-            blackOverlay.color = Color.Lerp(startValue, endValue, time / duration);
+            blackOverlay.color = Color.Lerp(startColor, endColor, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        blackOverlay.color = endValue;
+        blackOverlay.color = endColor;
     }
 
     // Types out the tutorial dialogue text
@@ -342,11 +340,21 @@ public class TutorialDialogue : MonoBehaviour
         {
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
 
-            if (child.name == "ContinueButton")
+            if (child.name == "KeybindButtons")
             {
-                continueButtonText = child.GetComponent<TextMeshProUGUI>();
-                continueButton = child;
-            }           
+                GameObject keybindButtons = child;
+
+                for (int j = 0; j < keybindButtons.transform.childCount; j++)
+                {
+                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
+                    string childName02 = child02.name;
+
+                    if (childName02 == "ContinueButton")
+                        continueButton = child02;
+                    if (childName02 == "ArtifactButtons")
+                        artifactButtons = child02;
+                }
+            }     
         }
 
         charNoise = audioManagerScript.charNoiseAS;

@@ -23,9 +23,10 @@ public class GameManager : MonoBehaviour
     public float resetPuzzleDelay = 1.5f;
     [Range(0.01f, 1f)]
     public float loadingIconSpeed = 0.08f;
-
-    public float rotateWithKeysSpeed = 200f;
-    public float rotateWithMouseSpeed = 500f;
+    [Range(0.01f, 100f)]
+    public float rotationSpeedWithKeys = 25f;
+    [Range(0.01f, 100f)]
+    public float rotationSpeedWithMouse = 25f;
 
     private string levelToLoad;
     private int loadingIconIndex;

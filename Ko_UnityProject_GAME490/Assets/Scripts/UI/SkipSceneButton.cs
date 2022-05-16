@@ -8,7 +8,8 @@ using TMPro;
 public class SkipSceneButton : MonoBehaviour
 {
     private bool hasSkippedScene = false;
-    private bool canRecieveInput = true;
+    [SerializeField]
+    private bool canRecieveInput = false;
 
     [Range(1f, 5f)]
     public float lerpLength = 3f; // 3f = Original Value
@@ -56,6 +57,7 @@ public class SkipSceneButton : MonoBehaviour
     // Checks if the skip scene button should be active/inactive
     public void SetSkipSceneButtonActive()
     {
+        canRecieveInput = true;
         skipSceneButton.SetActive(true);
         StartTextAlphaCoroutine(1f, textFadeLength);
         StartInputCoroutine();
@@ -73,6 +75,7 @@ public class SkipSceneButton : MonoBehaviour
         skipButtonAnimator.Rebind(); // Resets the animator
         skipSceneText.SetTextAlpha(0f);
         skipSceneButton.SetActive(false);
+        canRecieveInput = false;
     }
 
     // Checks to loop the text alpha coroutine
@@ -84,8 +87,8 @@ public class SkipSceneButton : MonoBehaviour
 
             if (skipSceneTextColor.a == 0f) // If zero alpha
             {
-                canRecieveInput = true;
                 StartTextAlphaCoroutine(1f, textFadeLength);
+                canRecieveInput = true;
             }
             else if (skipSceneTextColor.a == 1f) // If full alpha
                 StartTextAlphaCoroutine(0f, textFadeLength);
@@ -223,27 +226,24 @@ public class SkipSceneButton : MonoBehaviour
 
         skipSceneText.color = endColor;
         LoopTextAlphaCheck();
-        StartInputCoroutine();
     }
 
     // Checks for the input that lerps the skip scene button
     private IEnumerator SkipSceneInputCheck()
     {
-        while (canRecieveInput && skipSceneButton.activeSelf)
+        while (skipSceneButton.activeSelf && !transitionFadeScript.IsChangingScenes)
         {
-            if (!transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause && playerScript.CanMove && torchMeterScript.CurrentVal > 0)
+            if (canRecieveInput && Time.deltaTime > 0 && pauseMenuScript.CanPause && torchMeterScript.CurrentVal > 0 && playerScript.CanMove)
             {
                 if (Input.GetKeyDown(skipSceneKeyCode) || Input.GetKey(skipSceneKeyCode))
                 {
                     LerpSkipSceneBar();
                     canRecieveInput = false;
-                    yield break;
                 }
             }
-
             yield return null;
         }
-        //Debug.Log("Stopped looking for tutorial dialogue inputCheck");
+        //Debug.Log("Stopped looking for tutorial dialogue input check");
     }
 
     // Sets the scripts to use
