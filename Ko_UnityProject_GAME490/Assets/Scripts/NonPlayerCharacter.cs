@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class NonPlayerCharacter : MonoBehaviour
 {
+    public NonPlayerCharacter_SO nonPlayerCharacter;
+
     private bool hasPlayedOptionOne = false;
     private bool hasPlayedOptionTwo = false;
     private bool hasPlayedInitialDialogue = false;
-
-    private string characterName;
-    private Color32 nPCTextColor;
 
     private GameObject characterHolder;
     private GameObject nPCDialogueCheck;
@@ -20,20 +19,41 @@ public class NonPlayerCharacter : MonoBehaviour
     down = new Vector3(0, 180, 0), // Look South
     left = new Vector3(0, 270, 0); // Look West
 
-    public TextAsset dialogueOptionsFile;
-    public TextAsset[] nPCDialogueFiles;
-    public TextAsset[] playerDialogueFiles;
-
     private TileMovementController playerScript;
-    private CharacterDialogue characterDialogueScript;
     private FidgetController nPCFidgetScript;
 
+    public bool HasPlayedOptionOne
+    {
+        get { return hasPlayedOptionOne; }
+        set { hasPlayedOptionOne = value; }
+    }
+
+    public bool HasPlayedOptionTwo
+    {
+        get { return hasPlayedOptionTwo; }
+        set { hasPlayedOptionTwo = value; }
+    }
+
+    public bool HasPlayedInitialDialogue
+    {
+        get { return hasPlayedInitialDialogue; }
+        set { hasPlayedInitialDialogue = value; }
+    }
+
+    public FidgetController FidgetScript
+    {
+        get { return nPCFidgetScript; }
+    }
+
+    public GameObject DialogueCheck
+    {
+        get { return nPCDialogueCheck; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
-        playerScript = FindObjectOfType<TileMovementController>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        nPCFidgetScript = GetComponentInChildren<FidgetController>();
-
+        SetScripts();
         SetElements();
     }
 
@@ -43,130 +63,44 @@ public class NonPlayerCharacter : MonoBehaviour
         originalRotation = characterHolder.transform.localEulerAngles;
     }
 
-    // Returns or sets the value of the bool hasPlayedOptionOne
-    public bool HasPlayedOptionOne
-    {
-        get
-        {
-            return hasPlayedOptionOne;
-        }
-        set
-        {
-            hasPlayedOptionOne = value;
-        }
-    }
-
-    // Returns or sets the value of the bool hasPlayedOptionTwo
-    public bool HasPlayedOptionTwo
-    {
-        get
-        {
-            return hasPlayedOptionTwo;
-        }
-        set
-        {
-            hasPlayedOptionTwo = value;
-        }
-    }
-
-    // Returns or sets the value of the bool hasPlayedInitialDialogue
-    public bool HasPlayedInitialDialogue
-    {
-        get
-        {
-            return hasPlayedInitialDialogue;
-        }
-        set
-        {
-            hasPlayedInitialDialogue = value;
-        }
-    }
-
-    // Returns the name of the NPC
-    public string CharacterName
-    {
-        get
-        {
-            return characterName;
-        }
-    }
-
-    // Returns the text color to use for the NPC's dialogue bubble
-    public Color32 DialogueTextColor
-    {
-        get
-        {
-            return nPCTextColor;
-        }
-    }
-
-    // Updates all npc elements in the character dialogue script - also starts dialogue
-    public void SetVariablesForCharacterDialogueScript()
-    {
-        characterDialogueScript.UpdateDialogueCheckForNPC(nPCDialogueCheck);
-        characterDialogueScript.UpdateScriptForNPC(this);
-        characterDialogueScript.UpdateFidgetScriptForNPC(nPCFidgetScript);
-
-        characterDialogueScript.UpdateNonPlayerCharacterName(characterName);
-        characterDialogueScript.isInteractingWithNPC = true;
-        characterDialogueScript.setDialogueQuestions(dialogueOptionsFile);
-
-        characterDialogueScript.StartDialogue();
-    }
+    // Sets the npc back to its original rotation
+    public void ResetRotationNPC() => characterHolder.transform.localEulerAngles = originalRotation;
 
     // Rotates the npc towards the player
     public void SetRotationNPC()
     {
         Vector3 playerDirection = playerScript.transform.eulerAngles;
 
-        if (playerDirection == up)
-            characterHolder.transform.localEulerAngles = down;
-
-        else if (playerDirection == right)
-            characterHolder.transform.localEulerAngles = left;
-
-        else if (playerDirection == down)
-            characterHolder.transform.localEulerAngles = up;
-
-        else if (playerDirection == left)
-            characterHolder.transform.localEulerAngles = right;
+        switch (playerDirection.y)
+        {
+            case 0: // Looking north
+                characterHolder.transform.eulerAngles = down;
+                break;
+            case 90: // Looking east
+                characterHolder.transform.eulerAngles = left;
+                break;
+            case 180: // Looking south
+                characterHolder.transform.eulerAngles = up;
+                break;
+            case 270: // Looking west
+                characterHolder.transform.eulerAngles = right;
+                break;
+            default:
+                break;
+        }
     }
 
-    // Sets text color to use for the NPC's dialogue bubble
-    private void SetDialogueTextColor()
+    // Sets the scripts to use
+    private void SetScripts()
     {
-        if (characterName == "VillageElder")
-            nPCTextColor = new Color32(58, 78, 112, 255);
-
-        else if (characterName == "Fisherman")
-            nPCTextColor = new Color32(194, 130, 104, 255);
-
-        else if (characterName == "VillageExplorer01")
-            nPCTextColor = new Color32(115, 106, 142, 255);
-
-        else if (characterName == "FriendlyGhost")
-            nPCTextColor = new Color32(96, 182, 124, 255);
-
-        else if (characterName == "VillageExplorer02")
-            nPCTextColor = new Color32(155, 162, 125, 255);
-
-        else if (characterName == "BabyMammoth")
-            nPCTextColor = new Color32(196, 146, 102, 255);
-
-        else
-            nPCTextColor = Color.black;
-    }
-
-    // Sets the npc back to its original rotation
-    public void ResetRotationNPC()
-    {
-        characterHolder.transform.localEulerAngles = originalRotation;
+        playerScript = FindObjectOfType<TileMovementController>();
+        nPCFidgetScript = GetComponentInChildren<FidgetController>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at the names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -178,8 +112,35 @@ public class NonPlayerCharacter : MonoBehaviour
                 nPCDialogueCheck = child;
         }
 
-        characterName = gameObject.name;
-        SetDialogueTextColor();
+        //SetDialogueTextColor();
     }
 
+    // Sets text color to use for the NPC's dialogue bubble - For Reference
+    /*private void SetDialogueTextColor()
+    {
+        switch (nonPlayerCharacter.nPCName)
+        {
+            case ("BabyMammoth"):
+                nPCTextColor = new Color32(196, 146, 102, 255);
+                break;
+            case ("FirstVillageExplorer"):
+                nPCTextColor = new Color32(115, 106, 142, 255);
+                break;
+            case ("Fisherman"):
+                nPCTextColor = new Color32(194, 130, 104, 255);
+                break;
+            case ("FriendlyGhost"):
+                nPCTextColor = new Color32(96, 182, 124, 255);
+                break;
+            case ("SecondVillageExplorer"):
+                nPCTextColor = new Color32(155, 162, 125, 255);
+                break;
+            case ("VillageElder"):
+                nPCTextColor = new Color32(58, 78, 112, 255);
+                break;
+            default:
+                nPCTextColor = Color.black;
+                break;
+        }
+    }*/
 }

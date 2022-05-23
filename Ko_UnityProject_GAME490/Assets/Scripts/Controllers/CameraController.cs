@@ -112,7 +112,7 @@ public class CameraController : MonoBehaviour
     public void LerpToPuzzleView()
     {
         // Only plays the sfx when not in dialogue
-        if (characterDialogueScript.canStartDialogue)
+        if (!characterDialogueScript.InDialogue)
         {
             audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();

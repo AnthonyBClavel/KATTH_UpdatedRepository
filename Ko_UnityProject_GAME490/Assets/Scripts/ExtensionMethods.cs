@@ -20,4 +20,10 @@ public static class ExtensionMethods
         image.color = new Color(color.r, color.g, color.b, alpha);
     }
 
+    // Returns an array of strings/sentences
+    public static string[] ReturnSentences(this TextAsset textFile)
+    {
+        return textFile.text.Split("\n"[0]);
+    }
+
 }

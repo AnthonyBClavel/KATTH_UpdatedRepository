@@ -6,14 +6,15 @@ using TMPro;
 
 public class Artifact : MonoBehaviour
 {
+    public Artifact_SO artifact;
     private bool hasInspectedArtifact = false;
 
     private string artifactName;
+    private float scrollSpeed = 20f; // Original Value = 20f
     private float rotationSpeedWithKeys = 26f; // Original Value = 26f
     private float rotationSpeedWithMouse = 20f; // Original Value = 20f
     private float horizontalAxis;
     private float verticalAxis;
-    private int currentDialogueIndex;
 
     private Animator woodenChestAnim;
     private GameObject woodenChestHolder;
@@ -25,10 +26,8 @@ public class Artifact : MonoBehaviour
     private Vector3 wchOriginalRotation;
     private Vector3 ahOriginalRotation;
     private Vector3 ahInspectingRotation;
-
-    public ARTIFACT artifact;
-    private TextAsset dialogueOptions;
-    private TextAsset[] artifactDialogue;
+    private Vector3 ahOriginalPosition;
+    private Vector3 ahZoomPosition;
 
     private IEnumerator artifactViewCoroutine;
     private IEnumerator previousViewCoroutine;
@@ -50,6 +49,11 @@ public class Artifact : MonoBehaviour
     {
         get { return hasInspectedArtifact; }
         set { hasInspectedArtifact = value; }
+    }
+
+    public GameObject ArtifactHolder
+    {
+        get { return artifactHolder; }
     }
 
     // Awake is called before Start()
@@ -90,33 +94,6 @@ public class Artifact : MonoBehaviour
         }
     }
 
-    // Sets and starts the dialogue for the artifact
-    private void StartArtifactDialogue()
-    {
-        characterDialogueScript.isInteractingWithArtifact = true;
-        characterDialogueScript.UpdateArtifactScript(this);
-        characterDialogueScript.setPlayerDialogue(ReturnRandomArtifactDialogue());
-        characterDialogueScript.setDialogueQuestions(dialogueOptions);
-        characterDialogueScript.StartDialogue();
-    }
-
-    // Returns a randomly selected text asset for the artifact dialogue
-    private TextAsset ReturnRandomArtifactDialogue()
-    {
-        int newDialogueIndex = Random.Range(0, artifactDialogue.Length);
-        int attempts = 3;
-
-        // Attempts to set a text asset that's different from the one previously played
-        while (newDialogueIndex == currentDialogueIndex && attempts > 0)
-        {
-            newDialogueIndex = Random.Range(0, artifactDialogue.Length);
-            attempts--;
-        }
-
-        currentDialogueIndex = newDialogueIndex;
-        return artifactDialogue[newDialogueIndex];
-    }
-
     // Sets the camera view to a new position and rotation (up-close view of the artifact)
     private void SetArtifactView()
     {
@@ -126,12 +103,13 @@ public class Artifact : MonoBehaviour
         // Positions the camera slightly above the player and sets its y rotation to the player's y rotation
         mainCamera.transform.position = player.transform.position + new Vector3(0, 2.15f, 0);
         mainCamera.transform.eulerAngles = mainCamera.transform.eulerAngles + new Vector3(0, playerRotationY, 0);
+        ahZoomPosition = mainCamera.transform.TransformPoint(Vector3.forward);
 
         // Rotates the artifact and the chest to look towards the player
         woodenChestHolder.transform.LookAt(player.transform.position);
         artifactHolder.transform.LookAt(mainCamera.transform.position);
         artifactHolder.transform.Rotate(artifactHolder.transform.up, 180, Space.World);
-        ahInspectingRotation = artifactHolder.transform.eulerAngles;
+        ahInspectingRotation = artifactHolder.transform.eulerAngles;     
 
         // Alternative rotation methods - For Reference
         //artifactHolder.transform.eulerAngles += new Vector3(0, playerRotationY, 0);
@@ -144,6 +122,7 @@ public class Artifact : MonoBehaviour
         cameraScript.SetToDialogueView();
 
         // Resets the artifact and the chest to their default rotations
+        artifactHolder.transform.position = ahOriginalPosition;
         artifactHolder.transform.eulerAngles = ahOriginalRotation;
         woodenChestHolder.transform.eulerAngles = wchOriginalRotation;
     }
@@ -155,7 +134,6 @@ public class Artifact : MonoBehaviour
         {
             woodenChestAnim.Play("Open");
             audioManagerScript.PlayOpeningChestSFX();
-            StartArtifactDialogue();
         }
     }
 
@@ -254,41 +232,86 @@ public class Artifact : MonoBehaviour
             if (Time.deltaTime > 0)
             {
                 //DebuggingCheck();
-
-                // Stops inspecting the artifact
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    characterDialogueScript.hasTransitionedToArtifactView = false;
-                    StopInspectingArtifact();
-                    artifactButtons.SetActive(false);
-                }
-
-                // Resets the artifact's rotation
-                if (Input.GetKeyDown(KeyCode.R))
-                    artifactHolder.transform.eulerAngles = ahInspectingRotation;
-
-                // Rotates the artifact via keys
-                if (!Input.GetMouseButton(0))
-                {
-                    horizontalAxis = Input.GetAxisRaw("Horizontal") * rotationSpeedWithKeys * 10 * Time.deltaTime;
-                    verticalAxis = Input.GetAxisRaw("Vertical") * rotationSpeedWithKeys * 10 * Time.deltaTime;
-
-                    artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
-                    artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
-                }
-
-                // Rotates the artifact via mouse
-                if (Input.GetMouseButton(0))
-                {
-                    horizontalAxis = Input.GetAxisRaw("Mouse X") * rotationSpeedWithMouse * 100 * Time.deltaTime;
-                    verticalAxis = Input.GetAxisRaw("Mouse Y") * rotationSpeedWithMouse * 100 * Time.deltaTime;
-
-                    artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
-                    artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
-                }
+                StopInputCheck();
+                ResetInputCheck();
+                RotateInputCheck();
+                ZoomInputCheck();
             }
+            yield return null;
+        }
+
+        // Checks to reset the artifact to its original position
+        while (artifactHolder.transform.position != ahOriginalPosition)
+        {
+            if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, scrollSpeed * Time.deltaTime);
+            else
+                artifactHolder.transform.position = ahOriginalPosition;
 
             yield return null;
+        }
+
+        //Debug.Log("Artifact input check has ended");
+    }
+
+    // Checks when to stop inspecting the artifact
+    private void StopInputCheck()
+    {
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            characterDialogueScript.hasTransitionedToArtifactView = false;
+            StopInspectingArtifact();
+            artifactButtons.SetActive(false);
+        }
+    }
+
+    // Checks to reset the artifact's rotation
+    private void ResetInputCheck()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+            artifactHolder.transform.eulerAngles = ahInspectingRotation;
+    }
+
+    // Checks to rotate the artifact
+    private void RotateInputCheck()
+    {
+        // Rotates the artifact via keys
+        if (!Input.GetMouseButton(0))
+        {
+            horizontalAxis = Input.GetAxisRaw("Horizontal") * rotationSpeedWithKeys * 10 * Time.deltaTime;
+            verticalAxis = Input.GetAxisRaw("Vertical") * rotationSpeedWithKeys * 10 * Time.deltaTime;
+
+            artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
+            artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
+        }
+
+        // Rotates the artifact via mouse
+        else if (Input.GetMouseButton(0))
+        {
+            horizontalAxis = Input.GetAxisRaw("Mouse X") * rotationSpeedWithMouse * 100 * Time.deltaTime;
+            verticalAxis = Input.GetAxisRaw("Mouse Y") * rotationSpeedWithMouse * 100 * Time.deltaTime;
+
+            artifactHolder.transform.Rotate(mainCamera.transform.up, -horizontalAxis, Space.World);
+            artifactHolder.transform.Rotate(mainCamera.transform.right, verticalAxis, Space.World);
+        }
+    }
+
+    // Checks to zoom the artifact in/out
+    private void ZoomInputCheck()
+    {
+        if (Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahZoomPosition)
+        {
+            if (Vector3.Distance(artifactHolder.transform.position, ahZoomPosition) > 0.01f)
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahZoomPosition, scrollSpeed * Time.deltaTime);
+            else
+                artifactHolder.transform.position = ahZoomPosition;
+        }
+        else if (!Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahOriginalPosition)
+        {
+            if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, scrollSpeed * Time.deltaTime);
+            else
+                artifactHolder.transform.position = ahOriginalPosition;
         }
     }
 
@@ -344,14 +367,12 @@ public class Artifact : MonoBehaviour
         }
 
         artifactName = artifact.artifactName;
-        dialogueOptions = artifact.dialogueOptions;
-        artifactDialogue = artifact.artifactDialogue;
-
         mainCamera = cameraScript.gameObject;
         player = playerScript.gameObject;
 
         wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;
+        ahOriginalPosition = artifactHolder.transform.position;
 
         DebuggingCheck();
     }

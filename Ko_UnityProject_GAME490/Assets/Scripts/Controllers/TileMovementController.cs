@@ -48,6 +48,7 @@ public class TileMovementController : MonoBehaviour
     private GameObject tileCheck;
     private GameObject dialogueViewsHolder;
     private GameObject destroyedRockParticle;
+    private GameObject playerAlertBubble;
     private Animator playerAnimator;
 
     private IEnumerator playerFootstepsCoroutine;
@@ -415,23 +416,30 @@ public class TileMovementController : MonoBehaviour
     // Calls the methods to begin/trigger the NPC dialogue
     private void InteractWithNPC(Collider collider)
     {
-        dialogueViewsHolder.transform.position = collider.transform.position;
-        collider.GetComponent<NonPlayerCharacter>().SetVariablesForCharacterDialogueScript();
+        NonPlayerCharacter nPCScript = collider.GetComponent<NonPlayerCharacter>();
+        NonPlayerCharacter_SO nPC = nPCScript.nonPlayerCharacter;
 
-        //Debug.Log("Interacted with NPC");
+        if (nPCScript.enabled)
+        {
+            dialogueViewsHolder.transform.position = collider.transform.position;
+            characterDialogueScript.StartNPCDialogue(nPCScript, nPC);
+            //Debug.Log("Interacted with NPC");
+        }
     }
 
     // Calls the methods to begin/trigger the Artifact dialogue
     private void InteractWithArtifact(Collider collider)
     {
         Artifact artifactScript = collider.GetComponent<Artifact>();
+        Artifact_SO artifact = artifactScript.artifact;
 
-        if (artifactScript.enabled)
+        if (artifactScript.enabled && artifactScript.ArtifactHolder.activeSelf)
         {
             dialogueViewsHolder.transform.position = collider.transform.position;
+            characterDialogueScript.StartArtifactDialogue(artifactScript, artifact);
             artifactScript.OpenChest();
-            ChangeAnimationState("Interacting");
 
+            ChangeAnimationState("Interacting");
             //Debug.Log("Interacted with Artifact");
         }
     }
@@ -650,7 +658,7 @@ public class TileMovementController : MonoBehaviour
 
             if (tag == "NPC")
             {
-                characterDialogueScript.SetAlertBubbleActive();
+                playerAlertBubble.SetActive(true);
                 return true;
             }
             else if (tag == "Artifact")
@@ -660,13 +668,13 @@ public class TileMovementController : MonoBehaviour
                 // If the player hasn't collected the artifact within an artifact chest
                 if (artifactScript.enabled)
                 {
-                    characterDialogueScript.SetAlertBubbleActive();
+                    playerAlertBubble.SetActive(true);
                     return true;
                 }
             }
         }
 
-        characterDialogueScript.SetAlertBubbleInactive();
+        playerAlertBubble.SetActive(false);
         return false;
     }
 
@@ -1007,6 +1015,14 @@ public class TileMovementController : MonoBehaviour
 
             if (child.name == "DialogueViewsHolder")
                 dialogueViewsHolder = child;
+        }
+
+        for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
+        {
+            GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
+
+            if (child.name == "PlayerAlertBubble")
+                playerAlertBubble = child;
         }
 
         destroyedRockParticle = gameManagerScript.destroyedRockParticle;

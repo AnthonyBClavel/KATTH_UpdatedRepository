@@ -1852,6 +1852,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1701758755}
     m_Modifications:
+    - target: {fileID: 4437592994415911536, guid: b3ff3ceb88d99f349af5ec2101bc134a, type: 3}
+      propertyPath: scrollSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4437592994415911538, guid: b3ff3ceb88d99f349af5ec2101bc134a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12
@@ -2166,7 +2170,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6260491471514243514, guid: a8773a3afd178eb4cada31f77adba3e8, type: 3}
       propertyPath: puzzleNumber
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6260491471514243514, guid: a8773a3afd178eb4cada31f77adba3e8, type: 3}
       propertyPath: isDebugging
@@ -4355,7 +4359,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 182756545712792997, guid: d65f050f8d89c7c49b0d1d5a12b8c8b7, type: 3}
       propertyPath: m_Name
-      value: VillageExplorer02
+      value: SecondVillageExplorer
       objectReference: {fileID: 0}
     - target: {fileID: 182756545712792997, guid: d65f050f8d89c7c49b0d1d5a12b8c8b7, type: 3}
       propertyPath: m_IsActive
@@ -6171,6 +6175,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 280685390}
     m_Modifications:
+    - target: {fileID: 185409550627438642, guid: aeb6ddcd43241784cb68dc528514e979, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9015946853732087510, guid: aeb6ddcd43241784cb68dc528514e979, type: 3}
       propertyPath: m_Name
       value: PixelatedCamera
@@ -9733,6 +9741,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PostProcessing
       objectReference: {fileID: 0}
+    - target: {fileID: 4079724434528687764, guid: b57d5f50845d5604a9c059613adb5521, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4079724434528687766, guid: b57d5f50845d5604a9c059613adb5521, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11069,6 +11081,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1454284470}
     m_Modifications:
+    - target: {fileID: 4353735383998606222, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735383998606222, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735383998606222, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735383998606222, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384294353053, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384294353053, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384294353053, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384294353053, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4353735384375382339, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11156,6 +11200,38 @@ PrefabInstance:
     - target: {fileID: 4353735384375382340, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
       propertyPath: m_Name
       value: KeybindButtons
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384471928071, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384471928071, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384471928071, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384471928071, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384826080258, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384826080258, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384826080258, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4353735384826080258, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 874699234830f04439ab56bf1b2fffa2, type: 3}
@@ -18099,7 +18175,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 130170155805246993, guid: badf035191b91584aa2164f4e0bb024b, type: 3}
       propertyPath: m_Name
-      value: VillageExplorer01
+      value: FirstVillageExplorer
       objectReference: {fileID: 0}
     - target: {fileID: 130170155805246993, guid: badf035191b91584aa2164f4e0bb024b, type: 3}
       propertyPath: m_IsActive

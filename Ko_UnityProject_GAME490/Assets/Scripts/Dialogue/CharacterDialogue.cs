@@ -8,15 +8,15 @@ using Unity.IO;
 
 public class CharacterDialogue : MonoBehaviour
 {
-    private string nPCName;
     private int playerIndex;
     private int nPCIndex;
+    private int artifactIndex;
     private int dialogueOptionsIndex;
 
     [Header("Bools")]
     public bool isPlayerSpeaking;
     public bool canPlayBubbleAnim = false;
-    public bool canStartDialogue = true;
+    private bool inDialogue = false;
     public bool hasStartedPlayerDialogue = false;
     public bool hasStartedNPCDialogue = false;
     public bool isInteractingWithNPC = false;
@@ -130,14 +130,24 @@ public class CharacterDialogue : MonoBehaviour
     private TextMeshProUGUI optionTwoText;
     private TextMeshProUGUI optionThreeText;
 
-    private Color selectedTextColor = new Color32(128, 160, 198, 255);
-    private Color unselectedTextColor = Color.gray;
     private Vector3 dialogueArrowDefaultPos = new Vector3(5, 5, 0);
+    private Color32 selectedTextColor = new Color32(128, 160, 198, 255);
+    private Color32 unselectedTextColor = Color.gray;
+    private Color32 nPCTextColor;
+
+    [Header("Scriptable Objects")]
+    private Artifact_SO artifact;
+    private NonPlayerCharacter_SO nonPlayerCharacter;
+
+    [Header("Dialogue Variables")]
+    private TextAsset[] nPCDialogue;
+    private TextAsset[] playerDialogue;
+    private TextAsset[] artifactDialogue;
 
     [Header("Dialogue Setences")]
     private string[] playerDialogueSentences;
     private string[] nPCDialogueSentences;
-    private string[] dialogueQuestions;
+    private string[] dialogueOptions;
 
     private Artifact artifactScript;
     private NonPlayerCharacter nPCScript;
@@ -153,6 +163,18 @@ public class CharacterDialogue : MonoBehaviour
     private DialogueArrow dialogueArrowScript;
     private TransitionFade transitionFadeScript;
 
+    public float TypingSpeed
+    {
+        get { return typingSpeed; }
+        set { typingSpeed = value; }
+    }
+
+    public bool InDialogue
+    {
+        get { return inDialogue; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
@@ -195,151 +217,88 @@ public class CharacterDialogue : MonoBehaviour
         //sentenceLength = whitePlayerText.text.Length;
 
         /*** For Debugging purposes ***/
-        /*if (Input.GetKeyDown(KeyCode.R) && canStartDialogue)
+        /*if (Input.GetKeyDown(KeyCode.R) && !inDialogue)
         {
-            StopCoroutine("TypePlayerDialogue");
-            StopCoroutine("TypeNPCDialogue");
-
-            playerDialgueBubble.SetActive(false);
-            nPCDialgueBubble.SetActive(false);
-            dialogueOptionsBubble.SetActive(false);
-            continueButton.SetActive(false);
-            nPCScript.ResetRotationNPC();
-
-            EmptyTextComponents();
-            playerIndex = 0;
-            nPCIndex = 0;
-
-            isPlayerSpeaking = true;
-            hasStartedDialoguePlayer = false;
-            hasStartedDialogueNPC = false;
-            canPlayBubbleAnim = false;
-            canCheckBubbleBounds = false;
-            hasPlayedPopUpSFX = false;
-            hasSetPivot = false;
-            hasSetBubbleDefaultPosX = false;
-            hasSetBubbleDefaultPosY = false;
-            isInteractingWithNPC = false;
+           
         }
         /*** End Debugging ***/
     }
 
-    void FixedUpdate()
-    {       
+    // LateUpdate is called once per frame - after all Update() functions have been called
+    void LateUpdate()
+    {
         SetPlayerBubblePosition();
         SetNPCBubblePosition();
         SetDialogueBubblePosition();
         SetAlertBubblePosition();
     }
 
-    // Returns or sets the value of typingSpeed
-    public float TypingSpeed
+    // Updates and starts the dialogue for the npc
+    public void StartNPCDialogue(NonPlayerCharacter newScript, NonPlayerCharacter_SO newNPC)
     {
-        get
+        if (nonPlayerCharacter != newNPC)
         {
-            return typingSpeed;
+            nonPlayerCharacter = newNPC;
+            nPCScript = newScript;
+
+            nPCTextColor = nonPlayerCharacter.nPCTextColor;
+            nPCDialogue = nonPlayerCharacter.nPCDialogue;
+            playerDialogue = nonPlayerCharacter.playerDialogue;
+            SetDialogueOptions(nonPlayerCharacter.dialogueOptions);
+
+            nPCDialogueCheck = nPCScript.DialogueCheck;
+            nPCFidgetScript = nPCScript.FidgetScript;
         }
-        set
+
+        inDialogue = true;
+        isInteractingWithNPC = true;
+        StartCoroutine(StartDialogueDelay());
+
+    }
+
+    // Updates and starts the dialogue for the artifact
+    public void StartArtifactDialogue(Artifact newScript, Artifact_SO newArtifact)
+    {
+        if (artifact != newArtifact)
         {
-            typingSpeed = value;
+            artifact = newArtifact;
+            artifactScript = newScript;
+  
+            artifactDialogue = artifact.artifactDialogue;
+            SetDialogueOptions(artifact.dialogueOptions);
         }
+
+        SetPlayerDialogue(ReturnRandomArtifactDialogue());
+        inDialogue = true;
+        isInteractingWithArtifact = true;
+        StartCoroutine(StartDialogueDelay());
     }
 
-    // Assigns a new game object to the nPCDialogueCheck
-    public void UpdateDialogueCheckForNPC(GameObject newGameObject)
+    // Returns a randomly selected text asset for the artifact dialogue
+    private TextAsset ReturnRandomArtifactDialogue()
     {
-        nPCDialogueCheck = newGameObject;
-    }
+        int newArtifactIndex = Random.Range(0, artifactDialogue.Length);
+        int attempts = 3;
 
-    // Assigns a new script to the npc script
-    public void UpdateScriptForNPC(NonPlayerCharacter newScript)
-    {
-        nPCScript = newScript;
-    }
-
-    // Assigns a new script to the fidget controller script (NPC)
-    public void UpdateFidgetScriptForNPC(FidgetController newScript)
-    {
-        nPCFidgetScript = newScript;
-    }
-
-    // Assigns a new string to the nPCName
-    public void UpdateNonPlayerCharacterName(string newString)
-    {
-        nPCName = newString;
-    }
-
-    // Assigns a new script to the artifact Script
-    public void UpdateArtifactScript(Artifact newScript) => artifactScript = newScript;
-
-    // Starts the dialogue with an npc
-    public void StartDialogue()
-    {
-        if (canStartDialogue)
+        // Attempts to set a text asset that's different from the one previously played
+        while (newArtifactIndex == artifactIndex && attempts > 0)
         {
-            StartCoroutine(StartDialogueDelay());     
-            canStartDialogue = false;    
+            newArtifactIndex = Random.Range(0, artifactDialogue.Length);
+            attempts--;
         }
+
+        artifactIndex = newArtifactIndex;
+        return artifactDialogue[newArtifactIndex];
     }
 
-    // Sets the alert bubble active
-    public void SetAlertBubbleActive()
-    {
-        if (!playerAlertBubble.activeSelf)
-            playerAlertBubble.SetActive(true);
-    }
+    // Sets the dialogue for the player 
+    private void SetPlayerDialogue(TextAsset playerDialogue) => playerDialogueSentences = playerDialogue.ReturnSentences();
 
-    // Sets the alert bubble inactive
-    public void SetAlertBubbleInactive()
-    {
-        if (playerAlertBubble.activeSelf)
-            playerAlertBubble.SetActive(false);
-    }
+    // Sets the dialogue for the npc 
+    private void SetNPCDialogue(TextAsset nPCDialogue) => nPCDialogueSentences = nPCDialogue.ReturnSentences();
 
-    /*** Reading and setting dialogue text files START HERE ***/
-    // Sets an array for the player dialogue (text assets) 
-    public void setPlayerDialogue(TextAsset playerDialogue)
-    {
-        setPlayerDialogueArray(readTextFile(playerDialogue));
-    }
-
-    // Sets an array for the npc dialogue (text assets) 
-    public void setNPCDialogue(TextAsset nPCDialogue)
-    {
-        setNPCDialogueArray(readTextFile(nPCDialogue));
-    }
-
-    // Sets an array for the dialogue questions (text asset) 
-    public void setDialogueQuestions(TextAsset questions)
-    {
-        setDialogueQuestionsArray(readTextFile(questions));
-    }
-
-    // Sets the player's dialogue array - can be changed with new dialogue
-    private void setPlayerDialogueArray(string[] playerDialogueArray)
-    {
-        playerDialogueSentences = playerDialogueArray;
-    }
-
-    // Sets the player's dialogue array - can be changed with new dialogue
-    private void setNPCDialogueArray(string[] npcDialogueArray)
-    {
-        nPCDialogueSentences = npcDialogueArray;
-    }
-
-    // Sets the an array for the dialogue questions - can be changed with new questions
-    private void setDialogueQuestionsArray(string[] dialogueQuestionsArray)
-    {
-        dialogueQuestions = dialogueQuestionsArray;
-    }
-
-    // Reads the text file
-    private string[] readTextFile(TextAsset textFile)
-    {
-        return textFile.text.Split("\n"[0]);
-    }
-    /*** Reading and setting dialogue text files END HERE ***/
-
+    // Sets the dialogue options
+    private void SetDialogueOptions(TextAsset dialogeOptionsFile) => dialogueOptions = dialogeOptionsFile.ReturnSentences();
 
     // Checks for when the player can load the next dialogue sentence
     private void ContinueButtonCheck()
@@ -350,16 +309,12 @@ public class CharacterDialogue : MonoBehaviour
             {
                 if (continueButton.activeSelf)
                 {
-                    /*if (hasTransitionedToArtifactView)
-                    {
-                        artifactScript.StopInspectingArtifact();
-                        continueButton.SetActive(false);
-                        hasTransitionedToArtifactView = false;
-                    }*/
-
                     if (hasStartedPlayerDialogue || hasStartedNPCDialogue)
                     {
-                        ContinueDialogueCheck();
+                        // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
+                        NextDialogueSentenceCheck();
+                        hasSetBubbleDefaultPosX = false;
+                        hasSetBubbleDefaultPosY = false;
                         continueButton.SetActive(false);
                     }
                 }
@@ -367,18 +322,6 @@ public class CharacterDialogue : MonoBehaviour
                 else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2 && canSpeedUpDialogue)
                     typingSpeed /= 2;
             }
-        }
-    }
-
-    // Checks to see if the dialogue can continue
-    private void ContinueDialogueCheck()
-    {
-        if (!transitionFadeScript.IsChangingScenes)
-        {
-            NextDialogueSentenceCheck();
-            hasSetBubbleDefaultPosX = false;
-            hasSetBubbleDefaultPosY = false;
-            //continueButton.SetActive(false);
         }
     }
 
@@ -571,7 +514,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks to see when the dialogue arrow can be move and execute functions
     private void DialogueArrowCheck()
     {
-        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueQuestions.Length && canMoveDialogueArrow && !transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause)
+        if (dialogueArrowHolder.activeSelf && dialogueOptionsIndex < dialogueOptions.Length && canMoveDialogueArrow && !transitionFadeScript.IsChangingScenes && !pauseMenuScript.IsPaused && pauseMenuScript.CanPause)
         {
             if (dialogueOptionsIndex != 0)
             {
@@ -587,12 +530,12 @@ public class CharacterDialogue : MonoBehaviour
                 }
             }
 
-            if (dialogueOptionsIndex != dialogueQuestions.Length - 1)
+            if (dialogueOptionsIndex != dialogueOptions.Length - 1)
             {
                 if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     if (isInteractingWithArtifact && !artifactScript.HasInspectedArtifact)
-                        dialogueOptionsIndex = dialogueQuestions.Length - 1;
+                        dialogueOptionsIndex = dialogueOptions.Length - 1;
                     else
                         dialogueOptionsIndex++;
 
@@ -610,14 +553,14 @@ public class CharacterDialogue : MonoBehaviour
                     {
                         if (!nPCScript.HasPlayedOptionOne)
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[2]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[2]);
+                            SetPlayerDialogue(playerDialogue[2]);
+                            SetNPCDialogue(nPCDialogue[2]);
                             nPCScript.HasPlayedOptionOne = true;
                         }
                         else
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[3]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[3]);
+                            SetPlayerDialogue(playerDialogue[3]);
+                            SetNPCDialogue(nPCDialogue[3]);
                         }
                         hasSelectedDialogueOption = true;
                         CloseDialogueOptionsBuble();
@@ -652,14 +595,14 @@ public class CharacterDialogue : MonoBehaviour
                     {
                         if (!nPCScript.HasPlayedOptionTwo)
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[4]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[4]);
+                            SetPlayerDialogue(playerDialogue[4]);
+                            SetNPCDialogue(nPCDialogue[4]);
                             nPCScript.HasPlayedOptionTwo = true;                        
                         }
                         else
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[5]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[5]);
+                            SetPlayerDialogue(playerDialogue[5]);
+                            SetNPCDialogue(nPCDialogue[5]);
                         }
                         hasSelectedDialogueOption = true;
                         CloseDialogueOptionsBuble();
@@ -698,13 +641,13 @@ public class CharacterDialogue : MonoBehaviour
                     {
                         if (hasSelectedDialogueOption)
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[6]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[6]);
+                            SetPlayerDialogue(playerDialogue[6]);
+                            SetNPCDialogue(nPCDialogue[6]);
                         }
                         else
                         {
-                            setPlayerDialogue(nPCScript.playerDialogueFiles[7]);
-                            setNPCDialogue(nPCScript.nPCDialogueFiles[7]);
+                            SetPlayerDialogue(playerDialogue[7]);
+                            SetNPCDialogue(nPCDialogue[7]);
                         }
                         CloseDialogueOptionsBuble();
                         StartDialogueCheck();
@@ -1114,13 +1057,13 @@ public class CharacterDialogue : MonoBehaviour
 
         dialogueOptionOne.SetActive(true);
         dialogueOptionThree.SetActive(true);
-        optionOneText.text = dialogueQuestions[0];
-        optionThreeText.text = dialogueQuestions[2];
+        optionOneText.text = dialogueOptions[0];
+        optionThreeText.text = dialogueOptions[2];
 
         if (isInteractingWithArtifact && artifactScript.HasInspectedArtifact || isInteractingWithNPC)
         {
             dialogueOptionTwo.SetActive(true);
-            optionTwoText.text = dialogueQuestions[1];
+            optionTwoText.text = dialogueOptions[1];
         }
 
         SetDialogueBubblePivot();
@@ -1245,18 +1188,18 @@ public class CharacterDialogue : MonoBehaviour
         if (isInteractingWithNPC)
         {
             nPCScript.SetRotationNPC();
-            nPCForegroundText.color = nPCScript.DialogueTextColor;
+            nPCForegroundText.color = nPCTextColor;
 
             if (!nPCScript.HasPlayedInitialDialogue)
             {
-                setPlayerDialogue(nPCScript.playerDialogueFiles[0]);
-                setNPCDialogue(nPCScript.nPCDialogueFiles[0]);         
+                SetPlayerDialogue(playerDialogue[0]);
+                SetNPCDialogue(nPCDialogue[0]);         
             }
 
             else if (nPCScript.HasPlayedInitialDialogue)
             {
-                setPlayerDialogue(nPCScript.playerDialogueFiles[1]);
-                setNPCDialogue(nPCScript.nPCDialogueFiles[1]);
+                SetPlayerDialogue(playerDialogue[1]);
+                SetNPCDialogue(nPCDialogue[1]);
             }
         }
     }
@@ -1306,7 +1249,7 @@ public class CharacterDialogue : MonoBehaviour
         hasStartedPlayerDialogue = false;
         hasStartedNPCDialogue = false;
         canPlayBubbleAnim = false;
-        canStartDialogue = false;
+        //inDialogue = true;
         hasSetPivot = false;
         hasSetBubbleDefaultPosX = false;
         hasSetBubbleDefaultPosY = false;
@@ -1329,7 +1272,7 @@ public class CharacterDialogue : MonoBehaviour
         playerScript.SetPlayerBoolsTrue();
         canCheckBubbleBounds = false;
         hasPlayedPopUpSFX = false;
-        canStartDialogue = true;      
+        inDialogue = false;
     }
 
     // Types the next sentence for the player
@@ -1431,7 +1374,7 @@ public class CharacterDialogue : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;

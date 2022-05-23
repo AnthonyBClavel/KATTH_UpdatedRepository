@@ -90,25 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69857766fb6e5642926825c847dcc9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueOptionsFile: {fileID: 4900000, guid: 8ae2e62dae3dddb418733a402501ec5c, type: 3}
-  nPCDialogueFiles:
-  - {fileID: 4900000, guid: 8f2181a4fa3f2a641b0259cb2c490d33, type: 3}
-  - {fileID: 4900000, guid: 6cd3ffbca3799c34e913f8c830fb2fed, type: 3}
-  - {fileID: 4900000, guid: 5a8a50b46e531de46965a7d0b31ee654, type: 3}
-  - {fileID: 4900000, guid: ef82f9028cd56f44d994cef79bdf5505, type: 3}
-  - {fileID: 4900000, guid: 9a6bb916da0fc0c42bbe24be58c362f1, type: 3}
-  - {fileID: 4900000, guid: 0e3540549162db24e97ab29af07ee08d, type: 3}
-  - {fileID: 4900000, guid: c94845134aa57a74b811ee583b627b9f, type: 3}
-  - {fileID: 4900000, guid: 53d7f1961e8d86a4999cf819d59b66fc, type: 3}
-  playerDialogueFiles:
-  - {fileID: 4900000, guid: cf66de5279bf7ca4283a41ab6cd373e0, type: 3}
-  - {fileID: 4900000, guid: 4ea9d57c634bb0b488e474551e78d457, type: 3}
-  - {fileID: 4900000, guid: da21a65eb3e39ae4c951a02e013fbf80, type: 3}
-  - {fileID: 4900000, guid: 4e82fae6f63c4bf42b8c7adb0a161a1c, type: 3}
-  - {fileID: 4900000, guid: fea40254ef5dbca4f908b804d668e029, type: 3}
-  - {fileID: 4900000, guid: 3f05fa3e851c4d44a85604f9873b25db, type: 3}
-  - {fileID: 4900000, guid: 3a79c59adc7edb647ab8b790cc8f9520, type: 3}
-  - {fileID: 4900000, guid: 7890145a77c1f374da722bc480777bf3, type: 3}
+  nonPlayerCharacter: {fileID: 11400000, guid: e256db9e8080da244beb04770e372de6, type: 2}
 --- !u!1 &266431686851297990
 GameObject:
   m_ObjectHideFlags: 0
@@ -1021,12 +1003,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleRepetitions: 3
-  fidgetIndex: 0
-  idleCount: 0
-  characterName: 
-  nPCScript: {fileID: 0}
-  lol: 
 --- !u!1 &7984126434351549837
 GameObject:
   m_ObjectHideFlags: 0

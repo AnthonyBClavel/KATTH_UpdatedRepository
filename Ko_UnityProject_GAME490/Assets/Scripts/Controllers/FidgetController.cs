@@ -88,7 +88,7 @@ public class FidgetController : MonoBehaviour
     // Checks if the character has played its initial fidget animation - returns true if so, false otherwise
     private bool HasInitialFidget()
     {      
-        if (!hasPlayedInitialFidget && !characterDialogueScript.canStartDialogue)
+        if (!hasPlayedInitialFidget && characterDialogueScript.InDialogue)
         {
             // Plays the scratching-head animation when initially interacting with an artifact - For The Player ONLY
             if (characterName == "Player" && characterDialogueScript.isInteractingWithArtifact)
@@ -133,7 +133,7 @@ public class FidgetController : MonoBehaviour
                 break;
             case 3:             
                 // Note: the player's jumping-jacks animation does not play during dialogue
-                if (characterName == "Player" && !characterDialogueScript.canStartDialogue)
+                if (characterName == "Player" && characterDialogueScript.InDialogue)
                     ChangeAnimationState("Fidget03");
                 else               
                     ChangeAnimationState("Fidget04"); // Jumping-jacks animation (Player) 

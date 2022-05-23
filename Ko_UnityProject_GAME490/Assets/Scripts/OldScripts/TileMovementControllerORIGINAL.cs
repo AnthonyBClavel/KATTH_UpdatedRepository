@@ -343,7 +343,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         NonPlayerCharacter nonPlayerCharacterScript = collider.GetComponent<NonPlayerCharacter>();
 
         //dialogueViewsHolder.transform.position = collider.transform.position;
-        nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
+        //nonPlayerCharacterScript.SetVariablesForCharacterDialogueScript();
 
         isInteracting = false;
         CheckToPlayAnims();
