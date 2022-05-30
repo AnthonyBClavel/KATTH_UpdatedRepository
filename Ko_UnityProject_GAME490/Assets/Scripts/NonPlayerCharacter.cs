@@ -6,14 +6,13 @@ public class NonPlayerCharacter : MonoBehaviour
 {
     public NonPlayerCharacter_SO nonPlayerCharacter;
 
-    private bool hasPlayedOptionOne = false;
-    private bool hasPlayedOptionTwo = false;
     private bool hasPlayedInitialDialogue = false;
+    private bool[] dialogueOptionBools;
 
     private GameObject characterHolder;
     private GameObject nPCDialogueCheck;
-    private Vector3 originalRotation;
 
+    private Vector3 originalRotation;
     Vector3 up = Vector3.zero, // Look North
     right = new Vector3(0, 90, 0), // Look East
     down = new Vector3(0, 180, 0), // Look South
@@ -22,16 +21,10 @@ public class NonPlayerCharacter : MonoBehaviour
     private TileMovementController playerScript;
     private FidgetController nPCFidgetScript;
 
-    public bool HasPlayedOptionOne
+    public bool[] DialogueOptionBools
     {
-        get { return hasPlayedOptionOne; }
-        set { hasPlayedOptionOne = value; }
-    }
-
-    public bool HasPlayedOptionTwo
-    {
-        get { return hasPlayedOptionTwo; }
-        set { hasPlayedOptionTwo = value; }
+        get { return dialogueOptionBools; }
+        set { dialogueOptionBools = value; }
     }
 
     public bool HasPlayedInitialDialogue
@@ -86,7 +79,22 @@ public class NonPlayerCharacter : MonoBehaviour
                 characterHolder.transform.eulerAngles = right;
                 break;
             default:
+                //Debug.Log("Unrecognizable direction");
                 break;
+        }
+    }
+
+    // Creates a new array of bools - for determining whether a dialogue option has already been played or not
+    public void SetDialogueOptionBools(int arraySize)
+    {
+        if (dialogueOptionBools == null || dialogueOptionBools.Length != arraySize)
+        {
+            dialogueOptionBools = new bool[arraySize];
+
+            for (int i = 0; i < dialogueOptionBools.Length; i++)
+            {
+                dialogueOptionBools[i] = false;
+            }
         }
     }
 

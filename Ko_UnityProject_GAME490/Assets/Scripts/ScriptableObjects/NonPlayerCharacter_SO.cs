@@ -9,6 +9,4 @@ public class NonPlayerCharacter_SO : ScriptableObject
     public Color32 nPCTextColor;
     public TextAsset dialogueOptions;
     public TextAsset[] nPCDialogue;
-    public TextAsset[] playerDialogue;
-
 }

@@ -52,7 +52,7 @@ public class FidgetController : MonoBehaviour
     // Note: not all characters have a fidget check due to their lack of animations
     public void FidgetCheck()
     {
-        if (!characterDialogueScript.hasStartedPlayerDialogue && !characterDialogueScript.hasStartedNPCDialogue && !characterDialogueScript.hasTransitionedToArtifactView && pauseMenuScript.CanPause)
+        if (!characterDialogueScript.InDialogue && pauseMenuScript.CanPause)
         {
             if (idleCount < idleRepetitions - 1)
                 idleCount++;
@@ -91,9 +91,9 @@ public class FidgetController : MonoBehaviour
         if (!hasPlayedInitialFidget && characterDialogueScript.InDialogue)
         {
             // Plays the scratching-head animation when initially interacting with an artifact - For The Player ONLY
-            if (characterName == "Player" && characterDialogueScript.isInteractingWithArtifact)
+            if (characterName == "Player" && characterDialogueScript.IsInteractingWithArtifact)
                 ChangeAnimationState("Fidget03");
-
+            
             // Plays the greeting animation otherwise
             else
                 ChangeAnimationState("Greet");

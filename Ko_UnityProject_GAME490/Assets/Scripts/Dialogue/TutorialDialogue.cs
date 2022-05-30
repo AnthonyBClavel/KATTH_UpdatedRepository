@@ -180,12 +180,11 @@ public class TutorialDialogue : MonoBehaviour
     // Starts the tutorial dialogue
     private void StartDialogue()
     {
-        pauseMenuScript.enabled = false;
         skipSceneButtonScript.SetSkipSceneButtonInactive();
-        originalTypingSpeed = typingSpeed;
-        //typingSpeed = originalTypingSpeed;
-
         playerScript.SetPlayerBoolsFalse();
+        pauseMenuScript.enabled = false;
+
+        originalTypingSpeed = typingSpeed; //typingSpeed = originalTypingSpeed;
         tutorialDialogueText.text = string.Empty;
         sentenceIndex = 0;
 
@@ -197,11 +196,7 @@ public class TutorialDialogue : MonoBehaviour
     // Ends the tutorial dialogue
     private void EndDialogue()
     {
-        pauseMenuScript.enabled = true;
-        tutorialDialogueText.text = string.Empty;
-        StartFadeOverlayCoroutine(0f, 0f);
-       
-        if (characterDialogueScript.hasTransitionedToArtifactView)
+        if (characterDialogueScript.IsInteractingWithArtifact)
         {
             artifactButtons.SetActive(true);
             artifactScript.StartInputCoroutine();
@@ -211,6 +206,10 @@ public class TutorialDialogue : MonoBehaviour
             skipSceneButtonScript.SetSkipSceneButtonActive();
             playerScript.SetPlayerBoolsTrue();
         }
+
+        pauseMenuScript.enabled = true;
+        tutorialDialogueText.text = string.Empty;
+        StartFadeOverlayCoroutine(0f, 0f);     
     }
 
     // Sets the array of dialogue sentences
@@ -224,8 +223,7 @@ public class TutorialDialogue : MonoBehaviour
     private void NextSentenceCheck()
     {
         continueButton.SetActive(false);
-        originalTypingSpeed = typingSpeed;
-        //typingSpeed = originalTypingSpeed;
+        originalTypingSpeed = typingSpeed; //typingSpeed = originalTypingSpeed;
 
         if (sentenceIndex < sentences.Length - 1 && sentences[sentenceIndex + 1] != string.Empty)
         {

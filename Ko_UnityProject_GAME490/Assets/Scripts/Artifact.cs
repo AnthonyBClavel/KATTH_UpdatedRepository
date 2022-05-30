@@ -77,11 +77,13 @@ public class Artifact : MonoBehaviour
     // Saves the name of the collected artifact via PlayerPrefs and updates the artifact notification bubble
     public void CollectArtifact()
     {
+        Debug.Log("AYOO?");
         int artifactsCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
         string artifactsCollected = PlayerPrefs.GetString("listOfArtifacts");
 
         if (artifactsCount < 15 && artifactHolder.activeSelf && enabled)
         {
+            Debug.Log("IT WORKED");
             int totalArtifacts = (SceneManager.GetActiveScene().name == "TutorialMap") ? 1 : 15;
             gameHUDScript.UpdateArtifactBubbleText($"{artifactsCount + 1}/{totalArtifacts}");
 
@@ -203,8 +205,6 @@ public class Artifact : MonoBehaviour
             artifactButtons.SetActive(true);
 
         yield return new WaitForSeconds(duration);
-        characterDialogueScript.hasTransitionedToArtifactView = true;
-
         if (!inTutorialDialogue)
             StartInputCoroutine();
     }
@@ -219,7 +219,7 @@ public class Artifact : MonoBehaviour
         SetPreviousView();
 
         yield return new WaitForSeconds(duration / 2f);
-        characterDialogueScript.OpenDialogueOptionsBubble();
+        characterDialogueScript.OpenDialogueOptions();
     }
 
     // Checks for the input that rotates or resets the artifact
@@ -259,7 +259,6 @@ public class Artifact : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            characterDialogueScript.hasTransitionedToArtifactView = false;
             StopInspectingArtifact();
             artifactButtons.SetActive(false);
         }

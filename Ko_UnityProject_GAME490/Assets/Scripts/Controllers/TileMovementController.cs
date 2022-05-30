@@ -420,8 +420,10 @@ public class TileMovementController : MonoBehaviour
         NonPlayerCharacter_SO nPC = nPCScript.nonPlayerCharacter;
 
         if (nPCScript.enabled)
-        {
+        {        
             dialogueViewsHolder.transform.position = collider.transform.position;
+            playerAlertBubble.SetActive(false);
+
             characterDialogueScript.StartNPCDialogue(nPCScript, nPC);
             //Debug.Log("Interacted with NPC");
         }
@@ -433,9 +435,12 @@ public class TileMovementController : MonoBehaviour
         Artifact artifactScript = collider.GetComponent<Artifact>();
         Artifact_SO artifact = artifactScript.artifact;
 
+        // If the artifact script and the artifact object itself are both active
         if (artifactScript.enabled && artifactScript.ArtifactHolder.activeSelf)
         {
             dialogueViewsHolder.transform.position = collider.transform.position;
+            playerAlertBubble.SetActive(false);
+
             characterDialogueScript.StartArtifactDialogue(artifactScript, artifact);
             artifactScript.OpenChest();
 
