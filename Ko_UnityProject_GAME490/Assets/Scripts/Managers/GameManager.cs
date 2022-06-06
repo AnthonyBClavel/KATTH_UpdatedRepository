@@ -69,7 +69,6 @@ public class GameManager : MonoBehaviour
     private TorchMeter torchMeterScript;
     private AudioManager audioManagerScript;
     private CharacterDialogue characterDialogueScript;
-    private DialogueArrow dialogueArrowScript;
     private NotificationBubbles notificationBubblesScript;
 
     [Header("Debugging Elements")]
@@ -101,7 +100,6 @@ public class GameManager : MonoBehaviour
             // Debugging checks for UI animations
             transitionFadeScript.DebuggingCheck(this);
             blackBarsScript.DebuggingCheck(this);
-            dialogueArrowScript.DebuggingCheck(this);
             notificationBubblesScript.DebuggingCheck(this);
             // Other debugging checks
             cameraScript.DebuggingCheck(this);
@@ -366,7 +364,6 @@ public class GameManager : MonoBehaviour
         audioManagerScript = FindObjectOfType<AudioManager>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         blackBarsScript = FindObjectOfType<BlackBars>();
-        dialogueArrowScript = FindObjectOfType<DialogueArrow>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
     }
 

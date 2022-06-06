@@ -48,7 +48,7 @@ public class TileMovementController : MonoBehaviour
     private GameObject tileCheck;
     private GameObject dialogueViewsHolder;
     private GameObject destroyedRockParticle;
-    private GameObject playerAlertBubble;
+    private GameObject alertBubble;
     private Animator playerAnimator;
 
     private IEnumerator playerFootstepsCoroutine;
@@ -422,7 +422,7 @@ public class TileMovementController : MonoBehaviour
         if (nPCScript.enabled)
         {        
             dialogueViewsHolder.transform.position = collider.transform.position;
-            playerAlertBubble.SetActive(false);
+            alertBubble.SetActive(false);
 
             characterDialogueScript.StartNPCDialogue(nPCScript, nPC);
             //Debug.Log("Interacted with NPC");
@@ -439,7 +439,7 @@ public class TileMovementController : MonoBehaviour
         if (artifactScript.enabled && artifactScript.ArtifactHolder.activeSelf)
         {
             dialogueViewsHolder.transform.position = collider.transform.position;
-            playerAlertBubble.SetActive(false);
+            alertBubble.SetActive(false);
 
             characterDialogueScript.StartArtifactDialogue(artifactScript, artifact);
             artifactScript.OpenChest();
@@ -663,7 +663,7 @@ public class TileMovementController : MonoBehaviour
 
             if (tag == "NPC")
             {
-                playerAlertBubble.SetActive(true);
+                alertBubble.SetActive(true);
                 return true;
             }
             else if (tag == "Artifact")
@@ -673,13 +673,13 @@ public class TileMovementController : MonoBehaviour
                 // If the player hasn't collected the artifact within an artifact chest
                 if (artifactScript.enabled)
                 {
-                    playerAlertBubble.SetActive(true);
+                    alertBubble.SetActive(true);
                     return true;
                 }
             }
         }
 
-        playerAlertBubble.SetActive(false);
+        alertBubble.SetActive(false);
         return false;
     }
 
@@ -1026,8 +1026,8 @@ public class TileMovementController : MonoBehaviour
         {
             GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
 
-            if (child.name == "PlayerAlertBubble")
-                playerAlertBubble = child;
+            if (child.name == "AlertBubble")
+                alertBubble = child;
         }
 
         destroyedRockParticle = gameManagerScript.destroyedRockParticle;

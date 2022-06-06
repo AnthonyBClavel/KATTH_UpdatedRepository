@@ -78,7 +78,7 @@ public class CameraController : MonoBehaviour
             LerpToPuzzleView();
 
         puzzleManagerScript.ResetGeneratorCheck();
-        gameHUDScript.UpdatePuzzleBubbleText((puzzleViewIndex + 1) + "/" + checkpoints.Count);
+        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
         notificationBubblesScript.PlayPuzzleNotificationCheck();
 
         //Debug.Log("Camera has moved to the NEXT puzzle view");
@@ -102,7 +102,7 @@ public class CameraController : MonoBehaviour
             LerpToPuzzleView();
 
         puzzleManagerScript.ResetGeneratorCheck();
-        gameHUDScript.UpdatePuzzleBubbleText((puzzleViewIndex + 1) + "/" + checkpoints.Count);
+        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
         notificationBubblesScript.PlayPuzzleNotificationCheck();
 
         //Debug.Log("Camera has moved to the PREVIOUS puzzle view");
@@ -164,7 +164,7 @@ public class CameraController : MonoBehaviour
         if (transform.position != puzzleViews[puzzleViewIndex])
             transform.position = puzzleViews[puzzleViewIndex];
 
-        gameHUDScript.UpdatePuzzleBubbleText((puzzleViewIndex + 1) + "/" + checkpoints.Count);
+        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
     }
 
     // Calculates the puzzle view position for a puzzle - determined by checkpoint
@@ -276,7 +276,7 @@ public class CameraController : MonoBehaviour
             puzzleViewIndex = puzzleViews.Count - 1;
 
         LerpToPuzzleView();
-        gameHUDScript.UpdatePuzzleBubbleText((puzzleViewIndex + 1) + "/" + checkpoints.Count);
+        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
 
         Debug.Log("Debugging: Moved Camera To Puzzle " + (puzzleViewIndex + 1));
     }

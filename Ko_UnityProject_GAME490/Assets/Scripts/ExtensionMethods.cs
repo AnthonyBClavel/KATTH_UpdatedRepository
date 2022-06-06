@@ -26,4 +26,10 @@ public static class ExtensionMethods
         return textFile.text.Split("\n"[0]);
     }
 
+    // Returns the hexadecimal string for the color
+    public static string ReturnHexColor(this Color32 color)
+    {
+        return ColorUtility.ToHtmlStringRGB(color);
+    }
+
 }

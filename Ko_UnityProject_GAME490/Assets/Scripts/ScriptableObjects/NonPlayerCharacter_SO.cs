@@ -7,6 +7,7 @@ public class NonPlayerCharacter_SO : ScriptableObject
 {
     public string nPCName;
     public Color32 nPCTextColor;
+    public Color32 nPCBubbleColor;
     public TextAsset dialogueOptions;
     public TextAsset[] nPCDialogue;
 }

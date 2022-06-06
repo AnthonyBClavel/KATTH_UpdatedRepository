@@ -11,11 +11,8 @@ public class FidgetController : MonoBehaviour
     private int idleCount = 0;
     private string characterName;
 
-    private GameObject dialogueOptionsBubble;
     private Animator animator;
-
     private CharacterDialogue characterDialogueScript;
-    private PauseMenu pauseMenuScript;
 
     public bool HasPlayedInitialFidget
     {
@@ -28,11 +25,6 @@ public class FidgetController : MonoBehaviour
     {
         SetScripts();
         SetElements();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
         SetNewIdleRepetitions();
     }
 
@@ -49,10 +41,10 @@ public class FidgetController : MonoBehaviour
     }
 
     // Checks to play a fidget animation - called at the end of the character's idle animation via animation event
-    // Note: not all characters have a fidget check due to their lack of animations
+    // Note: not all characters have this animation event due to their lack of animations
     public void FidgetCheck()
     {
-        if (!characterDialogueScript.InDialogue && pauseMenuScript.CanPause)
+        if (!characterDialogueScript.InDialogue || characterDialogueScript.InDialogueOptions) // && pauseMenuScript.CanPause
         {
             if (idleCount < idleRepetitions - 1)
                 idleCount++;
@@ -64,58 +56,55 @@ public class FidgetController : MonoBehaviour
     // Plays a fidget animation
     public void Fidget()
     {
-        // The player will only fidget while in the idle state
-        if (IsPlayingAnimation("Idle") && HasInitialFidget())
+        // The character will only fidget while in the idle state
+        if (IsPlayingAnimation("Idle"))
         {
-            // While the dialogue options is active...
-            if (dialogueOptionsBubble.activeSelf)
-            {
-                // The player will always play the scratching-head animation
-                if (characterName == "Player")
-                    ChangeAnimationState("Fidget03");
+            // Checks to play the intial fidget animation
+            if (!hasPlayedInitialFidget && characterDialogueScript.InDialogue)
+                PlayInitialFidgetAnimation();
 
-                // The npc will always play the Fidget01 animation
-                else
-                    ChangeAnimationState("Fidget01");
-            }
+            // Checks to play a specific fidget animation when the dialogue options are active
+            else if (characterDialogueScript.InDialogueOptions)
+                PlayDialogueOptionsFidgetAnimation();
 
-            // Play a random fidget animation otherwise 
+            // Plays a random fidget animation otherwise
             else
                 PlayRandomFidgetAnimation();
+
+            hasPlayedInitialFidget = true;
         }
     }
 
-    // Checks if the character has played its initial fidget animation - returns true if so, false otherwise
-    private bool HasInitialFidget()
-    {      
-        if (!hasPlayedInitialFidget && characterDialogueScript.InDialogue)
-        {
-            // Plays the scratching-head animation when initially interacting with an artifact - For The Player ONLY
-            if (characterName == "Player" && characterDialogueScript.IsInteractingWithArtifact)
-                ChangeAnimationState("Fidget03");
-            
-            // Plays the greeting animation otherwise
-            else
-                ChangeAnimationState("Greet");
+    // Determines and plays the intial fidget animation
+    private void PlayInitialFidgetAnimation()
+    {
+        if (characterName == "Player" && characterDialogueScript.IsInteractingWithArtifact)
+            ChangeAnimationState("Fidget03");
+        else
+            ChangeAnimationState("Greet");
+    }
 
-            hasPlayedInitialFidget = true;
-            return false;
-        }
-
-        hasPlayedInitialFidget = true;
-        return true;
+    // Plays a specific fidget animation for when the dialogue options are active
+    private void PlayDialogueOptionsFidgetAnimation()
+    {
+        if (characterName == "Player")
+            ChangeAnimationState("Fidget03");
+        else
+            ChangeAnimationState("Fidget01");
     }
 
     // Plays a random fidget animation
     private void PlayRandomFidgetAnimation()
     {
-        int newFidgetIndex = Random.Range(0, 4);
+        // Note: the player's jumping-jacks animation does not play during dialogue ("Fidget04")
+        int fidgetRange = (characterName == "Player" && characterDialogueScript.InDialogue) ? 3 : 4;
+        int newFidgetIndex = Random.Range(0, fidgetRange);
         int attempts = 3;
 
         // Checks to play a fidget that's different from the one previously played
         while (newFidgetIndex == fidgetIndex && attempts > 0)
         {
-            newFidgetIndex = Random.Range(0, 4);
+            newFidgetIndex = Random.Range(0, fidgetRange);
             attempts--;
         }
         fidgetIndex = newFidgetIndex;
@@ -123,20 +112,16 @@ public class FidgetController : MonoBehaviour
         switch (fidgetIndex)
         {
             case 0:
-                ChangeAnimationState("Fidget01"); // Strecth animation (Player)
+                ChangeAnimationState("Fidget01");
                 break;
             case 1:
-                ChangeAnimationState("Fidget02"); // Look-at-torch animation (Player)
+                ChangeAnimationState("Fidget02");
                 break;
             case 2:
-                ChangeAnimationState("Fidget03"); // Scratch-head animation (Player)
+                ChangeAnimationState("Fidget03");
                 break;
-            case 3:             
-                // Note: the player's jumping-jacks animation does not play during dialogue
-                if (characterName == "Player" && characterDialogueScript.InDialogue)
-                    ChangeAnimationState("Fidget03");
-                else               
-                    ChangeAnimationState("Fidget04"); // Jumping-jacks animation (Player) 
+            case 3:                 
+                ChangeAnimationState("Fidget04");
                 break;
         }          
     }
@@ -163,6 +148,19 @@ public class FidgetController : MonoBehaviour
         animator.Play(newState);
         SetNewIdleRepetitions();
         idleCount = 0;
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+    }
+
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        animator = GetComponent<Animator>();
+        characterName = animator.runtimeAnimatorController.name;
     }
 
     // Returns the animation state's speed multiplier - For Reference
@@ -192,28 +190,5 @@ public class FidgetController : MonoBehaviour
         //Debug.Log($"Speed multiplier found: {speedMultiplier}");
         return speedMultiplier;
     }*/
-
-    // Sets the scripts to use
-    private void SetScripts()
-    {
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-    }
-
-    // Sets private variables, objects, and components
-    private void SetElements()
-    {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < characterDialogueScript.transform.childCount; i++)
-        {
-            GameObject child = characterDialogueScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "DialogueOptionsBubble")
-                dialogueOptionsBubble = child;
-        }
-
-        animator = GetComponent<Animator>();
-        characterName = animator.runtimeAnimatorController.name;
-    }
 
 }
