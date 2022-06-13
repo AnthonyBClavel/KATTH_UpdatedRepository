@@ -262,7 +262,7 @@ public class AudioManager : MonoBehaviour
     public void FadeInGeneratorLoopCheck()
     {
         if (generatorLoopAS.isPlaying && generatorScript != null)
-            generatorScript.FadeInGeneratorLoop();
+            generatorScript.FadeInGeneratorAudio();
     }
 
     // Fades out the generator loop sfx - ONLY USED when transitioning to a dialogue view

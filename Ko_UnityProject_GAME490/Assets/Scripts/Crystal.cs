@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class Crystal : MonoBehaviour
 {
+    private float lerpDuration = 0.5f; // Original Value = 0.5f
+    private float glowDuration = 3f; // Original Value = 3f
+    private float minLightIntesity = 0.1f; // Original Value = 0.1f
+    private float maxLightIntesity = 1f; // Original Value = 1f
+
     private bool canLerpToMax = true;
     private bool canResetGlowLength = false;
     private bool canStayLit = false;
     private bool islerpingToMin = false;
-
-    private float lerpLength = 0.5f;
-    private float glowLength = 3f;
-    private float minLightIntesity = 0.1f;
-    private float maxLightIntesity = 1f;
 
     private Light crystalLight;
     private IEnumerator crystalLightCoroutine;
@@ -21,7 +21,7 @@ public class Crystal : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {
-        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
+        SetScripts();
         SetElements();
     }
 
@@ -39,11 +39,11 @@ public class Crystal : MonoBehaviour
     {
         if (canLerpToMax)
         {
-            StartCrystalCoroutine(maxLightIntesity, lerpLength);
+            StartCrystalCoroutine(maxLightIntesity, lerpDuration);
             canLerpToMax = false;
         }
         else if (canResetGlowLength)
-            StartCrystalCoroutine(maxLightIntesity, glowLength);
+            StartCrystalCoroutine(maxLightIntesity, glowDuration);
     }
 
     // Resets the crytsal's light intesnity to its minimum intesity
@@ -107,7 +107,7 @@ public class Crystal : MonoBehaviour
         // Checks what to do after the crystal light has lerped to the "endIntesity"
         if (!canStayLit) // If all crystals are not lit...
         {
-            if (duration == lerpLength)
+            if (duration == lerpDuration)
             {
                 // If the crystal light has lerped to it minimum intesity
                 if (endIntensity == minLightIntesity)
@@ -119,17 +119,23 @@ public class Crystal : MonoBehaviour
                 // If the crystal light has lerped to it maximum intesity
                 else if (endIntensity == maxLightIntesity)
                 {
-                    StartCrystalCoroutine(maxLightIntesity, glowLength);
+                    StartCrystalCoroutine(maxLightIntesity, glowDuration);
                     canResetGlowLength = true;
                 }
             }
             // If the crystal light has finished "glowing"
-            else if (duration == glowLength)
+            else if (duration == glowDuration)
             {
-                StartCrystalCoroutine(minLightIntesity, lerpLength);
+                StartCrystalCoroutine(minLightIntesity, lerpDuration);
                 islerpingToMin = true;
             }
         }
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
     }
 
     // Sets private variables, objects, and components

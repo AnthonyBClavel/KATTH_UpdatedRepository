@@ -122,10 +122,10 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             // Resets the puzzle if the torch meter runs out
             if (/*torchMeterMoves.CurrentVal <= 0 &&*/ !alreadyPlayedSFX && canTorchMeter)
             {
-                if (SceneManager.GetActiveScene().name == "TutorialMap")
+                /*if (SceneManager.GetActiveScene().name == "TutorialMap")
                     resetPuzzleWithDelayInTutorial();
                 else
-                    resetPuzzleWithDelay();
+                    resetPuzzleWithDelay();*/
 
                 audioManagerScript.PlayTorchFireExtinguishSFX();
                 audioManagerScript.PlayFreezeingSFX();
@@ -242,13 +242,13 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         switch (collider.tag)
         {
             case ("StaticBlock"):
-                objectShakeScript.ShakeObject(objectToShake);
+                //objectShakeScript.ShakeObject(objectToShake);
                 audioManagerScript.PlayTreeHitSFX();
                 CheckToPlayAnims();
                 break;
 
             case ("Crystal"):
-                objectShakeScript.ShakeObject(objectToShake);
+                //objectShakeScript.ShakeObject(objectToShake);
                 audioManagerScript.PlayCrystalHitSFX();
                 //collider.gameObject.GetComponentInChildren<CrystalManager>().SetGlowActive();
                 //collider.gameObject.GetComponentInChildren<CrystalManager>().ResetCrystalIdleAnim();
@@ -262,7 +262,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
                 break;
 
             case ("DestroyableBlock"):
-                objectShakeScript.ShakeObject(objectToShake);
+                //objectShakeScript.ShakeObject(objectToShake);
                 audioManagerScript.PlayRockHitSFX();
                 CheckToPlayAnims();
                 break;
@@ -307,7 +307,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     {
         Generator generatorScript = collider.gameObject.GetComponent<Generator>();
 
-        if (generatorScript.IsGenActive == true)
+        /*if (generatorScript.IsGenActive == true)
         {
             //Debug.Log("Turned On Generator");
             generatorScript.TurnOnGenerator();
@@ -315,7 +315,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
             isInteracting = true;
             CheckToPlayAnims();
-        }
+        }*/
     }
 
     // Disables the firestone's light if the player is interacting with it
@@ -615,7 +615,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
             //checkpoint.GetComponent<CheckpointManager>().resetPlayerPosition();
 
             //Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
-            for (int i = 0; i < puzzle.transform.childCount; i++)
+            /*for (int i = 0; i < puzzle.transform.childCount; i++)
             {
                 GameObject child = puzzle.transform.GetChild(i).gameObject;
 
@@ -633,7 +633,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
                 else if (child.name == "GeneratorBlocks")
                     child.GetComponent<ResetGeneratorBlocks>().resetGenerator();
-            }
+            }*/
         }
 
     }
@@ -641,8 +641,8 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     // Resets the current puzzle after a delay (determined by CheckpointManager)
     private void resetPuzzleWithDelay()
     {
-        float resetDuration = gameManagerScript.resetPuzzleDelay;
-        checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionWithDelay", resetDuration);
+        //float resetDuration = gameManagerScript.resetPuzzleDelay;
+        //checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionWithDelay", resetDuration);
 
         // Debug.Log("Pushable blocks child count: " + puzzle.transform.childCount);
         for (int i = 0; i < puzzle.transform.childCount; i++)
@@ -672,7 +672,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
     }
 
     // Resets the current puzzle after a delay (determined by CheckpointManager) - USED ONLY IN TUTORIAL
-    private void resetPuzzleWithDelayInTutorial()
+    /*private void resetPuzzleWithDelayInTutorial()
     {
         float resetDuration = gameManagerScript.resetPuzzleDelay;
         checkpoint.GetComponent<CheckpointManager>().StartCoroutine("resetPlayerPositionInTutorialWithDelay", resetDuration);
@@ -699,7 +699,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         }
 
         hasDied = true;
-    }
+    }*/
 
     // Sets the bools to false - prevents the player from moving, restarting puzzles, and interacting with anything
     public void SetPlayerBoolsFalse()

@@ -5,14 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
-    private GameObject player;
-    private GameObject savedInvisibleBlock;
-    private GameObject[] checkpoints;
     private string sceneName;
 
     private float playerPosX;
     private float playerPosZ;
     private float playerRotY;
+
+    private GameObject player;
+    private GameObject savedInvisibleBlock;
+    private GameObject[] checkpoints;
 
     private CameraController cameraScript;
     private GameManager gameManagerScript;
@@ -20,7 +21,6 @@ public class SaveManager : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {      
-        SaveSceneName();
         SetScripts();
         SetElements();
 
@@ -158,6 +158,7 @@ public class SaveManager : MonoBehaviour
 
         player = FindObjectOfType<TileMovementController>().gameObject;
         checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
+        SaveSceneName();
     }
 
 }

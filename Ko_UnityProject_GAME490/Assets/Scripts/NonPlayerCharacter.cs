@@ -13,10 +13,10 @@ public class NonPlayerCharacter : MonoBehaviour
     private GameObject nPCDialogueCheck;
 
     private Vector3 originalRotation;
-    Vector3 up = Vector3.zero, // Look North
-    right = new Vector3(0, 90, 0), // Look East
-    down = new Vector3(0, 180, 0), // Look South
-    left = new Vector3(0, 270, 0); // Look West
+    Vector3 north = Vector3.zero,
+    east = new Vector3(0, 90, 0),
+    south = new Vector3(0, 180, 0),
+    west = new Vector3(0, 270, 0);
 
     private TileMovementController playerScript;
     private FidgetController nPCFidgetScript;
@@ -50,12 +50,6 @@ public class NonPlayerCharacter : MonoBehaviour
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        originalRotation = characterHolder.transform.localEulerAngles;
-    }
-
     // Sets the npc back to its original rotation
     public void ResetRotationNPC() => characterHolder.transform.localEulerAngles = originalRotation;
 
@@ -67,16 +61,16 @@ public class NonPlayerCharacter : MonoBehaviour
         switch (playerDirection.y)
         {
             case 0: // Looking north
-                characterHolder.transform.eulerAngles = down;
+                characterHolder.transform.eulerAngles = south;
                 break;
             case 90: // Looking east
-                characterHolder.transform.eulerAngles = left;
+                characterHolder.transform.eulerAngles = west;
                 break;
             case 180: // Looking south
-                characterHolder.transform.eulerAngles = up;
+                characterHolder.transform.eulerAngles = north;
                 break;
             case 270: // Looking west
-                characterHolder.transform.eulerAngles = right;
+                characterHolder.transform.eulerAngles = east;
                 break;
             default:
                 //Debug.Log("Unrecognizable direction");
@@ -120,10 +114,10 @@ public class NonPlayerCharacter : MonoBehaviour
                 nPCDialogueCheck = child;
         }
 
-        //SetDialogueTextColor();
+        originalRotation = characterHolder.transform.localEulerAngles;
     }
 
-    // Sets text color to use for the NPC's dialogue bubble - For Reference
+    // Sets text color to use for the NPC's dialogue bubble - For Reference (shows the original text colors for each npc)
     /*private void SetDialogueTextColor()
     {
         switch (nonPlayerCharacter.nPCName)
@@ -151,4 +145,5 @@ public class NonPlayerCharacter : MonoBehaviour
                 break;
         }
     }*/
+
 }

@@ -335,7 +335,7 @@ public class NotificationBubbles : MonoBehaviour
         {
             GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
 
-            if (child.name == "NotificationBubblesHolder")
+            if (child.name == "NotificationBubbles")
             {
                 notificationBubblesHolder = child;
 

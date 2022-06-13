@@ -7,16 +7,15 @@ using TMPro;
 
 public class SkipSceneButton : MonoBehaviour
 {
-    private bool hasSkippedScene = false;
-    [SerializeField]
-    private bool canRecieveInput = false;
+    [SerializeField] [Range(1f, 5f)]
+    private float lerpDuration = 3f; // Original Value = 3f
+    [SerializeField] [Range(1f, 20f)]
+    private float lerpSpeed = 10f; // Original Value = 10f
+    [SerializeField] [Range(0.1f, 2f)]
+    private float textFadeDuration = 0.75f; // Original Value = 0.75f
 
-    [Range(1f, 5f)]
-    public float lerpLength = 3f; // 3f = Original Value
-    [Range(1f, 20f)]
-    public float lerpSpeed = 10f; // 10f = Original Value
-    [Range(0.1f, 2f)]
-    public float textFadeLength = 0.75f; // 0.75f = Original Value
+    private bool hasSkippedScene = false;
+    private bool canRecieveInput = false;
 
     private GameObject skipSceneButton;
     private Image content;
@@ -59,7 +58,7 @@ public class SkipSceneButton : MonoBehaviour
     {
         canRecieveInput = true;
         skipSceneButton.SetActive(true);
-        StartTextAlphaCoroutine(1f, textFadeLength);
+        StartTextAlphaCoroutine(1f, textFadeDuration);
         StartInputCoroutine();
     }
 
@@ -87,11 +86,11 @@ public class SkipSceneButton : MonoBehaviour
 
             if (skipSceneTextColor.a == 0f) // If zero alpha
             {
-                StartTextAlphaCoroutine(1f, textFadeLength);
+                StartTextAlphaCoroutine(1f, textFadeDuration);
                 canRecieveInput = true;
             }
             else if (skipSceneTextColor.a == 1f) // If full alpha
-                StartTextAlphaCoroutine(0f, textFadeLength);
+                StartTextAlphaCoroutine(0f, textFadeDuration);
         }
     }
 
@@ -118,7 +117,7 @@ public class SkipSceneButton : MonoBehaviour
         if (lerpFillAmountCoroutine != null)
             StopCoroutine(lerpFillAmountCoroutine);
 
-        lerpFillAmountCoroutine = LerpFillAmount(lerpLength);
+        lerpFillAmountCoroutine = LerpFillAmount(lerpDuration);
         StartCoroutine(lerpFillAmountCoroutine);
     }
 
@@ -193,7 +192,7 @@ public class SkipSceneButton : MonoBehaviour
         }
 
         ChangeAnimationStateSSB("NotHoldingButton");
-        StartTextAlphaCoroutine(0f, textFadeLength);
+        StartTextAlphaCoroutine(0f, textFadeDuration);
     }
 
     // Lerps the bar's fillAmount to its min (zero)
@@ -273,9 +272,8 @@ public class SkipSceneButton : MonoBehaviour
                 for (int j = 0; j < skipSceneButton.transform.childCount; j++)
                 {
                     GameObject child02 = skipSceneButton.transform.GetChild(j).gameObject;
-                    string childName02 = child02.name;
 
-                    if (childName02 == "Bar")
+                    if (child02.name == "Bar")
                     {
                         skipSceneBar = child02.GetComponent<Image>();
 
@@ -287,7 +285,7 @@ public class SkipSceneButton : MonoBehaviour
                                 content = child03.GetComponent<Image>();
                         }
                     }
-                    if (childName02 == "Text")
+                    if (child02.name == "Text")
                         skipSceneText = child02.GetComponent<TextMeshProUGUI>();
                 }
             }

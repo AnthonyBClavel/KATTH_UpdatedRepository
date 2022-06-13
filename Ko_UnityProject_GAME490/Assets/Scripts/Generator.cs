@@ -6,209 +6,206 @@ public class Generator : MonoBehaviour
 {
     private bool isGenActive = false;
 
-    private float fadeAudioLength = 1f;
-    private float rotateGearlength = 2f;
+    private float fadeDuration = 1f; // Original Value = 1f
+    private float rotationDuration = 2f; // Original Value = 2f
+    private float maxVolumeGLSFX;
+    private float minVolumeGLSFX;
     private float originalVolumeGLSFX; // GLSFX = generator loop sfx
-    private float finalVolumeGLSFX = 0f; // GLSFX = generator loop sfx
+
+    private GameObject steamFX;
+    private GameObject gearsHolder;
+    private GameObject gear01;
+
+    private AudioSource generatorLoopAS;
+    private AudioSource turnOnGeneratorAS;
 
     private Material heatDoorMat;
     private Material generatorLightMat01;
     private Material generatorLightMat02;
 
-    private AudioSource generatorLoopAS; // 0.8f = default volume
-    private AudioSource turnOnGeneratorAS; // 1f = default volume
-    private GameObject steamFX;
-    private GameObject gearsHolder;
-    private GameObject gear01;
-
-    private IEnumerator rotateGearsCoroutine;
-    private IEnumerator generatorLoopCoroutine;
-    private IEnumerator generatorFXCoroutine;
+    private IEnumerator gearsCoroutine;
+    private IEnumerator audioCoroutine;
+    private IEnumerator effectsCoroutine;
     private AudioManager audioManagerScript;
 
+    public bool IsGenActive
+    {
+        get { return isGenActive; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
-        audioManagerScript = FindObjectOfType<AudioManager>();
+        SetScripts();
         SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        // 3 lines below must be called in start!
+        // The three lines below MUST be called in start!
         turnOnGeneratorAS = audioManagerScript.TurnOnGeneratorAS;
         generatorLoopAS = audioManagerScript.GeneratorLoopAS;
         originalVolumeGLSFX = generatorLoopAS.volume;
 
-        heatDoorMat.DisableKeyword("_EMISSION");
-        generatorLightMat01.DisableKeyword("_EMISSION");
-        generatorLightMat02.DisableKeyword("_EMISSION");
+        DisableMaterialEmissions();
     }
 
-    // Returns the value of isGenActive
-    public bool IsGenActive
-    {
-        get
-        {
-            return isGenActive;
-        }
-    }
-
-    // Turns on the generator immediately
+    // Turns on the generator
     public void TurnOnGenerator()
     {
         isGenActive = true;
 
-        generatorLoopAS.volume = 0f;
         turnOnGeneratorAS.Play();
         generatorLoopAS.Play();
 
-        FadeInGeneratorLoop();
-        TurnOnGeneratorEffects();
+        FadeInGeneratorAudio();
+        StartEffectsCoroutine();
     }
 
-    // Turns off the generator immediately
+    // Turns off the generator
     public void TurnOffGenerator()
     {
         isGenActive = false;
-
+    
         StopAllCoroutines();
-        if (generatorLoopCoroutine != null)
-            StopCoroutine(generatorLoopCoroutine);
-        if (generatorFXCoroutine != null)
-            StopCoroutine(generatorFXCoroutine);
-        if (rotateGearsCoroutine != null)
-            StopCoroutine(rotateGearsCoroutine);
-        if (generatorLoopAS.volume != 0f)
-            generatorLoopAS.volume = 0f;
+        DisableMaterialEmissions();
+        steamFX.SetActive(false);
 
         turnOnGeneratorAS.Stop();
         generatorLoopAS.Stop();
-        steamFX.SetActive(false);
 
+        minVolumeGLSFX = 0f;
+        generatorLoopAS.volume = 0f;
+    }
+
+    // Disables the emission within the materials
+    private void DisableMaterialEmissions()
+    {
         heatDoorMat.DisableKeyword("_EMISSION");
         generatorLightMat01.DisableKeyword("_EMISSION");
         generatorLightMat02.DisableKeyword("_EMISSION");
     }
 
-    // Fades in the generatorLoopSFX
-    public void FadeInGeneratorLoop()
+    // Fades in the generator's audio (endVolume = volume to lerp to)
+    public void FadeInGeneratorAudio(float? endVolume = null)
     {
-        if (generatorLoopCoroutine != null)
-            StopCoroutine(generatorLoopCoroutine);
+        maxVolumeGLSFX = endVolume ?? originalVolumeGLSFX;
 
-        generatorLoopCoroutine = LerpAudio(generatorLoopAS, originalVolumeGLSFX, fadeAudioLength);
-
-        generatorLoopAS.volume = finalVolumeGLSFX;
-        StartCoroutine(generatorLoopCoroutine);
+        if (audioCoroutine != null) StopCoroutine(audioCoroutine);
+        audioCoroutine = LerpGeneratorAudio(endVolume ?? originalVolumeGLSFX, fadeDuration);
+        StartCoroutine(audioCoroutine);
     }
 
-    // Fades out the generatorLoopSFX (finalVolume = volume to fade out to)
-    public void FadeOutGeneratorLoop(float finalVolume)
+    // Fades out the generator's audio (endVolume = volume to lerp to)
+    public void FadeOutGeneratorLoop(float? endVolume = null)
     {
-        // Only fade out the audio if the generator is active
-        if (isGenActive)
-        {
-            if (generatorLoopCoroutine != null)
-                StopCoroutine(generatorLoopCoroutine);
+        // Fades out the audio ONLY if the generator is active
+        if (!isGenActive) return;
 
-            finalVolumeGLSFX = finalVolume;
-            generatorLoopCoroutine = LerpAudio(generatorLoopAS, finalVolume, fadeAudioLength);
+        minVolumeGLSFX = endVolume ?? 0f;
 
-            generatorLoopAS.volume = originalVolumeGLSFX;
-            StartCoroutine(generatorLoopCoroutine);
-        }
+        if (audioCoroutine != null) StopCoroutine(audioCoroutine);
+        audioCoroutine = LerpGeneratorAudio(endVolume ?? 0f, fadeDuration);
+        StartCoroutine(audioCoroutine);
     }
 
-    // Starts the coroutine for the generator effects
-    private void TurnOnGeneratorEffects()
+    // Starts the coroutine that enables the generator effects
+    private void StartEffectsCoroutine()
     {
-        if (generatorFXCoroutine != null)
-            StopCoroutine(generatorFXCoroutine);
+        if (effectsCoroutine != null)
+            StopCoroutine(effectsCoroutine);
 
-        generatorFXCoroutine = TurnOnGeneratorFX();
-        StartCoroutine(generatorFXCoroutine);
+        effectsCoroutine = EnableGeneratorFX();
+        StartCoroutine(effectsCoroutine);
     }
 
     // Starts the coroutine that rotates the generator gears
-    private void RotateGeneratorGears(float duration)
+    private void StartGearsCoroutine()
     {
-        if (rotateGearsCoroutine != null)
-            StopCoroutine(rotateGearsCoroutine);
+        if (gearsCoroutine != null)
+            StopCoroutine(gearsCoroutine);
 
-        rotateGearsCoroutine = LerpGeneratorGears(duration);
-        StartCoroutine(rotateGearsCoroutine);
+        gearsCoroutine = RotateGears(rotationDuration);
+        StartCoroutine(gearsCoroutine);
     }
 
-    // Lerps the volume of an audio source over a specific duration (endVolume = volume to lerp to, duration = seconds)
-    private IEnumerator LerpAudio(AudioSource audioSource, float endVolume, float duration)
+    // Lerps the volume of the generator over a specific duration (endVolume = volume to lerp to, duration = seconds)
+    private IEnumerator LerpGeneratorAudio(float endVolume, float duration)
     {
+        generatorLoopAS.volume = (endVolume == maxVolumeGLSFX) ? minVolumeGLSFX : maxVolumeGLSFX;
+        float startVolume = generatorLoopAS.volume;
         float time = 0;
-        float startVolume = audioSource.volume;
 
         while (time < duration)
         {
-            audioSource.volume = Mathf.Lerp(startVolume, endVolume, time / duration);
+            generatorLoopAS.volume = Mathf.Lerp(startVolume, endVolume, time / duration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        audioSource.volume = endVolume;
+        generatorLoopAS.volume = endVolume;
 
-        // Resets the generator after the audio loop fades out
-        if (audioSource == generatorLoopAS && generatorLoopAS.volume == 0f)
+        // Turns off the generator if/after the audio fades to zero
+        if (generatorLoopAS.volume == 0f)
             TurnOffGenerator();
     }
 
-    // Lerps the rotation of each generator gear over a specific duration (duration = seconds) - NOTE: rest of gears mimic the rotation of gear01
-    private IEnumerator LerpGeneratorGears(float duration)
+    // Lerps the rotation of each generator gear to another over a specific duration (duration = seconds)
+    private IEnumerator RotateGears(float duration)
     {
-        float time = 0;
-        float startRotationY = gear01.transform.localEulerAngles.y;
-        float endRotationY = gear01.transform.localEulerAngles.y + 360f;
+        // Note: all gears mimic the rotation of gear01
         Vector3 originalRotation = gear01.transform.localEulerAngles;
+        float startRotationY = originalRotation.y;
+        float endRotationY = startRotationY + 360f;
+        float time = 0;
 
         while (time < duration)
         {
-            float yRotation = Mathf.Lerp(startRotationY, endRotationY, time / duration);
+            float rotY = Mathf.Lerp(startRotationY, endRotationY, time / duration);
+
             for (int i = 0; i < gearsHolder.transform.childCount; i++)
             {
                 GameObject child = gearsHolder.transform.GetChild(i).gameObject;
-                string childName = child.name;
-                if (childName == "Gear01" || childName == "Gear03" || childName == "Gear05")
-                    child.transform.localEulerAngles = new Vector3(originalRotation.x, yRotation, originalRotation.x); // Rotate right
-                if (childName == "Gear02" || childName == "Gear04")
-                    child.transform.localEulerAngles = new Vector3(originalRotation.x, -yRotation, originalRotation.x); // Rotate left
+                float newRotY = (child.name == "Gear02" || child.name == "Gear04") ? -rotY : rotY;
+                child.transform.localEulerAngles = new Vector3(originalRotation.x, newRotY, originalRotation.z);
             }
+
             time += Time.deltaTime;
             yield return null;
         }
 
         gear01.transform.localEulerAngles = originalRotation;
-        RotateGeneratorGears(rotateGearlength);
+        StartGearsCoroutine();
     }
 
-    // Turns on the generator effects after certain time intervals
-    private IEnumerator TurnOnGeneratorFX()
+    // Enables the generator's visual effects (emissive materials, gear animation, particles)
+    private IEnumerator EnableGeneratorFX()
     {
-        // Turns on emission within the light bulb materials
+        // Turns on the emission within the light bulb materials
         generatorLightMat01.EnableKeyword("_EMISSION");
         generatorLightMat02.EnableKeyword("_EMISSION");
 
         yield return new WaitForSeconds(0.7f);
-        // Turns on emmission in the heat door material
+        // Turns on the emission within the heat door material
         heatDoorMat.EnableKeyword("_EMISSION");
-        RotateGeneratorGears(rotateGearlength);
+        StartGearsCoroutine();
 
         yield return new WaitForSeconds(0.2f);
         // Sets the steam particles active
         steamFX.SetActive(true);
     }
 
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        audioManagerScript = FindObjectOfType<AudioManager>();
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -244,12 +241,12 @@ public class Generator : MonoBehaviour
                     {
                         GameObject furnaceHolder = child02;
 
-                        for (int l = 0; l < furnaceHolder.transform.childCount; l++)
+                        for (int k = 0; k < furnaceHolder.transform.childCount; k++)
                         {
-                            GameObject child04 = furnaceHolder.transform.GetChild(l).gameObject;
+                            GameObject child03 = furnaceHolder.transform.GetChild(k).gameObject;
 
-                            if (child04.name == "HeatDoor")
-                                heatDoorMat = child04.GetComponent<MeshRenderer>().material;
+                            if (child03.name == "HeatDoor")
+                                heatDoorMat = child03.GetComponent<MeshRenderer>().material;
                         }
                     }
 
@@ -257,37 +254,17 @@ public class Generator : MonoBehaviour
                     {
                         gearsHolder = child02;
 
-                        for (int m = 0; m < gearsHolder.transform.childCount; m++)
+                        for (int k = 0; k < gearsHolder.transform.childCount; k++)
                         {
-                            GameObject child05 = gearsHolder.transform.GetChild(m).gameObject;
+                            GameObject child03 = gearsHolder.transform.GetChild(k).gameObject;
 
-                            if (child05.name == "Gear01")
-                                gear01 = child05;
+                            if (child03.name == "Gear01")
+                                gear01 = child03;
                         }
                     }
                 }
             }
         }
     }
-
-    // Lerps the rotation of an object over a specific duration (endRotation = rotation to lerp to, duration = seconds) - OLD VERSION
-    /*private IEnumerator LerpGeneratorGear(GameObject gear, float rotationAmount, float duration)
-    {
-        float time = 0;
-        float startRotationY = gear.transform.localEulerAngles.y;
-        float endRotationY = gear.transform.localEulerAngles.y + rotationAmount;
-        Vector3 originalRotation = gear.transform.localEulerAngles;
-
-        while (time < duration)
-        {
-            float yRotation = Mathf.Lerp(startRotationY, endRotationY, time / duration);
-            gear.transform.localEulerAngles = new Vector3(originalRotation.x, yRotation, originalRotation.x);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        gear.transform.localEulerAngles = originalRotation;
-        RotateGeneratorGear(gear, rotationAmount, rotateGearlength);
-    }*/
 
 }

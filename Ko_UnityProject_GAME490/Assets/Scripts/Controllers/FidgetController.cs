@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class FidgetController : MonoBehaviour
 {
-    private bool hasPlayedInitialFidget = false;
+    private int idleCount = 0;
+    private int fidgetIndex = 0;
 
     private float idleRepetitions = 3f;
-    private int fidgetIndex = 0;
-    private int idleCount = 0;
     private string characterName;
+    private bool hasPlayedInitialFidget = false;
 
     private Animator animator;
     private CharacterDialogue characterDialogueScript;
@@ -25,7 +25,6 @@ public class FidgetController : MonoBehaviour
     {
         SetScripts();
         SetElements();
-        SetNewIdleRepetitions();
     }
 
     // Sets the idle count to zero
@@ -161,34 +160,7 @@ public class FidgetController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         characterName = animator.runtimeAnimatorController.name;
+        SetNewIdleRepetitions();
     }
-
-    // Returns the animation state's speed multiplier - For Reference
-    /*private float FindSpeedMultiplier(string animState)
-    {
-        float speedMultiplier;
-
-        switch (animState)
-        {
-            case ("Pushing"):
-                speedMultiplier = animator.GetFloat("PushingSpeedMultiplier");
-                break;
-            case ("Interacting"):
-                speedMultiplier = animator.GetFloat("WalkingSpeedMultiplier");
-                break;
-            case ("Walking"):
-                speedMultiplier = animator.GetFloat("InteractingSpeedMultiplier");
-                break;
-            case ("Idle"):
-                speedMultiplier = animator.GetFloat("IdleSpeedMultiplier");
-                break;
-            default:
-                speedMultiplier = 1f;
-                break;
-        }
-
-        //Debug.Log($"Speed multiplier found: {speedMultiplier}");
-        return speedMultiplier;
-    }*/
 
 }

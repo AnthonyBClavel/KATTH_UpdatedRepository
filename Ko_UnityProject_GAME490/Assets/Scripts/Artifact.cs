@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class Artifact : MonoBehaviour
 {
     public Artifact_SO artifact;
-    private bool hasInspectedArtifact = false;
 
-    private string artifactName;
-    private float scrollSpeed = 20f; // Original Value = 20f
-    private float rotationSpeedWithKeys = 26f; // Original Value = 26f
-    private float rotationSpeedWithMouse = 20f; // Original Value = 20f
+    [Range(0.01f, 100f)]
+    private float zoomSpeed = 20f; // 20f = Original Value
+    [Range(0.01f, 100f)]
+    private float rotationSpeedWithKeys = 26f; // 26f = Original Value
+    [Range(0.01f, 100f)]
+    private float rotationSpeedWithMouse = 20f; // 20f =  Original Value 
     private float horizontalAxis;
     private float verticalAxis;
 
-    private Animator woodenChestAnim;
+    private string artifactName;
+    private bool hasInspectedArtifact = false;
+
     private GameObject woodenChestHolder;
     private GameObject artifactHolder;
     private GameObject artifactButtons;
     private GameObject player;
     private GameObject mainCamera;
+    private Animator woodenChestAnim;
 
     private Vector3 wchOriginalRotation;
     private Vector3 ahOriginalRotation;
@@ -41,7 +44,6 @@ public class Artifact : MonoBehaviour
     private SaveManager saveManagerScript;
     private TutorialDialogue tutorialDialogueScript;
     private AudioManager audioManagerScript;
-    private GameManager gameManagerScript;
     private NotificationBubbles notificationBubblesScript;
     private TransitionFade transitionFadeScript;
 
@@ -77,13 +79,11 @@ public class Artifact : MonoBehaviour
     // Saves the name of the collected artifact via PlayerPrefs and updates the artifact notification bubble
     public void CollectArtifact()
     {
-        Debug.Log("AYOO?");
         int artifactsCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
         string artifactsCollected = PlayerPrefs.GetString("listOfArtifacts");
 
         if (artifactsCount < 15 && artifactHolder.activeSelf && enabled)
         {
-            Debug.Log("IT WORKED");
             int totalArtifacts = (SceneManager.GetActiveScene().name == "TutorialMap") ? 1 : 15;
             gameHUDScript.UpdateArtifactBubbleText($"{artifactsCount + 1}/{totalArtifacts}");
 
@@ -93,6 +93,7 @@ public class Artifact : MonoBehaviour
 
             artifactHolder.SetActive(false);
             enabled = false;
+            //Debug.Log("Collected Artifact");
         }
     }
 
@@ -111,11 +112,7 @@ public class Artifact : MonoBehaviour
         woodenChestHolder.transform.LookAt(player.transform.position);
         artifactHolder.transform.LookAt(mainCamera.transform.position);
         artifactHolder.transform.Rotate(artifactHolder.transform.up, 180, Space.World);
-        ahInspectingRotation = artifactHolder.transform.eulerAngles;     
-
-        // Alternative rotation methods - For Reference
-        //artifactHolder.transform.eulerAngles += new Vector3(0, playerRotationY, 0);
-        //woodenChestHolder.transform.eulerAngles = new Vector3(0, playerRotationY + 180, 0);
+        ahInspectingRotation = artifactHolder.transform.eulerAngles;
     }
 
     // Sets the camera view back to it's previous position and rotation (dialogue view)
@@ -136,6 +133,7 @@ public class Artifact : MonoBehaviour
         {
             woodenChestAnim.Play("Open");
             audioManagerScript.PlayOpeningChestSFX();
+            ahOriginalPosition = artifactHolder.transform.position;
         }
     }
 
@@ -231,7 +229,6 @@ public class Artifact : MonoBehaviour
         {
             if (Time.deltaTime > 0)
             {
-                //DebuggingCheck();
                 StopInputCheck();
                 ResetInputCheck();
                 RotateInputCheck();
@@ -240,11 +237,11 @@ public class Artifact : MonoBehaviour
             yield return null;
         }
 
-        // Checks to reset the artifact to its original position
+        // Checks to reset/lerp the artifact to its original position
         while (artifactHolder.transform.position != ahOriginalPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
-                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, scrollSpeed * Time.deltaTime);
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, zoomSpeed * Time.deltaTime);
             else
                 artifactHolder.transform.position = ahOriginalPosition;
 
@@ -301,14 +298,14 @@ public class Artifact : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahZoomPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahZoomPosition) > 0.01f)
-                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahZoomPosition, scrollSpeed * Time.deltaTime);
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahZoomPosition, zoomSpeed * Time.deltaTime);
             else
                 artifactHolder.transform.position = ahZoomPosition;
         }
         else if (!Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahOriginalPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
-                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, scrollSpeed * Time.deltaTime);
+                artifactHolder.transform.position = Vector3.Lerp(artifactHolder.transform.position, ahOriginalPosition, zoomSpeed * Time.deltaTime);
             else
                 artifactHolder.transform.position = ahOriginalPosition;
         }
@@ -323,7 +320,6 @@ public class Artifact : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         saveManagerScript = FindObjectOfType<SaveManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
         tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
@@ -336,14 +332,13 @@ public class Artifact : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
-            string childName01 = child.name;
 
-            if (childName01 == "WoodenChestHolder")
+            if (child.name == "WoodenChestHolder")
             {
                 woodenChestAnim = child.GetComponentInChildren<Animator>();
                 woodenChestHolder = child;
             }             
-            if (childName01 == "ArtifactHolder")
+            if (child.name == "ArtifactHolder")
                 artifactHolder = child;         
         }
 
@@ -372,21 +367,6 @@ public class Artifact : MonoBehaviour
         wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;
         ahOriginalPosition = artifactHolder.transform.position;
-
-        DebuggingCheck();
-    }
-
-    // Updates the rotation speeds if applicable
-    private void DebuggingCheck()
-    {
-        if (gameManagerScript.isDebugging)
-        {
-            if (rotationSpeedWithKeys != gameManagerScript.rotationSpeedWithKeys)
-                rotationSpeedWithKeys = gameManagerScript.rotationSpeedWithKeys;
-
-            if (rotationSpeedWithMouse != gameManagerScript.rotationSpeedWithMouse)
-                rotationSpeedWithMouse = gameManagerScript.rotationSpeedWithMouse;
-        }
     }
 
 }

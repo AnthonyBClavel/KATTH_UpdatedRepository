@@ -17,7 +17,7 @@ public class EndCredits : MonoBehaviour
     public float fadeLogoLength = 2f;
     [Range(1f, 5f)]
     public float scrollSpeedMutiplier = 3f;
-    private float typingSpeed; // 0.03f
+    private float typingSpeed = 0.03f; // 0.03f
     private float originalVolumeLFSFX; // LFSFX = looping fire sfx;
 
     [Header("UI Elements")]
@@ -434,7 +434,7 @@ public class EndCredits : MonoBehaviour
 
         charNoiseSFX = audioManagerScript.charNoiseAS;
         loopingFireSFX = audioManagerScript.loopingFireAS;
-        typingSpeed = gameManagerScript.typingSpeed;
+        //typingSpeed = gameManagerScript.typingSpeed;
     }
 
     // Plays the end credits (duration = seconds) - OLD VERSION

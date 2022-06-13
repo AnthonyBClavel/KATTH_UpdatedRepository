@@ -166,7 +166,7 @@ public class GameHUD : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                puzzleManagerScript.ResetPuzzle(0f);
+                puzzleManagerScript.ResetPuzzle();
                 deathScreen.SetActive(false);
             }           
         }
@@ -196,7 +196,7 @@ public class GameHUD : MonoBehaviour
 
             if (childName == "OptionalDeathScreen")
                 deathScreen = child;
-            if (childName == "NotificationBubblesHolder")
+            if (childName == "NotificationBubbles")
                 notificationBubblesHolder = child;
             if (childName == "TorchMeter")
                 torchMeter = child;

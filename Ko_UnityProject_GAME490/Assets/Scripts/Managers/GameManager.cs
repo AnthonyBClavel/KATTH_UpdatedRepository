@@ -3,52 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Floats")]
-    [Range(0.005f, 0.1f)]
-    public float typingSpeed = 0.03f;
-    [Range(1f, 10f)]
-    public float cameraSpeed = 3f;
-    [Range(1f, 10f)]
-    public float introCameraSpeed = 3f;
-    [Range(0f, 1f)]
-    public float playerLerpLength = 0.2f;
-    [Range(0f, 1f)]
-    public float crateLerpLength = 0.1f;
-    [Range(0.5f, 10f)]
-    public float resetPuzzleDelay = 1.5f;
-    [Range(0.01f, 1f)]
-    public float loadingIconSpeed = 0.08f;
-    [Range(0.01f, 100f)]
-    public float rotationSpeedWithKeys = 25f;
-    [Range(0.01f, 100f)]
-    public float rotationSpeedWithMouse = 25f;
-
     private string levelToLoad;
     private int loadingIconIndex;
 
-    [Header("Bools")]
-    public bool canDeathScreen = false;
+    [Header("Gameplay Variables")]
+    [Range(1f, 10f)]
+    public float cameraSpeed = 3f; // Original Value = 3f
+    [Range(0f, 1f)]
+    public float playerLerpDuration = 0.2f; // Original Value = 0.2f
+    [Range(0f, 1f)]
+    public float crateLerpDuration = 0.1f; // Original Value = 0.1f
+    [Range(0.5f, 10f)]
+    public float resetPuzzleDelay = 1.5f; // Original Value = 1.5f
+
+    [Header("Loading Screen Variables")]
+    [Range(0.01f, 1f)]
+    public float loadingIconSpeed = 0.08f; // Original Value = 0.8f
+    public Sprite[] loadingScreenImages;
+    public Sprite[] loadingIconSprites;
 
     [Header("Materials")]
     public Material grassMaterial;
     public Material iceMaterial;
 
-    [Header("Prefabs")]
-    public GameObject destroyedRockParticle;
-    public GameObject treeHitParticle;
-    public GameObject snowTreeHitParticle;
     private GameObject savedInvisibleBlock;
-
-    [Header("Arrays")]
-    public Sprite[] loadingScreenImages;
-    public Sprite[] loadingIconSprites;
-
-    [Header("Loading Screen Elements")]
     private GameObject blackLoadingScreen;
     private GameObject loadingScreen;
     private GameObject loadingScreenIcon;
@@ -56,8 +38,8 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI loadingScreenText;
     private Slider loadingScreenBar;
     private Image loadingScreenImage;
-
     private IEnumerator loadingIconCoroutine;
+
     private TileMovementController playerScript;
     private OptionsMenu optionsMenuScript;
     private TransitionFade transitionFadeScript;
@@ -72,6 +54,7 @@ public class GameManager : MonoBehaviour
     private NotificationBubbles notificationBubblesScript;
 
     [Header("Debugging Elements")]
+    public bool canDeathScreen = false;
     public bool isDebugging;
     public int puzzleNumber;
 
@@ -115,16 +98,16 @@ public class GameManager : MonoBehaviour
     {
         if (isDebugging)
         {
-            if (playerScript.LerpLength != playerLerpLength)
-                playerScript.LerpLength = playerLerpLength;
+            if (playerScript.LerpDuration != playerLerpDuration)
+                playerScript.LerpDuration = playerLerpDuration;
 
             if (playerScript.ResetPuzzleDelay != resetPuzzleDelay)
                 playerScript.ResetPuzzleDelay = resetPuzzleDelay;
         }
         else
         {
-            if (playerScript.LerpLength != 0.2f)
-                playerScript.LerpLength = 0.2f;
+            if (playerScript.LerpDuration != 0.2f)
+                playerScript.LerpDuration = 0.2f;
 
             if (playerScript.ResetPuzzleDelay != 1.5f)
                 playerScript.ResetPuzzleDelay = 1.5f;
@@ -137,13 +120,13 @@ public class GameManager : MonoBehaviour
         blockMovementScript = script;
         if (isDebugging)
         {
-            if (blockMovementScript.LerpLength != crateLerpLength)
-                blockMovementScript.LerpLength = crateLerpLength;
+            if (blockMovementScript.LerpDuration != crateLerpDuration)
+                blockMovementScript.LerpDuration = crateLerpDuration;
         }         
         else
         {
-            if (blockMovementScript.LerpLength != 0.1f)
-                blockMovementScript.LerpLength = 0.1f;
+            if (blockMovementScript.LerpDuration != 0.1f)
+                blockMovementScript.LerpDuration = 0.1f;
         }
     }
 
@@ -159,42 +142,6 @@ public class GameManager : MonoBehaviour
         {
             if (cameraScript.CameraSpeed != 3f)
                 cameraScript.CameraSpeed = 3f;
-        }
-    }
-
-    // Updates the intoCameraSpeed and typingSpeed in introManagerScript - For Debugging Purposes Only!
-    public void CheckForIntroManagerDebug()
-    {
-        if (isDebugging)
-        {
-            if (introManagerScript.IntroCameraSpeed != introCameraSpeed)
-                introManagerScript.IntroCameraSpeed = introCameraSpeed;
-
-            if (introManagerScript.TypingSpeed != typingSpeed)
-                introManagerScript.TypingSpeed = typingSpeed;
-        }
-        else
-        {
-            if (introManagerScript.IntroCameraSpeed != 3f)
-                introManagerScript.IntroCameraSpeed = 3f;
-
-            if (introManagerScript.TypingSpeed != 0.03f)
-                introManagerScript.TypingSpeed = 0.03f;
-        }
-    }
-
-    // Updates the typingSpeed in characterDialogueScript - For Debugging Purposes Only!
-    public void CheckForCharacterDialogueDebug()
-    {
-        if (isDebugging)
-        {
-            if (characterDialogueScript.TypingSpeed != typingSpeed)
-                characterDialogueScript.TypingSpeed = typingSpeed;
-        }
-        else
-        {
-            if (characterDialogueScript.TypingSpeed != 0.03f)
-                characterDialogueScript.TypingSpeed = 0.03f;
         }
     }
     /*** Debug functions END here ***/

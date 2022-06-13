@@ -1,20 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 public class TutorialDialogue : MonoBehaviour
 {
-    [Range(0, 3f)]
-    public float fadeLength = 1f;
-    [Range(0.005f, 0.1f)]
-    public float typingSpeed = 0.03f;
-
-    private float originalTypingSpeed;
-    private string[] sentences;
     private int sentenceIndex;
+    private string[] sentences;
+
+    [Header("Tutorial Dialogue Variables")]
+    [SerializeField] [Range(0.005f, 0.1f)]
+    private float typingSpeed = 0.03f; // Original Value = 0.03f
+    [SerializeField] [Range(0, 3f)]
+    private float fadeDuration = 1f; // Original Value = 1f
+    private float originalTypingSpeed;
 
     private bool hasPlayedWelcome = false;
     private bool hasPlayedPush = false;
@@ -28,13 +28,12 @@ public class TutorialDialogue : MonoBehaviour
 
     private GameObject artifactButtons;
     private GameObject continueButton;
-    private Image blackOverlay;
+
     private TextMeshProUGUI tutorialDialogueText;
-
+    private Image blackOverlay;
     private AudioSource charNoise;
-    private IEnumerator fadeOverlayCorouitne;
-    private IEnumerator inputCoroutine;
 
+    [Header("Dialogue Text Assets")]
     public TextAsset welcomeDialogue;
     public TextAsset pushDialogue;
     public TextAsset breakDialogue;
@@ -46,6 +45,9 @@ public class TutorialDialogue : MonoBehaviour
     public TextAsset bridgeDialogue;
     public TextAsset deathDialogue;
 
+    private IEnumerator fadeOverlayCorouitne;
+    private IEnumerator inputCoroutine;
+
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
     private Artifact artifactScript;
@@ -53,6 +55,7 @@ public class TutorialDialogue : MonoBehaviour
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
     private SkipSceneButton skipSceneButtonScript;
+    private PuzzleManager puzzleManagerScript;
 
     // Awake is called before Start()
     void Awake()
@@ -78,7 +81,7 @@ public class TutorialDialogue : MonoBehaviour
     // Checks to play the pushable block dialogue 
     public void PlayPushDialogueCheck()
     {
-        if (!hasPlayedPush && playerScript.PuzzleNumber == 1)
+        if (!hasPlayedPush && puzzleManagerScript.PuzzleNumber == 1)
         {
             SetDialogue(pushDialogue);
             StartDialogue();
@@ -188,7 +191,7 @@ public class TutorialDialogue : MonoBehaviour
         tutorialDialogueText.text = string.Empty;
         sentenceIndex = 0;
 
-        StartFadeOverlayCoroutine(0.5f, fadeLength);
+        StartFadeOverlayCoroutine(0.5f, fadeDuration);
         StartCoroutine(TypeTutorialDialogue());
         StartInputCoroutine();
     }
@@ -304,7 +307,7 @@ public class TutorialDialogue : MonoBehaviour
 
             yield return null;
         }
-        //Debug.Log("Stopped looking for tutorial dialogue inputCheck");
+        //Debug.Log("Tutorial Dialogue Input Check Has Ended");
     }
 
     // Sets the scripts to use
@@ -317,23 +320,13 @@ public class TutorialDialogue : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
+        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
         // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-            string childName = child.name;
-
-            if (childName == "BlackOverlay")
-                blackOverlay = child.GetComponent<Image>();
-            if (childName == "TutorialDialogueText")
-                tutorialDialogueText = child.GetComponent<TextMeshProUGUI>();
-        }
-
         for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
         {
             GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
@@ -345,14 +338,28 @@ public class TutorialDialogue : MonoBehaviour
                 for (int j = 0; j < keybindButtons.transform.childCount; j++)
                 {
                     GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
-                    string childName02 = child02.name;
 
-                    if (childName02 == "ContinueButton")
+                    if (child02.name == "ContinueButton")
                         continueButton = child02;
-                    if (childName02 == "ArtifactButtons")
+                    if (child02.name == "ArtifactButtons")
                         artifactButtons = child02;
                 }
-            }     
+            }
+
+            if (child.name == "TutorialDialogue")
+            {
+                GameObject tutorialDialogue = child;
+
+                for (int j = 0; j < tutorialDialogue.transform.childCount; j++)
+                {
+                    GameObject child02 = tutorialDialogue.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "BlackOverlay")
+                        blackOverlay = child02.GetComponent<Image>();
+                    if (child02.name == "Text")
+                        tutorialDialogueText = child02.GetComponent<TextMeshProUGUI>();
+                }
+            }
         }
 
         charNoise = audioManagerScript.charNoiseAS;

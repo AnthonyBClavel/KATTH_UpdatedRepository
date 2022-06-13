@@ -5,9 +5,9 @@ using System.Linq;
 
 public class CameraController : MonoBehaviour
 {
-    private float cameraSpeed; // 3f
     private int puzzleViewIndex;
-    private float cameraLerpLength = 4f;
+
+    private float cameraSpeed = 3f; // Original Value = 3f
     private float rayLength = 1f;
 
     private GameObject northDialogueView;
@@ -15,15 +15,15 @@ public class CameraController : MonoBehaviour
     private GameObject southDialogueView;
     private GameObject westDialogueView;
 
+    private Vector3 currentDialogueView;
+    private Vector3 originalCameraRotation;
+    private Vector3 currentPuzzleView;
+
     List<GameObject> checkpoints = new List<GameObject>();
     List<Vector3> puzzleViews = new List<Vector3>();
     List<float> xValues = new List<float>();
     List<float> zValues = new List<float>();
     List<int> neighboringTiles = new List<int>();
-
-    private Vector3 currentDialogueView;
-    private Vector3 originalCameraRotation;
-    private Vector3 currentPuzzleView;
 
     private GameHUD gameHUDScript;
     private TileMovementController playerScript;
@@ -45,12 +45,16 @@ public class CameraController : MonoBehaviour
         set { puzzleViewIndex = value; }
     }
 
+    public Vector3 CurrentDialogueView
+    {
+        get { return currentDialogueView; }
+    }
+
     // Awake is called before Start()
     void Awake()
     {
         SetScripts();
         SetElements();
-        SetPuzzleViews();
     }
 
     // Start is called before the first frame update
@@ -63,7 +67,7 @@ public class CameraController : MonoBehaviour
     // Moves the camera to the next puzzle view
     public void NextPuzzleView()
     {
-        int nextPuzzleIndex = playerScript.PuzzleNumber;
+        int nextPuzzleIndex = puzzleManagerScript.PuzzleNumber ?? 0;
         puzzleViewIndex++;
 
         if (puzzleViewIndex > puzzleViews.Count - 1)
@@ -87,7 +91,7 @@ public class CameraController : MonoBehaviour
     // Moves the camera to the previous puzzle view
     public void PreviousPuzzleView()
     {
-        int previousPuzzleIndex = playerScript.PuzzleNumber - 2;
+        int previousPuzzleIndex = puzzleManagerScript.PuzzleNumber - 2 ?? 0;
         puzzleViewIndex--;
 
         if (puzzleViewIndex < 0)
@@ -285,19 +289,28 @@ public class CameraController : MonoBehaviour
     private IEnumerator LerpCamera(Vector3 endPosition)
     {
         gameManagerScript.CheckForCameraScriptDebug();
-        float duration = cameraLerpLength;
-        float time = 0;
 
-        while (time < duration)
+        while (Vector3.Distance(transform.position, endPosition) > 0.001f)
         {
             // Note: transform.position will always lerp closer to the endPosition, but never equal it
             transform.position = Vector3.Lerp(transform.position, endPosition, cameraSpeed * Time.deltaTime);
-            time += Time.deltaTime;
             yield return null;
         }
 
         transform.position = endPosition;
-        //Debug.Log("The camera has lerped to the next position");
+        //Debug.Log("The Camera Has Lerped To The Next Position");
+    }
+
+    // Creates a puzzle view for each puzzle and adds them to a list
+    private void SetPuzzleViews()
+    {
+        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
+
+        for (int i = 0; i < checkpoints.Count; i++)
+        {
+            GameObject checkpoint = checkpoints[i];
+            puzzleViews.Add(CalculatePuzzleView(checkpoint));
+        }
     }
 
     // Sets the scripts to use
@@ -327,36 +340,24 @@ public class CameraController : MonoBehaviour
                 for (int j = 0; j < dialogueViewsHolder.transform.childCount; j++)
                 {
                     GameObject child02 = dialogueViewsHolder.transform.GetChild(j).gameObject;
-                    string childName02 = child02.name;
 
-                    if (childName02 == "NorthDV")
+                    if (child02.name == "NorthDV")
                         northDialogueView = child02;
-                    if (childName02 == "EastDV")
+                    if (child02.name == "EastDV")
                         eastDialogueView = child02;
-                    if (childName02 == "SouthDV")
+                    if (child02.name == "SouthDV")
                         southDialogueView = child02;
-                    if (childName02 == "WestDV")
+                    if (child02.name == "WestDV")
                         westDialogueView = child02;
                 }
             }
         }
 
         cameraSpeed = gameManagerScript.cameraSpeed;
+        SetPuzzleViews();
     }
 
-    // Creates a puzzle view for each puzzle and adds them to a list
-    private void SetPuzzleViews()
-    {
-        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
-
-        for (int i = 0; i < checkpoints.Count; i++)
-        {
-            GameObject checkpoint = checkpoints[i];
-            puzzleViews.Add(CalculatePuzzleView(checkpoint));
-        }
-    }
-
-    // Enables debugging for the puzzle views and cameraSpeed - For Debugging Purposes ONLY
+    // Enables debugging for the puzzle views - For Debugging Purposes ONLY
     public void DebuggingCheck(GameManager gameManager)
     {
         if (gameManager.isDebugging)

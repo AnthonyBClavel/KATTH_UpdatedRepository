@@ -258,7 +258,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     // Starts the character dialogue
     private void StartDialogue()
     {
-        gameManagerScript.CheckForCharacterDialogueDebug();
+        //gameManagerScript.CheckForCharacterDialogueDebug();
         originalTypingSpeed = typingSpeed; //typingSpeed = originalTypingSpeed;
 
         sentenceIndex = 0;
@@ -334,7 +334,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     // Checks for the next sentence to play
     private void NextSentenceCheck()
     {
-        gameManagerScript.CheckForCharacterDialogueDebug();
+        //gameManagerScript.CheckForCharacterDialogueDebug();
         continueButton.SetActive(false);
         originalTypingSpeed = typingSpeed; //typingSpeed = originalTypingSpeed;
 
@@ -494,8 +494,8 @@ public class CharacterDialogueOLD : MonoBehaviour
     private IEnumerator StartDialogueDelay()
     {
         playerScript.SetPlayerBoolsFalse();
-        cameraScript.LerpToDialogueView();
-        blackBarsScript.MoveBlackBarsIn();
+        //cameraScript.LerpToDialogueView();
+        //blackBarsScript.MoveBlackBarsIn();
         gameHUDScript.TurnOffHUD();
 
         SetDialogueBubblePivots();
@@ -516,9 +516,9 @@ public class CharacterDialogueOLD : MonoBehaviour
         //nPCFidgetScript.HasPlayedInitialFidget = false;
         //playerFidgetScript.HasPlayedInitialFidget = false;
 
-        cameraScript.LerpToPuzzleView();
-        nPCScript.ResetRotationNPC();
-        blackBarsScript.MoveBlackBarsOut();
+        //cameraScript.LerpToPuzzleView();
+        //nPCScript.ResetRotationNPC();
+        //blackBarsScript.MoveBlackBarsOut();
         gameHUDScript.TurnOnHUD();
 
         playerDialogueBubble.SetActive(false);
@@ -1263,8 +1263,8 @@ public class CharacterDialogueOLD : MonoBehaviour
         }
 
         charNoiseSFX = audioManagerScript.charNoiseAS;
-        typingSpeed = gameManagerScript.typingSpeed;
-        originalTypingSpeed = gameManagerScript.typingSpeed;
+        //typingSpeed = gameManagerScript.typingSpeed;
+        //originalTypingSpeed = gameManagerScript.typingSpeed;
     }
 
 }

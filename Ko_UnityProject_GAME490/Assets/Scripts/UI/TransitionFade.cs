@@ -213,14 +213,19 @@ public class TransitionFade : MonoBehaviour
 
             if (child.name == "TransitionFade")
                 transitionFade = child.GetComponent<Image>();
-        }
 
-        for (int i = 0; i < introManagerScript.transform.childCount; i++)
-        {
-            GameObject child = introManagerScript.transform.GetChild(i).gameObject;
+            if (child.name == "ZoneIntro")
+            {
+                GameObject zoneIntro = child;
 
-            if (child.name == "BlackOverlay")
-                zoneIntroBlackOverlay = child.GetComponent<Image>();
+                for (int j = 0; j < zoneIntro.transform.childCount; j++)
+                {
+                    GameObject child02 = zoneIntro.transform.GetChild(j).gameObject;
+
+                    if (child02.name == "BlackOverlay")
+                        zoneIntroBlackOverlay = child02.GetComponent<Image>();
+                }
+            }
         }
     }
 

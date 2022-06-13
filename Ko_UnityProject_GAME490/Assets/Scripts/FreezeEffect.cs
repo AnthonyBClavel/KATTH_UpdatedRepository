@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class FreezeEffect : MonoBehaviour
 {
-    private Material iceMaterial;
     private Image frostedBorder;
+    private Material iceMaterial;
 
     private IEnumerator iceMatCoroutine;
     private IEnumerator frostedBorderCoroutine;
@@ -28,6 +28,13 @@ public class FreezeEffect : MonoBehaviour
         frostedBorder.SetImageAlpha(0f);
     }
 
+    // Starts the ice-related coroutines
+    public void LerpIceAlphas()
+    {
+        StartIceMatCoroutine();
+        StartFrostedBorderCoroutine();
+    }
+
     // Stops the ice-related coroutines and sets their alphas to zero
     public void ResetIceAlphas()
     {
@@ -39,13 +46,6 @@ public class FreezeEffect : MonoBehaviour
 
         iceMaterial.SetFloat("Vector1_FCC70E1D", 0f);
         frostedBorder.SetImageAlpha(0f);
-    }
-
-    // Starts the ice-related coroutines
-    public void LerpIceAlphas()
-    {
-        StartIceMatCoroutine();
-        StartFrostedBorderCoroutine();
     }
 
     // Starts the coroutine that lerps the alpha of the ice material
@@ -68,7 +68,7 @@ public class FreezeEffect : MonoBehaviour
         StartCoroutine(frostedBorderCoroutine);
     }
 
-    // Lerps the alpha of the ice material over a specific duration (endAlpha = alpha to lerp to)
+    // Lerps the alpha of the ice material to another over a specific duration (endAlpha = alpha to lerp to)
     // Note: 1f = full alpha, 0f = zero alpha
     private IEnumerator LerpIceMatAlpha(float endAlpha)
     {
@@ -86,7 +86,7 @@ public class FreezeEffect : MonoBehaviour
         iceMaterial.SetFloat("Vector1_FCC70E1D", endAlpha);
     }
 
-    // Lerps the alpha of the frosted border over a specific duration (endAlpha = alpha to lerp to)
+    // Lerps the alpha of the frosted border to another over a specific duration (endAlpha = alpha to lerp to)
     // Note: 1f = full alpha, 0f = zero alpha
     private IEnumerator LerpFrostedBorderAlpha(float endAlpha)
     { 
