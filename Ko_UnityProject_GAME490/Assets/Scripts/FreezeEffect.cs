@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class FreezeEffect : MonoBehaviour
 {
+    private float maxAlpha = 1f;
+    private float minAlpha = 0f;
+
     private Image frostedBorder;
     private Material iceMaterial;
 
@@ -21,77 +24,62 @@ public class FreezeEffect : MonoBehaviour
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        iceMaterial.SetFloat("Vector1_FCC70E1D", 0f);
-        frostedBorder.SetImageAlpha(0f);
-    }
-
-    // Starts the ice-related coroutines
-    public void LerpIceAlphas()
+    // Starts the coroutines that lerp the ice-related alphas
+    public void LerpAlphas()
     {
         StartIceMatCoroutine();
         StartFrostedBorderCoroutine();
     }
 
-    // Stops the ice-related coroutines and sets their alphas to zero
-    public void ResetIceAlphas()
+    // Stops the coroutines that lerp the ice-related alphas and resets their alphas
+    public void ResetAlphas()
     {
-        if (iceMatCoroutine != null)
-            StopCoroutine(iceMatCoroutine);
-
-        if (frostedBorderCoroutine != null)
-            StopCoroutine(frostedBorderCoroutine);
-
+        StopAllCoroutines();
         iceMaterial.SetFloat("Vector1_FCC70E1D", 0f);
         frostedBorder.SetImageAlpha(0f);
     }
 
-    // Starts the coroutine that lerps the alpha of the ice material
+    // Starts the coroutine that lerps ice material's alpha
     private void StartIceMatCoroutine()
     {
         if (iceMatCoroutine != null)
             StopCoroutine(iceMatCoroutine);
 
-        iceMatCoroutine = LerpIceMatAlpha(1f);
+        iceMatCoroutine = LerpIceMatAlpha();
         StartCoroutine(iceMatCoroutine);
     }
 
-    // Starts the coroutine that lerps the alpha of the frosted border
+    // Starts the coroutine that lerps the frosted border's alpha
     private void StartFrostedBorderCoroutine()
     {
         if (frostedBorderCoroutine != null)
             StopCoroutine(frostedBorderCoroutine);
 
-        frostedBorderCoroutine = LerpFrostedBorderAlpha(1f);
+        frostedBorderCoroutine = LerpFrostedBorderAlpha();
         StartCoroutine(frostedBorderCoroutine);
     }
 
-    // Lerps the alpha of the ice material to another over a specific duration (endAlpha = alpha to lerp to)
-    // Note: 1f = full alpha, 0f = zero alpha
-    private IEnumerator LerpIceMatAlpha(float endAlpha)
+    // Lerps the alpha of the ice material to another over a duration
+    private IEnumerator LerpIceMatAlpha()
     {
-        float startAlpha = iceMaterial.GetFloat("Vector1_FCC70E1D");
         float duration = gameManagerScript.resetPuzzleDelay - 0.5f;
         float time = 0;
 
         while (time < duration)
         {
-            iceMaterial.SetFloat("Vector1_FCC70E1D", Mathf.Lerp(startAlpha, endAlpha, time / duration));
+            iceMaterial.SetFloat("Vector1_FCC70E1D", Mathf.Lerp(minAlpha, maxAlpha, time / duration));
             time += Time.deltaTime;
             yield return null;
         }
 
-        iceMaterial.SetFloat("Vector1_FCC70E1D", endAlpha);
+        iceMaterial.SetFloat("Vector1_FCC70E1D", maxAlpha);
     }
 
-    // Lerps the alpha of the frosted border to another over a specific duration (endAlpha = alpha to lerp to)
-    // Note: 1f = full alpha, 0f = zero alpha
-    private IEnumerator LerpFrostedBorderAlpha(float endAlpha)
+    // Lerps the alpha of the frosted border to another over a duration
+    private IEnumerator LerpFrostedBorderAlpha()
     { 
-        Color startColor = frostedBorder.color;
-        Color endColor = new Color(startColor.r, startColor.g, startColor.b, endAlpha);
+        Color startColor = frostedBorder.ReturnImageColor(minAlpha);
+        Color endColor = frostedBorder.ReturnImageColor(maxAlpha);
         float duration = gameManagerScript.resetPuzzleDelay - 0.5f;
         float time = 0;
 
@@ -125,6 +113,8 @@ public class FreezeEffect : MonoBehaviour
         }
 
         iceMaterial = gameManagerScript.iceMaterial;
+        iceMaterial.SetFloat("Vector1_FCC70E1D", 0f);
+        frostedBorder.SetImageAlpha(0f);
     }
 
 }

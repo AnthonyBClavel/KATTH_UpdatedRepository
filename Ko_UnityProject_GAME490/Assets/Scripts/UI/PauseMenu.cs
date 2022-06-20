@@ -464,7 +464,8 @@ public class PauseMenu : MonoBehaviour
     {
         DisableMenuInputsPS();
         audioManagerScript.PlayButtonClick01SFX();
-        playerScript.SetFinishedZoneElements();
+        playerScript.SetPlayerBoolsFalse(); // Review
+        transitionFadeScript.GameFadeOut(); // Review
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;

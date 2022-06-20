@@ -82,7 +82,7 @@ public class ObjectShakeController : MonoBehaviour
                 break;
             case "Crystal":
                 audioManagerScript.PlayCrystalHitSFX();
-                objectToShake.GetComponentInParent<Crystal>().PlayCrystalLightAnim();
+                objectToShake.GetComponentInParent<Crystal>().PlayLightAnimation();
                 break;
             case "GasBarrel":
                 audioManagerScript.PlayMetalHitSFX();

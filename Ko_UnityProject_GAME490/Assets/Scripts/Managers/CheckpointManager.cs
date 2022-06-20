@@ -26,6 +26,11 @@ public class CheckpointManager : MonoBehaviour
     private TutorialDialogue tutorialDialogueScript;
     private TorchMeter torchMeterScript;
 
+    public int MaxTileMoves
+    {
+        get { return numMovements; }
+    }
+
     void Awake()
     {
         SetScripts();
@@ -36,12 +41,6 @@ public class CheckpointManager : MonoBehaviour
     void Start()
     {
         checkpointPosition = transform.position;
-    }
-
-    // Returns the number of movements for the puzzle - determined within the checkpoint's script component in unity inspector
-    public int GetNumMovements() 
-    {
-        return numMovements; 
     }
 
     // Checks for the closet bridge tile and sets the savedInvisibleBlock's position to that bridge tile
@@ -101,7 +100,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets all player elements
     private void ResetPlayerElements()
     {
-        freezeEffectScript.ResetIceAlphas();
+        freezeEffectScript.ResetAlphas();
         audioManagerScript.StopAllPuzzleSFX();
 
         // Resets all animator layers to their entry state (Idle)
@@ -129,7 +128,7 @@ public class CheckpointManager : MonoBehaviour
     // Resets all player elements elements after a delay
     private IEnumerator ResetPlayerCoroutine(float seconds)
     {
-        freezeEffectScript.LerpIceAlphas();
+        freezeEffectScript.LerpAlphas();
         playerScript.SetPlayerBoolsFalse();
         playerAnimator.enabled = false;
         pauseMenuScript.CanPause = false;

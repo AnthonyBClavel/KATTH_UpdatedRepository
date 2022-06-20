@@ -43,15 +43,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3f69e3e7984d714096ae075212db829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeLength: 1
   typingSpeed: 0.03
-  welcomeDialogue: {fileID: 4900000, guid: 5cb7b813f9240c34e9eb9111382b0f0b, type: 3}
-  pushDialogue: {fileID: 4900000, guid: 4950ab956dda55849ba40b3134531f90, type: 3}
-  breakDialogue: {fileID: 4900000, guid: 0aa90847fcbcb6e4a83b3a9886ac2246, type: 3}
-  holeDialogue: {fileID: 4900000, guid: 1b074606cb19f0442a2d4b6938a85c02, type: 3}
-  firestoneDialogue: {fileID: 4900000, guid: c86d7e7c7e1183a4c91d9a551b80d1a5, type: 3}
-  interactablesDialogue: {fileID: 4900000, guid: d21d25a6160f140499b738f43e5b37e1, type: 3}
-  artifcatsDialogue: {fileID: 4900000, guid: 345080fa615048b4aab0ac3a64874d93, type: 3}
-  finishedTutorialDialogue: {fileID: 4900000, guid: 7892bd0c2187d6f419de7427ddb580cc, type: 3}
-  bridgeDialogue: {fileID: 4900000, guid: fc672da8aa766d744852d368321e4b53, type: 3}
-  deathDialogue: {fileID: 4900000, guid: d3329d8c1be8cc647821c6e7a0d52ab7, type: 3}
+  fadeDuration: 1
+  tutorialDialogue:
+  - {fileID: 4900000, guid: 5cb7b813f9240c34e9eb9111382b0f0b, type: 3}
+  - {fileID: 4900000, guid: 4950ab956dda55849ba40b3134531f90, type: 3}
+  - {fileID: 4900000, guid: fc672da8aa766d744852d368321e4b53, type: 3}
+  - {fileID: 4900000, guid: 0aa90847fcbcb6e4a83b3a9886ac2246, type: 3}
+  - {fileID: 4900000, guid: 1b074606cb19f0442a2d4b6938a85c02, type: 3}
+  - {fileID: 4900000, guid: c86d7e7c7e1183a4c91d9a551b80d1a5, type: 3}
+  - {fileID: 4900000, guid: d21d25a6160f140499b738f43e5b37e1, type: 3}
+  - {fileID: 4900000, guid: 345080fa615048b4aab0ac3a64874d93, type: 3}
+  - {fileID: 4900000, guid: 7892bd0c2187d6f419de7427ddb580cc, type: 3}
+  - {fileID: 4900000, guid: d3329d8c1be8cc647821c6e7a0d52ab7, type: 3}

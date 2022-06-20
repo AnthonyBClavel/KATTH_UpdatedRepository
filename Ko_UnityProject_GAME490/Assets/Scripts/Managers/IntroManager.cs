@@ -20,7 +20,7 @@ public class IntroManager : MonoBehaviour
     private string zoneName;
 
     private GameObject zoneIntro;
-    private GameObject pixelatedCamera;
+    private GameObject mainCamera;
     private GameObject notificationBubbles;
 
     private TextMeshProUGUI zoneText;
@@ -29,6 +29,8 @@ public class IntroManager : MonoBehaviour
     private Vector3 cameraOriginalPos;
     private Vector3 cameraStartPos;
     private Vector3 cameraEndPos;
+    private Vector3 cameraOriginalRot;
+    private Vector3 cameraDefaultRot = new Vector3(54, 0, 0);
 
     private IEnumerator cameraCoroutine;
 
@@ -53,10 +55,117 @@ public class IntroManager : MonoBehaviour
         StartZoneIntroCheck();
     }
 
+    // Checks to start the zone intro
+    private void StartZoneIntroCheck()
+    {
+        // Note: the intro will ONLY play at the beginning of each zone (on first puzzle)
+        if (SceneManager.GetActiveScene().name != "TutorialMap" && !playerScript.OnCheckpoint())
+            StartCoroutine(StartZoneIntro());
+        else
+        {
+            audioManagerScript.FadeInLoopingAmbientSFX();
+            audioManagerScript.FadeInBackgroundMusic();
+            transitionFadeScript.GameFadeIn();
+            playerScript.MovePlayerCheck();
+
+            SetZoneIntroInactive();
+        }
+    }
+
+    // Sets the zone intro game object and script inactive
+    private void SetZoneIntroInactive()
+    {
+        zoneIntro.SetActive(false);
+        gameObject.SetActive(false);
+        enabled = false;
+    }
+
+    // Returns the time it takes to type the zone name
+    private float TypeZoneNameDuration()
+    {
+        typeNameDuration = 0f;
+
+        foreach (char letter in zoneName)
+            typeNameDuration += typingSpeed;
+
+        return typeNameDuration;
+    }
+
+    // Starts the coroutine that lerps the camera's position
+    private void StartCameraCoroutine()
+    {
+        if (cameraCoroutine != null)
+            StopCoroutine(cameraCoroutine);
+
+        cameraCoroutine = LerpCameraPosition();
+        StartCoroutine(cameraCoroutine);
+    }
+
+    // Lerps the position of the camera to another over a duration (duration = seconds)
+    private IEnumerator LerpCameraPosition()
+    {
+        // Note: the duration is total length of the zone intro
+        float duration = transitionFadeScript.introFadeIn + TypeZoneNameDuration() + displayNameDuration + transitionFadeScript.introFadeOut;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            mainCamera.transform.position = Vector3.Lerp(cameraStartPos, cameraEndPos, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.transform.position = cameraEndPos;
+    }
+
+    // Sets up and starts the zone intro
+    private IEnumerator StartZoneIntro()
+    {
+        mainCamera.transform.position = cameraStartPos;
+        mainCamera.transform.eulerAngles = cameraDefaultRot;
+        notificationBubbles.SetActive(false);
+
+        blackBarsScript.TurnOnBlackBars();
+        transitionFadeScript.IntroFadeIn();
+        torchMeterScript.TurnOffTorchMeter();
+        playerScript.SetPlayerBoolsFalse();
+        playerScript.TorchMeterAnimationCheck();
+        StartCameraCoroutine();
+
+        yield return new WaitForSeconds(transitionFadeScript.introFadeIn);
+
+        foreach (char letter in zoneName)
+        {
+            zoneText.text += letter;
+            charNoiseSFX.Play();
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        yield return new WaitForSeconds(displayNameDuration);
+        transitionFadeScript.IntroFadeOut();
+        zoneText.text = string.Empty;
+
+        yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
+        audioManagerScript.FadeInBackgroundMusic();
+        audioManagerScript.FadeInLoopingAmbientSFX();
+
+        blackBarsScript.TurnOffBlackBars();
+        transitionFadeScript.GameFadeIn();
+        torchMeterScript.TurnOnTorchMeter();
+        playerScript.MovePlayerCheck();
+
+        if (cameraCoroutine != null) StopCoroutine(cameraCoroutine);
+        mainCamera.transform.position = cameraOriginalPos;
+        mainCamera.transform.eulerAngles = cameraOriginalRot;
+        notificationBubbles.SetActive(true);
+        SetZoneIntroInactive();
+    }
+
     // Sets the camera vectors and zone name
     private void SetVectorsAndZoneName()
     {
-        cameraOriginalPos = pixelatedCamera.transform.position;
+        cameraOriginalPos = mainCamera.transform.position;
+        cameraOriginalRot = mainCamera.transform.eulerAngles;
         string sceneName = SceneManager.GetActiveScene().name;
 
         switch (sceneName)
@@ -84,121 +193,11 @@ public class IntroManager : MonoBehaviour
             default:
                 //Debug.Log("Unrecognizable scene name");
                 zoneName = "Zone 0: Sample Zone";
-                cameraStartPos = pixelatedCamera.transform.position;
+                cameraStartPos = mainCamera.transform.position;
                 break;
         }
 
-        cameraEndPos = cameraOriginalPos + new Vector3(distanceToTravel, 0, 0);
-    }
-
-    // Checks to start the zone intro
-    private void StartZoneIntroCheck()
-    {
-        // Note01: The intro is currenlty not played during the tutorial
-        // Note02: the intro will ONLY play at the beginning of each zone (while on the first puzzle)
-        if (SceneManager.GetActiveScene().name != "TutorialMap" && !playerScript.OnCheckpoint())
-            StartCoroutine(StartZoneIntro());
-        else
-        {          
-            playerScript.MovePlayerCheck(); // This method will move the player across a bridge if applicable
-            transitionFadeScript.GameFadeIn();
-            audioManagerScript.FadeInBackgroundMusic();
-            audioManagerScript.FadeInLoopingAmbientSFX();
-
-            SetZoneIntroInactve();
-        }
-    }
-
-    // Returns the time it takes to type the zone name
-    private float TypeZoneNameDuration()
-    {
-        typeNameDuration = 0f;
-
-        foreach (char letter in zoneName)
-            typeNameDuration += typingSpeed;
-
-        return typeNameDuration;
-    }
-
-    // Sets the zone intro game object and script inactive
-    private void SetZoneIntroInactve()
-    {
-        zoneIntro.SetActive(false);
-        gameObject.SetActive(false);
-        enabled = false;
-    }
-
-    // Starts the coroutine that lerps the camera's position
-    private void StartCameraCoroutine()
-    {
-        StopCameraCoroutine();
-
-        cameraCoroutine = LerpCamera();
-        StartCoroutine(cameraCoroutine);
-    }
-
-    // Stops the coroutine that lerps the camera's position
-    private void StopCameraCoroutine()
-    {
-        if (cameraCoroutine != null)
-            StopCoroutine(cameraCoroutine);
-    }
-
-    // Lerps the position of the camera to another over a duration (duration = length of zone intro)
-    private IEnumerator LerpCamera()
-    {
-        float time = 0f;
-        float duration = transitionFadeScript.introFadeIn + TypeZoneNameDuration() + displayNameDuration + transitionFadeScript.introFadeOut;
-
-        while (time < duration)
-        {
-            pixelatedCamera.transform.position = Vector3.Lerp(cameraStartPos, cameraEndPos, time / duration);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        pixelatedCamera.transform.position = cameraEndPos;
-    }
-
-    // Sets up and starts the zone intro
-    private IEnumerator StartZoneIntro()
-    {
-        pixelatedCamera.transform.position = cameraStartPos;
-        notificationBubbles.SetActive(false);
-
-        blackBarsScript.TurnOnBlackBars();
-        transitionFadeScript.IntroFadeIn();
-        torchMeterScript.TurnOffTorchMeter();
-        playerScript.SetPlayerBoolsFalse();
-        playerScript.TorchMeterAnimCheck();
-        StartCameraCoroutine();
-
-        yield return new WaitForSeconds(transitionFadeScript.introFadeIn);
-
-        foreach (char letter in zoneName)
-        {
-            zoneText.text += letter;
-            charNoiseSFX.Play();
-            yield return new WaitForSeconds(typingSpeed);
-        }
-
-        yield return new WaitForSeconds(displayNameDuration);
-        transitionFadeScript.IntroFadeOut();
-        zoneText.text = string.Empty;
-
-        yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
-        audioManagerScript.FadeInBackgroundMusic();
-        audioManagerScript.FadeInLoopingAmbientSFX();
-
-        blackBarsScript.TurnOffBlackBars();
-        transitionFadeScript.GameFadeIn();
-        torchMeterScript.TurnOnTorchMeter();
-        playerScript.MovePlayerCheck();
-        StopCameraCoroutine();
-
-        pixelatedCamera.transform.position = cameraOriginalPos;
-        notificationBubbles.SetActive(true);
-        SetZoneIntroInactve();
+        cameraEndPos = cameraStartPos + new Vector3(distanceToTravel, 0, 0);
     }
 
     // Sets the scripts to use
@@ -244,7 +243,7 @@ public class IntroManager : MonoBehaviour
         }
 
 
-        pixelatedCamera = cameraScript.gameObject;
+        mainCamera = cameraScript.gameObject;
         charNoiseSFX = audioManagerScript.charNoiseAS;
         SetVectorsAndZoneName();
     }

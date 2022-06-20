@@ -31,7 +31,7 @@ public class SaveManager : MonoBehaviour
             LoadPlayerRotation();
             OnFirstPuzzleCheck();
 
-            Debug.Log("Save loaded successfully");
+            //Debug.Log("Save loaded successfully");
         }
         else if (gameManagerScript.isDebugging)
         {

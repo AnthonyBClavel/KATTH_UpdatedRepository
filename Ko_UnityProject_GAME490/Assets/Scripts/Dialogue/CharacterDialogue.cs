@@ -7,18 +7,20 @@ using TMPro;
 
 public class CharacterDialogue : MonoBehaviour
 {
+    [Header("Dialogue Arrow Animation Variables")]
+    [SerializeField]
+    [Range(0.1f, 2.0f)]
+    private float animDuration = 1f; // Original Value = 1f
+    [SerializeField]
+    [Range(1f, 90f)]
+    private float animDistance = 15f; // Original Value = 15f
+
     [Header("Character Dialogue Variables")]
     [SerializeField] [Range(0.005f, 0.1f)]
     private float typingSpeed = 0.03f; // Original Value = 0.03f
     private float originalTypingSpeed; // Original Value = 0.03f
     private float sbhOffsetPositionY; // sbh = speech bubble holder
     private float sbhOffsetPositionX; // sbh = speech bubble holder
-
-    [Header("Dialogue Arrow Animation Variables")]
-    [SerializeField] [Range(0.1f, 2.0f)]
-    private float animDuration = 1f; // Original Value = 1f
-    [SerializeField] [Range(1f, 90f)]
-    private float animDistance = 15f; // Original Value = 15f
 
     private int sentenceIndex;
     private int artifactIndex;
@@ -80,13 +82,13 @@ public class CharacterDialogue : MonoBehaviour
     private Vector2 pdcAnchorPos; // pdc = player dialogue check
     private Vector2 npcdcAnchorPos; // npcdc = npc dialogue check
 
-    [Header("Dialogue Variables")]
-    private List<GameObject> doGameObjects = new List<GameObject>();
-    private List<TextMeshProUGUI> doTextComponenets = new List<TextMeshProUGUI>();
-    private TextAsset[] nPCDialogue;
+    public TextAsset[] emptyChestDialogue;
     private TextAsset[] artifactDialogue;
+    private TextAsset[] nPCDialogue;
     private string[] dialogueSentences;
     private string[] dialogueOptions;
+    private List<GameObject> doGameObjects = new List<GameObject>();
+    private List<TextMeshProUGUI> doTextComponenets = new List<TextMeshProUGUI>();
 
     [Header("Text Variables")]
     private StringBuilder textToColor = new StringBuilder();
@@ -117,12 +119,6 @@ public class CharacterDialogue : MonoBehaviour
     private BlackBars blackBarsScript;
     private GameHUD gameHUDScript;
     private TransitionFade transitionFadeScript;
-
-    public float TypingSpeed
-    {
-        get { return typingSpeed; }
-        set { typingSpeed = value; }
-    }
 
     public bool InDialogue
     {
@@ -180,12 +176,16 @@ public class CharacterDialogue : MonoBehaviour
         if (artifact != newArtifact)
         {
             artifact = newArtifact;
-            artifactScript = newScript;
-            artifactDialogue = artifact.artifactDialogue;          
+            artifactScript = newScript;      
         }
 
+        bool hasCollectedArtifact = PlayerPrefs.GetString("listOfArtifacts").Contains(artifact.name);
+        TextAsset dialogueOptions = hasCollectedArtifact ? null : artifact.dialogueOptions;
+        artifactDialogue = hasCollectedArtifact ? emptyChestDialogue : artifact.artifactDialogue;
+        artifactScript.ArtifactHolder.SetActive(hasCollectedArtifact ? false : true);
+
         isInteractingWithArtifact = true;
-        SetDialogueOptions(artifact.dialogueOptions);
+        SetDialogueOptions(dialogueOptions);
         StartCoroutine(StartDialogueDelay());
     }
 
@@ -216,16 +216,17 @@ public class CharacterDialogue : MonoBehaviour
     private void EndDialogue()
     {
         // Note: the dialogue will/should always end after choosing/playing the last dialogue option
-        if (dialogueOptionsIndex == dialogueOptions.Length - 1)
-        {        
+        if (dialogueOptions == null || dialogueOptionsIndex == dialogueOptions.Length - 1)
+        {
+            if (isInteractingWithArtifact) artifactScript.CloseChest();
             StartCoroutine(EndDialogueDelay());
             FadeOutDialogueMusic();
-            //Debug.Log("Dialogue Has Ended");
+            //Debug.Log("Dialogue has ended");
         }
         else
         {
             OpenDialogueOptions();       
-            //Debug.Log("Opened Dialogue Options");
+            //Debug.Log("Opened dialogue options");
         }
 
         currentlyTalking = string.Empty;
@@ -402,7 +403,6 @@ public class CharacterDialogue : MonoBehaviour
             if (dialogueOption.Contains("Collect"))
                 artifactScript.CollectArtifact();
 
-            playerScript.ChangeAnimationState("Interacting");
             artifactScript.CloseChest();
             StartCoroutine(EndDialogueDelay());
             FadeOutDialogueMusic();
@@ -456,7 +456,7 @@ public class CharacterDialogue : MonoBehaviour
         audioManagerScript.FadeInGeneratorLoopCheck();
     }
 
-    // Sets the color for the player dialogue bubble
+    // Sets the color for the Script dialogue bubble
     private void SetPlayerBubbleColor(Color32 color)
     {
         if (playerDialogueText.color == color)
@@ -466,7 +466,7 @@ public class CharacterDialogue : MonoBehaviour
         playerBubbleSprite.color = color;
         playerTailSprite.color = color;
         bigArrowSprite.color = color;
-        //Debug.Log("Updated Bubble Color For Player");
+        //Debug.Log("Updated bubble color for PLAYER");
     }
 
     // Sets the color for the npc dialogue bubble
@@ -478,7 +478,7 @@ public class CharacterDialogue : MonoBehaviour
         nPCDialogueText.color = color;
         nPCBubbleSprite.color = color;
         nPCTailSprite.color = color;
-        //Debug.Log("Updated Bubble Color For NPC");
+        //Debug.Log("Updated bubble color for NPC");
     }
 
     // Sets the color for the alert bubble
@@ -722,8 +722,11 @@ public class CharacterDialogue : MonoBehaviour
     // Ends the dialogue after a delay
     private IEnumerator EndDialogueDelay()
     {
-        sentenceIndex = 0;
+        if (dialogueInputCoroutine != null) 
+            StopCoroutine(dialogueInputCoroutine);
+
         dialogueOptionsIndex = 0;
+        sentenceIndex = 0;
 
         nPCFidgetScript.HasPlayedInitialFidget = false;
         playerFidgetScript.HasPlayedInitialFidget = false;
@@ -817,22 +820,23 @@ public class CharacterDialogue : MonoBehaviour
 
         while (inDialogue && !inDialogueOptions && !transitionFadeScript.IsChangingScenes)
         {
-            if (Time.deltaTime > 0)
-            {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
-                    if (continueButton.activeInHierarchy)
-                        NextSentenceCheck();
-
-                    else if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
-                        typingSpeed /= 2;
-                }
-            }
-
+            ContinueDialogueCheck(); 
             yield return null;
         }
-        //Debug.Log("Dialogue Input Check Has Finished!");
+        //Debug.Log("Continue dialogue input check has finished!");
+    }
+
+    private void ContinueDialogueCheck()
+    {
+        if (Time.deltaTime == 0 || !Input.GetKeyDown(KeyCode.Return) && 
+            !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
+
+        // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
+        if (continueButton.activeInHierarchy)
+            NextSentenceCheck();
+
+        else if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
+            typingSpeed /= 2;
     }
 
     // Checks for the input that selects a dialogue option

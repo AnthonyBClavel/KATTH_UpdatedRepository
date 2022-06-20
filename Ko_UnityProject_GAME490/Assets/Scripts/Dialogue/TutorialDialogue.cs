@@ -18,13 +18,7 @@ public class TutorialDialogue : MonoBehaviour
 
     private bool hasPlayedWelcome = false;
     private bool hasPlayedPush = false;
-    private bool hasPlayedBreak = false;
-    private bool hasPlayedHole = false;
-    private bool hasPlayedFirestone = false;
     private bool hasPassedBridge = false;
-    private bool hasPlayedInteractables = false;
-    private bool hasPlayedArtifact = false;
-    private bool hasplayedFinished = false;
 
     private GameObject artifactButtons;
     private GameObject continueButton;
@@ -32,18 +26,8 @@ public class TutorialDialogue : MonoBehaviour
     private TextMeshProUGUI tutorialDialogueText;
     private Image blackOverlay;
     private AudioSource charNoise;
-
-    [Header("Dialogue Text Assets")]
-    public TextAsset welcomeDialogue;
-    public TextAsset pushDialogue;
-    public TextAsset breakDialogue;
-    public TextAsset holeDialogue;
-    public TextAsset firestoneDialogue;
-    public TextAsset interactablesDialogue;
-    public TextAsset artifcatsDialogue;
-    public TextAsset finishedTutorialDialogue;
-    public TextAsset bridgeDialogue;
-    public TextAsset deathDialogue;
+    private TextAsset deathDialogue;
+    public List<TextAsset> tutorialDialogue = new List<TextAsset>();
 
     private IEnumerator fadeOverlayCorouitne;
     private IEnumerator inputCoroutine;
@@ -55,20 +39,12 @@ public class TutorialDialogue : MonoBehaviour
     private GameHUD gameHUDScript;
     private AudioManager audioManagerScript;
     private SkipSceneButton skipSceneButtonScript;
-    private PuzzleManager puzzleManagerScript;
 
     // Awake is called before Start()
     void Awake()
     {
         SetScripts();
         SetElements();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        playerScript.SetPlayerBoolsFalse();
-        skipSceneButtonScript.SetSkipSceneButtonInactive();
     }
 
     // Plays the death dialogue
@@ -78,103 +54,47 @@ public class TutorialDialogue : MonoBehaviour
         StartDialogue();
     }
 
-    // Checks to play the pushable block dialogue 
-    public void PlayPushDialogueCheck()
-    {
-        if (!hasPlayedPush && puzzleManagerScript.PuzzleNumber == 1)
-        {
-            SetDialogue(pushDialogue);
-            StartDialogue();
-            hasPlayedPush = true;
-        }
-    }
-
     // Checks to play the welcome dialogue
     public void PlayWelcomeDialogueCheck()
     {
-        if (!hasPlayedWelcome)
-        {
-            SetDialogue(welcomeDialogue);
-            StartDialogue();
-            hasPlayedWelcome = true;
-        }
+        if (hasPlayedWelcome) return;
+
+        PlayDialogueCheck("Welcome");
+        hasPlayedWelcome = true;
     }
 
-    // Checks to play the breakable block dialogue
-    public void PlayBreakDialogueCheck()
+    // Checks to play the pushable block dialogue 
+    public void PlayPushDialogueCheck(Collider collider)
     {
-        if (!hasPlayedBreak)
-        {
-            SetDialogue(breakDialogue);
-            StartDialogue();
-            hasPlayedBreak = true;
-        }
-    }
+        if (collider == null || !collider.CompareTag("PushableBlock") || hasPlayedPush) return;
 
-    // Checks to play the hole dialogue
-    public void PlayHoleDialogueCheck()
-    {
-        if (!hasPlayedHole)
-        {
-            SetDialogue(holeDialogue);
-            StartDialogue();
-            hasPlayedHole = true;
-        }
-    }
-
-    // Checks to play the firstone dialogue
-    public void PlayFirstoneDialogueCheck()
-    {
-        if (!hasPlayedFirestone)
-        {
-            SetDialogue(firestoneDialogue);
-            StartDialogue();
-            hasPlayedFirestone = true;
-        }
-    }
-
-    // Checks to play the interactables dialogue (NPCs and Artifacts)
-    public void PlayInteractablesDialogueCheck()
-    {
-        if (!hasPlayedInteractables)
-        {
-            SetDialogue(interactablesDialogue);
-            StartDialogue();
-            hasPlayedInteractables = true;
-        }
-    }
-
-    // Checks to play the finished tutorial dialogue
-    public void PlayFinishedTutorialDialogueCheck()
-    {
-        if (!hasplayedFinished)
-        {
-            SetDialogue(finishedTutorialDialogue);
-            StartDialogue();
-            hasplayedFinished = true;
-        }
+        PlayDialogueCheck("Push");
+        hasPlayedPush = true;
     }
 
     // Checks to play the bridge dialogue
-    public void PlayBridgeDialogueCheck()
+    public void PlayBridgeDialogueCheck(bool onLastBridgeTile)
     {
-        if (!hasPassedBridge && hasPlayedWelcome) // Note: hasPlayedWelcome was added to prevent dialogue issues if debugging
-        {
-            SetDialogue(bridgeDialogue);
-            StartDialogue();
-            hasPassedBridge = true;
-        }
+        if (!onLastBridgeTile || !hasPlayedWelcome || hasPassedBridge) return;
+
+        PlayDialogueCheck("Bridge");
+        hasPassedBridge = true;
     }
 
-    // Checks to play the artifact dialogue
-    public bool PlayArtifactDialogueCheck()
+    // Checks if the tutorial dialogue can be played - returns true if so, false otherwise
+    public bool PlayDialogueCheck(string nameOfTextAsset)
     {
-        if (!hasPlayedArtifact)
+        if (tutorialDialogue.Count == 0) return false;
+
+        foreach (TextAsset textFile in tutorialDialogue)
         {
-            SetDialogue(artifcatsDialogue);
-            StartDialogue();
-            hasPlayedArtifact = true;
-            return true;
+            if (textFile.name == nameOfTextAsset)
+            {
+                SetDialogue(textFile);
+                StartDialogue();
+                tutorialDialogue.Remove(textFile);
+                return true;
+            }
         }
 
         return false;
@@ -280,7 +200,7 @@ public class TutorialDialogue : MonoBehaviour
     {
         yield return new WaitForSeconds(0.03f);
 
-        foreach (char letter in sentences[sentenceIndex].ToCharArray())
+        foreach (char letter in sentences[sentenceIndex])
         {
             tutorialDialogueText.text += letter;
             charNoise.Play();
@@ -307,7 +227,7 @@ public class TutorialDialogue : MonoBehaviour
 
             yield return null;
         }
-        //Debug.Log("Tutorial Dialogue Input Check Has Ended");
+        //Debug.Log("Tutorial dialogue input check has ENDED");
     }
 
     // Sets the scripts to use
@@ -320,7 +240,6 @@ public class TutorialDialogue : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
-        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
     }
 
     // Sets private variables, objects, and components
@@ -359,6 +278,17 @@ public class TutorialDialogue : MonoBehaviour
                     if (child02.name == "Text")
                         tutorialDialogueText = child02.GetComponent<TextMeshProUGUI>();
                 }
+            }
+        }
+
+        // Sets the death dialogue and removes it from the list
+        foreach (TextAsset textFile in tutorialDialogue)
+        {
+            if (textFile.name == "Death")
+            {
+                deathDialogue = textFile;
+                tutorialDialogue.Remove(textFile);
+                break;
             }
         }
 

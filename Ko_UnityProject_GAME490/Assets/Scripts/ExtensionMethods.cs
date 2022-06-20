@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public static class ExtensionMethods
@@ -20,9 +21,18 @@ public static class ExtensionMethods
         image.color = new Color(color.r, color.g, color.b, alpha);
     }
 
+    // Returns the color of the image
+    // Note: the default alpha to return will always be one if the parameter is not set
+    public static Color ReturnImageColor(this Image image, float alpha = 1)
+    {
+        Color color = image.color;
+        return new Color(color.r, color.g, color.b, alpha);
+    }
+
     // Returns an array of strings/sentences
     public static string[] ReturnSentences(this TextAsset textFile)
     {
+        if (textFile == null) return null;
         return textFile.text.Split("\n"[0]);
     }
 
@@ -30,6 +40,25 @@ public static class ExtensionMethods
     public static string ReturnHexColor(this Color32 color)
     {
         return ColorUtility.ToHtmlStringRGB(color);
+    }
+
+    // Returns the name of the current unity scene
+    public static string SceneName()
+    {
+        return SceneManager.GetActiveScene().name;
+    }
+
+    // Return the length of a clip within an animator
+    public static float ReturnClipLength(this Animator animator, string nameOfClip)
+    {
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips)
+        {
+            if (clip.name == nameOfClip)
+                return clip.length;
+        }
+
+        return 0;
     }
 
 }

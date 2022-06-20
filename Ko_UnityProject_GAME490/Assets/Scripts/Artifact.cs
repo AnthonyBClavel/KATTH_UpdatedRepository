@@ -12,12 +12,14 @@ public class Artifact : MonoBehaviour
     [Range(0.01f, 100f)]
     private float rotationSpeedWithKeys = 26f; // 26f = Original Value
     [Range(0.01f, 100f)]
-    private float rotationSpeedWithMouse = 20f; // 20f =  Original Value 
+    private float rotationSpeedWithMouse = 20f; // 20f =  Original Value
     private float horizontalAxis;
     private float verticalAxis;
+    private float closeAnimLength;
 
     private string artifactName;
     private bool hasInspectedArtifact = false;
+    private bool hasCollectedArtifact = false;
 
     private GameObject woodenChestHolder;
     private GameObject artifactHolder;
@@ -65,82 +67,78 @@ public class Artifact : MonoBehaviour
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // Checks if the artifact has already been collected
-        if (PlayerPrefs.GetString("listOfArtifacts").Contains(artifactName))
-        {
-            artifactHolder.SetActive(false);
-            enabled = false;
-        }
-    }
-
     // Saves the name of the collected artifact via PlayerPrefs and updates the artifact notification bubble
     public void CollectArtifact()
     {
-        int artifactsCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
+        int artifactCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
         string artifactsCollected = PlayerPrefs.GetString("listOfArtifacts");
 
-        if (artifactsCount < 15 && artifactHolder.activeSelf && enabled)
-        {
-            int totalArtifacts = (SceneManager.GetActiveScene().name == "TutorialMap") ? 1 : 15;
-            gameHUDScript.UpdateArtifactBubbleText($"{artifactsCount + 1}/{totalArtifacts}");
+        if (artifactCount >= 15 || hasCollectedArtifact || !enabled) return;
 
-            notificationBubblesScript.PlayArtifactNotificationCheck();
-            saveManagerScript.SaveCollectedArtifact(artifactsCollected + artifactName);
-            saveManagerScript.SaveNumberOfArtifactsCollected(artifactsCount + 1);
+        int totalArtifacts = (SceneManager.GetActiveScene().name != "TutorialMap") ? 15 : 1;
+        gameHUDScript.UpdateArtifactBubbleText($"{artifactCount + 1}/{totalArtifacts}");
+        notificationBubblesScript.PlayArtifactNotificationCheck();
 
-            artifactHolder.SetActive(false);
-            enabled = false;
-            //Debug.Log("Collected Artifact");
-        }
+        saveManagerScript.SaveCollectedArtifact(artifactsCollected + artifactName);
+        saveManagerScript.SaveNumberOfArtifactsCollected(artifactCount + 1);
+        SetArtifactInactiveCheck();
+        //Debug.Log("Collected artifact");
     }
 
-    // Sets the camera view to a new position and rotation (up-close view of the artifact)
+    // Sets the camera and artifact to appropiate position/rotation for inspecting
     private void SetArtifactView()
     {
-        float playerRotationY = player.transform.eulerAngles.y;
         cameraScript.StopAllCoroutines();
 
-        // Positions the camera slightly above the player and sets its y rotation to the player's y rotation
+        // Rotates the camera towards the player's direction and positions it slightly above the player
+        mainCamera.transform.eulerAngles = mainCamera.transform.eulerAngles + new Vector3(0, player.transform.eulerAngles.y, 0);
         mainCamera.transform.position = player.transform.position + new Vector3(0, 2.15f, 0);
-        mainCamera.transform.eulerAngles = mainCamera.transform.eulerAngles + new Vector3(0, playerRotationY, 0);
-        ahZoomPosition = mainCamera.transform.TransformPoint(Vector3.forward);
 
-        // Rotates the artifact and the chest to look towards the player
-        woodenChestHolder.transform.LookAt(player.transform.position);
-        artifactHolder.transform.LookAt(mainCamera.transform.position);
+        // Rotates the chest to look towards the player
+        woodenChestHolder.transform.LookAt(player.transform);
+
+        // Rotates the artifact to look at the camera
+        artifactHolder.transform.LookAt(mainCamera.transform);
         artifactHolder.transform.Rotate(artifactHolder.transform.up, 180, Space.World);
+
+        ahZoomPosition = mainCamera.transform.TransformPoint(Vector3.forward);
         ahInspectingRotation = artifactHolder.transform.eulerAngles;
     }
 
-    // Sets the camera view back to it's previous position and rotation (dialogue view)
+    // Sets the camera and artifact to their previous position/rotation
     private void SetPreviousView()
     {
         cameraScript.SetToDialogueView();
 
-        // Resets the artifact and the chest to their default rotations
         artifactHolder.transform.position = ahOriginalPosition;
         artifactHolder.transform.eulerAngles = ahOriginalRotation;
         woodenChestHolder.transform.eulerAngles = wchOriginalRotation;
     }
 
+    // Checks to set the artifact/script inactive - if the artifact was already collected
+    private void SetArtifactInactiveCheck()
+    {
+        if (!PlayerPrefs.GetString("listOfArtifacts").Contains(artifactName)) return;
+
+        artifactHolder.SetActive(false);
+        hasCollectedArtifact = true;
+        //enabled = false;
+    }
+
     // Opens the artifact chest
     public void OpenChest()
     {
-        if (artifactHolder.activeSelf && enabled)
-        {
-            woodenChestAnim.Play("Open");
-            audioManagerScript.PlayOpeningChestSFX();
-            ahOriginalPosition = artifactHolder.transform.position;
-        }
+        if (!enabled) return;
+    
+        ahOriginalPosition = artifactHolder.transform.position;
+        audioManagerScript.PlayOpeningChestSFX();
+        woodenChestAnim.Play("Open");
     }
 
     // Closes the artifact chest
     public void CloseChest()
     {
-        if (closeChestCoroutine != null)
+        if (closeChestCoroutine != null) 
             StopCoroutine(closeChestCoroutine);
 
         closeChestCoroutine = CloseArtifactChest();
@@ -150,7 +148,7 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that transitions to the artifact view
     public void InspectArtifact()
     {
-        if (artifactViewCoroutine != null)
+        if (artifactViewCoroutine != null) 
             StopCoroutine(artifactViewCoroutine);
 
         artifactViewCoroutine = TransitionToArtifactView();
@@ -160,7 +158,7 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that transitions to the previous view
     public void StopInspectingArtifact()
     {
-        if (previousViewCoroutine != null)
+        if (previousViewCoroutine != null) 
             StopCoroutine(previousViewCoroutine);
 
         previousViewCoroutine = TransitionToPreviousView();
@@ -170,7 +168,7 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that checks for the artifact input
     public void StartInputCoroutine()
     {
-        if (inputCoroutine != null)
+        if (inputCoroutine != null) 
             StopCoroutine(inputCoroutine);
 
         inputCoroutine = ArtifactInputCheck();
@@ -180,47 +178,46 @@ public class Artifact : MonoBehaviour
     // The coroutine for closing the artifact chest
     private IEnumerator CloseArtifactChest()
     {
+        playerScript.ChangeAnimationState("Interacting");
         woodenChestAnim.Play("Close");
 
-        // Plays the sfx at the end of the chest's closing animation
-        yield return new WaitForSeconds(1f/6f); // 0.166f
+        yield return new WaitForSeconds(closeAnimLength * 0.75f);
         audioManagerScript.PlayClosingChestSFX();
     }
 
     // Transitions to the camera's artifact view
-    private IEnumerator TransitionToArtifactView()
+    private IEnumerator TransitionToArtifactView() /////////////////////////////////////////////////////
     {
         bool inTutorialDialogue = false;
-        float duration = transitionFadeScript.fadeOutAndIn / 2f;
+        float duration = transitionFadeScript.fadeOutAndIn * 0.5f;
         transitionFadeScript.PlayTransitionFade();
 
         yield return new WaitForSeconds(duration);
         SetArtifactView();
 
-        if (tutorialDialogueScript != null && tutorialDialogueScript.PlayArtifactDialogueCheck())
+        if (tutorialDialogueScript != null && tutorialDialogueScript.PlayDialogueCheck("Artifacts"))
             inTutorialDialogue = true;
         else
             artifactButtons.SetActive(true);
 
         yield return new WaitForSeconds(duration);
-        if (!inTutorialDialogue)
-            StartInputCoroutine();
+        if (!inTutorialDialogue) StartInputCoroutine();
     }
 
     // Transitions to the camera's previous view
     private IEnumerator TransitionToPreviousView()
     {
-        float duration = transitionFadeScript.fadeOutAndIn / 2f;
+        float duration = transitionFadeScript.fadeOutAndIn * 0.5f;
         transitionFadeScript.PlayTransitionFade();
 
         yield return new WaitForSeconds(duration);
         SetPreviousView();
 
-        yield return new WaitForSeconds(duration / 2f);
+        yield return new WaitForSeconds(duration * 0.5f);
         characterDialogueScript.OpenDialogueOptions();
     }
 
-    // Checks for the input that rotates or resets the artifact
+    // Checks for the artifact input (rotate/reset-rotation/zoom/stop-inspecting)
     private IEnumerator ArtifactInputCheck()
     {
         yield return new WaitForSeconds(0.01f);
@@ -237,7 +234,7 @@ public class Artifact : MonoBehaviour
             yield return null;
         }
 
-        // Checks to reset/lerp the artifact to its original position
+        // Lerps the artifact to its original position if applicable
         while (artifactHolder.transform.position != ahOriginalPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
@@ -251,7 +248,7 @@ public class Artifact : MonoBehaviour
         //Debug.Log("Artifact input check has ended");
     }
 
-    // Checks when to stop inspecting the artifact
+    // Checks to stop inspecting the artifact
     private void StopInputCheck()
     {
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -292,7 +289,7 @@ public class Artifact : MonoBehaviour
         }
     }
 
-    // Checks to zoom the artifact in/out
+    // Checks to zoom the artifact in and out
     private void ZoomInputCheck()
     {
         if (Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahZoomPosition)
@@ -367,6 +364,9 @@ public class Artifact : MonoBehaviour
         wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;
         ahOriginalPosition = artifactHolder.transform.position;
+
+        closeAnimLength = woodenChestAnim.ReturnClipLength("Close");
+        SetArtifactInactiveCheck();
     }
 
 }

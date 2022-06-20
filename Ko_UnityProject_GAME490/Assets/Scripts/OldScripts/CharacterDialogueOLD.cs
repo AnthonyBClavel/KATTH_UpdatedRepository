@@ -532,7 +532,7 @@ public class CharacterDialogueOLD : MonoBehaviour
         hasSetBubbleDefaultPosY = false;
 
         yield return new WaitForSeconds(0.4f);
-        playerScript.AlertBubbleCheck();
+        //playerScript.AlertBubbleCheck();
 
         yield return new WaitForSeconds(0.1f);
         playerScript.SetPlayerBoolsTrue();
@@ -669,8 +669,8 @@ public class CharacterDialogueOLD : MonoBehaviour
                             if (dialogueOptions[dialogueOptionsIndex].Contains("Collect"))
                                 artifactScript.CollectArtifact();
 
-                            playerScript.ChangeAnimationState("Interacting");
-                            artifactScript.CloseChest();
+                            //playerScript.ChangeAnimationState("Interacting");
+                            //artifactScript.CloseChest();
                             StartCoroutine(EndDialogueDelay());
                             FadeOutDialogueMusic();
                         }

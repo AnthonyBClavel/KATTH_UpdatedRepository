@@ -69,12 +69,12 @@ public class BlackBars : MonoBehaviour
         if (!hasMovedBars)
         {
             MoveBlackBarsIn();
-            Debug.Log("Debugging: Moved Black Bars IN");
+            Debug.Log("Debugging: moved black bars IN");
         }
         else if (hasMovedBars)
         {
             MoveBlackBarsOut();
-            Debug.Log("Debugging: Moved Black Bars OUT");
+            Debug.Log("Debugging: moved black bars OUT");
         }
     }
 
