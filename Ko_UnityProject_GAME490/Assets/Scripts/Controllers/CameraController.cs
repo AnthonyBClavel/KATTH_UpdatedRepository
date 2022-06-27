@@ -92,7 +92,7 @@ public class CameraController : MonoBehaviour
         // Note: the sfx for moving the camera is not played during character dialogue
         if (!characterDialogueScript.InDialogue)
         {
-            audioManagerScript.ChangeLoopingAmbienceSFX();
+            audioManagerScript.PlayAmbientWindSFX();
             audioManagerScript.PlayWindGushSFX();
         }
 

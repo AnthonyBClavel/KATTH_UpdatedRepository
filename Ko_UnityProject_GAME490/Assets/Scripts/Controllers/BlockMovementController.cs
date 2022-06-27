@@ -7,15 +7,17 @@ public class BlockMovementController : MonoBehaviour
     private float lerpDuration = 0.1f; // Original Value = 0.1f
     private float rayLength = 1f;
 
-    private bool isFalling = false;
-    private bool canMoveBlock = true;
     private bool hasUpdatedStartPosition = false;
+    private bool canMoveBlock = true;
+    private bool isFalling = false;
 
     private GameObject emptyBlock;
+    private Rigidbody rigidBody;
     private Vector3 nextBlockPos;
     private Vector3 destination;
     private Vector3 startPosition;
     private Vector3 debugStartPosition;
+    private Vector3 zero = Vector3.zero;
     private IEnumerator moveBlockCoroutine;
     
     private TileMovementController playerScript;
@@ -59,6 +61,7 @@ public class BlockMovementController : MonoBehaviour
     public void ResetBlock()
     {
         StopAllCoroutines();
+        ResetRigidBodyCheck();
 
         destination = (gameManagerScript.isDebugging) ? debugStartPosition : startPosition;
         transform.position = destination;
@@ -104,6 +107,18 @@ public class BlockMovementController : MonoBehaviour
         hasUpdatedStartPosition = true;
     }
 
+    // Checks to reset the block's rigid body
+    private void ResetRigidBodyCheck()
+    {
+        if (rigidBody.velocity == zero || transform.eulerAngles == zero) return;
+
+        rigidBody.velocity = zero;
+        rigidBody.angularVelocity = zero;
+
+        rigidBody.centerOfMass = zero;
+        transform.eulerAngles = zero;
+    }
+
     // Checks for a collider at the next block position - return true if so, false otherwise
     private bool ColliderCheck()
     {
@@ -111,6 +126,7 @@ public class BlockMovementController : MonoBehaviour
         //RaycastHit hit;
         //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
+        // If the ray doesn't hit anything, then there's NO collider
         if (!Physics.Raycast(myRay, rayLength)) return false;
 
         audioManagerScript.PlayCantPushCrateSFX();
@@ -124,13 +140,11 @@ public class BlockMovementController : MonoBehaviour
         RaycastHit hit;
         //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
-        if (!Physics.Raycast(myRay, out hit, rayLength) || hit.collider.CompareTag("BridgeTile") || hit.collider.name.Contains("BridgeTile"))
-        {
-            audioManagerScript.PlayCantPushCrateSFX();
-            return true;
-        }
+        // If the rays hits anything and it's not a bridge tile, then there's NO edge
+        if (Physics.Raycast(myRay, out hit, rayLength) && !hit.collider.CompareTag("BridgeTile") && !hit.collider.name.Contains("BridgeTile")) return false;
 
-        return false;
+        audioManagerScript.PlayCantPushCrateSFX();
+        return true;      
     }
 
     // Checks for a hole at the block's current position - returns true and falls into the hole if so, false otherwise
@@ -140,19 +154,17 @@ public class BlockMovementController : MonoBehaviour
         RaycastHit hit;
         //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
-        if (Physics.Raycast(myRay, out hit, rayLength) && hit.collider.CompareTag("EmptyBlock"))
-        {
-            emptyBlock = hit.collider.gameObject;
-            emptyBlock.SetActive(false);
+        // If the ray doesn't hit anything or if it doesn't hit an empty block, then there's NO hole
+        if (!Physics.Raycast(myRay, out hit, rayLength) || !hit.collider.CompareTag("EmptyBlock")) return false;
 
-            destination = emptyBlock.transform.position;
-            isFalling = true;
+        emptyBlock = hit.collider.gameObject;
+        emptyBlock.SetActive(false);
 
-            StartMoveBlockCoroutine();
-            return true;
-        }
+        destination = emptyBlock.transform.position;
+        isFalling = true;
 
-        return false;
+        StartMoveBlockCoroutine();
+        return true;
     }
 
     // Starts the coroutine that moves the block
@@ -199,6 +211,7 @@ public class BlockMovementController : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
+        rigidBody = GetComponent<Rigidbody>();
         nextBlockPos = Vector3.forward;
         startPosition = transform.position;
         debugStartPosition = startPosition;

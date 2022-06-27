@@ -69,11 +69,11 @@ public class CharacterDialogue : MonoBehaviour
     private Animator nPCBubbleAnim;
     private Camera dialogueCamera;
 
-    private Vector2 bubbleHolderOrigPos;
+    private Vector2 bubbleHolderMidPos;
     private Vector2 bubbleHolderRightPos;
     private Vector2 bubbleHolderLeftPos;
 
-    private Vector2 originalPivot;
+    private Vector2 middlePivot;
     private Vector2 rightPivot;
     private Vector2 leftPivot;
     private Vector2 dialogueArrowOrigPos;
@@ -195,11 +195,10 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the dialogue options
     private void SetDialogueOptions(TextAsset dialogeOptionsFile)
     {
-        if (dialogueOptions != dialogeOptionsFile.ReturnSentences())
-            dialogueOptions = dialogeOptionsFile.ReturnSentences();
+        dialogueOptions = dialogeOptionsFile.ReturnSentences();
+        if (!isInteractingWithNPC) return;
 
-        if (isInteractingWithNPC)
-            nPCScript.SetDialogueOptionBools(dialogueOptions.Length);
+        nPCScript.SetDialogueOptionBools(dialogueOptions.Length);
     }
 
     // Starts the character dialogue
@@ -218,7 +217,9 @@ public class CharacterDialogue : MonoBehaviour
         // Note: the dialogue will/should always end after choosing/playing the last dialogue option
         if (dialogueOptions == null || dialogueOptionsIndex == dialogueOptions.Length - 1)
         {
-            if (isInteractingWithArtifact) artifactScript.CloseChest();
+            if (isInteractingWithArtifact) 
+                artifactScript.CloseChest();
+
             StartCoroutine(EndDialogueDelay());
             FadeOutDialogueMusic();
             //Debug.Log("Dialogue has ended");
@@ -232,39 +233,24 @@ public class CharacterDialogue : MonoBehaviour
         currentlyTalking = string.Empty;
     }
 
-    // Determines, sets, and plays the next dialogue sentence (theString = the next line/string within the text file)
-    private void NextDialogueSentence(string theString)
-    {
-        string characterName = theString.Remove(theString.IndexOf(':') + 1);
-        nextSentence = theString.Replace(characterName, "").Trim();
-        isPlayerSpeaking = characterName.Contains("PLAYER");
-        PlayFidgetAndBubblePopSFX(characterName);
-
-        StartCoroutine(TypeCharacterDialogue());
-    }
-
     // Sets the dialogue for initially interacting with an npc/artifact
     private void SetInitialDialogue()
     {
         if (isInteractingWithNPC)
         {
-            nPCScript.SetRotationNPC();
+            int initialIndex = nPCScript.HasPlayedInitialDialogue ? 1 : 0;
+
+            nPCScript.SetRotation();
             nPCDialogueText.color = nPCTextColor;
-                
-            if (!nPCScript.HasPlayedInitialDialogue && !isInteractingWithArtifact)
-            {
-                nPCScript.HasPlayedInitialDialogue = true;
-                SetCharacterDialogue(nPCDialogue[0]);
-            }              
-            else
-                SetCharacterDialogue(nPCDialogue[1]);
+            nPCScript.HasPlayedInitialDialogue = true;
+            SetCharacterDialogue(nPCDialogue[initialIndex]);
         }
-        else
-            SetCharacterDialogue(ReturnRandomArtifactDialogue());
+        else if (isInteractingWithArtifact)
+            SetCharacterDialogue(RandomArtifactDialogue());
     }
 
     // Returns a randomly selected text asset for the artifact dialogue
-    private TextAsset ReturnRandomArtifactDialogue()
+    private TextAsset RandomArtifactDialogue()
     {
         int newArtifactIndex = Random.Range(0, artifactDialogue.Length);
         int attempts = 3;
@@ -280,7 +266,18 @@ public class CharacterDialogue : MonoBehaviour
         return artifactDialogue[newArtifactIndex];
     }
 
-    // Checks to play the next dialogue sentence if applicable - ends the dialogue otherwise
+    // Sets and plays the next dialogue sentence
+    private void NextDialogueSentence(string theString)
+    {
+        string characterName = theString.Remove(theString.IndexOf(':') + 1);
+        nextSentence = theString.Replace(characterName, "").Trim();
+        isPlayerSpeaking = characterName.Contains("PLAYER");
+        PlayFidgetAndBubblePopSFX(characterName);
+
+        StartCoroutine(TypeCharacterDialogue());
+    }
+
+    // Checks for the next dialogue sentence to play - ends the dialogue otherwise
     private void NextSentenceCheck()
     {
         originalTypingSpeed = typingSpeed; //typingSpeed = originalTypingSpeed;
@@ -297,32 +294,21 @@ public class CharacterDialogue : MonoBehaviour
     {
         for (int i = 0; i < dialogueOptions.Length; i++)
         {        
-            if (inDialogueOptions) // Set ACTIVE
-            {
-                doTextComponenets[i].text = dialogueOptions[i];
-                doGameObjects[i].SetActive(true);
-            }
-            else // Set INACTIVE
-            {
-                doTextComponenets[i].text = string.Empty;
-                doGameObjects[i].SetActive(false);
-            }
-
+            doTextComponenets[i].text = inDialogueOptions ? dialogueOptions[i] : string.Empty;
+            doGameObjects[i].SetActive(inDialogueOptions ? true : false);
             doTextComponenets[i].color = unselectedTextColor;
         }
 
         // Note: ONLY shows the "Collect" dialogue option AFTER the player has inspected the artifact
-        if (isInteractingWithArtifact && !artifactScript.HasInspectedArtifact)
+        if (!isInteractingWithArtifact || artifactScript.HasInspectedArtifact) return;
+
+        for (int i = 0; i < dialogueOptions.Length; i++)
         {
-            for (int i = 0; i < dialogueOptions.Length; i++)
-            {
-                if (dialogueOptions[i].Contains("Collect"))
-                {
-                    doGameObjects[i].SetActive(false);
-                    doTextComponenets[i].text = string.Empty;
-                    break;
-                }
-            }        
+            if (!dialogueOptions[i].Contains("Collect")) continue;
+
+            doTextComponenets[i].text = string.Empty;
+            doGameObjects[i].SetActive(false);
+            break;
         }
     }
 
@@ -339,54 +325,48 @@ public class CharacterDialogue : MonoBehaviour
     // "Closes" the dialogue options
     private void CloseDialogueOptions()
     {
-        StopDialogueArrowAnim();
         inDialogueOptions = false;
         sentenceIndex = 0;
 
+        playerDialogueText.gameObject.SetActive(true);
         dialogueOptionButtons.SetActive(false);
         dialogueArrow.SetActive(false);
 
-        playerDialogueText.gameObject.SetActive(true);
         playerSpeechBubbleVLG.childAlignment = TextAnchor.MiddleCenter;
         playerSpeechBubbleVLG.padding.left = 20;
 
+        StopDialogueArrowAnim();
         ShowDialgoueOptionsCheck(); // This method MUST be called last!
     }
 
-    // Determines which version of the selected dialogue option to play
-    private void DailogueOptionCheckForNPC()
+    // Checks to play the selected dialgoue option (NPC)
+    private void SelectedDialogueCheckForNPC()
     {
         int original = (dialogueOptionsIndex * 2) + 2;
         int variant = original + 1;
 
-        // Checks which closing version to play
+        // Checks which closing version to set - if a dialogue option was/wasn't selected previously
         if (dialogueOptionsIndex == dialogueOptions.Length - 1)
         {
-            if (hasSelectedDialogueOption)
-                SetCharacterDialogue(nPCDialogue[original]);
-            else
-                SetCharacterDialogue(nPCDialogue[variant]);
+            int closing = hasSelectedDialogueOption ? original : variant;
+            SetCharacterDialogue(nPCDialogue[closing]);
         }
-        // Checks to play the original version - if the dialogue option has NOT been played
-        else if (nPCScript.DialogueOptionBools[dialogueOptionsIndex] == false)
-        {
-            SetCharacterDialogue(nPCDialogue[original]);
-            nPCScript.DialogueOptionBools[dialogueOptionsIndex] = true;
-            hasSelectedDialogueOption = true;
-        }
-        // Plays the variant version otherwise - if the dialogue option HAS already been played
+        // Checks which dialogue version to set - if the dialogue option has/hasn't been played
         else
         {
-            SetCharacterDialogue(nPCDialogue[variant]);
+            int dialogue = !nPCScript.DialogueOptionBools[dialogueOptionsIndex] ? original : variant;
+            nPCScript.DialogueOptionBools[dialogueOptionsIndex] = true;
             hasSelectedDialogueOption = true;
+
+            SetCharacterDialogue(nPCDialogue[dialogue]);
         }
 
         CloseDialogueOptions(); // This method MUST be called before StartDialogue()
         StartDialogue();
     }
 
-    // Determines which methods to call based on the selected dialogue option
-    private void DialogueOptionCheckForArtifact()
+    // Checks which methods to call based on the selected dialgoue option (for artifact)
+    private void SelectedDialogueCheckForArtifact()
     {
         string dialogueOption = dialogueOptions[dialogueOptionsIndex];
 
@@ -410,26 +390,6 @@ public class CharacterDialogue : MonoBehaviour
 
         playerDialogueBubble.SetActive(false);
         CloseDialogueOptions();
-    }
-
-    // Set the position of the dialogue arrow
-    private void SetDialoguArrowPosition(int doIndex)
-    {
-        dialogueArrow.transform.SetParent(doGameObjects[doIndex].transform);
-        dialogueArrowRT.anchoredPosition = dialogueArrowOrigPos;
-        audioManagerScript.PlayButtonClick02SFX();
-
-        // Highlights the current selected dialogue option
-        for (int i = 0; i < doTextComponenets.Count; i++)
-        {
-            if (i == doIndex)
-            {
-                doTextComponenets[i].color = playerTextColor;
-                smallArrowSprite.color = playerTextColor;
-            }
-            else
-                doTextComponenets[i].color = unselectedTextColor;
-        }
     }
 
     // Clears the text within all dialogue-related text components
@@ -456,11 +416,44 @@ public class CharacterDialogue : MonoBehaviour
         audioManagerScript.FadeInGeneratorLoopCheck();
     }
 
-    // Sets the color for the Script dialogue bubble
+    // Checks to play the character's fidget animation and bubble pop sfx
+    private void PlayFidgetAndBubblePopSFX(string characterName)
+    {
+        if (currentlyTalking == characterName) return;
+
+        if (isPlayerSpeaking)
+        {
+            playerFidgetScript.Fidget();
+            audioManagerScript.PlayPlayerDialogueBubbleSFX();
+        }
+        else
+        {
+            nPCFidgetScript.Fidget();
+            audioManagerScript.PlayNPCDialogueBubbleSFX();
+        }
+        currentlyTalking = characterName;
+    }
+
+    // Set the position of the dialogue arrow
+    private void SetDialoguArrowPosition(int doIndex)
+    {
+        dialogueArrow.transform.SetParent(doGameObjects[doIndex].transform);
+        dialogueArrowRT.anchoredPosition = dialogueArrowOrigPos;
+        smallArrowSprite.color = playerTextColor; // Sets arrow color
+        audioManagerScript.PlayArrowSelectSFX(); // Plays selected sfx
+
+        // Highlights the current selected dialogue option
+        for (int i = 0; i < doTextComponenets.Count; i++)
+        {
+            Color textColor = i == doIndex ? playerTextColor : unselectedTextColor;
+            doTextComponenets[i].color = textColor;
+        }
+    }
+
+    // Sets the color for the player dialogue bubble
     private void SetPlayerBubbleColor(Color32 color)
     {
-        if (playerDialogueText.color == color)
-            return;
+        if (playerDialogueText.color == color) return;
 
         playerDialogueText.color = color;
         playerBubbleSprite.color = color;
@@ -472,8 +465,7 @@ public class CharacterDialogue : MonoBehaviour
     // Sets the color for the npc dialogue bubble
     private void SetNPCBubbleColor(Color32 color)
     {
-        if (nPCDialogueText.color == color)
-            return;
+        if (nPCDialogueText.color == color) return;
 
         nPCDialogueText.color = color;
         nPCBubbleSprite.color = color;
@@ -488,26 +480,7 @@ public class CharacterDialogue : MonoBehaviour
         alertIconSprite.color = iconColor ?? playerTextColor;
     }
 
-    // Checks to play the character's fidget animation and bubble pop sfx
-    private void PlayFidgetAndBubblePopSFX(string characterName)
-    {
-        if (currentlyTalking != characterName)
-        {
-            if (isPlayerSpeaking)
-            {
-                playerFidgetScript.Fidget();
-                audioManagerScript.PlayDialoguePopUpSFX01();
-            }
-            else
-            {
-                nPCFidgetScript.Fidget();
-                audioManagerScript.PlayDialoguePopUpSFX02();
-            }
-            currentlyTalking = characterName;
-        }
-    }
-
-    // Sets the pivots for the speech bubbles
+    // Sets the pivots for the speech bubble holders
     private void SetSpeechBubblePivots()
     {
         Vector3 playerDirection = playerScript.transform.eulerAngles;
@@ -515,16 +488,16 @@ public class CharacterDialogue : MonoBehaviour
         switch (playerDirection.y)
         {
             case 0: // Looking north
-                playerSBH.pivot = originalPivot;
-                nPCSBH.pivot = originalPivot;
+                playerSBH.pivot = middlePivot;
+                nPCSBH.pivot = middlePivot;
                 break;
             case 90: // Looking east
                 playerSBH.pivot = rightPivot;
                 nPCSBH.pivot = leftPivot;
                 break;
             case 180: // Looking south
-                playerSBH.pivot = originalPivot;
-                nPCSBH.pivot = originalPivot;
+                playerSBH.pivot = middlePivot;
+                nPCSBH.pivot = middlePivot;
                 break;
             case 270: //Looking west
                 playerSBH.pivot = leftPivot;
@@ -536,7 +509,7 @@ public class CharacterDialogue : MonoBehaviour
         }
     }
 
-    // Adjusts the dialogue bubbles to stay within the screen bounds if applicable
+    // Adjusts the dialogue bubbles to stay within the screen bounds
     public void AdjustDialogueBubbles()
     {
         if (!inDialogue) return;
@@ -584,7 +557,6 @@ public class CharacterDialogue : MonoBehaviour
         float newAnchorPosX = minPosX - dbAnchorPosX;
         float maxAnchorPosX = speechBubbleHolder.rect.width - sbhOffsetPositionX;
 
-        // Note: sbhOffsetPositionX = half of the speech bubble holder's original width
         if (dbAnchorPosX < minPosX - sbhOffsetPositionX)
             speechBubbleHolder.anchoredPosition = new Vector2((newAnchorPosX < maxAnchorPosX) ? newAnchorPosX : maxAnchorPosX, sbhOffsetPositionY);
         else
@@ -602,7 +574,6 @@ public class CharacterDialogue : MonoBehaviour
         float newAnchorPosX = maxPosX - dbAnchorPosX;
         float minAnchorPosX = sbhOffsetPositionX - speechBubbleHolder.rect.width;
 
-        // Note: sbhOffsetPositionX = half of the speech bubble holder's original width
         if (dbAnchorPosX > maxPosX + sbhOffsetPositionX)
             speechBubbleHolder.anchoredPosition = new Vector2((newAnchorPosX > minAnchorPosX) ? newAnchorPosX : minAnchorPosX, sbhOffsetPositionY);
         else
@@ -632,7 +603,7 @@ public class CharacterDialogue : MonoBehaviour
             speechBubbleHolder.anchoredPosition = new Vector2((newAnchorPosX > minAnchorPosX) ? newAnchorPosX : minAnchorPosX, sbhOffsetPositionY);
         }
         else
-            speechBubbleHolder.anchoredPosition = bubbleHolderOrigPos;
+            speechBubbleHolder.anchoredPosition = bubbleHolderMidPos;
     }
 
     // Sets the dialogue bubble's postion to the dialogue check's screen position - with respect to the upper screen bound
@@ -640,7 +611,6 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!dailogueBubble.gameObject.activeInHierarchy) return;
 
-        // Note: sbhOffsetPositionY = the speech bubble holder's original y position
         float maxPosY = maxScreenPosY - speechBubbleHolder.rect.height - sbhOffsetPositionY;
         Vector2 dcScreenPoint = dialogueCamera.WorldToScreenPoint(dialogueCheck.transform.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(characterDialogueRT, dcScreenPoint, null, out dcAnchorPos);
@@ -659,46 +629,95 @@ public class CharacterDialogue : MonoBehaviour
         Vector2 dcScreenPoint = dialogueCamera.WorldToScreenPoint(playerDialogueCheck.transform.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(characterDialogueRT, dcScreenPoint, null, out pdcAnchorPos);
 
-        if (alertBubbleRT.anchoredPosition != pdcAnchorPos)
-            alertBubbleRT.anchoredPosition = pdcAnchorPos;
+        if (alertBubbleRT.anchoredPosition != pdcAnchorPos) alertBubbleRT.anchoredPosition = pdcAnchorPos;
+    }
+
+    // Checks for the input that continues or speeds up the character dialogue
+    private void ContinueInputCheck()
+    {
+        if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
+
+        // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
+        if (continueButton.activeInHierarchy)
+            NextSentenceCheck();
+
+        else if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
+            typingSpeed /= 2;
+    }
+
+    // Checks for the input that selects a dialogue option
+    private void SelectInputCheck()
+    {
+        if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
+
+        if (isInteractingWithNPC)
+            SelectedDialogueCheckForNPC();
+
+        else if (isInteractingWithArtifact)
+            SelectedDialogueCheckForArtifact();
+    }
+
+    // Checks for the input that moves the dialogue arrow
+    private void ArrowInputCheck()
+    {
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            // Finds the next ACTIVE dialogue option
+            for (int i = dialogueOptionsIndex - 1; i >= 0; i--)
+            {
+                if (!doGameObjects[i].activeInHierarchy) continue;
+
+                dialogueOptionsIndex = i;
+                SetDialoguArrowPosition(i);
+                break;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            // Finds the next ACTIVE dialogue option
+            for (int i = dialogueOptionsIndex + 1; i < doGameObjects.Count; i++)
+            {
+                if (!doGameObjects[i].activeInHierarchy) continue;
+
+                dialogueOptionsIndex = i;
+                SetDialoguArrowPosition(i);
+                break;
+            }
+        }
     }
 
     // Starts the coroutine that checks for the character dialogue input
     private void StartDialogueInputCoroutine()
     {
-        if (dialogueInputCoroutine != null)
-            StopCoroutine(dialogueInputCoroutine);
+        if (dialogueInputCoroutine != null) StopCoroutine(dialogueInputCoroutine);
 
-        dialogueInputCoroutine = ContinueDialogueInputCheck();
+        dialogueInputCoroutine = CharacterDialogueInputCheck();
         StartCoroutine(dialogueInputCoroutine);
     }
 
     // Starts the coroutine that checks for the dialogue options input
     private void StartDialogueOptionsInputCoroutine()
     {
-        if (dialogueOptionsInputCoroutine != null)
-            StopCoroutine(dialogueOptionsInputCoroutine);
+        if (dialogueOptionsInputCoroutine != null) StopCoroutine(dialogueOptionsInputCoroutine);
 
         dialogueOptionsInputCoroutine = DialogueOptionsInputCheck();
         StartCoroutine(dialogueOptionsInputCoroutine);
     }
 
-    // Starts the dialogue arrow coroutine
-    private void PlayDialogueArrowAnim()
+    // Starts the coroutine that plays the dialogue arrow animation
+    private void PlayDialogueArrowAnim(Vector2 endPosition)
     {
-        if (dialogueArrowCoroutine != null)
-            StopCoroutine(dialogueArrowCoroutine);
+        if (dialogueArrowCoroutine != null) StopCoroutine(dialogueArrowCoroutine);
 
-        dialogueArrowCoroutine = LerpDialogueArrow();
+        dialogueArrowCoroutine = LerpDialogueArrow(endPosition);
         StartCoroutine(dialogueArrowCoroutine);
     }
 
-    // Stops the dialogue arrow's coroutine and sets resets its position
-    public void StopDialogueArrowAnim()
+    // Stops the coroutine that plays the dialogue arrow animation - also resets its position
+    private void StopDialogueArrowAnim()
     {
-        if (dialogueArrowCoroutine != null)
-            StopCoroutine(dialogueArrowCoroutine);
-
+        if (dialogueArrowCoroutine != null) StopCoroutine(dialogueArrowCoroutine);
         dialogueArrowRT.anchoredPosition = dialogueArrowOrigPos;
     }
 
@@ -707,7 +726,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         playerScript.SetPlayerBoolsFalse();
         cameraScript.LerpToDialogueView();
-        blackBarsScript.MoveBlackBarsIn();
+        blackBarsScript.MoveBarsIn();
         gameHUDScript.TurnOffHUD();
 
         SetInitialDialogue();
@@ -715,7 +734,7 @@ public class CharacterDialogue : MonoBehaviour
         SetSpeechBubblePivots();
         inDialogue = true;
 
-        yield return new WaitForSeconds(0.5f); // maybe wait for when the camera to finish transforming here 
+        yield return new WaitForSeconds(0.5f);
         StartDialogue();
     }
 
@@ -732,8 +751,8 @@ public class CharacterDialogue : MonoBehaviour
         playerFidgetScript.HasPlayedInitialFidget = false;
 
         cameraScript.LerpToPuzzleView();
-        nPCScript.ResetRotationNPC();
-        blackBarsScript.MoveBlackBarsOut();
+        nPCScript.ResetRotation();
+        blackBarsScript.MoveBarsOut();
         gameHUDScript.TurnOnHUD();
 
         playerDialogueBubble.SetActive(false);
@@ -755,25 +774,24 @@ public class CharacterDialogue : MonoBehaviour
     // Opens the dialogue options after a delay (if applicable)
     private IEnumerator OpenDialogueOptionsDelay()
     {
-        if (playerDialogueBubble.activeInHierarchy)
-        {
-            playerBubbleAnim.SetTrigger("NextSentence");
-            yield return new WaitForSeconds(0.05f);
-        }
-        else
-            playerDialogueBubble.SetActive(true);
+        bool isActive = playerDialogueBubble.activeInHierarchy;
+        float duration = isActive ? 0.05f : 0f; // 0.05f = 1/4th of anim length
+        if (isActive) playerBubbleAnim.SetTrigger("NextSentence");
+
+        yield return new WaitForSeconds(duration);
+        if (!isActive) playerDialogueBubble.SetActive(true);
+        playerDialogueText.gameObject.SetActive(false);
+        nPCDialogueBubble.SetActive(false);
+        inDialogueOptions = true;
 
         StartCoroutine(SetDialogueArrowActiveDelay());
         SetPlayerBubbleColor(playerBubbleColor);
-        inDialogueOptions = true;
-
-        nPCDialogueBubble.SetActive(false);
-        playerDialogueText.gameObject.SetActive(false);
-        playerSpeechBubbleVLG.childAlignment = TextAnchor.MiddleLeft;
-        playerSpeechBubbleVLG.padding.left = 40;
         EmptyTextComponents();
 
-        audioManagerScript.PlayDialoguePopUpSFX01();
+        playerSpeechBubbleVLG.childAlignment = TextAnchor.MiddleLeft;
+        playerSpeechBubbleVLG.padding.left = 40;
+
+        audioManagerScript.PlayPlayerDialogueBubbleSFX();
         playerFidgetScript.Fidget();
         ShowDialgoueOptionsCheck(); // This method MUST be called last!
     }
@@ -781,24 +799,24 @@ public class CharacterDialogue : MonoBehaviour
     // Types out the dailgoue for the appropriate character
     private IEnumerator TypeCharacterDialogue()
     {
-        Animator animator = isPlayerSpeaking ? playerBubbleAnim : nPCBubbleAnim;
-        GameObject currentdialogueBubble = isPlayerSpeaking ? playerDialogueBubble : nPCDialogueBubble;
-        GameObject previousDialogueBubble = isPlayerSpeaking ? nPCDialogueBubble : playerDialogueBubble;
-        TextMeshProUGUI dialogueText = isPlayerSpeaking ? playerDialogueText : nPCDialogueText;
         string textHexColor = isPlayerSpeaking ? playerTextColor.ReturnHexColor() : nPCTextColor.ReturnHexColor();
+        TextMeshProUGUI dialogueText = isPlayerSpeaking ? playerDialogueText : nPCDialogueText;
+        GameObject currentDialogueBubble = isPlayerSpeaking ? playerDialogueBubble : nPCDialogueBubble;
+        GameObject previousDialogueBubble = isPlayerSpeaking ? nPCDialogueBubble : playerDialogueBubble;
+        Animator animator = isPlayerSpeaking ? playerBubbleAnim : nPCBubbleAnim;
 
-        if (!currentdialogueBubble.activeInHierarchy)
+        if (!currentDialogueBubble.activeInHierarchy)
         {
-            currentdialogueBubble.SetActive(true);
             previousDialogueBubble.SetActive(false);
+            currentDialogueBubble.SetActive(true);
         }
         else
             animator.SetTrigger("NextSentence");
 
-        yield return new WaitForSeconds(0.05f); // use 0.05f or 0.1f
-        EmptyTextComponents();    
-        SetNPCBubbleColor(nPCBubbleColor);
+        yield return new WaitForSeconds(0.05f); // 0.05f = 1/4th of anim length
         SetPlayerBubbleColor(playerBubbleColor);
+        SetNPCBubbleColor(nPCBubbleColor);
+        EmptyTextComponents();
         dialogueText.text = nextSentence;
 
         foreach (char letter in nextSentence.ToCharArray())
@@ -813,134 +831,82 @@ public class CharacterDialogue : MonoBehaviour
         continueButton.SetActive(true);
     }
 
-    // Checks for the input that continues or speeds up the character dialogue
-    private IEnumerator ContinueDialogueInputCheck()
+    // Checks for the character dialogue input
+    private IEnumerator CharacterDialogueInputCheck()
     {
         yield return new WaitForSeconds(0.01f);
 
         while (inDialogue && !inDialogueOptions && !transitionFadeScript.IsChangingScenes)
         {
-            ContinueDialogueCheck(); 
+            if (Time.deltaTime > 0) ContinueInputCheck();
             yield return null;
         }
-        //Debug.Log("Continue dialogue input check has finished!");
+        //Debug.Log("Input check for CHARACTER DIALOGUE has finished!");
     }
 
-    private void ContinueDialogueCheck()
-    {
-        if (Time.deltaTime == 0 || !Input.GetKeyDown(KeyCode.Return) && 
-            !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
-
-        // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
-        if (continueButton.activeInHierarchy)
-            NextSentenceCheck();
-
-        else if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
-            typingSpeed /= 2;
-    }
-
-    // Checks for the input that selects a dialogue option
+    // Checks for the dialogue options input
     private IEnumerator DialogueOptionsInputCheck()
     {
         while (dialogueArrow.activeInHierarchy && !transitionFadeScript.IsChangingScenes)
         {
             if (Time.deltaTime > 0)
             {
-                if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-                {
-                    // Finds the next ACTIVE dialogue option
-                    for (int i = dialogueOptionsIndex - 1; i >= 0; i--)
-                    {
-                        if (doGameObjects[i].activeInHierarchy)
-                        {
-                            dialogueOptionsIndex = i;
-                            SetDialoguArrowPosition(i);
-                            break;
-                        }
-                    }
-                }
-
-                if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-                {
-                    // Finds the next ACTIVE dialogue option
-                    for (int i = dialogueOptionsIndex + 1; i < doGameObjects.Count; i++)
-                    {
-                        if (doGameObjects[i].activeInHierarchy)
-                        {
-                            dialogueOptionsIndex = i;
-                            SetDialoguArrowPosition(i);
-                            break;
-                        }
-                    }
-                }
-
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    if (isInteractingWithNPC)
-                        DailogueOptionCheckForNPC();
-
-                    else if (isInteractingWithArtifact)
-                        DialogueOptionCheckForArtifact();
-                }
+                SelectInputCheck();
+                ArrowInputCheck();               
             }
-
             yield return null;
         }
+        //Debug.Log("Input check for DIALOGUE OPTIONS has finished!");
     }
 
-    // Lerps the position of the dialogue arrow (in a back and forth motion)
-    private IEnumerator LerpDialogueArrow()
+    // Lerps the position of the dialogue arrow to another over a duration (loops)
+    private IEnumerator LerpDialogueArrow(Vector2 endPosition)
     {
         /*** For Debugging Purposes ONLY ***/
         //dialogueArrowDestination = new Vector2(dialogueArrowOrigPos.x - animDistance, dialogueArrowOrigPos.y);
 
+        Vector2 startPosition = (endPosition == dialogueArrowDestination) ? dialogueArrowOrigPos : dialogueArrowDestination;
         float halfDuration = animDuration / 2f;
         float time = 0;
 
         while (time < halfDuration)
         {
-            dialogueArrowRT.anchoredPosition = Vector2.Lerp(dialogueArrowOrigPos, dialogueArrowDestination, time / halfDuration);
+            dialogueArrowRT.anchoredPosition = Vector2.Lerp(startPosition, endPosition, time / halfDuration);
             time += Time.deltaTime;
             yield return null;
         }
 
-        dialogueArrowRT.anchoredPosition = dialogueArrowDestination;
-        time = 0;
-
-        while (time < halfDuration)
-        {
-            dialogueArrowRT.anchoredPosition = Vector2.Lerp(dialogueArrowDestination, dialogueArrowOrigPos, time / halfDuration);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        dialogueArrowRT.anchoredPosition = dialogueArrowOrigPos;
-        PlayDialogueArrowAnim();
+        dialogueArrowRT.anchoredPosition = endPosition;
+        Vector3 nextEndPosition = (endPosition == dialogueArrowDestination) ? dialogueArrowOrigPos : dialogueArrowDestination;
+        PlayDialogueArrowAnim(nextEndPosition);
     }
 
     // Sets the dialogue arrow active after a delay
     private IEnumerator SetDialogueArrowActiveDelay()
     {
         yield return new WaitForSeconds(0.25f);
+
         SetDialoguArrowPosition(dialogueOptionsIndex);
+        PlayDialogueArrowAnim(dialogueArrowDestination);
+
         dialogueOptionButtons.SetActive(true);
         dialogueArrow.SetActive(true);
-        PlayDialogueArrowAnim();
+
         StartDialogueOptionsInputCoroutine();
     }
 
-    // Sets values for all appropriate vectors
+    // Sets the appropriate vectors
     private void SetVectors()
     {
         // Note: The speech bubble holders for the player and npc are identical
         sbhOffsetPositionY = playerSBH.anchoredPosition.y;
         sbhOffsetPositionX = playerSBH.rect.width / 2f;
 
-        bubbleHolderOrigPos = new Vector2(0, sbhOffsetPositionY);
+        bubbleHolderMidPos = new Vector2(0, sbhOffsetPositionY);
         bubbleHolderRightPos = new Vector2(sbhOffsetPositionX, sbhOffsetPositionY);
         bubbleHolderLeftPos = new Vector2(-sbhOffsetPositionX, sbhOffsetPositionY);
 
-        originalPivot = new Vector2(0.5f, 0);
+        middlePivot = new Vector2(0.5f, 0);
         rightPivot = new Vector2(1, 0);
         leftPivot = new Vector2(0, 0);
 

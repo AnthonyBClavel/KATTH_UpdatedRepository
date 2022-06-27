@@ -26,105 +26,31 @@ public class AudioManager : MonoBehaviour
     private IEnumerator loopingAmbienceCoroutine;
     private IEnumerator charNoiseCoroutine;
 
-    [Header("Music")]
-    private AudioSource mainMenuMusic;
-    private AudioSource dialogueMusic;
-    private AudioSource backgroundMusic;
-    private AudioSource endCreditsMusic;
-
     [Header("Audio Loops")]
     public AudioSource loopingFireAS;
     public AudioSource charNoiseAS;
     private AudioSource loopingAmbienceAS;
     private AudioSource generatorLoopAS;
 
-    [Header("SFX")]
-    public AudioClip torchFireIgniteSFX;
-    public AudioClip torchFireExtinguishSFX;
-    public AudioClip freezingSFX;
-    public AudioClip chimeSFX;
-    public AudioClip chime02SFX; // For skipping tutorial
-    public AudioClip popUpSFX; // For popping up tutorial button
-    public AudioClip buttonClick01SFX;
-    public AudioClip buttonClick02SFX;
-    public AudioClip buttonSelectSFX;
-    public AudioClip deathScreenSFX;
-    public AudioClip dialoguePopUpSFX;
-    public AudioClip openingChestSFX;
-    public AudioClip closingChestSFX;
-    public AudioClip pushCrateSFX;
-    public AudioClip cantPushCrateSFX;
-    public AudioClip crateSlideSFX;
-    public AudioClip crateThumpSFX;
-    public AudioClip turnOnGeneratorSFX;
 
-    private AudioSource swooshAS;
-    private AudioSource torchFireIgniteAS;
-    private AudioSource torchFireExtinguishAS;
-    private AudioSource freezingAS;
-    private AudioSource chimeAS;
-    private AudioSource chime02AS;
-    private AudioSource popUpAS;
-    private AudioSource buttonClick01AS;
-    private AudioSource buttonClick02AS;
-    private AudioSource buttonSelectAS;
-    private AudioSource winsGushAS;
-    private AudioSource deathScreenAS;
-    private AudioSource dialoguePopUpAS;
-    private AudioSource openingChestAS;
-    private AudioSource closingChestAS;
-    private AudioSource treeHitAS;
-    private AudioSource snowTreeHitAS;
-    private AudioSource crystalHitAS;
-    private AudioSource metalHitAS;
-    private AudioSource rockHitAS;
-    private AudioSource rockBreakAS;
-    private AudioSource footstepsAS;
-    private AudioSource pushCrateAS;
-    private AudioSource cantPushCrateAS;
-    private AudioSource crateSlideAS;
-    private AudioSource crateThumpAS;
-    private AudioSource turnOnGeneratorAS;
+    [Header("Sound Effects")]
+    public SoundEffect_SO[] dialogueBubbleSFX;
+    public SoundEffect_SO[] userInterfaceSFX;
+    public SoundEffect_SO[] footstepSFX;
+    public SoundEffect_SO[] hitSFX;
+    public SoundEffect_SO[] crateSFX;
+    public SoundEffect_SO[] chestSFX;
+    public SoundEffect_SO[] torchSFX;
+    public SoundEffect_SO[] loopSFX;
+    public SoundEffect_SO[] otherSFX;
 
-    [Header("SFX Arrays")]
-    public AudioClip[] swooshClips;
-    public AudioClip[] windGushClips;
-    public AudioClip[] rockHitClips;
-    public AudioClip[] rockBreakClips;
-    public AudioClip[] treeHitClips;
-    public AudioClip[] snowTreeHitClips;
-    public AudioClip[] crystalHitClips;
-    public AudioClip[] metalHitClips;
+    [Header("Music")]
+    public SoundEffect_SO[] zoneMusic;
+    public SoundEffect_SO[] otherMusic;
 
-    [Header("Footsteps SFX Arrays")]
-    public AudioClip[] grassFootstepClips;
-    public AudioClip[] snowFootstepClips;
-    public AudioClip[] stoneFootstepClips;
-    public AudioClip[] metalFootstepClips;
-    public AudioClip[] woodFootstepClips;
-    public AudioClip[] crateFootstepClips;
-
-    [Header("Audio Loop Arrays")]
-    public AudioClip[] loopingAmbienceClips;
-    public AudioClip[] dialogueMusicTracks;
-    public AudioClip[] backgroundMusicTracks;
-
-    private AudioClip lastWindGushClip;
-    private AudioClip lastSwooshClip;
+    //Review
     private AudioClip lastLoopingAmbienceClip;
     private AudioClip lastDialogueMusicTrack;
-    private AudioClip lastTreeHitClip;
-    private AudioClip lastSnowTreeHitClip;
-    private AudioClip lastCrystalHitClip;
-    private AudioClip lastMetalHitClip;
-    private AudioClip lastRockHitClip;
-    private AudioClip lastRockBreakClip;
-    private AudioClip lastGrassFootstepClip;
-    private AudioClip lastSnowFootstepClip;
-    private AudioClip lastStoneFootstepClip;
-    private AudioClip lastMetalFootstepClip;
-    private AudioClip lastWoodFootstepClip;
-    private AudioClip lastCrateFootstepClip;
 
     private TileMovementController playerScript;
     private TransitionFade transitionFadeScript;
@@ -133,13 +59,14 @@ public class AudioManager : MonoBehaviour
     void Awake()
     {
         SetScripts();
-        SetElements();
+        //SetElements();
         //SetAudioLoopsForTutorial();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        PlayMainMenuMusicCheck();
         SetAudioLoopsActiveCheck();
     }
 
@@ -167,7 +94,8 @@ public class AudioManager : MonoBehaviour
     {
         get
         {
-            return turnOnGeneratorAS;
+            return generatorLoopAS;
+            //return turnOnGeneratorAS; // Correct Audio Source
         }
     }
 
@@ -182,10 +110,10 @@ public class AudioManager : MonoBehaviour
     // Stops playing all of the lengthy puzzle-related sfx
     public void StopAllPuzzleSFX()
     {
-        if (torchFireIgniteAS.isPlaying)
+        /*if (torchFireIgniteAS.isPlaying)
             torchFireIgniteAS.Stop();
         if (crateSlideAS.isPlaying)
-            crateSlideAS.Stop();
+            crateSlideAS.Stop();*/
     }
 
     // Pauses all of the playing audio sources in the scene
@@ -213,6 +141,7 @@ public class AudioManager : MonoBehaviour
         for (int i = 0; i < sfxHolder.transform.childCount; i++)
         {
             GameObject child = sfxHolder.transform.GetChild(i).gameObject;
+
             AudioSource childAudioSource = child.GetComponent<AudioSource>();
 
             if (childAudioSource.isPlaying && child.activeSelf)
@@ -269,38 +198,38 @@ public class AudioManager : MonoBehaviour
     public void FadeOutGeneratorLoopCheck()
     {
         if (generatorLoopAS.isPlaying && generatorScript != null)
-            generatorScript.FadeOutGeneratorLoop(0.25f);
+            generatorScript.FadeOutGeneratorAudio(0.25f);
     }
 
     // Fades in the background music
     public void FadeInBackgroundMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeIn;
+        //float fadeAudioLength = transitionFadeScript.gameFadeIn;
 
-        if (!backgroundMusic.gameObject.activeSelf)
-            backgroundMusic.gameObject.SetActive(true);
+        //if (!backgroundMusic.gameObject.activeSelf)
+        //    backgroundMusic.gameObject.SetActive(true);
 
-        if (backgroundMusicCoroutine != null)
-            StopCoroutine(backgroundMusicCoroutine);
+        //if (backgroundMusicCoroutine != null)
+        //    StopCoroutine(backgroundMusicCoroutine);
 
-        backgroundMusicCoroutine = LerpAudio(backgroundMusic, originalVolumeBGM, fadeAudioLength);
+        //backgroundMusicCoroutine = LerpAudio(backgroundMusic, originalVolumeBGM, fadeAudioLength);
 
-        backgroundMusic.volume = 0f;
-        StartCoroutine(backgroundMusicCoroutine);
+        //backgroundMusic.volume = 0f;
+        //StartCoroutine(backgroundMusicCoroutine);
     }
 
     // Fades out the background music
     public void FadeOutBackgroundMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+        //float fadeAudioLength = transitionFadeScript.gameFadeOut;
 
-        if (backgroundMusicCoroutine != null)
-            StopCoroutine(backgroundMusicCoroutine);
+        //if (backgroundMusicCoroutine != null)
+        //    StopCoroutine(backgroundMusicCoroutine);
 
-        backgroundMusicCoroutine = LerpAudio(backgroundMusic, 0f, fadeAudioLength);
+        //backgroundMusicCoroutine = LerpAudio(backgroundMusic, 0f, fadeAudioLength);
 
-        backgroundMusic.volume = originalVolumeBGM;
-        StartCoroutine(backgroundMusicCoroutine);
+        //backgroundMusic.volume = originalVolumeBGM;
+        //StartCoroutine(backgroundMusicCoroutine);
     }
 
     // Fades in the looping ambient sfx
@@ -337,69 +266,69 @@ public class AudioManager : MonoBehaviour
     // Fades in the dilaogue music
     public void FadeInDialogueMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeIn;
+        //float fadeAudioLength = transitionFadeScript.gameFadeIn;
 
-        if (!dialogueMusic.gameObject.activeSelf)
-            dialogueMusic.gameObject.SetActive(true);
+        //if (!dialogueMusic.gameObject.activeSelf)
+        //    dialogueMusic.gameObject.SetActive(true);
 
-        if (dialogueMusicCoroutine != null)
-            StopCoroutine(dialogueMusicCoroutine);
+        //if (dialogueMusicCoroutine != null)
+        //    StopCoroutine(dialogueMusicCoroutine);
 
-        dialogueMusicCoroutine = LerpAudio(dialogueMusic, originalVolumeDM, fadeAudioLength);
-        isDialogueMusic = true;
+        //dialogueMusicCoroutine = LerpAudio(dialogueMusic, originalVolumeDM, fadeAudioLength);
+        //isDialogueMusic = true;
 
-        dialogueMusic.volume = 0f;
-        ChangeDialogueMusicTrack();
-        StartCoroutine(dialogueMusicCoroutine);
+        //dialogueMusic.volume = 0f;
+        //ChangeDialogueMusicTrack();
+        //StartCoroutine(dialogueMusicCoroutine);
     }
 
     // Fades out the dialogue music
     public void FadeOutDialogueMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeOut;
+        //float fadeAudioLength = transitionFadeScript.gameFadeOut;
 
-        if (dialogueMusicCoroutine != null)
-            StopCoroutine(dialogueMusicCoroutine);
+        //if (dialogueMusicCoroutine != null)
+        //    StopCoroutine(dialogueMusicCoroutine);
 
-        dialogueMusicCoroutine = LerpAudio(dialogueMusic, 0f, fadeAudioLength);
-        isDialogueMusic = false;
+        //dialogueMusicCoroutine = LerpAudio(dialogueMusic, 0f, fadeAudioLength);
+        //isDialogueMusic = false;
 
-        dialogueMusic.volume = originalVolumeDM;
-        StartCoroutine(dialogueMusicCoroutine);
+        //dialogueMusic.volume = originalVolumeDM;
+        //StartCoroutine(dialogueMusicCoroutine);
     }
 
     // Fades in the end credits music
     public void FadeInEndCreditsMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeIn; // original credits faded for 1 second
+        //float fadeAudioLength = transitionFadeScript.gameFadeIn; // original credits faded for 1 second
 
-        if (!endCreditsMusic.gameObject.activeSelf)
-            endCreditsMusic.gameObject.SetActive(true);
+        //if (!endCreditsMusic.gameObject.activeSelf)
+        //    endCreditsMusic.gameObject.SetActive(true);
 
-        if (endCreditsMusicCoroutine != null)
-            StopCoroutine(endCreditsMusicCoroutine);
+        //if (endCreditsMusicCoroutine != null)
+        //    StopCoroutine(endCreditsMusicCoroutine);
 
-        endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, originalVolumeECM, fadeAudioLength);
-        isEndCreditsMusic = true;
+        //endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, originalVolumeECM, fadeAudioLength);
+        //isEndCreditsMusic = true;
 
-        endCreditsMusic.volume = 0f;
-        endCreditsMusic.Play();
-        StartCoroutine(endCreditsMusicCoroutine);
+        //endCreditsMusic.volume = 0f;
+        //endCreditsMusic.Play();
+        //StartCoroutine(endCreditsMusicCoroutine);
     }
 
     // Fades out the end credits music
     public void FadeOutEndCreditsMusic()
     {
-        float fadeAudioLength = transitionFadeScript.gameFadeOut; // original credits faded for 1 second
+        //float fadeAudioLength = transitionFadeScript.gameFadeOut; // original credits faded for 1 second
 
-        if (endCreditsMusicCoroutine != null)
-            StopCoroutine(endCreditsMusicCoroutine);
+        //if (endCreditsMusicCoroutine != null)
+        //    StopCoroutine(endCreditsMusicCoroutine);
 
-        endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, 0f, fadeAudioLength);
-        isEndCreditsMusic = false;
+        //endCreditsMusicCoroutine = LerpAudio(endCreditsMusic, 0f, fadeAudioLength);
+        //isEndCreditsMusic = false;
 
-        endCreditsMusic.volume = originalVolumeECM;
-        StartCoroutine(endCreditsMusicCoroutine);
+        //endCreditsMusic.volume = originalVolumeECM;
+        //StartCoroutine(endCreditsMusicCoroutine);
     }
 
     // Fades out the char noise sfx
@@ -416,454 +345,185 @@ public class AudioManager : MonoBehaviour
         StartCoroutine(charNoiseCoroutine);
     }
 
-    public void PlayTorchFireIgniteSFX()
+
+
+
+
+    
+    // Checks to play the sfx within the array ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void PlaySFX(SoundEffect_SO[] array, string nameOfSFX)
     {
-        //torchFireIgniteAS.volume = 0.8f;
-        //torchFireIgniteAS.pitch = 1f;
-        torchFireIgniteAS.PlayOneShot(torchFireIgniteSFX);
-    }
-
-    public void PlayTorchFireExtinguishSFX()
-    {
-        //torchFireExtinguishAS.volume = 0.3f;
-        //torchFireExtinguishAS.pitch = 1f;
-        torchFireExtinguishAS.PlayOneShot(torchFireExtinguishSFX);
-    }
-
-    public void PlayFreezeingSFX()
-    {
-        //freezingAS.volume = 0.3f;
-        //freezingAS.pitch = 1f;
-        freezingAS.PlayOneShot(freezingSFX);
-    }
-
-    public void PlayChimeSFX()
-    {
-        //chimeAS.volume = 0.2f;
-        //chimeAS.pitch = 2.8f;
-        chimeAS.PlayOneShot(chimeSFX);
-    }
-
-    public void PlayChime02SFX()
-    {
-        //chime02AS.volume = 0.2f;
-        //chime02AS.pitch = 3.0f;
-        chime02AS.PlayOneShot(chime02SFX);
-    }
-
-    public void PlayPopUpSFX()
-    {
-        //popUpAS.volume = 0.3f;
-        //popUpAS.pitch = 1f;
-        popUpAS.PlayOneShot(popUpSFX);
-    }
-
-    public void PlayButtonClick01SFX()
-    {
-        //buttonClick01AS.volume = 1f;
-        //buttonClick01AS.pitch = 1f;
-        buttonClick01AS.PlayOneShot(buttonClick01SFX);
-    }
-
-    public void PlayButtonClick02SFX()
-    {
-        //buttonClick02AS.volume = 1f;
-        //buttonClick02AS.pitch = 3f;
-        buttonClick02AS.PlayOneShot(buttonClick02SFX);
-    }
-
-    public void PlayButtonSelectSFX()
-    {
-        //buttonSelectAS.volume = 1f;
-        //buttonSelectAS.pitch = 1f;
-        buttonSelectAS.PlayOneShot(buttonSelectSFX);
-    }
-
-    public void PlayDeathScreenSFX()
-    {
-        //buttonSelectAS.volume = 0.5f;
-        //buttonSelectAS.pitch = 1f;
-        deathScreenAS.PlayOneShot(deathScreenSFX);
-    }
-
-    public void PlayDialoguePopUpSFX01()
-    {
-        // For the player's dialogue bubbles
-        dialoguePopUpAS.volume = 0.24f;
-        dialoguePopUpAS.pitch = 0.5f;
-        dialoguePopUpAS.PlayOneShot(dialoguePopUpSFX);
-    }
-
-    public void PlayDialoguePopUpSFX02()
-    {
-        // For the NPC's dialogue bubbles
-        dialoguePopUpAS.volume = 0.24f;
-        dialoguePopUpAS.pitch = 0.6f;
-        dialoguePopUpAS.PlayOneShot(dialoguePopUpSFX);
-    }
-
-    public void PlayOpeningChestSFX()
-    {
-        //openingChestAS.volume = 0.65f;
-        //openingChestAS.pitch = 1f;
-        openingChestAS.PlayOneShot(openingChestSFX);
-    }
-
-    public void PlayClosingChestSFX()
-    {
-        //closingChestAS.volume = 0.65f;
-        //closingChestAS.pitch = 1f;
-        closingChestAS.PlayOneShot(closingChestSFX);
-    }
-
-    public void PlayPushCrateSFX()
-    {
-        //pushCrateAS.volume = 0.72f;
-        //pushCrateAS.pitch = 0.9f;
-        pushCrateAS.PlayOneShot(pushCrateSFX);
-    }
-
-    public void PlayCantPushCrateSFX()
-    {
-        //cantPushCrateAS.volume = 0.9f;
-        //cantPushCrateAS.pitch = 1.0f;
-        cantPushCrateAS.PlayOneShot(cantPushCrateSFX);
-    }
-
-    public void PlayCrateSlideSFX()
-    {
-        //crateSlideAS.volume = 0.06f;
-        //crateSlideAS.pitch = 1.0f;
-        crateSlideAS.PlayOneShot(crateSlideSFX);
-    }
-
-    public void PlayCrateThumpSFX()
-    {
-        //crateThumpAS.volume = 1.0f;
-        //crateThumpAS.pitch = 1.0f;
-        crateThumpAS.PlayOneShot(crateThumpSFX);
-    }
-
-    // Plays a new SwooshSFX - different from the one previously played
-    public void PlaySwooshSFX()
-    {
-        //swooshAS.volume = 0.36f;
-        //swooshAS.pitch = 1f;
-
-        int attempts = 3;
-        AudioClip newSwooshClip = swooshClips[Random.Range(0, swooshClips.Length)];
-
-        while (newSwooshClip == lastSwooshClip && attempts > 0)
+        foreach (SoundEffect_SO sFX in array)
         {
-            newSwooshClip = swooshClips[Random.Range(0, swooshClips.Length)];
-            attempts--;
+            if (sFX.name != nameOfSFX) continue;
+
+            sFX.Play();
+            return;
         }
 
-        lastSwooshClip = newSwooshClip;
-        swooshAS.PlayOneShot(newSwooshClip);
+        //Debug.Log($"{nameOfSFX} does NOT exist");
     }
 
-    // Plays a new WindGushSFX - different from the one previously played
-    public void PlayWindGushSFX()
+    // Checks to play the music within the array
+    private void PlayMusic(SoundEffect_SO[] array, string nameOfMusic)
     {
-        //winsGushAS.volume = 0.85f;
-        //winsGushAS.pitch = 0.85f;
-
-        int attempts = 3;
-        AudioClip newWindGushClip = windGushClips[Random.Range(0, windGushClips.Length)];
-
-        while (newWindGushClip == lastWindGushClip && attempts > 0)
+        foreach (SoundEffect_SO sFX in array)
         {
-            newWindGushClip = windGushClips[Random.Range(0, windGushClips.Length)];
-            attempts--;
+            if (!sFX.name.Contains(nameOfMusic)) continue;
+
+            sFX.Play();
+            return;
         }
 
-        lastWindGushClip = newWindGushClip;
-        winsGushAS.PlayOneShot(newWindGushClip);
+        array[1].Play();
+        //Debug.Log($"{nameOfMusic} does NOT exist");
     }
 
-    // Plays a new treeHitSFX - different from the one previously played
-    public void PlayTreeHitSFX()
+    // Dialogue Bubble SFX
+    public void PlayPlayerDialogueBubbleSFX() => PlaySFX(dialogueBubbleSFX, "PlayerDialogueBubbleSFX");
+    public void PlayNPCDialogueBubbleSFX() => PlaySFX(dialogueBubbleSFX, "NPCDialogueBubbleSFX");
+
+    // User Interface SFX
+    public void PlayMenuButtonSelectSFX() => PlaySFX(userInterfaceSFX, "MenuButtonSelectSFX");
+    public void PlayMenuButtonClickSFX() => PlaySFX(userInterfaceSFX, "MenuButtonClickSFX");
+    public void PlayTipButtonClickSFX() => PlaySFX(userInterfaceSFX, "TipButtonClickSFX");
+    public void PlayArrowSelectSFX() => PlaySFX(userInterfaceSFX, "ArrowSelectSFX");
+    public void PlayDeathScreenSFX() => PlaySFX(userInterfaceSFX, "DeathScreenSFX");
+    public void PlayPopUpSFX() => PlaySFX(userInterfaceSFX, "PopUpSFX");
+
+    // Foostep SFX
+    public void PlayGrassFootstepSFX() => PlaySFX(footstepSFX, "GrassFootstepSFX");
+    public void PlaySnowFootstepSFX() => PlaySFX(footstepSFX, "SnowFootstepSFX");
+    public void PlayStoneFootstepSFX() => PlaySFX(footstepSFX, "StoneFootstepSFX");
+    public void PlayMetalFootstepSFX() => PlaySFX(footstepSFX, "MetalFootstepSFX");
+    public void PlayWoodFootstepSFX() => PlaySFX(footstepSFX, "WoodFootstepSFX");
+    public void PlayCrateFootstepSFX() => PlaySFX(footstepSFX, "CrateFootstepSFX");
+
+    // Hit SFX
+    public void PlayHitTreeSFX() => PlaySFX(hitSFX, "HitTreeSFX");
+    public void PlayHitSnowTreeSFX() => PlaySFX(hitSFX, "HitSnowTreeSFX");
+    public void PlayHitCrystalSFX() => PlaySFX(hitSFX, "HitCrystalSFX");
+    public void PlayHitBarrelSFX() => PlaySFX(hitSFX, "HitBarrelSFX");
+    public void PlayHitRockSFX() => PlaySFX(hitSFX, "HitRockSFX");
+
+    // Crate SFX
+    public void PlayCantPushCrateSFX() => PlaySFX(crateSFX, "CantPushCrateSFX");
+    public void PlayPushCrateSFX() => PlaySFX(crateSFX, "PushCrateSFX");
+    public void PlayCrateSlideSFX() => PlaySFX(crateSFX, "CrateSlideSFX");
+    public void PlayCrateThumpSFX() => PlaySFX(crateSFX, "CrateThumpSFX");
+
+    // Chest SFX
+    public void PlayCloseChestSFX() => PlaySFX(chestSFX, "CloseChestSFX");
+    public void PlayOpenChestSFX() => PlaySFX(chestSFX, "OpenChestSFX");
+
+    // Torch SFX
+    public void PlayExtinguishFireSFX() => PlaySFX(torchSFX, "ExtinguishFireSFX");
+    public void PlayIgniteFireSFX() => PlaySFX(torchSFX, "IgniteFireSFX");
+
+    // Loops SFX
+    public void PlayAmbientWindSFX() => PlaySFX(loopSFX, "AmbientWindSFX");
+    public void PlayTorchFireSFX() => PlaySFX(loopSFX, "TorchFireSFX");
+    public void PlayGeneratorSFX() => PlaySFX(loopSFX, "GeneratorSFX");
+    public void PlayCharNoiseSFX() => PlaySFX(loopSFX, "CharNoiseSFX");
+
+    // Other SFX
+    public void PlaySkippedSceneSFX() => PlaySFX(otherSFX, "SkippedSceneSFX");
+    public void PlayBreakRockSFX() => PlaySFX(otherSFX, "BreakRockSFX");
+    public void PlayWindGushSFX() => PlaySFX(otherSFX, "WindGushSFX");
+    public void PlayFreezeingSFX() => PlaySFX(otherSFX, "FreezeSFX");
+    public void PlaySwooshSFX() => PlaySFX(otherSFX, "SwooshSFX");
+    public void PlayChimeSFX() => PlaySFX(otherSFX, "ChimeSFX");
+
+
+    // Checks which audio loops to play at the begining of the scene
+    private void SetAudioLoopsActiveCheck()
     {
-        //treeHitAS.volume = 0.9f;
-        //treeHitAS.pitch = 1.0f;
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName == "MainMenu" || !playerScript.OnCheckpoint()) return;
 
-        int attempts = 3;
-        AudioClip newTreeHitClip = treeHitClips[Random.Range(0, treeHitClips.Length)];
-
-        while (newTreeHitClip == lastTreeHitClip && attempts > 0)
-        {
-            newTreeHitClip = treeHitClips[Random.Range(0, treeHitClips.Length)];
-            attempts--;
-        }
-
-        lastTreeHitClip = newTreeHitClip;
-        treeHitAS.PlayOneShot(newTreeHitClip);
+        PlayMusic(zoneMusic, sceneName);
+        PlayAmbientWindSFX();
+        PlayTorchFireSFX();
     }
 
-    // Plays a new snowTreeHitSFX - different from the one previously played
-    public void PlaySnowTreeHitSFX()
+    // Checks to play the main menu music
+    private void PlayMainMenuMusicCheck()
     {
-        //snowTreeHitAS.volume = 1.0f;
-        //snowTreeHitAS.pitch = 1.1f;
-
-        int attempts = 3;
-        AudioClip newSnowTreeHitClip = snowTreeHitClips[Random.Range(0, snowTreeHitClips.Length)];
-
-        while (newSnowTreeHitClip == lastSnowTreeHitClip && attempts > 0)
-        {
-            newSnowTreeHitClip = snowTreeHitClips[Random.Range(0, snowTreeHitClips.Length)];
-            attempts--;
-        }
-
-        lastSnowTreeHitClip = newSnowTreeHitClip;
-        snowTreeHitAS.PlayOneShot(newSnowTreeHitClip);
+        if (SceneManager.GetActiveScene().name != "MainMenu") return;
+        PlayMusic(otherMusic, "MainMenuMusic");
     }
 
-    // Plays a new crystalHitSFX - different from the one previously played
-    public void PlayCrystalHitSFX()
+    // Sets the scrpts to use
+    private void SetScripts() ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     {
-        //crystalHitAS.volume = 0.28f;
-        //crystalHitAS.pitch = 0.9f;
-
-        int attempts = 3;
-        AudioClip newCrystalHitClip = crystalHitClips[Random.Range(0, crystalHitClips.Length)];
-
-        while (newCrystalHitClip == lastCrystalHitClip && attempts > 0)
-        {
-            newCrystalHitClip = crystalHitClips[Random.Range(0, crystalHitClips.Length)];
-            attempts--;
-        }
-
-        lastCrystalHitClip = newCrystalHitClip;
-        crystalHitAS.PlayOneShot(newCrystalHitClip);
+        playerScript = (SceneManager.GetActiveScene().name != "MainMenu") ? FindObjectOfType<TileMovementController>() : null;
+        transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
-    // Plays a new metalHitSFX - different from the one previously played
-    public void PlayMetalHitSFX()
-    {
-        //metalHitSFX.volume = 0.2f;
-        //metalHitSFX.pitch = 1.0f;
 
-        int attempts = 3;
-        AudioClip newMetalHitClip = metalHitClips[Random.Range(0, metalHitClips.Length)];
 
-        while (newMetalHitClip == lastMetalHitClip && attempts > 0)
-        {
-            newMetalHitClip = metalHitClips[Random.Range(0, metalHitClips.Length)];
-            attempts--;
-        }
 
-        lastMetalHitClip = newMetalHitClip;
-        metalHitAS.PlayOneShot(newMetalHitClip);
-    }
 
-    // Plays a new rockHitSFX - different from the one previously played
-    public void PlayRockHitSFX()
-    {
-        //rockHitAS.volume = 0.4f;
-        //rockHitAS.pitch = 1.0f;
 
-        int attempts = 3;
-        AudioClip newRockHitClip = rockHitClips[Random.Range(0, rockHitClips.Length)];
 
-        while (newRockHitClip == lastRockHitClip && attempts > 0)
-        {
-            newRockHitClip = rockHitClips[Random.Range(0, rockHitClips.Length)];
-            attempts--;
-        }
 
-        lastRockHitClip = newRockHitClip;
-        rockHitAS.PlayOneShot(newRockHitClip);
-    }
 
-    // Plays a new rockBreakSFX - different from the one previously played
-    public void PlayRockBreakSFX()
-    {
-        //rockBreakAS.volume = 1.0f;
-        //rockBreakAS.pitch = 1.0f;
 
-        int attempts = 3;
-        AudioClip newRockBreakClip = rockBreakClips[Random.Range(0, rockBreakClips.Length)];
 
-        while (newRockBreakClip == lastRockBreakClip && attempts > 0)
-        {
-            newRockBreakClip = rockBreakClips[Random.Range(0, rockBreakClips.Length)];
-            attempts--;
-        }
 
-        lastRockBreakClip = newRockBreakClip;
-        rockBreakAS.PlayOneShot(newRockBreakClip);
-    }
 
-    // Plays a new grassFootstepSFX - different from the one previously played
-    public void PlayGrassFootstepSFX()
-    {
-        footstepsAS.volume = 0.7f;
-        footstepsAS.pitch = 1.0f;
-
-        int attempts = 3;
-        AudioClip newGrassFootstepClip = grassFootstepClips[Random.Range(0, grassFootstepClips.Length)];
-
-        while (newGrassFootstepClip == lastGrassFootstepClip && attempts > 0)
-        {
-            newGrassFootstepClip = grassFootstepClips[Random.Range(0, grassFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastGrassFootstepClip = newGrassFootstepClip;
-        footstepsAS.PlayOneShot(newGrassFootstepClip);
-    }
-
-    // Plays a new snowFootstepSFX - different from the one previously played
-    public void PlaySnowFootstepSFX()
-    {
-        footstepsAS.volume = 0.7f;
-        footstepsAS.pitch = 1.0f;
-
-        int attempts = 3;
-        AudioClip newSnowFootstepClip = snowFootstepClips[Random.Range(0, snowFootstepClips.Length)];
-
-        while (newSnowFootstepClip == lastSnowFootstepClip && attempts > 0)
-        {
-            newSnowFootstepClip = snowFootstepClips[Random.Range(0, snowFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastSnowFootstepClip = newSnowFootstepClip;
-        footstepsAS.PlayOneShot(newSnowFootstepClip);
-    }
-
-    // Plays a new stoneFootstepSFX - different from the one previously played
-    public void PlayStoneFootstepSFX()
-    {
-        footstepsAS.volume = 0.55f;
-        footstepsAS.pitch = 1.2f;
-
-        int attempts = 3;
-        AudioClip newStoneFootstepClip = stoneFootstepClips[Random.Range(0, stoneFootstepClips.Length)];
-
-        while (newStoneFootstepClip == lastStoneFootstepClip && attempts > 0)
-        {
-            newStoneFootstepClip = stoneFootstepClips[Random.Range(0, stoneFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastStoneFootstepClip = newStoneFootstepClip;
-        footstepsAS.PlayOneShot(newStoneFootstepClip);
-    }
-
-    // Plays a new metalFootstepSFX - different from the one previously played
-    public void PlayMetalFootstepSFX()
-    {
-        footstepsAS.volume = 1.0f;
-        footstepsAS.pitch = 1.0f;
-
-        int attempts = 3;
-        AudioClip newMetalFootstepClip = metalFootstepClips[Random.Range(0, metalFootstepClips.Length)];
-
-        while (newMetalFootstepClip == lastMetalFootstepClip && attempts > 0)
-        {
-            newMetalFootstepClip = metalFootstepClips[Random.Range(0, metalFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastMetalFootstepClip = newMetalFootstepClip;
-        footstepsAS.PlayOneShot(newMetalFootstepClip);
-    }
-
-    // Plays a new woodFootstepSFX - different from the one previously played
-    public void PlayWoodFootstepSFX()
-    {
-        footstepsAS.volume = 0.8f;
-        footstepsAS.pitch = 0.9f;
-
-        int attempts = 3;
-        AudioClip newWoodFootstepClip = woodFootstepClips[Random.Range(0, woodFootstepClips.Length)];
-
-        while (newWoodFootstepClip == lastWoodFootstepClip && attempts > 0)
-        {
-            newWoodFootstepClip = woodFootstepClips[Random.Range(0, woodFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastWoodFootstepClip = newWoodFootstepClip;
-        footstepsAS.PlayOneShot(newWoodFootstepClip);
-    }
-
-    // Plays a new woodFootstepSFX - different from the one previously played
-    public void PlayCrateFootstepSFX()
-    {
-        footstepsAS.volume = 0.4f;
-        footstepsAS.pitch = 1.0f;
-
-        int attempts = 3;
-        AudioClip newCrateFootsepClip = crateFootstepClips[Random.Range(0, crateFootstepClips.Length)];
-
-        while (newCrateFootsepClip == lastCrateFootstepClip && attempts > 0)
-        {
-            newCrateFootsepClip = crateFootstepClips[Random.Range(0, crateFootstepClips.Length)];
-            attempts--;
-        }
-
-        lastCrateFootstepClip = newCrateFootsepClip;
-        footstepsAS.PlayOneShot(newCrateFootsepClip);
-    }
 
     // Plays a new looping ambient sfx - different from the one currenlty playing
     public void ChangeLoopingAmbienceSFX()
     {
-        int attempts = 3;
-        AudioClip newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
+        //int attempts = 3;
+        //AudioClip newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
 
-        while (newLoopingAmbienceClip == lastLoopingAmbienceClip && attempts > 0)
-        {
-            newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
-            attempts--;
-        }
+        //while (newLoopingAmbienceClip == lastLoopingAmbienceClip && attempts > 0)
+        //{
+        //    newLoopingAmbienceClip = loopingAmbienceClips[Random.Range(0, loopingAmbienceClips.Length)];
+        //    attempts--;
+        //}
 
-        lastLoopingAmbienceClip = newLoopingAmbienceClip;
+        //lastLoopingAmbienceClip = newLoopingAmbienceClip;
 
-        loopingAmbienceAS.Stop();
-        loopingAmbienceAS.clip = newLoopingAmbienceClip;
-        loopingAmbienceAS.Play();
+        //loopingAmbienceAS.Stop();
+        //loopingAmbienceAS.clip = newLoopingAmbienceClip;
+        //loopingAmbienceAS.Play();
     }
 
     // Selects and plays a new track for the dialogue music - different from the one previously played
-    public void ChangeDialogueMusicTrack()
+    /*public void ChangeDialogueMusicTrack()
     {
         //dialogueMusic.volume = 0.4f;
         //dialogueMusic.pitch = 1f;
 
         int attempts = 3;
-        AudioClip newDialogueMusicTrack = dialogueMusicTracks[UnityEngine.Random.Range(0, dialogueMusicTracks.Length)];
+        AudioClip newDialogueMusicTrack = dialogueMusicTracks[Random.Range(0, dialogueMusicTracks.Length)];
 
         while (newDialogueMusicTrack == lastDialogueMusicTrack && attempts > 0)
         {
-            newDialogueMusicTrack = dialogueMusicTracks[UnityEngine.Random.Range(0, dialogueMusicTracks.Length)];
+            newDialogueMusicTrack = dialogueMusicTracks[Random.Range(0, dialogueMusicTracks.Length)];
             attempts--;
         }
 
         lastDialogueMusicTrack = newDialogueMusicTrack;
 
-        dialogueMusic.Stop();
-        dialogueMusic.clip = newDialogueMusicTrack;
-        dialogueMusic.Play();
-    }
+        //dialogueMusic.Stop();
+        //dialogueMusic.clip = newDialogueMusicTrack;
+        //dialogueMusic.Play();
+    }*/
 
-    // Checks which audio loops to set active
-    private void SetAudioLoopsActiveCheck()
+    // Starts the coroutine that lerps the audio
+    public void StartLerpAudioCoroutine(IEnumerator corouitne, AudioSource audioSource, float endVolume, float duration)
     {
-        string sceneName = SceneManager.GetActiveScene().name;
+        if (corouitne != null) StopCoroutine(corouitne);
 
-        if (sceneName != "MainMenu" && playerScript.OnCheckpoint())
-        {
-            backgroundMusic.gameObject.SetActive(true);
-            loopingAmbienceAS.gameObject.SetActive(true);
-        }
+        corouitne = LerpAudio(audioSource, endVolume, duration);
+        StartCoroutine(corouitne);
     }
 
-    // Lerps the volume of an audio source over a specific duration (endVolume = volume to lerp to, duration = seconds)
+    // Lerps the volume of the audio source to another over a specific duration (endVolume = volume to lerp to, duration = seconds)
     private IEnumerator LerpAudio(AudioSource audioSource, float endVolume, float duration)
     {
         float time = 0;
@@ -879,66 +539,27 @@ public class AudioManager : MonoBehaviour
 
         audioSource.volume = endVolume;
 
-        if (audioSource == dialogueMusic && !isDialogueMusic)
-        {
-            dialogueMusic.Stop();
-            dialogueMusic.gameObject.SetActive(false);
-        }
-        else if (audioSource == endCreditsMusic && !isEndCreditsMusic)
-        {
-            endCreditsMusic.Stop();
-            endCreditsMusic.gameObject.SetActive(false);
-        }
-        else if (audioSource == charNoiseAS)
-        {
-            charNoiseAS.Stop();
-            charNoiseAS.volume = originalVolumeCNSFX;
-        }
+        //if (audioSource == dialogueMusic && !isDialogueMusic)
+        //{
+        //    //dialogueMusic.Stop();
+        //    //dialogueMusic.gameObject.SetActive(false);
+        //}
+        //else if (audioSource == endCreditsMusic && !isEndCreditsMusic)
+        //{
+        //    //endCreditsMusic.Stop();
+        //    //endCreditsMusic.gameObject.SetActive(false);
+        //}
+        //else if (audioSource == charNoiseAS)
+        //{
+        //    charNoiseAS.Stop();
+        //    charNoiseAS.volume = originalVolumeCNSFX;
+        //}
     }
 
-    // Determines the music to play for each scene
-    private void SetMusic()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-        AudioClip musicTrackToPlay = null;
 
-        if (sceneName == "TutorialMap")
-            musicTrackToPlay = backgroundMusicTracks[0];
-        else if (sceneName == "FirstMap")
-            musicTrackToPlay = backgroundMusicTracks[1];
-        else if (sceneName == "SecondMap")
-            musicTrackToPlay = backgroundMusicTracks[2];
-        else if (sceneName == "ThirdMap")
-            musicTrackToPlay = backgroundMusicTracks[3];
-        else if (sceneName == "FourthMap")
-            musicTrackToPlay = backgroundMusicTracks[4];
-        else if (sceneName == "FifthMap")
-            musicTrackToPlay = backgroundMusicTracks[5];
-        else if (sceneName != "MainMenu")
-            musicTrackToPlay = backgroundMusicTracks[1];
-
-        // Note: no need to Stop() and Play() since this is called in awake
-        //backgroundMusic.Stop();
-        backgroundMusic.clip = musicTrackToPlay;
-        //backgroundMusic.Play();
-    }
-
-    // Sets the scrpts to use
-    private void SetScripts()
-    {
-        string sceneName = SceneManager.GetActiveScene().name;
-
-        if (sceneName != "MainMenu")
-        {
-            playerScript = FindObjectOfType<TileMovementController>();
-            //generatorScript = null;
-        }
-
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
-    }
 
     // Sets private variables, objects, and components
-    private void SetElements()
+    /*private void SetElements()
     {
         // Sets the game objects by looking at names of children
         for (int i = 0; i < transform.childCount; i++)
@@ -977,81 +598,16 @@ public class AudioManager : MonoBehaviour
                     if (childAudioSource.name == "GeneratorLoopSFX")
                         generatorLoopAS = childAudioSource;
                 }
-            }
-
-            if (child.name == "SFX")
-            {
-                sfxHolder = child;
-
-                for (int l = 0; l < sfxHolder.transform.childCount; l++)
-                {
-                    AudioSource childAudioSource = sfxHolder.transform.GetChild(l).GetComponent<AudioSource>();
-
-                    if (childAudioSource.name == "SwooshSFX")
-                        swooshAS = childAudioSource;
-                    if (childAudioSource.name == "TorchFireIgniteSFX")
-                        torchFireIgniteAS = childAudioSource;
-                    if (childAudioSource.name == "TorchFireExtinguishSFX")
-                        torchFireExtinguishAS = childAudioSource;
-                    if (childAudioSource.name == "FreezingSFX")
-                        freezingAS = childAudioSource;
-                    if (childAudioSource.name == "ChimeSFX")
-                        chimeAS = childAudioSource;
-                    if (childAudioSource.name == "Chime02SFX")
-                        chime02AS = childAudioSource;
-                    if (childAudioSource.name == "PopUpSFX")
-                        popUpAS = childAudioSource;
-                    if (childAudioSource.name == "ButtonClick01SFX")
-                        buttonClick01AS = childAudioSource;
-                    if (childAudioSource.name == "ButtonClick02SFX")
-                        buttonClick02AS = childAudioSource;
-                    if (childAudioSource.name == "ButtonSelectSFX")
-                        buttonSelectAS = childAudioSource;
-                    if (childAudioSource.name == "WindGushSFX")
-                        winsGushAS = childAudioSource;
-                    if (childAudioSource.name == "DeathScreenSFX")
-                        deathScreenAS = childAudioSource;
-                    if (childAudioSource.name == "DialoguePopUpSFX")
-                        dialoguePopUpAS = childAudioSource;
-                    if (childAudioSource.name == "OpeningChestSFX")
-                        openingChestAS = childAudioSource;
-                    if (childAudioSource.name == "ClosingChestSFX")
-                        closingChestAS = childAudioSource;
-                    if (childAudioSource.name == "TreeHitSFX")
-                        treeHitAS = childAudioSource;
-                    if (childAudioSource.name == "SnowTreeHitSFX")
-                        snowTreeHitAS = childAudioSource;
-                    if (childAudioSource.name == "CrystalHitSFX")
-                        crystalHitAS = childAudioSource;
-                    if (childAudioSource.name == "MetalHitSFX")
-                        metalHitAS = childAudioSource;
-                    if (childAudioSource.name == "RockHitSFX")
-                        rockHitAS = childAudioSource;
-                    if (childAudioSource.name == "RockBreakSFX")
-                        rockBreakAS = childAudioSource;
-                    if (childAudioSource.name == "FootstepsSFX")
-                        footstepsAS = childAudioSource;
-                    if (childAudioSource.name == "PushCrateSFX")
-                        pushCrateAS = childAudioSource;
-                    if (childAudioSource.name == "CantPushCrateSFX")
-                        cantPushCrateAS = childAudioSource;
-                    if (childAudioSource.name == "CrateSlideSFX")
-                        crateSlideAS = childAudioSource;
-                    if (childAudioSource.name == "CrateThumpSFX")
-                        crateThumpAS = childAudioSource;
-                    if (childAudioSource.name == "TurnOnGeneratorSFX")
-                        turnOnGeneratorAS = childAudioSource;
-                }
-            }
+            }        
         }
 
-        originalVolumeBGM = backgroundMusic.volume;
-        originalVolumeDM = dialogueMusic.volume;
-        originalVolumeECM = endCreditsMusic.volume;
+        //originalVolumeBGM = backgroundMusic.volume;
+        //originalVolumeDM = dialogueMusic.volume;
+        //originalVolumeECM = endCreditsMusic.volume;
         originalVolumeLASFX = loopingAmbienceAS.volume;
         originalVolumeCNSFX = charNoiseAS.volume;
         originalVolumeGLSFX = generatorLoopAS.volume;
         SetMusic();
-    }
+    }*/
 
 }

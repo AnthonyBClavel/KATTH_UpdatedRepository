@@ -223,14 +223,14 @@ public class PauseMenu : MonoBehaviour
         {
             if (canPlayButtonSFX && !isOptionsMenu)
             {
-                audioManagerScript.PlayButtonSelectSFX();
+                audioManagerScript.PlayMenuButtonSelectSFX();
                 hasPlayedSelectedSFX = true;
             }
             lastSelectedObject = eventSystemScript.currentSelectedGameObject;
         }
         else if (lastSelectedObject == pauseFirstButton && !hasPlayedSelectedSFX)
         {
-            audioManagerScript.PlayButtonSelectSFX();
+            audioManagerScript.PlayMenuButtonSelectSFX();
             hasPlayedSelectedSFX = true;
         }
     }
@@ -310,7 +310,7 @@ public class PauseMenu : MonoBehaviour
         audioManagerScript.UnPauseAllAudio();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClick01SFX();
+            audioManagerScript.PlayMenuButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         LerpPauseMenuBG(zeroAlpha, fadeLength);
@@ -334,7 +334,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenOptionsDelay()
     {
         DisableMenuInputsPS();
-        audioManagerScript.PlayButtonClick01SFX();
+        audioManagerScript.PlayMenuButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isOptionsMenu = true;
@@ -374,7 +374,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator OpenSafetyMenuDelay()
     {
         DisableMenuInputsPS();
-        audioManagerScript.PlayButtonClick01SFX();
+        audioManagerScript.PlayMenuButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = true;
@@ -417,7 +417,7 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClick01SFX();
+            audioManagerScript.PlayMenuButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -440,7 +440,7 @@ public class PauseMenu : MonoBehaviour
         DisableMenuInputsPS();
 
         if (!hasPressedESC)
-            audioManagerScript.PlayButtonClick01SFX();
+            audioManagerScript.PlayMenuButtonClickSFX();
 
         yield return new WaitForSecondsRealtime(0.15f);
         isSafetyMenu = false;
@@ -463,7 +463,7 @@ public class PauseMenu : MonoBehaviour
     private IEnumerator CloseSafetyMenuDelay02()
     {
         DisableMenuInputsPS();
-        audioManagerScript.PlayButtonClick01SFX();
+        audioManagerScript.PlayMenuButtonClickSFX();
         playerScript.SetPlayerBoolsFalse(); // Review
         transitionFadeScript.GameFadeOut(); // Review
 

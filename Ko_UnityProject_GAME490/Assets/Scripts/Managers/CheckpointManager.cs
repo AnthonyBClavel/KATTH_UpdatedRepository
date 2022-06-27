@@ -8,43 +8,38 @@ public class CheckpointManager : MonoBehaviour
     public int numMovements;
     private float rayLength = 1f;
 
-    private GameObject bridgeTileCheck;
     private GameObject player;
+    private GameObject bridgeTileCheck;
     private GameObject savedInvisibleBlock;
 
-    private Vector3 checkpointPosition;
     private Animator playerAnimator;
+    private Vector3 checkpointPosition;
     private IEnumerator resetPlayerCoroutine;
 
-    private FreezeEffect freezeEffectScript;
-    private TileMovementController playerScript;
+    private GameHUD gameHUDScript;
+    private PauseMenu pauseMenuScript;
+    private TorchMeter torchMeterScript;
     private SaveManager saveManagerScript;
     private GameManager gameManagerScript;
-    private PauseMenu pauseMenuScript;
-    private GameHUD gameHUDScript;
+    private FreezeEffect freezeEffectScript;
     private AudioManager audioManagerScript;
+    private TileMovementController playerScript;
     private TutorialDialogue tutorialDialogueScript;
-    private TorchMeter torchMeterScript;
 
     public int MaxTileMoves
     {
         get { return numMovements; }
     }
 
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        checkpointPosition = transform.position;
-    }
-
-    // Checks for the closet bridge tile and sets the savedInvisibleBlock's position to that bridge tile
-    public bool LastBridgeTileCheck()
+    // Checks for the last/closest bridge tile - sets the savedInvisibleBlock's position and sets/saves the player's rotation
+    public void SetSavedBlockPosition()
     {
         for (int i = 0; i < 360; i += 90)
         {
@@ -52,92 +47,85 @@ public class CheckpointManager : MonoBehaviour
 
             Ray myRay = new Ray(bridgeTileCheck.transform.position + new Vector3(0, -0.1f, 0), bridgeTileCheck.transform.TransformDirection(Vector3.forward));
             RaycastHit hit;
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
+            //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
-            if (Physics.Raycast(myRay, out hit, rayLength))
-            {
-                GameObject lastBridgeTile = hit.collider.gameObject;
+            // If the ray doesn't hit anything or if it doesn't hit a bridge tile, then CONTINUE the loop
+            if (!Physics.Raycast(myRay, out hit, rayLength) || !hit.collider.CompareTag("BridgeTile") && !hit.collider.name.Contains("BridgeTile")) continue;
 
-                if (lastBridgeTile.name == "BridgeTile" || lastBridgeTile.tag == "BridgeTile")
-                {
-                    //Debug.Log("Bridge tile was found");
-                    float playerRotation = bridgeTileCheck.transform.localEulerAngles.y - 180; 
- 
-                    // Sets the player's rotation (ONLY when a puzzle is loaded while debugging)
-                    if (player.transform.position == transform.position && gameManagerScript.isDebugging)
-                        player.transform.localEulerAngles = new Vector3(0, playerRotation, 0);
+            float newPlayerRot = bridgeTileCheck.transform.eulerAngles.y - 180;
+            Vector3 bridgeTilePos = hit.collider.transform.position;
 
-                    // Saves the player's rotataion as the opposite angle from which the last bridge tile was found
-                    saveManagerScript.SavePlayerRotation(playerRotation);
-                    savedInvisibleBlock.transform.position = new Vector3(lastBridgeTile.transform.position.x, 1, lastBridgeTile.transform.position.z);
+            if (playerScript.OnCheckpoint()) player.transform.eulerAngles = new Vector3(0, newPlayerRot, 0);
+            savedInvisibleBlock.transform.position = new Vector3(bridgeTilePos.x, 1, bridgeTilePos.z);
+            saveManagerScript.SavePlayerRotation(newPlayerRot);
 
-                    return true;
-                }
-            }
-            //Debug.Log("Bridge tile was NOT found");
+            //Debug.Log("The SavedInvisibleBlock's position has been set");
+            break;
         }
-
-        return false;
     }
 
-    // Starts the coroutine to reset all player elements (delay = seconds, set float to zero for instant reset)
-    public void ResetPlayer(float delay)
+    // Checks to reset the player after/without a delay
+    // Note: no delay will be added if the duration parameter is not set
+    public void ResetPlayer(float duration = 0f)
     {
-        // Reset the player after the delay
-        if (delay > 0f)
-        {
-            if (resetPlayerCoroutine != null)
-                StopCoroutine(resetPlayerCoroutine);
+        // Resets after a delay - for when the torch meter runs out (player freezes)
+        if (duration > 0f) StartResetPlayerCoroutine(duration);
 
-            resetPlayerCoroutine = ResetPlayerCoroutine(delay);
-            StartCoroutine(resetPlayerCoroutine);
-        }
-        // Instantly reset the player if there's no delay
-        else if (delay <= 0f)
-            ResetPlayerElements();
+        // Resets immediately - for manually restarting a puzzle
+        else if (duration == 0f) ResetPlayerElements();
     }
 
-    // Resets all player elements
+    // Resets the player's coroutines, position, rotation, and torch meter
     private void ResetPlayerElements()
     {
-        freezeEffectScript.ResetAlphas();
+        playerScript.StopPlayerCoroutines();
         audioManagerScript.StopAllPuzzleSFX();
+        freezeEffectScript.ResetAlphas();
 
-        // Resets all animator layers to their entry state (Idle)
+        player.transform.position = checkpointPosition;
+        playerScript.Destination = checkpointPosition;
+        saveManagerScript.LoadPlayerRotation();
+
+        torchMeterScript.ResetTorchMeterElements();
+        playerScript.WriteToGrassMaterial();
+        playerScript.AlertBubbleCheck();
+
+        // Note: resets the animator to its entry state
         playerAnimator.Rebind();
         playerAnimator.Update(0f);
 
-        playerScript.StopPlayerCoroutines();
-        playerAnimator.enabled = true;
         pauseMenuScript.CanPause = true;
+        playerAnimator.enabled = true;
 
-        player.transform.position = checkpointPosition;
-        saveManagerScript.LoadPlayerRotation();
-        playerScript.Destination = checkpointPosition;
-        playerScript.AlertBubbleCheck();
-        playerScript.WriteToGrassMaterial();
-        torchMeterScript.ResetTorchMeterElements();
-
-        // The player bools are not set to true until the death dialogue has finished playing - ONLY called in tutorial zone
+        // Note: the player bools are set to true AFTER the death dialogue has finished playing
         if (tutorialDialogueScript != null && !playerScript.CanRestartPuzzle)
             tutorialDialogueScript.PlayDeathDialogue();
-        else
-            playerScript.SetPlayerBoolsTrue();
+
+        else playerScript.SetPlayerBoolsTrue();
     }
 
-    // Resets all player elements elements after a delay
-    private IEnumerator ResetPlayerCoroutine(float seconds)
+    // Starts the coroutine that resets the player after a delay
+    private void StartResetPlayerCoroutine(float duration)
     {
-        freezeEffectScript.LerpAlphas();
-        playerScript.SetPlayerBoolsFalse();
-        playerAnimator.enabled = false;
-        pauseMenuScript.CanPause = false;
+        if (resetPlayerCoroutine != null) StopCoroutine(resetPlayerCoroutine);
 
-        yield return new WaitForSeconds(seconds);
-        if (!gameManagerScript.canDeathScreen)
-            ResetPlayerElements();
-        else if (gameManagerScript.canDeathScreen)
-            gameHUDScript.SetDeathScreenActive();
+        resetPlayerCoroutine = ResetPlayerCoroutine(duration);
+        StartCoroutine(resetPlayerCoroutine);
+    }
+
+    // Resets the player after a delay (duration = seconds)
+    private IEnumerator ResetPlayerCoroutine(float duration)
+    {
+        playerScript.SetPlayerBoolsFalse();
+        freezeEffectScript.LerpAlphas();
+
+        pauseMenuScript.CanPause = false;
+        playerAnimator.enabled = false;
+        
+        yield return new WaitForSeconds(duration);
+        bool canDeathScreen = gameManagerScript.canDeathScreen;
+        if (!canDeathScreen) ResetPlayerElements();
+        else gameHUDScript.SetDeathScreenActive();
     }
 
     // Sets the scripts to use
@@ -157,7 +145,7 @@ public class CheckpointManager : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
+        // Sets them by looking at the names of children
         for (int i = 0; i < transform.childCount; i++)
         {
             GameObject child = transform.GetChild(i).gameObject;
@@ -174,8 +162,9 @@ public class CheckpointManager : MonoBehaviour
                 savedInvisibleBlock = child;
         }
 
-        player = playerScript.gameObject;
         playerAnimator = playerScript.GetComponentInChildren<Animator>();
+        checkpointPosition = transform.position;
+        player = playerScript.gameObject;
     }
 
 }

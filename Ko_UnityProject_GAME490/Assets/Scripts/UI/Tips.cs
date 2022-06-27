@@ -71,7 +71,7 @@ public class Tips : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPoin
                 currentTipIndex = tipsArraySize;
 
             tipText.text = "TIP: " + tips[currentTipIndex];
-            audioManagerScript.PlayButtonClick02SFX();
+            audioManagerScript.PlayTipButtonClickSFX();
         }
     }
 

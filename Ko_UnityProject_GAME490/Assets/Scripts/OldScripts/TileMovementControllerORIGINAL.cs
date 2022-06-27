@@ -127,7 +127,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
                 else
                     resetPuzzleWithDelay();*/
 
-                audioManagerScript.PlayTorchFireExtinguishSFX();
+                //audioManagerScript.PlayTorchFireExtinguishSFX();
                 audioManagerScript.PlayFreezeingSFX();
                 alreadyPlayedSFX = true;
             }
@@ -243,13 +243,13 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         {
             case ("StaticBlock"):
                 //objectShakeScript.ShakeObject(objectToShake);
-                audioManagerScript.PlayTreeHitSFX();
+                //audioManagerScript.PlayTreeHitSFX();
                 CheckToPlayAnims();
                 break;
 
             case ("Crystal"):
                 //objectShakeScript.ShakeObject(objectToShake);
-                audioManagerScript.PlayCrystalHitSFX();
+                //audioManagerScript.PlayCrystalHitSFX();
                 //collider.gameObject.GetComponentInChildren<CrystalManager>().SetGlowActive();
                 //collider.gameObject.GetComponentInChildren<CrystalManager>().ResetCrystalIdleAnim();
                 CheckToPlayAnims();
@@ -263,7 +263,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
             case ("DestroyableBlock"):
                 //objectShakeScript.ShakeObject(objectToShake);
-                audioManagerScript.PlayRockHitSFX();
+                //audioManagerScript.PlayRockHitSFX();
                 CheckToPlayAnims();
                 break;
 
@@ -295,7 +295,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
 
         SubractFromTorchMeter();
         Instantiate(destroyedBlockParticle, destroyableBlock.transform.position + new Vector3(0, -0.25f, 0), destroyableBlock.transform.rotation);
-        audioManagerScript.PlayRockBreakSFX();
+        //audioManagerScript.PlayRockBreakSFX();
         destroyableBlock.SetActive(false);
 
         isInteracting = true;
@@ -327,7 +327,7 @@ public class TileMovementControllerORIGINAL : MonoBehaviour
         {
             //Debug.Log("Has Interacted With Firestone");
             //torchMeterMoves.CurrentVal = torchMeterMoves.MaxVal;
-            audioManagerScript.PlayTorchFireIgniteSFX();
+            //audioManagerScript.PlayTorchFireIgniteSFX();
 
             isInteracting = true;
             CheckToPlayAnims();

@@ -81,8 +81,8 @@ public class GameManager : MonoBehaviour
         if (isDebugging) // Dont need this
         {
             // Debugging checks for UI animations
-            transitionFadeScript.DebuggingCheck(this);
             blackBarsScript.DebuggingCheck(this);
+            transitionFadeScript.DebuggingCheck(this);
             notificationBubblesScript.DebuggingCheck(this);
             // Other debugging checks
             cameraScript.DebuggingCheck(this);
@@ -350,6 +350,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Creates a new save file
+    //[ContextMenu("Create New Save File")]
     private void CreateNewSaveFile()
     {
         Debug.Log("Updated Save File");

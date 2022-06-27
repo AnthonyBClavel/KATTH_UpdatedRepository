@@ -30,6 +30,7 @@ public class PuzzleManager : MonoBehaviour
     private CameraController cameraScript;
     private GameManager gameManagerScript;
     private AudioManager audioManagerScript;
+    private TileMovementController playerScript;
     private CheckpointManager checkpointManagerScript;
 
     public int? PuzzleNumber
@@ -58,8 +59,8 @@ public class PuzzleManager : MonoBehaviour
         checkpointManagerScript.ResetPlayer(duration);
         DestroyAllPuzzleParticles();
 
-        // The puzzle blocks don't reset if the death screen is active
-        if (gameManagerScript.canDeathScreen && deathScreen.activeInHierarchy) return;
+        // The puzzle blocks don't reset during the death screen
+        if (gameManagerScript.canDeathScreen && !playerScript.CanRestartPuzzle) return;
         ResetPuzzleBlocks(duration);
     }
 
@@ -129,7 +130,7 @@ public class PuzzleManager : MonoBehaviour
         puzzleNumber = ConvertObjectNameToNumber(currentPuzzle);
 
         checkpointManagerScript = currentCheckpoint.GetComponent<CheckpointManager>();
-        checkpointManagerScript.LastBridgeTileCheck(); // Note: player rotation is saved in this method
+        checkpointManagerScript.SetSavedBlockPosition(); // Note: player rotation is saved in this method
 
         torchMeterScript.MaxVal = checkpointManagerScript.MaxTileMoves; // The max tile moves for the puzzle
         torchMeterScript.ResetTorchMeterElements();
@@ -231,7 +232,7 @@ public class PuzzleManager : MonoBehaviour
 
         // Note: the generator will turn off after its audio fades to zero
         foreach (Transform child in generators.transform)
-            child.GetComponent<Generator>().FadeOutGeneratorLoop();
+            child.GetComponent<Generator>().FadeOutGeneratorAudio();
     }
 
     // Checks to reset the postion for all pushable blocks after a delay (duration = seconds)
@@ -297,6 +298,7 @@ public class PuzzleManager : MonoBehaviour
         gameManagerScript = FindObjectOfType<GameManager>();
         gameHUDScript = FindObjectOfType<GameHUD>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
+        playerScript = FindObjectOfType<TileMovementController>();
     }
 
     // Sets private variables, objects, and components

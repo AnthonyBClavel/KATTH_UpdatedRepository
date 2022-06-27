@@ -22,10 +22,18 @@ public static class ExtensionMethods
     }
 
     // Returns the color of the image
-    // Note: the default alpha to return will always be one if the parameter is not set
+    // Note: the default alpha to return will always be 1 if the parameter is not set
     public static Color ReturnImageColor(this Image image, float alpha = 1)
     {
         Color color = image.color;
+        return new Color(color.r, color.g, color.b, alpha);
+    }
+
+    // Returns the color of the text 
+    // Note: the default alpha to return will always be 1 if the parameter is not set
+    public static Color ReturnTextColor(this TextMeshProUGUI text, float alpha = 1)
+    {
+        Color color = text.color;
         return new Color(color.r, color.g, color.b, alpha);
     }
 

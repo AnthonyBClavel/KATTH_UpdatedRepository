@@ -43,7 +43,7 @@ public class FidgetController : MonoBehaviour
     // Note: not all characters have this animation event due to their lack of animations
     public void FidgetCheck()
     {
-        if (!characterDialogueScript.InDialogue || characterDialogueScript.InDialogueOptions) // && pauseMenuScript.CanPause
+        if (!characterDialogueScript.InDialogue || characterDialogueScript.InDialogueOptions)
         {
             if (idleCount < idleRepetitions - 1)
                 idleCount++;

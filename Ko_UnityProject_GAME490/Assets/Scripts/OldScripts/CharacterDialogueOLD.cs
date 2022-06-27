@@ -252,7 +252,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     private void SetDialogueOptions(TextAsset dialogeOptionsFile)
     {
         dialogueOptions = dialogeOptionsFile.ReturnSentences();
-        nPCScript.SetDialogueOptionBools(dialogueOptions.Length);
+        //nPCScript.SetDialogueOptionBools(dialogueOptions.Length);
     }
 
     // Starts the character dialogue
@@ -277,7 +277,7 @@ public class CharacterDialogueOLD : MonoBehaviour
         else
         {                         
             OpenDialogueOptions();
-            audioManagerScript.PlayDialoguePopUpSFX01();
+            //audioManagerScript.PlayDialoguePopUpSFX01();
             //Debug.Log("Opened Dialogue Options");
         }
     }
@@ -299,7 +299,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     {
         if (isInteractingWithNPC)
         {
-            nPCScript.SetRotationNPC();
+            //nPCScript.SetRotation();
             nPCForegroundText.color = nPCTextColor;
                 
             if (!nPCScript.HasPlayedInitialDialogue && !isInteractingWithArtifact)
@@ -419,7 +419,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     {
         dialogueArrowHolder.transform.SetParent(doGameObjects[doIndex].transform);
         dialogueArrowHolder.transform.localPosition = dialogueArrowDefaultPos;
-        audioManagerScript.PlayButtonClick02SFX();
+        //audioManagerScript.PlayButtonClick02SFX();
 
         // Highlights the current selected dialogue option
         for (int i = 0; i < doTextComponenets.Count; i++)
@@ -445,7 +445,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     {
         audioManagerScript.FadeInDialogueMusic();
         audioManagerScript.FadeOutBackgroundMusic();
-        audioManagerScript.FadeOutGeneratorLoopCheck();
+        //audioManagerScript.FadeOutGeneratorLoopCheck();
     }
 
     // Fades out the dialogue music
@@ -453,7 +453,7 @@ public class CharacterDialogueOLD : MonoBehaviour
     {
         audioManagerScript.FadeOutDialogueMusic();
         audioManagerScript.FadeInBackgroundMusic();
-        audioManagerScript.FadeInGeneratorLoopCheck();
+        //audioManagerScript.FadeInGeneratorLoopCheck();
     }
 
     // Checks to play the bubble pop sfx for the character (player/npc)
@@ -461,10 +461,10 @@ public class CharacterDialogueOLD : MonoBehaviour
     {
         if (currentlyTalking != characterName)
         {
-            if (isPlayerSpeaking)
-                audioManagerScript.PlayDialoguePopUpSFX01();
-            else
-                audioManagerScript.PlayDialoguePopUpSFX02();
+            //if (isPlayerSpeaking)
+                //audioManagerScript.PlayDialoguePopUpSFX01();
+            //else
+                //audioManagerScript.PlayDialoguePopUpSFX02();
 
             currentlyTalking = characterName;
         }

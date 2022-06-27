@@ -122,7 +122,7 @@ public class Artifact : MonoBehaviour
 
         artifactHolder.SetActive(false);
         hasCollectedArtifact = true;
-        //enabled = false;
+        enabled = false;
     }
 
     // Opens the artifact chest
@@ -131,7 +131,7 @@ public class Artifact : MonoBehaviour
         if (!enabled) return;
     
         ahOriginalPosition = artifactHolder.transform.position;
-        audioManagerScript.PlayOpeningChestSFX();
+        audioManagerScript.PlayOpenChestSFX();
         woodenChestAnim.Play("Open");
     }
 
@@ -182,15 +182,15 @@ public class Artifact : MonoBehaviour
         woodenChestAnim.Play("Close");
 
         yield return new WaitForSeconds(closeAnimLength * 0.75f);
-        audioManagerScript.PlayClosingChestSFX();
+        audioManagerScript.PlayCloseChestSFX();
     }
 
     // Transitions to the camera's artifact view
-    private IEnumerator TransitionToArtifactView() /////////////////////////////////////////////////////
+    private IEnumerator TransitionToArtifactView()
     {
-        bool inTutorialDialogue = false;
         float duration = transitionFadeScript.fadeOutAndIn * 0.5f;
         transitionFadeScript.PlayTransitionFade();
+        bool inTutorialDialogue = false;
 
         yield return new WaitForSeconds(duration);
         SetArtifactView();
@@ -251,18 +251,18 @@ public class Artifact : MonoBehaviour
     // Checks to stop inspecting the artifact
     private void StopInputCheck()
     {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            StopInspectingArtifact();
-            artifactButtons.SetActive(false);
-        }
+        if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
+
+        StopInspectingArtifact();
+        artifactButtons.SetActive(false);
     }
 
     // Checks to reset the artifact's rotation
     private void ResetInputCheck()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-            artifactHolder.transform.eulerAngles = ahInspectingRotation;
+        if (!Input.GetKeyDown(KeyCode.R)) return;
+
+        artifactHolder.transform.eulerAngles = ahInspectingRotation;
     }
 
     // Checks to rotate the artifact

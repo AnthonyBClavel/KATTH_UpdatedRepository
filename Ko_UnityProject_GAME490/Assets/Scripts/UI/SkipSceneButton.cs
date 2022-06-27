@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -65,9 +64,8 @@ public class SkipSceneButton : MonoBehaviour
         if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
         if (inputCoroutine != null) StopCoroutine(inputCoroutine);
 
-        skipButtonAnimator.Rebind(); // Resets the animator
+        //skipButtonAnimator.Rebind();
         skipSceneText.SetTextAlpha(minTextAlpha);
-
         skipSceneButton.SetActive(false);
         canRecieveInput = false;
     }
@@ -167,8 +165,7 @@ public class SkipSceneButton : MonoBehaviour
         {
             gameManagerScript.ResetCollectedArtifactsCheck();
             transitionFadeScript.GameFadeOut();
-
-            audioManagerScript.PlayChime02SFX();
+            audioManagerScript.PlaySkippedSceneSFX();
             playerScript.SetPlayerBoolsFalse();
             playerScript.HasFinishedZone = true;
             hasSkippedScene = true;
@@ -186,7 +183,7 @@ public class SkipSceneButton : MonoBehaviour
     private IEnumerator LerpTextAlpha(float endAlpha, float duration)
     {
         Color startColor = skipSceneText.color;
-        Color endColor = new Color(startColor.r, startColor.g, startColor.b, endAlpha);
+        Color endColor = skipSceneText.ReturnTextColor(endAlpha);
         float time = 0f;
 
         while (time < duration)
@@ -264,6 +261,7 @@ public class SkipSceneButton : MonoBehaviour
             {
                 skipSceneButton = child;
                 skipButtonAnimator = skipSceneButton.GetComponent<Animator>();
+                skipButtonAnimator.keepAnimatorControllerStateOnDisable = false;
 
                 for (int j = 0; j < skipSceneButton.transform.childCount; j++)
                 {

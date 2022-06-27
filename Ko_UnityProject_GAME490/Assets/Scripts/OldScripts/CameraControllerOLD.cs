@@ -83,7 +83,7 @@ public class CameraControllerOLD : MonoBehaviour
         {
             //Debug.Log("Moved to next puzzle view");
             //puzzleManagerScript.ResetGeneratorCheck();
-            audioManagerScript.ChangeLoopingAmbienceSFX();
+            //audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();
             LerpCameraToNextPuzzleView();
             SetPuzzleNumber(); // Set puzzle number must come AFTER lerping camera
@@ -97,7 +97,7 @@ public class CameraControllerOLD : MonoBehaviour
         {
             //Debug.Log("Moved to next puzzle view");
             //puzzleManagerScript.ResetGeneratorCheck();
-            audioManagerScript.ChangeLoopingAmbienceSFX();
+            //audioManagerScript.ChangeLoopingAmbienceSFX();
             audioManagerScript.PlayWindGushSFX();
             LerpCameraToPreviousPuzzleView();
             SetPuzzleNumber(); // Set puzzle number must come AFTER lerping camera
@@ -246,7 +246,7 @@ public class CameraControllerOLD : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Equals)) // =
             {
-                audioManagerScript.ChangeLoopingAmbienceSFX();
+                //audioManagerScript.ChangeLoopingAmbienceSFX();
                 audioManagerScript.PlayWindGushSFX();
                 LerpCameraToNextPuzzleView();
                 Debug.Log("Debugging: Moved Camera To Puzzle " + (cameraIndex + 1));
@@ -254,7 +254,7 @@ public class CameraControllerOLD : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Minus)) // -
             {
-                audioManagerScript.ChangeLoopingAmbienceSFX();
+                //audioManagerScript.ChangeLoopingAmbienceSFX();
                 audioManagerScript.PlayWindGushSFX();
                 LerpCameraToPreviousPuzzleView();
                 Debug.Log("Debugging: Moved Camera To Puzzle " + (cameraIndex + 1));

@@ -34,7 +34,7 @@ public class ObjectShakeController : MonoBehaviour
         PlayShakeFX(objectToShake);
     }
 
-    // Checks to stop the object from shaking if applicable - stops the coroutine and removes the tuple from the list
+    // Checks to stop the object from shaking - stops the coroutine and removes the tuple from the list
     private void StopShakingObject(GameObject objectToShake)
     {
         for (int i = 0; i < shakingObjects.Count; i++)
@@ -63,32 +63,32 @@ public class ObjectShakeController : MonoBehaviour
         shakingObjects.Clear();
     }
 
-    // Checks to play effects for object to shake (particle effects, sfx, and animations)
+    // Checks to play effects for the object to shake (particle effects, sfx, and animations)
     private void PlayShakeFX(GameObject objectToShake)
     {
         switch (objectToShake.name)
         {
             case "Tree":
                 puzzleManagerScript.InstantiateParticleEffect(objectToShake, "TreeHitParticle");
-                audioManagerScript.PlayTreeHitSFX();
+                audioManagerScript.PlayHitTreeSFX();
                 break;
             case "SnowTree":
                 puzzleManagerScript.InstantiateParticleEffect(objectToShake, "SnowHitParticle");
-                audioManagerScript.PlaySnowTreeHitSFX();
+                audioManagerScript.PlayHitSnowTreeSFX();
                 break;
             case "BarrenTree":
                 puzzleManagerScript.InstantiateParticleEffect(objectToShake, "SnowHitParticle");
-                audioManagerScript.PlaySnowTreeHitSFX();
+                audioManagerScript.PlayHitSnowTreeSFX();
                 break;
             case "Crystal":
-                audioManagerScript.PlayCrystalHitSFX();
+                audioManagerScript.PlayHitCrystalSFX();
                 objectToShake.GetComponentInParent<Crystal>().PlayLightAnimation();
                 break;
             case "GasBarrel":
-                audioManagerScript.PlayMetalHitSFX();
+                audioManagerScript.PlayHitBarrelSFX();
                 break;
             case "Rock":
-                audioManagerScript.PlayRockHitSFX();
+                audioManagerScript.PlayHitRockSFX();
                 break;
             default:
                 //Debug.Log("Unrecognizable object name");
@@ -113,7 +113,7 @@ public class ObjectShakeController : MonoBehaviour
             yield return null;
         }
 
-        // Note: After the object has finished shaking, it removes itself from list of shaking objects
+        // Note: the object removes itself from list after shaking
         StopShakingObject(objectToShake);
     }
 

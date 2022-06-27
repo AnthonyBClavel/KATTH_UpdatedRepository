@@ -51,10 +51,10 @@ public class NonPlayerCharacter : MonoBehaviour
     }
 
     // Sets the npc back to its original rotation
-    public void ResetRotationNPC() => characterHolder.transform.localEulerAngles = originalRotation;
+    public void ResetRotation() => characterHolder.transform.eulerAngles = originalRotation;
 
     // Rotates the npc towards the player
-    public void SetRotationNPC()
+    public void SetRotation()
     {
         Vector3 playerDirection = playerScript.transform.eulerAngles;
 
@@ -114,7 +114,7 @@ public class NonPlayerCharacter : MonoBehaviour
                 nPCDialogueCheck = child;
         }
 
-        originalRotation = characterHolder.transform.localEulerAngles;
+        originalRotation = characterHolder.transform.eulerAngles;
     }
 
     // Sets text color to use for the NPC's dialogue bubble - For Reference (shows the original text colors for each npc)

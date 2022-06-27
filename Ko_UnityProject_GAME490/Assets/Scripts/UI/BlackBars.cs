@@ -12,8 +12,8 @@ public class BlackBars : MonoBehaviour
     private bool hasMovedBars = false;
     private bool canDebugBars = false;
 
-    private RectTransform topBarRectTransform;
-    private RectTransform bottomBarRectTransform;
+    private RectTransform topBarRT;
+    private RectTransform bottomBarRT;
     private GameHUD gameHUDScript;
 
     public float FinalHeight
@@ -29,57 +29,57 @@ public class BlackBars : MonoBehaviour
         SetElements();
     }
 
-    // Starts the coroutines that move the dialogue bars "onto" the screen
-    public void MoveBlackBarsIn()
+    // Starts the coroutines that move the black bars "onto" the screen
+    public void MoveBarsIn()
     {
         hasMovedBars = true;
 
         StopAllCoroutines();
-        StartCoroutine(LerpBlackBar(topBarRectTransform, FinalHeight, animDuration));
-        StartCoroutine(LerpBlackBar(bottomBarRectTransform, FinalHeight, animDuration));
+        StartCoroutine(LerpBar(topBarRT, FinalHeight, animDuration));
+        StartCoroutine(LerpBar(bottomBarRT, FinalHeight, animDuration));
     }
 
-    // Starts the coroutines that move the dialogue bars "out" of the screen
-    public void MoveBlackBarsOut()
+    // Starts the coroutines that move the black bars "out" of the screen
+    public void MoveBarsOut()
     {
         hasMovedBars = false;
 
         StopAllCoroutines();
-        StartCoroutine(LerpBlackBar(topBarRectTransform, 0f, animDuration));
-        StartCoroutine(LerpBlackBar(bottomBarRectTransform, 0f, animDuration));
+        StartCoroutine(LerpBar(topBarRT, 0f, animDuration));
+        StartCoroutine(LerpBar(bottomBarRT, 0f, animDuration));
     }
 
     // Sets each black bar's height to the finalHeight
-    public void TurnOnBlackBars()
+    public void TurnOnBars()
     {
-        topBarRectTransform.sizeDelta = new Vector2(0, FinalHeight);
-        bottomBarRectTransform.sizeDelta = new Vector2(0, FinalHeight);
+        topBarRT.sizeDelta = new Vector2(0, FinalHeight);
+        bottomBarRT.sizeDelta = new Vector2(0, FinalHeight);
     }
 
     // Sets each black bar's height to zero
-    public void TurnOffBlackBars()
+    public void TurnOffBars()
     {
-        topBarRectTransform.sizeDelta = new Vector2(0, 0);
-        bottomBarRectTransform.sizeDelta = new Vector2(0, 0);
+        topBarRT.sizeDelta = new Vector2(0, 0);
+        bottomBarRT.sizeDelta = new Vector2(0, 0);
     }
 
     // Moves the black bars in/out - For Debugging Purposes Only
-    private void ToggleBlackBarsDebug()
+    private void ToggleBarsDebug()
     {
         if (!hasMovedBars)
         {
-            MoveBlackBarsIn();
+            MoveBarsIn();
             Debug.Log("Debugging: moved black bars IN");
         }
         else if (hasMovedBars)
         {
-            MoveBlackBarsOut();
+            MoveBarsOut();
             Debug.Log("Debugging: moved black bars OUT");
         }
     }
 
     // Lerps the height of the black bar to another over a specific duration (finalHeight = height to lerp to, duration = seconds)
-    private IEnumerator LerpBlackBar(RectTransform bar, float endHeight, float duration)
+    private IEnumerator LerpBar(RectTransform bar, float endHeight, float duration)
     {
         canDebugBars = false;
         float startHeight = bar.rect.height;
@@ -120,9 +120,9 @@ public class BlackBars : MonoBehaviour
                     RectTransform rectTransform = child02.GetComponent<RectTransform>();
 
                     if (child02.name == "TopBar")
-                        topBarRectTransform = rectTransform;                
+                        topBarRT = rectTransform;                
                     if (child02.name == "BottomBar")
-                        bottomBarRectTransform = rectTransform;
+                        bottomBarRT = rectTransform;
                 }    
             }
         }
@@ -131,23 +131,17 @@ public class BlackBars : MonoBehaviour
     // Enables debugging for the black bars - For Debugging Purposes ONLY
     public void DebuggingCheck(GameManager gameManager)
     {
-        if (gameManager.isDebugging)
-        {
-            if (Input.GetKeyDown(KeyCode.P))
-                ToggleBlackBarsDebug();
+        if (!gameManager.isDebugging) return;
 
-            // If canDebugBars is true...
-            if (!canDebugBars)
-                return;
-            // And if their height is not equal to the finalHeight...
-            if (topBarRectTransform.rect.height == FinalHeight || bottomBarRectTransform.rect.height == FinalHeight)
-                return;
+        if (Input.GetKeyDown(KeyCode.P))
+            ToggleBarsDebug();
 
-            // Adjust the the black bars' height constantly
-            Vector2 newHieght = new Vector2(0, FinalHeight);
-            topBarRectTransform.sizeDelta = newHieght;
-            bottomBarRectTransform.sizeDelta = newHieght;
-        }
+        if (!canDebugBars || topBarRT.rect.height == FinalHeight || bottomBarRT.rect.height == FinalHeight) return;
+
+        // Adjust the the black bars' height constantly
+        Vector2 newHieght = new Vector2(0, FinalHeight);
+        topBarRT.sizeDelta = newHieght;
+        bottomBarRT.sizeDelta = newHieght;
     }
 
 }

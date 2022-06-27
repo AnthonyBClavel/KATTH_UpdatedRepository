@@ -58,7 +58,7 @@ public class IntroManager : MonoBehaviour
     // Checks to start the zone intro
     private void StartZoneIntroCheck()
     {
-        // Note: the intro will ONLY play at the beginning of each zone (on first puzzle)
+        // Note: the intro will ONLY play at the beginning of each zone (on the first puzzle)
         if (SceneManager.GetActiveScene().name != "TutorialMap" && !playerScript.OnCheckpoint())
             StartCoroutine(StartZoneIntro());
         else
@@ -66,7 +66,7 @@ public class IntroManager : MonoBehaviour
             audioManagerScript.FadeInLoopingAmbientSFX();
             audioManagerScript.FadeInBackgroundMusic();
             transitionFadeScript.GameFadeIn();
-            playerScript.MovePlayerCheck();
+            playerScript.EnablePlayerInputCheck();
 
             SetZoneIntroInactive();
         }
@@ -125,7 +125,7 @@ public class IntroManager : MonoBehaviour
         mainCamera.transform.eulerAngles = cameraDefaultRot;
         notificationBubbles.SetActive(false);
 
-        blackBarsScript.TurnOnBlackBars();
+        blackBarsScript.TurnOnBars();
         transitionFadeScript.IntroFadeIn();
         torchMeterScript.TurnOffTorchMeter();
         playerScript.SetPlayerBoolsFalse();
@@ -149,10 +149,10 @@ public class IntroManager : MonoBehaviour
         audioManagerScript.FadeInBackgroundMusic();
         audioManagerScript.FadeInLoopingAmbientSFX();
 
-        blackBarsScript.TurnOffBlackBars();
+        blackBarsScript.TurnOffBars();
         transitionFadeScript.GameFadeIn();
         torchMeterScript.TurnOnTorchMeter();
-        playerScript.MovePlayerCheck();
+        playerScript.EnablePlayerInputCheck();
 
         if (cameraCoroutine != null) StopCoroutine(cameraCoroutine);
         mainCamera.transform.position = cameraOriginalPos;
