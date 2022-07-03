@@ -10,6 +10,7 @@ public class FreezeEffect : MonoBehaviour
 
     private Image frostedBorder;
     private Material iceMaterial;
+    private Material[] playerMats;
 
     private IEnumerator iceMatCoroutine;
     private IEnumerator frostedBorderCoroutine;
@@ -42,8 +43,7 @@ public class FreezeEffect : MonoBehaviour
     // Starts the coroutine that lerps ice material's alpha
     private void StartIceMatCoroutine()
     {
-        if (iceMatCoroutine != null)
-            StopCoroutine(iceMatCoroutine);
+        if (iceMatCoroutine != null) StopCoroutine(iceMatCoroutine);
 
         iceMatCoroutine = LerpIceMatAlpha();
         StartCoroutine(iceMatCoroutine);
@@ -52,8 +52,7 @@ public class FreezeEffect : MonoBehaviour
     // Starts the coroutine that lerps the frosted border's alpha
     private void StartFrostedBorderCoroutine()
     {
-        if (frostedBorderCoroutine != null)
-            StopCoroutine(frostedBorderCoroutine);
+        if (frostedBorderCoroutine != null) StopCoroutine(frostedBorderCoroutine);
 
         frostedBorderCoroutine = LerpFrostedBorderAlpha();
         StartCoroutine(frostedBorderCoroutine);
@@ -100,21 +99,46 @@ public class FreezeEffect : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "FrostedBorder":
+                    frostedBorder = child.GetComponent<Image>();
+                    break;
+                case "Ko":
+                    // Note: use .sharedMaterial to use the original material
+                    // Note: use .material to create an instance of the material 
+                    playerMats = child.GetComponent<SkinnedMeshRenderer>().sharedMaterials;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.name == "Bip001" || child.name == "NotificationBubbles") continue;
+            SetVariables(child);
+        }
+
+        if (parent != transform) return;
+        foreach (Material mat in playerMats)
+        {
+            if (!mat.name.Contains("IceShader_Mat")) continue;
+            iceMaterial = mat;
+            break;
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "FrostedBorder")
-                frostedBorder = child.GetComponent<Image>();
-        }
-
-        iceMaterial = gameManagerScript.iceMaterial;
-        iceMaterial.SetFloat("Vector1_FCC70E1D", 0f);
-        frostedBorder.SetImageAlpha(0f);
+        SetVariables(gameHUDScript.transform);
+        SetVariables(transform);
+        ResetAlphas();
     }
 
 }

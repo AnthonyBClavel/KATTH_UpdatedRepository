@@ -102,46 +102,50 @@ public class BlackBars : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
     }
 
-    // Sets private variables, objects, and components
-    private void SetElements()
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
         {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "BlackBars")
+            switch (child.name)
             {
-                GameObject blackBars = child;
-
-                for (int j = 0; j < blackBars.transform.childCount; j++)
-                {
-                    GameObject child02 = blackBars.transform.GetChild(j).gameObject;
-                    RectTransform rectTransform = child02.GetComponent<RectTransform>();
-
-                    if (child02.name == "TopBar")
-                        topBarRT = rectTransform;                
-                    if (child02.name == "BottomBar")
-                        bottomBarRT = rectTransform;
-                }    
+                case "TopBar":
+                    topBarRT = child.GetComponent<RectTransform>();
+                    break;
+                case "BottomBar":
+                    bottomBarRT = child.GetComponent<RectTransform>();
+                    break;
+                default:
+                    break;
             }
+
+            if (child.name == "HUD" || child.name == "CharacterDialogue" || child.name == "KeybindButtons") continue;
+            SetVariables(child);
         }
     }
 
-    // Enables debugging for the black bars - For Debugging Purposes ONLY
+    // Sets private variables, objects, and components
+    private void SetElements()
+    {
+        SetVariables(gameHUDScript.transform.parent);
+    }
+
+    // Check to toggle the black bars and to update their height - For Debugging Purposes ONLY
     public void DebuggingCheck(GameManager gameManager)
     {
         if (!gameManager.isDebugging) return;
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P)) // Debug key is "P"
             ToggleBarsDebug();
 
         if (!canDebugBars || topBarRT.rect.height == FinalHeight || bottomBarRT.rect.height == FinalHeight) return;
 
-        // Adjust the the black bars' height constantly
-        Vector2 newHieght = new Vector2(0, FinalHeight);
-        topBarRT.sizeDelta = newHieght;
-        bottomBarRT.sizeDelta = newHieght;
+        // Updates the height of the black bars
+        Vector2 newHeight = new Vector2(0, FinalHeight);
+        topBarRT.sizeDelta = newHeight;
+        bottomBarRT.sizeDelta = newHeight;
     }
 
 }

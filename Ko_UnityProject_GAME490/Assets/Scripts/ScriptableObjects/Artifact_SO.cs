@@ -8,5 +8,4 @@ public class Artifact_SO : ScriptableObject
     public string artifactName;
     public TextAsset dialogueOptions;
     public TextAsset[] artifactDialogue;
-
 }

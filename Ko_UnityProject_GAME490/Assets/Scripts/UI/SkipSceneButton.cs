@@ -48,23 +48,22 @@ public class SkipSceneButton : MonoBehaviour
     }
 
     [ContextMenu("Set SkipSceenButton Active")]
-    // Sets the skip scene button active
+    // Sets the skip scene button ACTIVE
     public void SetSkipSceneButtonActive()
     {
-        skipSceneButton.SetActive(true);
         canRecieveInput = true;
-
+        skipSceneButton.SetActive(true);
+        
         StartLerpTextCoroutine(maxTextAlpha);
         StartInputCoroutine();
     }
 
-    // Sets the skip scene button inactive
+    // Sets the skip scene button INACTIVE
     public void SetSkipSceneButtonInactive()
     {
         if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
         if (inputCoroutine != null) StopCoroutine(inputCoroutine);
 
-        //skipButtonAnimator.Rebind();
         skipSceneText.SetTextAlpha(minTextAlpha);
         skipSceneButton.SetActive(false);
         canRecieveInput = false;
@@ -76,7 +75,7 @@ public class SkipSceneButton : MonoBehaviour
         if (hasSkippedScene) return;
 
         bool atZeroAlpha = skipSceneText.color.a == minTextAlpha;
-        float endAlpha = (atZeroAlpha) ? maxTextAlpha : minTextAlpha;
+        float endAlpha = atZeroAlpha ? maxTextAlpha : minTextAlpha;
 
         if (atZeroAlpha) canRecieveInput = true;
         StartLerpTextCoroutine(endAlpha);
@@ -94,7 +93,7 @@ public class SkipSceneButton : MonoBehaviour
                 skipButtonAnimator.Play(newState);
                 break;
             default:
-                //Debug.Log("Animation state was not found");
+                //Debug.Log("Animation state does not exist");
                 break;
         }
     }
@@ -138,19 +137,17 @@ public class SkipSceneButton : MonoBehaviour
     // Checks when the the bar can lerp to its max fill amount
     private void LerpToMaxCheck()
     {
-        if (Time.deltaTime == 0 || !Input.GetKey(skipSceneKeyCode) || !canRecieveInput || !playerScript.CanMove) return;
+        if (Time.deltaTime == 0 || !canRecieveInput || !playerScript.CanMove || !Input.GetKey(skipSceneKeyCode)) return;
 
-        if (lerpTextCoroutine != null)
-            StopCoroutine(lerpTextCoroutine);
-
-        playerScript.SetPlayerBoolsFalse();
-        audioManagerScript.PlayPopUpSFX();
+        if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
         pauseMenuScript.CanPause = false;
-
-        ChangeAnimationState("HoldingButton");
-        skipSceneText.SetTextAlpha(maxTextAlpha);
         canRecieveInput = false;
 
+        skipSceneText.SetTextAlpha(maxTextAlpha);
+        playerScript.SetPlayerBoolsFalse();
+        audioManagerScript.PlayPopUpSFX();      
+
+        ChangeAnimationState("HoldingButton");
         StartLerpBarCoroutine();
     }
 
@@ -164,13 +161,13 @@ public class SkipSceneButton : MonoBehaviour
         if (content.fillAmount == maxFillAmount)
         {
             gameManagerScript.ResetCollectedArtifactsCheck();
-            transitionFadeScript.GameFadeOut();
             audioManagerScript.PlaySkippedSceneSFX();
+            transitionFadeScript.GameFadeOut();
             playerScript.SetPlayerBoolsFalse();
             playerScript.HasFinishedZone = true;
             hasSkippedScene = true;
         }
-        // Lerps the bar to its min otherwise
+        // Lerps the bar to its min fill amount otherwise
         else
         {
             playerScript.SetPlayerBoolsTrue();
@@ -197,7 +194,7 @@ public class SkipSceneButton : MonoBehaviour
         LoopTextAlphaCheck();
     }
 
-    // Lerps the bar's fillAmount to its max over a duration (duration = seconds)
+    // Lerps the bar's fill amount to its max over a duration (duration = seconds)
     private IEnumerator LerpToMaxFillAmount(float duration)
     {
         float startFillAmount = content.fillAmount;
@@ -215,11 +212,11 @@ public class SkipSceneButton : MonoBehaviour
     }
 
     // Lerps the bar's fillAmount to its min
+    // Note: content.fillAmount will always get closer to zero, but never equal it
     private IEnumerator LerpToMinFillAmount()
     {
         while (content.fillAmount > minFillAmount + 0.01f)
         {
-            // Note: content.fillAmount will always get closer to zero, but never equal it
             content.fillAmount = Mathf.Lerp(content.fillAmount, minFillAmount, lerpSpeed * Time.deltaTime);
             yield return null;
         }
@@ -249,44 +246,46 @@ public class SkipSceneButton : MonoBehaviour
         gameManagerScript = FindObjectOfType<GameManager>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "SkipSceneButton":
+                    skipSceneButton = child.gameObject;
+                    break;
+                case "SSB_Bar":
+                    skipSceneBar = child.GetComponent<Image>();
+                    break;
+                case "SSB_FillContent":
+                    content = child.GetComponent<Image>();
+                    break;
+                case "SSB_Text":
+                    skipSceneText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                default:
+                    break;
+            }
+     
+            if (child.name == "NotificationBubbles" || child.name == "TorchMeter") continue;
+            SetVariables(child);
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "SkipSceneButton")
-            {
-                skipSceneButton = child;
-                skipButtonAnimator = skipSceneButton.GetComponent<Animator>();
-                skipButtonAnimator.keepAnimatorControllerStateOnDisable = false;
-
-                for (int j = 0; j < skipSceneButton.transform.childCount; j++)
-                {
-                    GameObject child02 = skipSceneButton.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "Bar")
-                    {
-                        skipSceneBar = child02.GetComponent<Image>();
-
-                        for (int k = 0; k < skipSceneBar.transform.childCount; k++)
-                        {
-                            GameObject child03 = skipSceneBar.transform.GetChild(k).gameObject;
-
-                            if (child03.name == "FillContent")
-                                content = child03.GetComponent<Image>();
-                        }
-                    }
-                    if (child02.name == "Text")
-                        skipSceneText = child02.GetComponent<TextMeshProUGUI>();
-                }
-            }
-        }
-
-        skipSceneText.SetTextAlpha(0f);
-        skipSceneBar.color = Color.clear;
+        SetVariables(gameHUDScript.transform);
         SetSkipSceneButtonInactive();
+
+        skipButtonAnimator = skipSceneButton.GetComponent<Animator>();
+        skipButtonAnimator.keepAnimatorControllerStateOnDisable = false;
+
+        skipSceneBar.color = Color.clear;
+        skipSceneText.SetTextAlpha(0f);
     }
 }

@@ -99,7 +99,7 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("MasterVol", masterSliderValue);
 
         // Updates the slider's value text
-        masterSliderValText.text = Mathf.RoundToInt(masterSliderValue * 100) + "";
+        masterSliderValText.text = $"{Mathf.RoundToInt(masterSliderValue * 100)}";
     }
 
     // Sets the volume for the music slider - for the OnValueChanged event in the slider's component
@@ -111,7 +111,7 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("MusicVol", musicSliderValue);
 
         // Updates the slider's value text
-        musicSliderValText.text = Mathf.RoundToInt(musicSliderValue * 100) + "";
+        musicSliderValText.text = $"{Mathf.RoundToInt(musicSliderValue * 100)}";
     }
 
     // Sets the volume for the sfx slider - for the OnValueChanged event in the slider's component
@@ -123,7 +123,7 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("SFXVol", sFXSliderValue);
 
         // Updates the slider's value text
-        sFXSliderValText.text = Mathf.RoundToInt(sFXSliderValue * 100) + "";
+        sFXSliderValText.text = $"{Mathf.RoundToInt(sFXSliderValue * 100)}";
     }
 
     // Sets the last saved volume for all sliders

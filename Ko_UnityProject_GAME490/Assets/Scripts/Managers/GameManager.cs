@@ -7,9 +7,6 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    private string levelToLoad;
-    private int loadingIconIndex;
-
     [Header("Gameplay Variables")]
     [Range(1f, 10f)]
     public float cameraSpeed = 3f; // Original Value = 3f
@@ -29,6 +26,10 @@ public class GameManager : MonoBehaviour
     [Header("Materials")]
     public Material grassMaterial;
     public Material iceMaterial;
+
+    private string levelToLoad;
+    private int loadingIconIndex;
+    private bool canMoveToPreviousPuzzle = false;
 
     private GameObject savedInvisibleBlock;
     private GameObject blackLoadingScreen;
@@ -57,6 +58,11 @@ public class GameManager : MonoBehaviour
     public bool canDeathScreen = false;
     public bool isDebugging;
     public int puzzleNumber;
+
+    public bool CanMoveToPreviousPuzzle
+    {
+        get { return canMoveToPreviousPuzzle; }
+    }
 
     void Awake()
     {
@@ -371,7 +377,7 @@ public class GameManager : MonoBehaviour
     // Checks if a new save file can be created - For Debugging Purposes ONLY
     private void CreateNewSaveFileCheck()
     {
-        if (Input.GetKeyDown(KeyCode.Backslash) && isDebugging) // \
+        if (Input.GetKeyDown(KeyCode.Backslash) && isDebugging) // Debug key is "\" (backslash)
         {
             Debug.Log("Debugging: New Game Created");
 
@@ -392,22 +398,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Checks when to set the saved invisible block active/inactive
+    // Checks to set the saved invisible block active/inactive - For Debugging Purposes ONLY
     private void SavedInvisibleBlockDebuggingCheck()
     {
-        if (Input.GetKeyDown(KeyCode.Backspace) && isDebugging) // <--
-        {
-            if (savedInvisibleBlock.activeSelf)
-            {
-                Debug.Log("Debugging: SavedInvisisbleBlock Is Now Inactive");
-                savedInvisibleBlock.SetActive(false);
-            }
-            else if (!savedInvisibleBlock.activeSelf)
-            {
-                Debug.Log("Debugging: SavedInvisisbleBlock Is Now Active");
-                savedInvisibleBlock.SetActive(true);
-            }
-        }
+        if (!isDebugging || !Input.GetKeyDown(KeyCode.Backspace)) return; // Debug key is "<--" (backspace)
+
+        bool isActive = savedInvisibleBlock.activeInHierarchy ? false : true;
+        string activeStatus = isActive ? "active" : "inactive";
+
+        savedInvisibleBlock.SetActive(isActive);
+        Debug.Log($"Debugging: saved invisible block is now {activeStatus}");
     }
 
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(SoundEffect_SO), true)]
+[CustomEditor(typeof(AudioClip_SO), true)]
 public class AudioEventEditor : Editor
 {
     private AudioSource preview;
@@ -19,15 +19,15 @@ public class AudioEventEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
         EditorGUI.BeginDisabledGroup(serializedObject.isEditingMultipleObjects);
+
         if (GUILayout.Button("Preview"))
         {
-            ((SoundEffect_SO)target).PlayInEditor(preview);
+            ((AudioClip_SO)target).PlayInEditor(preview);
         }
         if (GUILayout.Button("Stop Preview"))
         {
-            ((SoundEffect_SO)target).StopInEditor(preview);
+            ((AudioClip_SO)target).StopInEditor(preview);
         }
 
         EditorGUI.EndDisabledGroup();

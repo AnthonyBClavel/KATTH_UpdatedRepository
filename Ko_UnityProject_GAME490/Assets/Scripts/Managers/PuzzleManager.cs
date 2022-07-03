@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Text.RegularExpressions;
 using System.Linq;
 
@@ -15,17 +14,15 @@ public class PuzzleManager : MonoBehaviour
     private GameObject currentBridge;
     private GameObject currentCheckpoint;
 
-    private GameObject staticBlocks;
-    private GameObject pushableBlocks;
-    private GameObject breakableBlocks;
-    private GameObject firestones;
-    private GameObject generators;
-    private GameObject deathScreen;
+    private Transform staticBlocks;
+    private Transform pushableBlocks;
+    private Transform breakableBlocks;
+    private Transform firestones;
+    private Transform generators;
 
     public GameObject[] particleEffects;
     private ParticleSystem.MainModule treeHitparticleSystem;
 
-    private GameHUD gameHUDScript;
     private TorchMeter torchMeterScript;
     private CameraController cameraScript;
     private GameManager gameManagerScript;
@@ -57,7 +54,7 @@ public class PuzzleManager : MonoBehaviour
     public void ResetPuzzle(float duration = 0f)
     {
         checkpointManagerScript.ResetPlayer(duration);
-        DestroyAllPuzzleParticles();
+        DestroyAllPuzzleParticles(duration);
 
         // The puzzle blocks don't reset during the death screen
         if (gameManagerScript.canDeathScreen && !playerScript.CanRestartPuzzle) return;
@@ -90,12 +87,9 @@ public class PuzzleManager : MonoBehaviour
     {
         ResetParentObjects();
 
-        foreach (Transform childTransform in currentPuzzle.transform)
+        foreach (Transform child in currentPuzzle.transform)
         {
-            GameObject child = childTransform.gameObject;
-
-            if (!child.activeInHierarchy)
-                continue;
+            if (!child.gameObject.activeInHierarchy) continue;
 
             switch (child.name)
             {
@@ -130,13 +124,13 @@ public class PuzzleManager : MonoBehaviour
         puzzleNumber = ConvertObjectNameToNumber(currentPuzzle);
 
         checkpointManagerScript = currentCheckpoint.GetComponent<CheckpointManager>();
-        checkpointManagerScript.SetSavedBlockPosition(); // Note: player rotation is saved in this method
+        checkpointManagerScript.SetSavedBlockPosition(); // The player rotation is saved in this method
 
-        torchMeterScript.MaxVal = checkpointManagerScript.MaxTileMoves; // The max tile moves for the puzzle
-        torchMeterScript.ResetTorchMeterElements();
+        torchMeterScript.MaxVal = checkpointManagerScript.MaxTileMoves; // Sets the max tile moves for the puzzle
+        torchMeterScript.ResetTorchMeter();
 
         cameraScript.HasMovedPuzzleView = false;
-        //ResetPuzzleBlocks();
+        StartCoroutine(ResetGenerator(0f)); // Resets the generator from the previous puzzle if applicable
         UpdateParentObjects();
     }
 
@@ -170,32 +164,29 @@ public class PuzzleManager : MonoBehaviour
     {
         foreach (GameObject child in particleEffects)
         {
-            if (child.name == particleName)
-                return child;
+            if (child.name != particleName) continue;
+            return child;
         }
-
         return new GameObject();
     }
 
-    // Destroys all active particle effects within a puzzle
-    private void DestroyAllPuzzleParticles()
+    // Destroys all active particle effects within a puzzle after a duration
+    // Note: all particles are instantiated as children of the puzzle manager
+    // Note: no duration will be added if the parameter is not set
+    private void DestroyAllPuzzleParticles(float duration = 0f)
     {
-        // Note: all particles are instantiated as children of the puzzle manager
         foreach (Transform child in transform)
-            Destroy(child.gameObject);
+            Destroy(child.gameObject, duration);
     }
 
     // Converts the name of an object to an integer - removes all letters in the name
     private int? ConvertObjectNameToNumber(GameObject theObject)
     {
-        // If the object has a number in its name
-        if (theObject.name.Any(char.IsDigit))
-        {
-            string newObjectName = Regex.Replace(theObject.name, "[A-Za-z ]", "");
-            return int.Parse(newObjectName);
-        }
+        // If the object doesn NOT have number in its name
+        if (!theObject.name.Any(char.IsDigit)) return null;
 
-        return null;
+        string newObjectName = Regex.Replace(theObject.name, "[A-Za-z ]", "");
+        return int.Parse(newObjectName);
     }
 
     // Checks if all crystals within a puzzle are lit - play the chime sfx if so
@@ -207,32 +198,20 @@ public class PuzzleManager : MonoBehaviour
 
         foreach (Transform child in crystalBlocks.transform)
         {
-            // If the light intesnity within ANY crystal is NOT greater than the minLightIntesity
-            if (child.gameObject.activeInHierarchy && child.name.Contains("Crystal") && !child.GetComponent<Crystal>().LitCheck())
-                allCrystalsLit = false;
+            if (!child.gameObject.activeInHierarchy || !child.name.Contains("Crystal")) continue;
+            else if (!child.GetComponent<Crystal>().LitCheck()) allCrystalsLit = false;
         }
 
-        if (allCrystalsLit)
+        // Returns if any crystal is not lit
+        if (!allCrystalsLit) return;
+        foreach (Transform child in crystalBlocks.transform)
         {
-            foreach (Transform child in crystalBlocks.transform)
-            {          
-                if (child.gameObject.activeInHierarchy && child.name.Contains("Crystal"))
-                    child.GetComponent<Crystal>().SetMaxIntensity();
-            }
-
-            audioManagerScript.PlayChimeSFX();
-            hasLitAllCrystals = true;
+            if (!child.gameObject.activeInHierarchy || !child.name.Contains("Crystal")) continue;
+            child.GetComponent<Crystal>().SetMaxIntensity();
         }
-    }
 
-    // Checks to fade out the audio for all generators
-    public void FadeOutGenAudioCheck()
-    {
-        if (generators == null) return;
-
-        // Note: the generator will turn off after its audio fades to zero
-        foreach (Transform child in generators.transform)
-            child.GetComponent<Generator>().FadeOutGeneratorAudio();
+        audioManagerScript.PlayChimeSFX();
+        hasLitAllCrystals = true;
     }
 
     // Checks to reset the postion for all pushable blocks after a delay (duration = seconds)
@@ -241,7 +220,7 @@ public class PuzzleManager : MonoBehaviour
         if (pushableBlocks == null) yield break;
         else if (duration != 0) yield return new WaitForSeconds(duration);
 
-        foreach (Transform child in pushableBlocks.transform)
+        foreach (Transform child in pushableBlocks)
             child.GetComponent<BlockMovementController>().ResetBlock();
     }
 
@@ -251,7 +230,7 @@ public class PuzzleManager : MonoBehaviour
         if (breakableBlocks == null) yield break;
         else if (duration != 0) yield return new WaitForSeconds(duration);
 
-        foreach (Transform child in breakableBlocks.transform)
+        foreach (Transform child in breakableBlocks)
             child.gameObject.SetActive(true); 
     }
 
@@ -261,10 +240,10 @@ public class PuzzleManager : MonoBehaviour
         if (staticBlocks == null) yield break;
         else if (duration != 0) yield return new WaitForSeconds(duration);
 
-        foreach (Transform child in staticBlocks.transform)
+        foreach (Transform child in staticBlocks)
         {
-            if (child.gameObject.activeInHierarchy && child.name.Contains("Crystal"))
-                child.GetComponent<Crystal>().SetMinIntensity();
+            if (!child.gameObject.activeInHierarchy || !child.name.Contains("Crystal")) continue;
+            child.GetComponent<Crystal>().SetMinIntensity();
         }
         hasLitAllCrystals = false;
     }
@@ -275,7 +254,7 @@ public class PuzzleManager : MonoBehaviour
         if (firestones == null) yield break;
         else if (duration != 0) yield return new WaitForSeconds(duration);
 
-        foreach (Transform child in firestones.transform)
+        foreach (Transform child in firestones)
             child.GetComponentInChildren<Light>().enabled = true;
     }
 
@@ -285,34 +264,24 @@ public class PuzzleManager : MonoBehaviour
         if (generators == null) yield break;
         else if (duration != 0) yield return new WaitForSeconds(duration);
 
-        foreach (Transform child in generators.transform)
+        foreach (Transform child in generators)
             child.GetComponent<Generator>().TurnOffGenerator();
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
-        checkpointManagerScript = null;
         cameraScript = FindObjectOfType<CameraController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
         playerScript = FindObjectOfType<TileMovementController>();
+        checkpointManagerScript = null;
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "OptionalDeathScreen")
-                deathScreen = child;
-        }
-
         treeHitparticleSystem = ParticleEffect("TreeHitParticle").GetComponent<ParticleSystem>().main;
     }
 

@@ -68,7 +68,7 @@ public class GameHUD : MonoBehaviour
         string sceneName = SceneManager.GetActiveScene().name;
 
         torchMeter.SetActive(true);
-        torchMeterScript.PlayTorchFlameIconAnim();
+        torchMeterScript.StartFlameIconCoroutine();
         notificationBubblesHolder.SetActive(true);
 
         if (sceneName == "TutorialMap")
@@ -136,7 +136,7 @@ public class GameHUD : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 notificationBubblesScript.KeybindBubblesCheck();
-                torchMeterScript.IsTorchMeterCheck();
+                torchMeterScript.ToggleTorchMeter();
             }
         }
     }

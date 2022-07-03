@@ -60,6 +60,7 @@ public static class ExtensionMethods
     public static float ReturnClipLength(this Animator animator, string nameOfClip)
     {
         AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
         foreach (AnimationClip clip in clips)
         {
             if (clip.name == nameOfClip)

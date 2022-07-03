@@ -26,7 +26,6 @@ public class TutorialDialogue : MonoBehaviour
 
     private TextMeshProUGUI tutorialDialogueText;
     private Image blackOverlay;
-    private AudioSource charNoise;
     private TextAsset deathDialogue;
     public List<TextAsset> tutorialDialogue = new List<TextAsset>();
 
@@ -157,8 +156,7 @@ public class TutorialDialogue : MonoBehaviour
             sentenceIndex++;
             StartCoroutine(TypeTutorialDialogue());
         }
-        else
-            EndDialogue();
+        else EndDialogue();
     }
 
     // Checks for the input to continue or speed-up the tutorial dialogue
@@ -166,11 +164,11 @@ public class TutorialDialogue : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
 
-        if (continueButton.activeSelf)
-            NextSentenceCheck();
-
-        else if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2)
+        if (!continueButton.activeSelf && typingSpeed > originalTypingSpeed / 2)
             typingSpeed /= 2;
+
+        else if (continueButton.activeSelf) 
+            NextSentenceCheck();       
     }
 
     // Starts the coroutine that fades the overlay
@@ -216,7 +214,7 @@ public class TutorialDialogue : MonoBehaviour
         foreach (char letter in sentences[sentenceIndex])
         {
             tutorialDialogueText.text += letter;
-            charNoise.Play();
+            audioManagerScript.PlayCharNoiseSFX();
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -247,57 +245,53 @@ public class TutorialDialogue : MonoBehaviour
         skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "ContinueButton":
+                    continueButton = child.gameObject;
+                    break;
+                case "ArtifactButtons":
+                    artifactButtons = child.gameObject;
+                    break;
+                case "TutorialDialogue":
+                    tutorialDialogueHolder = child.gameObject;
+                    break;
+                case "TD_BlackOverlay":
+                    blackOverlay = child.GetComponent<Image>();
+                    break;
+                case "TD_Text":
+                    tutorialDialogueText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.name == "HUD" || child.name == "CharacterDialogue") continue;
+            SetVariables(child);
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "KeybindButtons")
-            {
-                GameObject keybindButtons = child;
-
-                for (int j = 0; j < keybindButtons.transform.childCount; j++)
-                {
-                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "ContinueButton")
-                        continueButton = child02;
-                    if (child02.name == "ArtifactButtons")
-                        artifactButtons = child02;
-                }
-            }
-
-            if (child.name == "TutorialDialogue")
-            {
-                tutorialDialogueHolder = child;
-
-                for (int j = 0; j < tutorialDialogueHolder.transform.childCount; j++)
-                {
-                    GameObject child02 = tutorialDialogueHolder.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "BlackOverlay")
-                        blackOverlay = child02.GetComponent<Image>();
-                    if (child02.name == "Text")
-                        tutorialDialogueText = child02.GetComponent<TextMeshProUGUI>();
-                }
-            }
-        }
-
         // Sets the death dialogue and removes it from the list
         foreach (TextAsset textFile in tutorialDialogue)
         {
-            if (textFile.name == "Death")
-            {
-                deathDialogue = textFile;
-                tutorialDialogue.Remove(textFile);
-                break;
-            }
+            if (textFile.name != "Death") continue;
+
+            deathDialogue = textFile;
+            tutorialDialogue.Remove(textFile);
+            break;
         }
 
-        charNoise = audioManagerScript.charNoiseAS;
+        SetVariables(gameHUDScript.transform.parent);
         originalTypingSpeed = typingSpeed;
     }
 

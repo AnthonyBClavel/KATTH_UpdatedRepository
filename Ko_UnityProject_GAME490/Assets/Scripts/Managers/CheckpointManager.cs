@@ -7,6 +7,7 @@ public class CheckpointManager : MonoBehaviour
 {
     public int numMovements;
     private float rayLength = 1f;
+    private string sceneName;
 
     private GameObject player;
     private GameObject bridgeTileCheck;
@@ -34,6 +35,8 @@ public class CheckpointManager : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
     }
@@ -52,12 +55,12 @@ public class CheckpointManager : MonoBehaviour
             // If the ray doesn't hit anything or if it doesn't hit a bridge tile, then CONTINUE the loop
             if (!Physics.Raycast(myRay, out hit, rayLength) || !hit.collider.CompareTag("BridgeTile") && !hit.collider.name.Contains("BridgeTile")) continue;
 
-            float newPlayerRot = bridgeTileCheck.transform.eulerAngles.y - 180;
+            float newPlayerRotY = bridgeTileCheck.transform.eulerAngles.y - 180;
             Vector3 bridgeTilePos = hit.collider.transform.position;
 
-            if (playerScript.OnCheckpoint()) player.transform.eulerAngles = new Vector3(0, newPlayerRot, 0);
+            if (playerScript.OnCheckpoint()) player.transform.eulerAngles = new Vector3(0, newPlayerRotY, 0);
             savedInvisibleBlock.transform.position = new Vector3(bridgeTilePos.x, 1, bridgeTilePos.z);
-            saveManagerScript.SavePlayerRotation(newPlayerRot);
+            saveManagerScript.SavePlayerRotation(newPlayerRotY);
 
             //Debug.Log("The SavedInvisibleBlock's position has been set");
             break;
@@ -79,14 +82,14 @@ public class CheckpointManager : MonoBehaviour
     private void ResetPlayerElements()
     {
         playerScript.StopPlayerCoroutines();
-        audioManagerScript.StopAllPuzzleSFX();
+        audioManagerScript.StopAllPuzzleAudio();
         freezeEffectScript.ResetAlphas();
 
         player.transform.position = checkpointPosition;
         playerScript.Destination = checkpointPosition;
         saveManagerScript.LoadPlayerRotation();
 
-        torchMeterScript.ResetTorchMeterElements();
+        torchMeterScript.ResetTorchMeter();
         playerScript.WriteToGrassMaterial();
         playerScript.AlertBubbleCheck();
 
@@ -131,6 +134,7 @@ public class CheckpointManager : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
+        tutorialDialogueScript = (sceneName == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
         freezeEffectScript = FindObjectOfType<FreezeEffect>();
         playerScript = FindObjectOfType<TileMovementController>();
         saveManagerScript = FindObjectOfType<SaveManager>();
@@ -139,30 +143,40 @@ public class CheckpointManager : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
-        tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "BridgeTileCheck":
+                    bridgeTileCheck = child.gameObject;
+                    break;
+                case "SavedInvisibleBlock":
+                    savedInvisibleBlock = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.parent.name == "GrassBlock") continue;
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            if (child.name == "BridgeTileCheck")
-                bridgeTileCheck = child;
-        }
-
-        for (int i = 0; i < saveManagerScript.transform.childCount; i++)
-        {
-            GameObject child = saveManagerScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "SavedInvisibleBlock")
-                savedInvisibleBlock = child;
-        }
+        SetVariables(saveManagerScript.transform);
+        SetVariables(transform);
 
         playerAnimator = playerScript.GetComponentInChildren<Animator>();
+        playerAnimator.keepAnimatorControllerStateOnDisable = false;
         checkpointPosition = transform.position;
         player = playerScript.gameObject;
     }

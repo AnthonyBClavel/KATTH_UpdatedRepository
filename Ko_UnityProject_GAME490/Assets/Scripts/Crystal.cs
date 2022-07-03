@@ -27,20 +27,18 @@ public class Crystal : MonoBehaviour
     }
 
     // Checks to play the crystal's light animation
+    // Note: the method will return if the crystal is lerping to its max
     public void PlayLightAnimation()
-    {
-        // Lerps the crystal's light intensity to its max 
-        if (canLerpToMax)
-        {
-            StartCrystalLightCoroutine(maxLightIntensity, lerpDuration);
-            canLerpToMax = false;
-        }
-        // Resets its glow duration otherwise (if applicable)
-        else if (canResetGlowLength)
-            StartCrystalLightCoroutine(maxLightIntensity, glowDuration);
+    {       
+        if (!canLerpToMax && !canResetGlowLength) return;
+
+        // Checks to lerp to its max intensity or to "reset" its glow duration
+        float duration = !canResetGlowLength ? lerpDuration : glowDuration;
+        if (canLerpToMax) canLerpToMax = false;
+        StartCrystalLightCoroutine(maxLightIntensity, duration);
     }
 
-    // Resets the crytsal's light intensity to its min - RESETS the crystal
+    // Sets the crytsal's light intensity to its min - RESETS the crystal
     public void SetMinIntensity()
     {
         canLerpToMax = true;
@@ -52,7 +50,7 @@ public class Crystal : MonoBehaviour
         crystalLight.intensity = minLightIntensity;
     }
 
-    // Checks to set the crystal's light intensity to its max - PREVENTS the crystal from lerping/resetting its light intensity
+    // Set the crystal's light intensity to its max - PREVENTS the crystal from lerping/resetting
     public void SetMaxIntensity()
     {
         canLerpToMax = false;
@@ -62,14 +60,12 @@ public class Crystal : MonoBehaviour
         if (!isLerpingToMin) return;
         StopAllCoroutines();
         StartCrystalLightCoroutine(maxLightIntensity, lerpDuration);
-        //crystalLight.intensity = maxLightIntensity;
     }
 
     // Checks if the crystal's light intensity is greater than its min - returns true if so, false otherwise
     public bool LitCheck()
     {
-        if (crystalLight.intensity > minLightIntensity)
-            return true;
+        if (crystalLight.intensity > minLightIntensity) return true;
 
         return false;
     }
@@ -77,7 +73,7 @@ public class Crystal : MonoBehaviour
     // Checks if the crystal's light has lerped to its minimum intensity
     private void MinLightIntensityCheck()
     {
-        if (crystalLight.intensity != minLightIntensity) return;
+        if (allCrystalsLit || crystalLight.intensity != minLightIntensity) return;
 
         canLerpToMax = true;
         isLerpingToMin = false;
@@ -87,27 +83,21 @@ public class Crystal : MonoBehaviour
     // Checks if the crystal's light has lerped to its maximum intensity
     private void MaxLightIntensityCheck()
     {
-        if (crystalLight.intensity != maxLightIntensity) return;
+        if (allCrystalsLit || crystalLight.intensity != maxLightIntensity) return;
 
-        // Checks to "glow" (to stay lit for the length of the duration)
-        if (!canResetGlowLength)
-        {
-            StartCrystalLightCoroutine(maxLightIntensity, glowDuration);
-            canResetGlowLength = true;
-        }
-        // Lerps to its min intensity otherwise
-        else
-        {
-            StartCrystalLightCoroutine(minLightIntensity, lerpDuration);
-            isLerpingToMin = true;
-        }
+        // Checks to "glow" (to stay lit for duration length) or to lerp to its min intesnity
+        float endIntensity = !canResetGlowLength ? maxLightIntensity : minLightIntensity;
+        float duration = !canResetGlowLength ? glowDuration : lerpDuration;
+
+        if (!canResetGlowLength) canResetGlowLength = true;
+        else if (canResetGlowLength) isLerpingToMin = true;
+        StartCrystalLightCoroutine(endIntensity, duration);
     }
 
     // Starts the coroutine that lerps the crystal's light intensity
     private void StartCrystalLightCoroutine(float endIntensity, float duration)
     {
-        if (crystalLightCoroutine != null)
-            StopCoroutine(crystalLightCoroutine);
+        if (crystalLightCoroutine != null) StopCoroutine(crystalLightCoroutine);
 
         crystalLightCoroutine = LerpLightIntensity(endIntensity, duration);
         StartCoroutine(crystalLightCoroutine);
@@ -128,8 +118,6 @@ public class Crystal : MonoBehaviour
         }
 
         crystalLight.intensity = endIntensity;
-        if (allCrystalsLit) yield break;
-
         MinLightIntensityCheck();
         MaxLightIntensityCheck();
     }
@@ -140,23 +128,30 @@ public class Crystal : MonoBehaviour
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "CrystalLight":
+                    crystalLight = child.GetComponent<Light>();
+                    break;
+                default:
+                    break;
+            }
+
+            SetVariables(child);
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            for (int j = 0; j < child.transform.childCount; j++)
-            {
-                GameObject child02 = child.transform.GetChild(j).gameObject;
-
-                if (child02.name.Contains("CrystalLight"))
-                    crystalLight = child02.GetComponent<Light>();
-            }
-        }
-
+        SetVariables(transform);
         crystalParent = transform.parent.gameObject;
     }
 

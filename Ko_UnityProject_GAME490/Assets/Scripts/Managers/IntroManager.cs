@@ -16,15 +16,14 @@ public class IntroManager : MonoBehaviour
     [SerializeField] [Range(0f, 5f)]
     private float displayNameDuration = 3f; // Original Value = 3f
 
-    private float typeNameDuration;
+    private float typeNameDuration; 
+    private string sceneName;
     private string zoneName;
 
     private GameObject zoneIntro;
     private GameObject mainCamera;
     private GameObject notificationBubbles;
-
     private TextMeshProUGUI zoneText;
-    private AudioSource charNoiseSFX;
 
     private Vector3 cameraOriginalPos;
     private Vector3 cameraStartPos;
@@ -33,7 +32,6 @@ public class IntroManager : MonoBehaviour
     private Vector3 cameraDefaultRot = new Vector3(54, 0, 0);
 
     private IEnumerator cameraCoroutine;
-
     private TileMovementController playerScript;
     private BlackBars blackBarsScript;
     private TorchMeter torchMeterScript;
@@ -45,6 +43,8 @@ public class IntroManager : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
     }
@@ -56,18 +56,15 @@ public class IntroManager : MonoBehaviour
     }
 
     // Checks to start the zone intro
+    // Note: the intro will ONLY play at the beginning of each zone (on the first puzzle)
     private void StartZoneIntroCheck()
     {
-        // Note: the intro will ONLY play at the beginning of each zone (on the first puzzle)
-        if (SceneManager.GetActiveScene().name != "TutorialMap" && !playerScript.OnCheckpoint())
+        if (sceneName != "TutorialMap" && !playerScript.OnCheckpoint())
             StartCoroutine(StartZoneIntro());
         else
         {
-            audioManagerScript.FadeInLoopingAmbientSFX();
-            audioManagerScript.FadeInBackgroundMusic();
-            transitionFadeScript.GameFadeIn();
             playerScript.EnablePlayerInputCheck();
-
+            transitionFadeScript.GameFadeIn();      
             SetZoneIntroInactive();
         }
     }
@@ -94,17 +91,16 @@ public class IntroManager : MonoBehaviour
     // Starts the coroutine that lerps the camera's position
     private void StartCameraCoroutine()
     {
-        if (cameraCoroutine != null)
-            StopCoroutine(cameraCoroutine);
+        if (cameraCoroutine != null) StopCoroutine(cameraCoroutine);
 
         cameraCoroutine = LerpCameraPosition();
         StartCoroutine(cameraCoroutine);
     }
 
     // Lerps the position of the camera to another over a duration (duration = seconds)
+    // Note: the duration is the total length of the zone intro
     private IEnumerator LerpCameraPosition()
-    {
-        // Note: the duration is total length of the zone intro
+    {     
         float duration = transitionFadeScript.introFadeIn + TypeZoneNameDuration() + displayNameDuration + transitionFadeScript.introFadeOut;
         float time = 0f;
 
@@ -137,7 +133,7 @@ public class IntroManager : MonoBehaviour
         foreach (char letter in zoneName)
         {
             zoneText.text += letter;
-            charNoiseSFX.Play();
+            audioManagerScript.PlayCharNoiseSFX();
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -147,7 +143,7 @@ public class IntroManager : MonoBehaviour
 
         yield return new WaitForSeconds(transitionFadeScript.introFadeOut);
         audioManagerScript.FadeInBackgroundMusic();
-        audioManagerScript.FadeInLoopingAmbientSFX();
+        audioManagerScript.FadeInAmbientWindSFX();
 
         blackBarsScript.TurnOffBars();
         transitionFadeScript.GameFadeIn();
@@ -164,9 +160,9 @@ public class IntroManager : MonoBehaviour
     // Sets the camera vectors and zone name
     private void SetVectorsAndZoneName()
     {
+        mainCamera = cameraScript.gameObject;
         cameraOriginalPos = mainCamera.transform.position;
         cameraOriginalRot = mainCamera.transform.eulerAngles;
-        string sceneName = SceneManager.GetActiveScene().name;
 
         switch (sceneName)
         {
@@ -212,39 +208,38 @@ public class IntroManager : MonoBehaviour
         transitionFadeScript = FindObjectOfType<TransitionFade>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "ZoneIntro":
+                    zoneIntro = child.gameObject;
+                    break;
+                case "ZI_Text":
+                    zoneText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                case "NotificationBubbles":
+                    notificationBubbles = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.name == "CharacterDialogue" || child.name == "KeybindButtons") continue;
+            if (child.parent.name == "NotificationBubbles") continue;
+            SetVariables(child);
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "ZoneIntro")
-            {
-                zoneIntro = child;
-
-                for (int j = 0; j < zoneIntro.transform.childCount; j++)
-                {
-                    GameObject child02 = zoneIntro.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "Text")
-                        zoneText = child02.GetComponent<TextMeshProUGUI>();
-                }
-            }          
-        }
-
-        for (int i = 0; i < gameHUDScript.transform.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "NotificationBubbles")
-                notificationBubbles = child;
-        }
-
-
-        mainCamera = cameraScript.gameObject;
-        charNoiseSFX = audioManagerScript.charNoiseAS;
+        SetVariables(gameHUDScript.transform.parent);      
         SetVectorsAndZoneName();
     }
 

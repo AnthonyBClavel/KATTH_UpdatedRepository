@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2584372262232175846}
   - component: {fileID: 2584372262232175847}
   m_Layer: 5
-  m_Name: RightArrow
+  m_Name: RightButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -176,6 +176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0af089533b626974d96883f6edba0d9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameTips: {fileID: 4900000, guid: ff25732eb7faffa499bed56c8770e927, type: 3}
+  animLength: 0.05
 --- !u!1 &2584372262509738343
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,7 +190,7 @@ GameObject:
   - component: {fileID: 2584372262509738360}
   - component: {fileID: 2584372262509738361}
   m_Layer: 5
-  m_Name: RightArrowText
+  m_Name: RB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -322,7 +324,7 @@ GameObject:
   - component: {fileID: 2584372262656395920}
   - component: {fileID: 2584372262656395921}
   m_Layer: 5
-  m_Name: LeftArrow
+  m_Name: LeftButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -398,7 +400,7 @@ GameObject:
   - component: {fileID: 2584372262990919239}
   - component: {fileID: 2584372262990919236}
   m_Layer: 5
-  m_Name: LeftArrowText
+  m_Name: LB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

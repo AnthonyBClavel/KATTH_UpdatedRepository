@@ -18,7 +18,6 @@ public class EndCredits : MonoBehaviour
     [Range(1f, 5f)]
     public float scrollSpeedMutiplier = 3f;
     private float typingSpeed = 0.03f; // 0.03f
-    private float originalVolumeLFSFX; // LFSFX = looping fire sfx;
 
     [Header("UI Elements")]
     private Image blackOverlay;
@@ -28,9 +27,6 @@ public class EndCredits : MonoBehaviour
     private GameObject gameLogoRef;
     private GameObject teamLogoRef;
     private TextMeshProUGUI endMessage;
-
-    private AudioSource charNoiseSFX;
-    private AudioSource loopingFireSFX;
 
     private Vector2 gameLogoOrigPos;
     private Vector2 teamLogoOrigPos;
@@ -147,7 +143,7 @@ public class EndCredits : MonoBehaviour
         {
             FadeOutOfEndCredits();
             audioManagerScript.FadeOutEndCreditsMusic();
-            audioManagerScript.FadeOutCharNoiseSFX();
+            //audioManagerScript.FadeOutCharNoiseSFX();
             hasSkippedCredits = true;
         }
     }
@@ -163,8 +159,8 @@ public class EndCredits : MonoBehaviour
 
         transitionFadeScript.GameFadeIn();
         audioManagerScript.FadeInBackgroundMusic();
-        audioManagerScript.FadeInLoopingAmbientSFX();
-        loopingFireSFX.volume = originalVolumeLFSFX;
+        audioManagerScript.FadeInAmbientWindSFX();
+        audioManagerScript.ResetTorchFireVolume();
 
         gameLogo.transform.SetParent(endCredits.transform);
         gameLogo.GetComponent<RectTransform>().anchoredPosition = gameLogoOrigPos;
@@ -198,9 +194,8 @@ public class EndCredits : MonoBehaviour
         if (currentScene != "MainMenu")
         {
             audioManagerScript.FadeOutBackgroundMusic();
-            audioManagerScript.FadeOutLoopingAmbientSFX();
-            originalVolumeLFSFX = loopingFireSFX.volume;
-            loopingFireSFX.volume = 0;
+            audioManagerScript.FadeOutAmbientWindSFX();
+            audioManagerScript.SetTorchFireVolume(0f);
         }
     }
 
@@ -327,7 +322,7 @@ public class EndCredits : MonoBehaviour
 
             foreach (char letter in endMessage.text)
             {
-                charNoiseSFX.Play();
+                if (!hasSkippedCredits) audioManagerScript.PlayCharNoiseSFX();
             }
             yield return new WaitForSeconds(typingSpeed);
         }
@@ -432,8 +427,6 @@ public class EndCredits : MonoBehaviour
             }
         }
 
-        charNoiseSFX = audioManagerScript.charNoiseAS;
-        loopingFireSFX = audioManagerScript.loopingFireAS;
         //typingSpeed = gameManagerScript.typingSpeed;
     }
 

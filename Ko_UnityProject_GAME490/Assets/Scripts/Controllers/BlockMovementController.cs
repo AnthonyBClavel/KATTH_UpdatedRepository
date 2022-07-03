@@ -24,7 +24,6 @@ public class BlockMovementController : MonoBehaviour
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
 
-
     // Returns or sets the value of lerpLength
     public float LerpDuration
     {
@@ -57,7 +56,7 @@ public class BlockMovementController : MonoBehaviour
         return true;
     }
 
-    // Move the block to its starting position
+    // Moves the block to its starting position
     public void ResetBlock()
     {
         StopAllCoroutines();
@@ -176,7 +175,7 @@ public class BlockMovementController : MonoBehaviour
         StartCoroutine(moveBlockCoroutine);
     }
 
-    // Moves the block's position to another over a duration (endPosition = position to move to, duration = seconds)
+    // Moves the position of the block to another over a duration (endPosition = position to move to, duration = seconds)
     private IEnumerator MoveBlockPosition(Vector3 endPosition, float duration)
     {
         float time = 0f;

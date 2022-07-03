@@ -1,245 +1,210 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
 public class Tips : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
-    private bool onPointerDown = false;
-    private bool canOnPointerClick = false;
+    public TextAsset gameTips;
 
-    //[TextArea] // <-- Uncomment this for larger text boxes in script's component (in unity inspector)
-    private string[] tips;
-    private string objectName;
-    private int currentTipIndex;
-    private int tipsArraySize;
     private float animLength = 0.05f;
+    private float scaledSize = 0.9f;
+    private string objectName;
+    private string[] tips;
+    private int tipIndex;
+
+    private bool canOnPointerClick = false;
+    private bool onPointerDown = false;
 
     private TextMeshProUGUI tipText;
-    private GameObject leftArrow;
-    private GameObject rightArrow;
+    private GameObject leftButton;
+    private GameObject rightButton;
 
-    private Vector3 rightArrowOriginalSize;
-    private Vector3 leftArrowOriginalSize;
-    private Vector3 rightArrowScaledSize;
-    private Vector3 leftArrowScaledSize;
+    private Vector3 buttonOriginalSize;
+    private Vector3 buttonScaledSize;
 
-    private KeyCode leftArrowKeyCode = KeyCode.Q;
-    private KeyCode rightArrowKeyCode = KeyCode.E;
+    private IEnumerator tipsInputCoroutine;
+    private KeyCode leftButtonKeyCode = KeyCode.Q;
+    private KeyCode rightButtonKeyCode = KeyCode.E;
 
-    private AudioManager audioManagerScript;
+    public int CurrentTipIndex
+    {
+        get { return tipIndex; }
+        set
+        {
+            tipIndex = value;
+            SetCurrentTip(tipIndex);
+            AudioManager.instance.PlayTipButtonClickSFX();
+        }
+    }
 
+    // Awake is called before Start()
     void Awake()
     {
-        audioManagerScript = FindObjectOfType<AudioManager>();
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    // Called every time the object is enabled
+    void OnEnable()
     {
-        SetTips();
-
-        rightArrowOriginalSize = rightArrow.transform.localScale;
-        leftArrowOriginalSize = leftArrow.transform.localScale;
-        rightArrowScaledSize = rightArrow.transform.localScale * 0.9f;
-        leftArrowScaledSize = leftArrow.transform.localScale * 0.9f;
+        StartTipsInputCoroutine();
     }
 
-    // Update is called once per frame
-    void Update()
+    // Sets the current tip
+    private void SetCurrentTip(int index)
     {
-        TipsInputCheck();
+        int maxTipIndex = tips.Length - 1;
+
+        if (index < 0) tipIndex = maxTipIndex;
+        else if (index > maxTipIndex) tipIndex = 0;
+
+        tipText.text = $"TIP: {tips[tipIndex]}";
     }
 
-    // Returns or sets the value of currentTipIndex
-    public int CurrentTipIndex
+    // Checks to set the button to its scaled size
+    private void SelectButton(GameObject button)
     {
-        get
-        {
-            return currentTipIndex;
-        }
-        set
-        {
-            currentTipIndex = value;
+        if (button.transform.localScale != buttonOriginalSize) return;
 
-            if (currentTipIndex > tipsArraySize)
-                currentTipIndex = 0;
-            else if (currentTipIndex < 0)
-                currentTipIndex = tipsArraySize;
-
-            tipText.text = "TIP: " + tips[currentTipIndex];
-            audioManagerScript.PlayTipButtonClickSFX();
-        }
+        button.transform.localScale = buttonScaledSize;
+        canOnPointerClick = true;
+        onPointerDown = true;
     }
 
-    // Checks when the player can load the next/previous tip
-    private void TipsInputCheck()
+    // Checks to set the button to its original size
+    private void DeselectButton(GameObject button)
     {
-        if (!onPointerDown)
-        {
-            if (Input.GetKeyDown(rightArrowKeyCode))
-            {
-                if (rightArrow.transform.localScale == rightArrowOriginalSize)
-                {
-                    CurrentTipIndex++;
-                    PlayTipButtonAnim(rightArrow, rightArrowScaledSize);
-                }
-            }
+        if (button.transform.localScale != buttonScaledSize) return;
 
-            if (Input.GetKeyDown(leftArrowKeyCode))
-            {
-                if (leftArrow.transform.localScale == leftArrowOriginalSize)
-                {
-                    CurrentTipIndex--;
-                    PlayTipButtonAnim(leftArrow, leftArrowScaledSize);
-                }
-            }
-        }
+        button.transform.localScale = buttonOriginalSize;
+        onPointerDown = false;
     }
 
-    // Sets the right arrow to its scaled size
-    private void SelectRightArrow()
-    {
-        if (rightArrow.transform.localScale == rightArrowOriginalSize)
-        {
-            rightArrow.transform.localScale = rightArrowScaledSize;
-            onPointerDown = true;
-            canOnPointerClick = true;
-        }
-    }
-
-    // Sets the left arrow to its scaled size
-    private void SelectLeftArrow()
-    {
-        if (leftArrow.transform.localScale == leftArrowOriginalSize)
-        {
-            leftArrow.transform.localScale = leftArrowScaledSize;
-            onPointerDown = true;
-            canOnPointerClick = true;
-        }
-    }
-
-    // Sets the right arrow to its original size
-    private void DeselectRightArrow()
-    {
-        if (rightArrow.transform.localScale == rightArrowScaledSize)
-        {
-            rightArrow.transform.localScale = rightArrowOriginalSize;
-            onPointerDown = false;
-        }
-    }
-
-    // Sets the left arrow to its original size
-    private void DeselectLeftArrow()
-    {
-        if (leftArrow.transform.localScale == leftArrowScaledSize)
-        {
-            leftArrow.transform.localScale = leftArrowOriginalSize;
-            onPointerDown = false;
-        }
-    }
-
-    // Determines when the right/left arrow is selected - by looking at the name of the object the pointer (mouse0) hit
+    // Determines when the right/left button is selected
+    // Note: looks at the name of the object the pointer is currenlty hitting (mouse0)
     public void OnPointerDown(PointerEventData eventData)
     {
         objectName = eventData.pointerCurrentRaycast.gameObject.name;
         canOnPointerClick = false;
 
-        if (objectName == "RightArrow")
-            SelectRightArrow();
-        else if (objectName == "LeftArrow")
-            SelectLeftArrow();
+        GameObject button = (objectName == rightButton.name) ? rightButton : leftButton;
+        SelectButton(button);
     }
 
-    // Determines when the right/left arrow is unselected - by looking at the name of the object the pointer (mouse0) hit previously
+    // Determines when the right/left button is unselected
+    // Note: looks at the name of the object the pointer previously hit (mouse0)
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (objectName == "RightArrow")
-            DeselectRightArrow();
-        else if (objectName == "LeftArrow")
-            DeselectLeftArrow();
+        GameObject button = (objectName == rightButton.name) ? rightButton : leftButton;
+        DeselectButton(button);
     }
 
-    // Determines when the right/left arrow has been clicked (OnPointerDown and OnPointerUp must occur on the object for click to register)
+    // Determines when the right/left button is clicked
+    // Note: OnPointerDown and OnPointerUp must occur on the same object for a "click" to register
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (canOnPointerClick)
-        {
-            if (objectName == "RightArrow")
-            {
-                CurrentTipIndex++;
-                canOnPointerClick = false;
-            }
-            else if (objectName == "LeftArrow")
-            {
-                CurrentTipIndex--;
-                canOnPointerClick = false;
-            }
-        }
+        if (!canOnPointerClick) return;
+
+        int value = (objectName == rightButton.name) ? 1 : -1;
+        CurrentTipIndex += value;
+        canOnPointerClick = false;
     }
 
-    // Starts the coroutine that plays the animation for the tip button
-    private void PlayTipButtonAnim(GameObject arrow, Vector3 endScale)
+    // Checks to set/play the next/previous tip
+    private void NextTipCheck()
     {
-        IEnumerator tipButtonCoroutine = TipButtonAnimation(arrow, endScale);
+        if (onPointerDown) return;
+
+        if (rightButton.transform.localScale == buttonOriginalSize && Input.GetKeyDown(rightButtonKeyCode))
+        {
+            CurrentTipIndex++;
+            StartTipButtonCoroutine(rightButton);
+        }
+        if (leftButton.transform.localScale == buttonOriginalSize && Input.GetKeyDown(leftButtonKeyCode))
+        {
+            CurrentTipIndex--;
+            StartTipButtonCoroutine(leftButton);
+        }      
+    }
+
+    // Starts the coroutine that checks for the tips input
+    private void StartTipsInputCoroutine()
+    {
+        if (tipsInputCoroutine != null) StopCoroutine(tipsInputCoroutine);
+
+        tipsInputCoroutine = TipsInputCheck();
+        StartCoroutine(tipsInputCoroutine);
+    }
+
+    // Starts the coroutine that plays the animation for the button
+    private void StartTipButtonCoroutine(GameObject button)
+    {
+        IEnumerator tipButtonCoroutine = TipButtonAnimation(button);
         StartCoroutine(tipButtonCoroutine);
     }
 
-    // Plays the animation for pressing a tip button
-    private IEnumerator TipButtonAnimation(GameObject arrow, Vector3 endScale)
+    // Checks for the tips input
+    private IEnumerator TipsInputCheck()
     {
-        //Vector3 startScale = arrow.transform.localScale;
-        arrow.transform.localScale = endScale;
-        yield return new WaitForSeconds(animLength);
-        //arrow.transform.localScale = startScale;
-
-        if (arrow == rightArrow)
-            arrow.transform.localScale = rightArrowOriginalSize;
-        else if (arrow == leftArrow)
-            arrow.transform.localScale = leftArrowOriginalSize;
+        //Debug.Log("Tips input check has STARTED");
+        while (rightButton.activeInHierarchy && leftButton.activeInHierarchy)
+        {
+            if (Time.deltaTime > 0) NextTipCheck();
+            yield return null;
+        }
+        //Debug.Log("Tips input check has ENDED");
     }
 
-    // Randomly selects a string within the tips array and sets it to the tip text
+    // Sets the scale of a button to another for a specific duration
+    private IEnumerator TipButtonAnimation(GameObject button)
+    {
+        button.transform.localScale = buttonScaledSize;
+
+        yield return new WaitForSeconds(animLength);
+        button.transform.localScale = buttonOriginalSize;
+    }
+
+    // Sets the tips to use - also sets a random initial tip
     private void SetTips()
     {
-        // Sets the size of the array
-        tips = new string[10];
-        tipsArraySize = tips.Length - 1;
+        tips = gameTips.ReturnSentences();
+        SetCurrentTip(Random.Range(0, tips.Length));
+    }
 
-        // Sets a tip for each index in the array (10 total tips)
-        tips[0] = "you should always have one move left before interacting with a firestone.";
-        tips[1] = "sometimes you don't need to push a wooden crate, some are just for decor!";
-        tips[2] = "remember this, every object in a puzzle is interactable in some way!";
-        tips[3] = "your torch meter will reset after walking on a bridge, so don't worry!";
-        tips[4] = "some rocks are just not meant to be broken, but then again, some are!";
-        tips[5] = "remember, you can only interact with a firestone once in every puzzle!";
-        tips[6] = "you can push wooden crates into holes and walk over them, very useful!";
-        tips[7] = "sometimes there can be more than one way to both solve and fail a puzzle.";
-        tips[8] = "remember this, interacting with a firestone will reset your torch meter!";
-        tips[9] = "wooden crates cannot be pushed onto bridges, they're afraid of heights.";
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
 
-        // Randomly selects a tip from the array and sets it to the tipText
-        currentTipIndex = UnityEngine.Random.Range(0, tips.Length);
-        tipText.text = "TIP: " + tips[currentTipIndex];
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "TipText":
+                    tipText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                case "LeftButton":
+                    leftButton = child.gameObject;
+                    break;
+                case "RightButton":
+                    rightButton = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
+        SetVariables(transform);
+        SetTips();
 
-            if (child.name == "LeftArrow")
-                leftArrow = child;
-            if (child.name == "RightArrow")
-                rightArrow = child;
-            if (child.name == "TipText")
-                tipText = child.GetComponent<TextMeshProUGUI>();
-        }
+        buttonOriginalSize = rightButton.transform.localScale;
+        buttonScaledSize = buttonOriginalSize * scaledSize;
     }
 }

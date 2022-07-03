@@ -17,6 +17,7 @@ public class Artifact : MonoBehaviour
     private float verticalAxis;
     private float closeAnimLength;
 
+    private string sceneName;
     private string artifactName;
     private bool hasInspectedArtifact = false;
     private bool hasCollectedArtifact = false;
@@ -63,6 +64,8 @@ public class Artifact : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
     }
@@ -75,14 +78,24 @@ public class Artifact : MonoBehaviour
 
         if (artifactCount >= 15 || hasCollectedArtifact || !enabled) return;
 
-        int totalArtifacts = (SceneManager.GetActiveScene().name != "TutorialMap") ? 15 : 1;
+        int totalArtifacts = (sceneName != "TutorialMap") ? 15 : 1;
         gameHUDScript.UpdateArtifactBubbleText($"{artifactCount + 1}/{totalArtifacts}");
         notificationBubblesScript.PlayArtifactNotificationCheck();
 
         saveManagerScript.SaveCollectedArtifact(artifactsCollected + artifactName);
         saveManagerScript.SaveNumberOfArtifactsCollected(artifactCount + 1);
-        SetArtifactInactiveCheck();
+        SetArtifactInactive();
         //Debug.Log("Collected artifact");
+    }
+
+    // Checks to set the artifact/script inactive - if the artifact was collected
+    private void SetArtifactInactive()
+    {
+        if (!PlayerPrefs.GetString("listOfArtifacts").Contains(artifactName)) return;
+
+        artifactHolder.SetActive(false);
+        hasCollectedArtifact = true;
+        enabled = false;
     }
 
     // Sets the camera and artifact to appropiate position/rotation for inspecting
@@ -115,16 +128,6 @@ public class Artifact : MonoBehaviour
         woodenChestHolder.transform.eulerAngles = wchOriginalRotation;
     }
 
-    // Checks to set the artifact/script inactive - if the artifact was already collected
-    private void SetArtifactInactiveCheck()
-    {
-        if (!PlayerPrefs.GetString("listOfArtifacts").Contains(artifactName)) return;
-
-        artifactHolder.SetActive(false);
-        hasCollectedArtifact = true;
-        enabled = false;
-    }
-
     // Opens the artifact chest
     public void OpenChest()
     {
@@ -138,8 +141,7 @@ public class Artifact : MonoBehaviour
     // Closes the artifact chest
     public void CloseChest()
     {
-        if (closeChestCoroutine != null) 
-            StopCoroutine(closeChestCoroutine);
+        if (closeChestCoroutine != null) StopCoroutine(closeChestCoroutine);
 
         closeChestCoroutine = CloseArtifactChest();
         StartCoroutine(closeChestCoroutine);
@@ -148,8 +150,7 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that transitions to the artifact view
     public void InspectArtifact()
     {
-        if (artifactViewCoroutine != null) 
-            StopCoroutine(artifactViewCoroutine);
+        if (artifactViewCoroutine != null) StopCoroutine(artifactViewCoroutine);
 
         artifactViewCoroutine = TransitionToArtifactView();
         StartCoroutine(artifactViewCoroutine);
@@ -158,8 +159,7 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that transitions to the previous view
     public void StopInspectingArtifact()
     {
-        if (previousViewCoroutine != null) 
-            StopCoroutine(previousViewCoroutine);
+        if (previousViewCoroutine != null) StopCoroutine(previousViewCoroutine);
 
         previousViewCoroutine = TransitionToPreviousView();
         StartCoroutine(previousViewCoroutine);
@@ -168,14 +168,13 @@ public class Artifact : MonoBehaviour
     // Starts the coroutine that checks for the artifact input
     public void StartInputCoroutine()
     {
-        if (inputCoroutine != null) 
-            StopCoroutine(inputCoroutine);
+        if (inputCoroutine != null) StopCoroutine(inputCoroutine);
 
         inputCoroutine = ArtifactInputCheck();
         StartCoroutine(inputCoroutine);
     }
 
-    // The coroutine for closing the artifact chest
+    // Plays an sfx after the artifact chest closes
     private IEnumerator CloseArtifactChest()
     {
         playerScript.ChangeAnimationState("Interacting");
@@ -217,7 +216,7 @@ public class Artifact : MonoBehaviour
         characterDialogueScript.OpenDialogueOptions();
     }
 
-    // Checks for the artifact input (rotate/reset-rotation/zoom/stop-inspecting)
+    // Checks for the artifact input
     private IEnumerator ArtifactInputCheck()
     {
         yield return new WaitForSeconds(0.01f);
@@ -289,9 +288,10 @@ public class Artifact : MonoBehaviour
         }
     }
 
-    // Checks to zoom the artifact in and out
+    // Checks to zoom into the artifact
     private void ZoomInputCheck()
     {
+        // Zoom in
         if (Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahZoomPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahZoomPosition) > 0.01f)
@@ -299,6 +299,7 @@ public class Artifact : MonoBehaviour
             else
                 artifactHolder.transform.position = ahZoomPosition;
         }
+        // Zoom out
         else if (!Input.GetKey(KeyCode.LeftShift) && artifactHolder.transform.position != ahOriginalPosition)
         {
             if (Vector3.Distance(artifactHolder.transform.position, ahOriginalPosition) > 0.01f)
@@ -311,6 +312,7 @@ public class Artifact : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
+        tutorialDialogueScript = (sceneName == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
         cameraScript = FindObjectOfType<CameraController>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
@@ -319,43 +321,43 @@ public class Artifact : MonoBehaviour
         audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         transitionFadeScript = FindObjectOfType<TransitionFade>();
-        tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "WoodenChestHolder":
+                    woodenChestHolder = child.gameObject;
+                    woodenChestAnim = woodenChestHolder.GetComponentInChildren<Animator>();
+                    closeAnimLength = woodenChestAnim.ReturnClipLength("Close");
+                    break;
+                case "ArtifactHolder":
+                    artifactHolder = child.gameObject;
+                    break;
+                case "ArtifactButtons":
+                    artifactButtons = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.name == "HUD" || child.name == "CharacterDialogue") continue;
+            if (child.name == "DialogueOptionButtons" || child.name == "BabyMammoth") continue;
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            if (child.name == "WoodenChestHolder")
-            {
-                woodenChestAnim = child.GetComponentInChildren<Animator>();
-                woodenChestHolder = child;
-            }             
-            if (child.name == "ArtifactHolder")
-                artifactHolder = child;         
-        }
-
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "KeybindButtons")
-            {
-                GameObject keybindButtons = child;
-
-                for (int j = 0; j < keybindButtons.transform.childCount; j++)
-                {
-                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "ArtifactButtons")
-                        artifactButtons = child02;
-                }
-            }
-        }
+        SetVariables(transform);
+        SetVariables(gameHUDScript.transform.parent);
 
         artifactName = artifact.artifactName;
         mainCamera = cameraScript.gameObject;
@@ -364,9 +366,7 @@ public class Artifact : MonoBehaviour
         wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;
         ahOriginalPosition = artifactHolder.transform.position;
-
-        closeAnimLength = woodenChestAnim.ReturnClipLength("Close");
-        SetArtifactInactiveCheck();
+        SetArtifactInactive();
     }
 
 }

@@ -8,11 +8,10 @@ using TMPro;
 public class CharacterDialogue : MonoBehaviour
 {
     [Header("Dialogue Arrow Animation Variables")]
-    [SerializeField]
-    [Range(0.1f, 2.0f)]
+    [SerializeField] [Range(0.1f, 2.0f)]
     private float animDuration = 1f; // Original Value = 1f
-    [SerializeField]
-    [Range(1f, 90f)]
+
+    [SerializeField] [Range(1f, 90f)]
     private float animDistance = 15f; // Original Value = 15f
 
     [Header("Character Dialogue Variables")]
@@ -22,37 +21,38 @@ public class CharacterDialogue : MonoBehaviour
     private float sbhOffsetPositionY; // sbh = speech bubble holder
     private float sbhOffsetPositionX; // sbh = speech bubble holder
 
+    private int dialogueOptionsIndex;
     private int sentenceIndex;
     private int artifactIndex;
-    private int dialogueOptionsIndex;
 
-    private string nextSentence;
     private string currentlyTalking;
+    private string nextSentence;
 
-    private bool isPlayerSpeaking = false;
-    private bool isInteractingWithNPC = false;
     private bool isInteractingWithArtifact = false;
-    private bool inDialogue = false;
-    private bool inDialogueOptions = false;
+    private bool isInteractingWithNPC = false;
+    private bool isPlayerSpeaking = false;
+
     private bool hasSelectedDialogueOption = false;
+    private bool inDialogueOptions = false;
+    private bool inDialogue = false;
 
     private GameObject playerDialogueBubble;
     private GameObject nPCDialogueBubble;
-    private GameObject alertBubble;
-    private GameObject continueButton;
     private GameObject playerDialogueCheck;
     private GameObject nPCDialogueCheck;
+    private GameObject alertBubble;
     private GameObject dialogueArrow;
+    private GameObject continueButton;
     private GameObject dialogueOptionButtons;
 
-    private Image smallArrowSprite;
-    private Image bigArrowSprite;
     private Image playerBubbleSprite;
     private Image playerTailSprite;
     private Image nPCBubbleSprite;
     private Image nPCTailSprite;
     private Image alertBubbleSprite;
     private Image alertIconSprite;
+    private Image smallArrowSprite;
+    private Image bigArrowSprite;
 
     private RectTransform playerDB; // DB = dialogue bubble
     private RectTransform nPCDB; // DB = dialogue bubble
@@ -60,11 +60,10 @@ public class CharacterDialogue : MonoBehaviour
     private RectTransform nPCSBH; // SBH = speech bubble holder
     private RectTransform alertBubbleRT;
     private RectTransform dialogueArrowRT;
-    private RectTransform canvasRT;
     private RectTransform characterDialogueRT;
+    private RectTransform canvasRT;
 
     private VerticalLayoutGroup playerSpeechBubbleVLG;
-    private AudioSource charNoiseSFX;
     private Animator playerBubbleAnim;
     private Animator nPCBubbleAnim;
     private Camera dialogueCamera;
@@ -76,48 +75,50 @@ public class CharacterDialogue : MonoBehaviour
     private Vector2 middlePivot;
     private Vector2 rightPivot;
     private Vector2 leftPivot;
-    private Vector2 dialogueArrowOrigPos;
+
     private Vector2 dialogueArrowDestination;
+    private Vector2 dialogueArrowOrigPos;
 
     private Vector2 pdcAnchorPos; // pdc = player dialogue check
     private Vector2 npcdcAnchorPos; // npcdc = npc dialogue check
 
-    public TextAsset[] emptyChestDialogue;
-    private TextAsset[] artifactDialogue;
-    private TextAsset[] nPCDialogue;
+    [Header("Lists/Arrays")]
+    private List<TextMeshProUGUI> doTextComponenets = new List<TextMeshProUGUI>();
+    private List<GameObject> doGameObjects = new List<GameObject>();
     private string[] dialogueSentences;
     private string[] dialogueOptions;
-    private List<GameObject> doGameObjects = new List<GameObject>();
-    private List<TextMeshProUGUI> doTextComponenets = new List<TextMeshProUGUI>();
+    private TextAsset[] nPCDialogue;
+    private TextAsset[] artifactDialogue;
+    public TextAsset[] emptyChestDialogue;
 
     [Header("Text Variables")]
     private StringBuilder textToColor = new StringBuilder();
-    private TextMeshProUGUI nPCDialogueText;
     private TextMeshProUGUI playerDialogueText;
-    private Color32 nPCTextColor;
-    private Color32 nPCBubbleColor;
+    private TextMeshProUGUI nPCDialogueText;
     private Color32 playerTextColor = new Color32(128, 160, 198, 255);
     private Color32 playerBubbleColor = Color.white;
+    private Color32 nPCTextColor;
+    private Color32 nPCBubbleColor;
     private Color32 unselectedTextColor = Color.gray;
 
     [Header("Scriptable Objects")]
-    private Artifact_SO artifact;
     private NonPlayerCharacter_SO nonPlayerCharacter;
+    private Artifact_SO artifact;
 
-    private IEnumerator dialogueInputCoroutine;
     private IEnumerator dialogueOptionsInputCoroutine;
-    private IEnumerator dialogueArrowCoroutine;
+    private IEnumerator dialogueInputCoroutine;
     private IEnumerator dialogueOptionsCoroutine;
+    private IEnumerator dialogueArrowCoroutine;
 
-    private Artifact artifactScript;
-    private NonPlayerCharacter nPCScript;
-    private FidgetController nPCFidgetScript;
-    private FidgetController playerFidgetScript;
-    private TileMovementController playerScript;
-    private CameraController cameraScript;
-    private AudioManager audioManagerScript;
-    private BlackBars blackBarsScript;
     private GameHUD gameHUDScript;
+    private Artifact artifactScript;
+    private BlackBars blackBarsScript;
+    private NonPlayerCharacter nPCScript;
+    private CameraController cameraScript;
+    private FidgetController nPCFidgetScript;
+    private AudioManager audioManagerScript;
+    private TileMovementController playerScript;
+    private FidgetController playerFidgetScript;
     private TransitionFade transitionFadeScript;
 
     public bool InDialogue
@@ -190,7 +191,10 @@ public class CharacterDialogue : MonoBehaviour
     }
 
     // Sets the character dialogue
-    private void SetCharacterDialogue(TextAsset characterDialogue) => dialogueSentences = characterDialogue.ReturnSentences();
+    private void SetCharacterDialogue(TextAsset characterDialogue)
+    {
+        dialogueSentences = characterDialogue.ReturnSentences();
+    }
 
     // Sets the dialogue options
     private void SetDialogueOptions(TextAsset dialogeOptionsFile)
@@ -221,14 +225,8 @@ public class CharacterDialogue : MonoBehaviour
                 artifactScript.CloseChest();
 
             StartCoroutine(EndDialogueDelay());
-            FadeOutDialogueMusic();
-            //Debug.Log("Dialogue has ended");
         }
-        else
-        {
-            OpenDialogueOptions();       
-            //Debug.Log("Opened dialogue options");
-        }
+        else OpenDialogueOptions();
 
         currentlyTalking = string.Empty;
     }
@@ -285,38 +283,36 @@ public class CharacterDialogue : MonoBehaviour
 
         if (sentenceIndex < dialogueSentences.Length - 1 && dialogueSentences[sentenceIndex + 1] != string.Empty)
             NextDialogueSentence(dialogueSentences[++sentenceIndex]);
-        else
-            EndDialogue();
+
+        else EndDialogue();
     }
 
     // Checks to set the dialogue options active/inactive
     private void ShowDialgoueOptionsCheck()
     {
         for (int i = 0; i < dialogueOptions.Length; i++)
-        {        
+        {
+            doTextComponenets[i].color = unselectedTextColor;
+            if (dialogueOptions[i].Contains("Collect") && !CanShowCollectOption()) continue;
+
             doTextComponenets[i].text = inDialogueOptions ? dialogueOptions[i] : string.Empty;
             doGameObjects[i].SetActive(inDialogueOptions ? true : false);
-            doTextComponenets[i].color = unselectedTextColor;
         }
+    }
 
-        // Note: ONLY shows the "Collect" dialogue option AFTER the player has inspected the artifact
-        if (!isInteractingWithArtifact || artifactScript.HasInspectedArtifact) return;
+    // Checks if the dialogue option for collecting the artifact can be shown - returns true if so, false otherwise
+    // Note: the option should only be shown AFTER the player has inspected the artifact
+    private bool CanShowCollectOption()
+    {
+        if (isInteractingWithArtifact && !artifactScript.HasInspectedArtifact) return false;
 
-        for (int i = 0; i < dialogueOptions.Length; i++)
-        {
-            if (!dialogueOptions[i].Contains("Collect")) continue;
-
-            doTextComponenets[i].text = string.Empty;
-            doGameObjects[i].SetActive(false);
-            break;
-        }
+        return true;
     }
 
     // "Opens" the dialogue options
     public void OpenDialogueOptions()
     {
-        if (dialogueOptionsCoroutine != null)
-            StopCoroutine(dialogueOptionsCoroutine);
+        if (dialogueOptionsCoroutine != null) StopCoroutine(dialogueOptionsCoroutine);
 
         dialogueOptionsCoroutine = OpenDialogueOptionsDelay();
         StartCoroutine(dialogueOptionsCoroutine);
@@ -336,10 +332,10 @@ public class CharacterDialogue : MonoBehaviour
         playerSpeechBubbleVLG.padding.left = 20;
 
         StopDialogueArrowAnim();
-        ShowDialgoueOptionsCheck(); // This method MUST be called last!
+        ShowDialgoueOptionsCheck(); // call this LAST!
     }
 
-    // Checks to play the selected dialgoue option (NPC)
+    // Checks to play the selected dialgoue option (for npc)
     private void SelectedDialogueCheckForNPC()
     {
         int original = (dialogueOptionsIndex * 2) + 2;
@@ -357,12 +353,11 @@ public class CharacterDialogue : MonoBehaviour
             int dialogue = !nPCScript.DialogueOptionBools[dialogueOptionsIndex] ? original : variant;
             nPCScript.DialogueOptionBools[dialogueOptionsIndex] = true;
             hasSelectedDialogueOption = true;
-
             SetCharacterDialogue(nPCDialogue[dialogue]);
         }
 
-        CloseDialogueOptions(); // This method MUST be called before StartDialogue()
-        StartDialogue();
+        CloseDialogueOptions();
+        StartDialogue(); // call this LAST!
     }
 
     // Checks which methods to call based on the selected dialgoue option (for artifact)
@@ -385,7 +380,6 @@ public class CharacterDialogue : MonoBehaviour
 
             artifactScript.CloseChest();
             StartCoroutine(EndDialogueDelay());
-            FadeOutDialogueMusic();
         }
 
         playerDialogueBubble.SetActive(false);
@@ -398,22 +392,6 @@ public class CharacterDialogue : MonoBehaviour
         playerDialogueText.text = string.Empty;
         nPCDialogueText.text = string.Empty;
         textToColor.Length = 0;
-    }
-
-    // Fades in the dialogue music
-    private void FadeInDialogueMusic()
-    {
-        audioManagerScript.FadeInDialogueMusic();
-        audioManagerScript.FadeOutBackgroundMusic();
-        audioManagerScript.FadeOutGeneratorLoopCheck();
-    }
-
-    // Fades out the dialogue music
-    private void FadeOutDialogueMusic()
-    {
-        audioManagerScript.FadeOutDialogueMusic();
-        audioManagerScript.FadeInBackgroundMusic();
-        audioManagerScript.FadeInGeneratorLoopCheck();
     }
 
     // Checks to play the character's fidget animation and bubble pop sfx
@@ -434,7 +412,7 @@ public class CharacterDialogue : MonoBehaviour
         currentlyTalking = characterName;
     }
 
-    // Set the position of the dialogue arrow
+    // Set the position of the dialogue arrow (doIndex = dialogue option index)
     private void SetDialoguArrowPosition(int doIndex)
     {
         dialogueArrow.transform.SetParent(doGameObjects[doIndex].transform);
@@ -445,7 +423,7 @@ public class CharacterDialogue : MonoBehaviour
         // Highlights the current selected dialogue option
         for (int i = 0; i < doTextComponenets.Count; i++)
         {
-            Color textColor = i == doIndex ? playerTextColor : unselectedTextColor;
+            Color textColor = (i == doIndex) ? playerTextColor : unselectedTextColor;
             doTextComponenets[i].color = textColor;
         }
     }
@@ -514,10 +492,10 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!inDialogue) return;
 
-        Vector3 playerDirection = playerScript.transform.eulerAngles;
+        // Note: 66f = (96f) bigArrowSprite.rectTransform.rect.width - (40f) playerSpeechBubbleVLG.padding.left - (5f) dialogueArrowOrigPos.x + (15f) animDistance;
         float maxScreenPosX = (canvasRT.rect.width / 2f) - 66f;
         float maxScreenPosY = (canvasRT.rect.height / 2f) - blackBarsScript.FinalHeight;
-        // Note: 66f = 96f (length of bigArrowSprite) - 40f (left padding in VerticaLayouGroup) - 5f (x position in dialogueArrowOrigPos) + 15f (dialogue arrow animDistance)
+        Vector3 playerDirection = playerScript.transform.eulerAngles;
 
         SetDialogueBubblePosition(playerDB, playerSBH, playerDialogueCheck, ref pdcAnchorPos, maxScreenPosY);
         SetDialogueBubblePosition(nPCDB, nPCSBH, nPCDialogueCheck, ref npcdcAnchorPos, maxScreenPosY);
@@ -637,12 +615,11 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
 
-        // Make sure to check if the continue button cant be pressed when the player pauses the game and returns to the main menu!
-        if (continueButton.activeInHierarchy)
-            NextSentenceCheck();
-
-        else if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
+        if (!continueButton.activeInHierarchy && typingSpeed > originalTypingSpeed / 2)
             typingSpeed /= 2;
+
+        else if (continueButton.activeInHierarchy)
+            NextSentenceCheck();
     }
 
     // Checks for the input that selects a dialogue option
@@ -650,20 +627,20 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
 
-        if (isInteractingWithNPC)
-            SelectedDialogueCheckForNPC();
-
-        else if (isInteractingWithArtifact)
+        if (isInteractingWithArtifact)
             SelectedDialogueCheckForArtifact();
+
+        else if (isInteractingWithNPC)
+            SelectedDialogueCheckForNPC();
     }
 
     // Checks for the input that moves the dialogue arrow
     private void ArrowInputCheck()
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            // Finds the next ACTIVE dialogue option
-            for (int i = dialogueOptionsIndex - 1; i >= 0; i--)
+            // Moves to the next ACTIVE dialogue option
+            for (int i = dialogueOptionsIndex + 1; i < doGameObjects.Count; i++)
             {
                 if (!doGameObjects[i].activeInHierarchy) continue;
 
@@ -673,10 +650,10 @@ public class CharacterDialogue : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
-            // Finds the next ACTIVE dialogue option
-            for (int i = dialogueOptionsIndex + 1; i < doGameObjects.Count; i++)
+            // Moves to the next ACTIVE dialogue option
+            for (int i = dialogueOptionsIndex - 1; i >= 0; i--)
             {
                 if (!doGameObjects[i].activeInHierarchy) continue;
 
@@ -724,14 +701,14 @@ public class CharacterDialogue : MonoBehaviour
     // Starts the dialogue after a delay
     private IEnumerator StartDialogueDelay()
     {
+        audioManagerScript.CrossFadeInDialogueMusic();
         playerScript.SetPlayerBoolsFalse();
         cameraScript.LerpToDialogueView();
         blackBarsScript.MoveBarsIn();
         gameHUDScript.TurnOffHUD();
-
-        SetInitialDialogue();
-        FadeInDialogueMusic();
+ 
         SetSpeechBubblePivots();
+        SetInitialDialogue();
         inDialogue = true;
 
         yield return new WaitForSeconds(0.5f);
@@ -750,6 +727,7 @@ public class CharacterDialogue : MonoBehaviour
         nPCFidgetScript.HasPlayedInitialFidget = false;
         playerFidgetScript.HasPlayedInitialFidget = false;
 
+        audioManagerScript.CrossFadeOutDialogueMusic();
         cameraScript.LerpToPuzzleView();
         nPCScript.ResetRotation();
         blackBarsScript.MoveBarsOut();
@@ -823,7 +801,7 @@ public class CharacterDialogue : MonoBehaviour
         {
             string textToRepalce = textToColor.Append(letter).ToString();
             dialogueText.text = nextSentence.Replace(textToRepalce, $"<color=#{textHexColor}>{textToColor}</color>");
-            charNoiseSFX.Play();
+            audioManagerScript.PlayCharNoiseSFX();
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -919,180 +897,141 @@ public class CharacterDialogue : MonoBehaviour
     {
         playerScript = FindObjectOfType<TileMovementController>();
         nPCScript = FindObjectOfType<NonPlayerCharacter>();
-        cameraScript = FindObjectOfType<CameraController>();
-        artifactScript = FindObjectOfType<Artifact>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        blackBarsScript = FindObjectOfType<BlackBars>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
+
         transitionFadeScript = FindObjectOfType<TransitionFade>();
-        nPCFidgetScript = nPCScript.GetComponentInChildren<FidgetController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        cameraScript = FindObjectOfType<CameraController>();
+        blackBarsScript = FindObjectOfType<BlackBars>();
+        artifactScript = FindObjectOfType<Artifact>();
+        gameHUDScript = FindObjectOfType<GameHUD>();
+
         playerFidgetScript = playerScript.GetComponentInChildren<FidgetController>();
+        nPCFidgetScript = nPCScript.GetComponentInChildren<FidgetController>();
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            if (child.name.Contains("PDB_Option"))
+            {          
+                doTextComponenets.Add(child.GetComponent<TextMeshProUGUI>());
+                doGameObjects.Add(child.gameObject);
+            }
+
+            switch (child.name)
+            {
+                case "DialogueCamera":
+                    dialogueCamera = child.GetComponent<Camera>();
+                    break;
+                case "CharacterDialogue":
+                    characterDialogueRT = child.GetComponent<RectTransform>();
+                    canvasRT = child.parent.GetComponent<RectTransform>();
+                    break;
+                case "ContinueButton":
+                    continueButton = child.gameObject;
+                    break;
+                case "DialogueOptionButtons":
+                    dialogueOptionButtons = child.gameObject;
+                    break;
+                /** Dialogue arrow variables START here **/
+                case "DialogueArrow":
+                    dialogueArrowRT = child.GetComponent<RectTransform>();
+                    dialogueArrow = child.gameObject;
+                    break;
+                case "DA_SmallArrow":
+                    smallArrowSprite = child.GetComponent<Image>();
+                    break;
+                case "DA_BigArrow":
+                    bigArrowSprite = child.GetComponent<Image>();
+                    break;
+                /** Dialogue arrow variables END here **/
+                /** Player variables START here **/
+                case "PlayerDialogueBubble":
+                    playerDB = child.GetComponent<RectTransform>();
+                    playerBubbleAnim = child.GetComponent<Animator>();
+                    playerDialogueBubble = child.gameObject;
+                    break;
+                case "PDB_SpeechBubbleHolder":
+                    playerSBH = child.GetComponent<RectTransform>();
+                    break;
+                case "PDB_SpeechBubble":
+                    playerSpeechBubbleVLG = child.GetComponent<VerticalLayoutGroup>();
+                    playerBubbleSprite = child.GetComponent<Image>();
+                    break;
+                case "PDB_Tail":
+                    playerTailSprite = child.GetComponent<Image>();
+                    break;
+                case "PDB_Text":
+                    playerDialogueText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                /** Player variables END here **/
+                /** NPC variables START here **/
+                case "NPCDialogueBubble":
+                    nPCDB = child.GetComponent<RectTransform>();
+                    nPCBubbleAnim = child.GetComponent<Animator>();
+                    nPCDialogueBubble = child.gameObject;
+                    break;
+                case "NDB_SpeechBubbleHolder":
+                    nPCSBH = child.GetComponent<RectTransform>();
+                    break;
+                case "NDB_SpeechBubble":
+                    nPCBubbleSprite = child.GetComponent<Image>();
+                    break;
+                case "NDB_Tail":
+                    nPCTailSprite = child.GetComponent<Image>();
+                    break;
+                case "NDB_Text":
+                    nPCDialogueText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                /** NPC variables END here **/
+                /** Alert bubble variables START here **/
+                case "AlertBubble":
+                    alertBubbleRT = child.GetComponent<RectTransform>();
+                    alertBubble = child.gameObject;       
+                    playerScript.AlertBubble = alertBubble;
+                    break;
+                case "AB_SpeechBubble":
+                    alertBubbleSprite = child.GetComponent<Image>();
+                    break;
+                case "AB_Icon":
+                    alertIconSprite = child.GetComponent<Image>();
+                    break;
+                /** Alert bubble variables END here **/
+                default:
+                    break;
+            }
+
+            if (child.name == "HUD" || child.name == "ArtifactButtons") continue;
+            if (child.parent.name == "DialogueOptionButtons") continue;
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
-    {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
+    {     
+        foreach (Transform child in playerScript.transform)
         {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "CharacterDialogue")
-            {
-                characterDialogueRT = child.GetComponent<RectTransform>();
-                canvasRT = characterDialogueRT.parent.GetComponent<RectTransform>();
-            }
+            if (child.name != "DialogueCheck") continue;
+            playerDialogueCheck = child.gameObject;
+            break;
         }
 
-        for (int i = 0; i < characterDialogueRT.transform.childCount; i++)
+        foreach (Transform child in nPCScript.transform)
         {
-            GameObject child = characterDialogueRT.transform.GetChild(i).gameObject;
-           
-            if (child.name == "PlayerDialogueBubble")
-            {
-                playerDialogueBubble = child;
-                playerDB = playerDialogueBubble.GetComponent<RectTransform>();
-                playerBubbleAnim = playerDialogueBubble.GetComponent<Animator>();
-
-                for (int j = 0; j < playerDialogueBubble.transform.childCount; j++)
-                {
-                    GameObject child02 = playerDialogueBubble.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "SpeechBubbleHolder")
-                    {
-                        playerSBH = child02.GetComponent<RectTransform>();
-
-                        GameObject playerSpeechBubble = child02.transform.GetChild(0).gameObject;
-                        playerSpeechBubbleVLG = playerSpeechBubble.GetComponent<VerticalLayoutGroup>();
-                        playerBubbleSprite = playerSpeechBubble.GetComponent<Image>();                        
-
-                        for (int k = 0; k < playerSpeechBubble.transform.childCount; k++)
-                        {
-                            GameObject child03 = playerSpeechBubble.transform.GetChild(k).gameObject;
-
-                            if (child03.name.Contains("Option"))
-                            {
-                                doGameObjects.Add(child03);
-                                doTextComponenets.Add(child03.GetComponent<TextMeshProUGUI>());
-                            }
-                            if (child03.name == "Text")
-                                playerDialogueText = child03.GetComponent<TextMeshProUGUI>();
-                        }
-
-                        dialogueArrow = doGameObjects[0].transform.GetChild(0).gameObject;
-                        dialogueArrowRT = dialogueArrow.GetComponent<RectTransform>();                       
-                    }
-
-                    if (child02.name == "Tail")
-                        playerTailSprite = child02.GetComponent<Image>();
-                }
-            }
-
-            if (child.name == "NPCDialogueBubble")
-            {
-                nPCDialogueBubble = child;
-                nPCDB = nPCDialogueBubble.GetComponent<RectTransform>();
-                nPCBubbleAnim = nPCDialogueBubble.GetComponentInChildren<Animator>();
-
-                for (int j = 0; j < nPCDialogueBubble.transform.childCount; j++)
-                {
-                    GameObject child02 = nPCDialogueBubble.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "SpeechBubbleHolder")
-                    {
-                        nPCSBH = child02.GetComponent<RectTransform>();
-
-                        GameObject nPCSpeechBubble = child02.transform.GetChild(0).gameObject;
-                        nPCBubbleSprite = nPCSpeechBubble.GetComponent<Image>();
-
-                        for (int k = 0; k < nPCSpeechBubble.transform.childCount; k++)
-                        {
-                            GameObject child03 = nPCSpeechBubble.transform.GetChild(k).gameObject;
-
-                            if (child03.name == "Text")
-                                nPCDialogueText = child03.GetComponent<TextMeshProUGUI>();
-                        }
-                    }
-                    if (child02.name == "Tail")
-                        nPCTailSprite = child02.GetComponent<Image>();
-                }
-            }
-            
-            if (child.name == "AlertBubble")
-            {
-                alertBubble = child;
-                alertBubbleRT = alertBubble.GetComponent<RectTransform>();
-                playerScript.AlertBubble = alertBubble;
-
-                for (int j = 0; j < alertBubble.transform.childCount; j++)
-                {
-                    GameObject child02 = alertBubble.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "SpeechBubble")
-                        alertBubbleSprite = child02.GetComponent<Image>();
-                    if (child02.name == "Icon")
-                        alertIconSprite = child02.GetComponent<Image>();
-                }
-            }
+            if (child.name != "DialogueCheck") continue;
+            nPCDialogueCheck = child.gameObject;
+            break;
         }
-
-        for (int i = 0; i < gameHUDScript.transform.parent.childCount; i++)
-        {
-            GameObject child = gameHUDScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "KeybindButtons")
-            {
-                GameObject keybindButtons = child;
-
-                for (int j = 0; j < keybindButtons.transform.childCount; j++)
-                {
-                    GameObject child02 = keybindButtons.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "ContinueButton")
-                        continueButton = child02;
-                    if (child02.name == "DialogueOptionButtons")
-                        dialogueOptionButtons = child02;
-                }
-            }
-        }
-
-        for (int i = 0; i < cameraScript.transform.childCount; i++)
-        {
-            GameObject child = cameraScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "DialogueCamera")
-                dialogueCamera = child.GetComponent<Camera>();
-        }
-
-        for (int i = 0; i < playerScript.transform.childCount; i++)
-        {
-            GameObject child = playerScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "DialogueCheck")
-                playerDialogueCheck = child;
-        }
-
-        for (int i = 0; i < nPCScript.transform.childCount; i++)
-        {
-            GameObject child = nPCScript.transform.GetChild(i).gameObject;
-
-            if (child.name == "DialogueCheck")
-                nPCDialogueCheck = child;                      
-        }
-
-        for (int i = 0; i < dialogueArrow.transform.childCount; i++)
-        {
-            GameObject child = dialogueArrow.transform.GetChild(i).gameObject;
-
-            if (child.name == "SmallArrow")
-                smallArrowSprite = child.GetComponent<Image>();
-            if (child.name == "BigArrow")
-                bigArrowSprite = child.GetComponent<Image>();
-        }
-
-        charNoiseSFX = audioManagerScript.charNoiseAS;
-        originalTypingSpeed = typingSpeed;
+    
+        SetVariables(gameHUDScript.transform.parent);
+        SetVariables(cameraScript.transform);
         SetVectors();
+        originalTypingSpeed = typingSpeed;
     }
 
 }

@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 3233626653359124507}
   - component: {fileID: 4714225510971964755}
   m_Layer: 0
-  m_Name: PlayerModel
+  m_Name: CharacterHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -359,9 +359,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4078a119f772841b2e7fd1b75d0c37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleRepetitions: 3
-  fidgetIndex: 0
-  idleCount: 0
 --- !u!1 &2057439147178995355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1380,9 +1377,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2979c855a4c704dac3c869cf95fc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canMove: 1
-  canInteract: 1
-  canRestartPuzzle: 1
 --- !u!114 &1763956048
 MonoBehaviour:
   m_ObjectHideFlags: 0

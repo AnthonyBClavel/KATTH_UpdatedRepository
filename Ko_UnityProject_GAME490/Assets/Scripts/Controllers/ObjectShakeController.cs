@@ -37,25 +37,22 @@ public class ObjectShakeController : MonoBehaviour
     // Checks to stop the object from shaking - stops the coroutine and removes the tuple from the list
     private void StopShakingObject(GameObject objectToShake)
     {
-        for (int i = 0; i < shakingObjects.Count; i++)
+        foreach ((GameObject, IEnumerator) tuple in shakingObjects)
         {
-            (GameObject, IEnumerator) tuple = shakingObjects[i];
+            if (objectToShake != tuple.Item1) continue;
 
-            if (objectToShake == tuple.Item1)
-            {
-                StopCoroutine(tuple.Item2);
-                shakingObjects.Remove(tuple);
-                objectToShake.transform.rotation = zeroRotation;
-            }
+            StopCoroutine(tuple.Item2);
+            shakingObjects.Remove(tuple);
+            objectToShake.transform.rotation = zeroRotation;
+            break;
         }
     }
 
     // Stops and clears all elements within the list of shaking objects
     public void StopAllShakingObjects()
     {
-        for (int i = 0; i < shakingObjects.Count; i++)
+        foreach ((GameObject, IEnumerator) tuple in shakingObjects)
         {
-            (GameObject, IEnumerator) tuple = shakingObjects[i];
             StopCoroutine(tuple.Item2);
             tuple.Item1.transform.rotation = zeroRotation;
         }
@@ -113,7 +110,7 @@ public class ObjectShakeController : MonoBehaviour
             yield return null;
         }
 
-        // Note: the object removes itself from list after shaking
+        // Note: the object removes itself from the list after shaking
         StopShakingObject(objectToShake);
     }
 

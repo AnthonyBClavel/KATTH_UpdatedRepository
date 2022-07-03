@@ -81,7 +81,7 @@ public class CameraController : MonoBehaviour
 
         gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
         notificationBubblesScript.PlayPuzzleNotificationCheck();
-        puzzleManagerScript.FadeOutGenAudioCheck();
+        audioManagerScript.FadeOutGeneratorSFX();
         hasMovedPuzzleView = true;
         //Debug.Log($"Moved camera to puzzle {puzzleViewIndex + 1}");
     }
@@ -152,16 +152,16 @@ public class CameraController : MonoBehaviour
     private Vector3 FindPuzzleView(GameObject checkpoint)
     {
         // Note: tileHolder is the parent object that holds all of the tiles within a puzzle
-        GameObject tileHolder = checkpoint.transform.parent.gameObject;
+        Transform tileHolder = checkpoint.transform.parent;
         xPositions.Clear();
         zPositions.Clear();
 
         // Adds each tile's x and z position to the appropriate list IF applicable
-        foreach (Transform tile in tileHolder.transform)
+        foreach (Transform tile in tileHolder)
         {
             float tilePosX = tile.position.x;
             float tilePosZ = tile.position.z;
-            FindNeighboringTiles(tile.gameObject);
+            FindNeighboringTiles(tile);
 
             // If there's a neighboring tile to the north/south...
             if (neighboringTiles.Contains(0) || neighboringTiles.Contains(180))
@@ -213,39 +213,38 @@ public class CameraController : MonoBehaviour
 
     // Finds the rotation/direction of the tiles that neighbor another (tile = the tile to check)
     // Note: 0 = north, 90 = east, 180 = south, 270 = west
-    private void FindNeighboringTiles(GameObject tile)
+    private void FindNeighboringTiles(Transform tile)
     {
         neighboringTiles.Clear(); 
 
-        for (int i = 0; i < tile.transform.childCount; i++)
+        foreach (Transform child in tile)
         {
-            GameObject child = tile.transform.GetChild(i).gameObject;
-
-            // Looks for the EdgeCheck game object within the tile's children
+            // Looks for the EdgeCheck within the tile's children
             if (child.name != "EdgeCheck") continue;
 
             for (int j = 0; j < 360; j += 90)
             {
-                child.transform.localEulerAngles = new Vector3(0, j, 0);
+                child.localEulerAngles = new Vector3(0, j, 0);
 
-                Ray myRay = new Ray(child.transform.position + new Vector3(0, -0.5f, 0), child.transform.TransformDirection(Vector3.forward));
+                Ray myRay = new Ray(child.position + new Vector3(0, -0.5f, 0), child.TransformDirection(Vector3.forward));
                 RaycastHit hit;
                 //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
-                if (Physics.Raycast(myRay, out hit, rayLength) && !hit.collider.CompareTag("BridgeTile"))
-                    neighboringTiles.Add(j);
+                // If the ray doesn't hit annything or if it hits a bridge tile, then CONTINUE the loop
+                if (!Physics.Raycast(myRay, out hit, rayLength) || hit.collider.CompareTag("BridgeTile")) continue;
+                neighboringTiles.Add(j);
             }
         }
     }
 
     // Lerps the position of the camera to another over a duration (endPosition = position to lerp to)
+    // Note: transform.position will always lerp closer to the endPosition, but never equal it
     private IEnumerator LerpCameraPosition(Vector3 endPosition)
     {
         gameManagerScript.CheckForCameraScriptDebug();
 
         while (Vector3.Distance(transform.position, endPosition) > 0.001f)
-        {
-            // Note: transform.position will always lerp closer to the endPosition, but never equal it
+        {           
             transform.position = Vector3.Lerp(transform.position, endPosition, cameraSpeed * Time.deltaTime);
             yield return null;
         }
@@ -255,31 +254,19 @@ public class CameraController : MonoBehaviour
     }
 
     // Lerps the rotation of the camera to another over a duration (endRotation = rotation to lerp to)
+    // Note: transform.eulerAngles will always lerp closer to the endRotation, but never equal it
     private IEnumerator LerpCameraRotation(Vector3 endRotation)
     {
         gameManagerScript.CheckForCameraScriptDebug();
 
         while (Vector3.Distance(transform.eulerAngles, endRotation) > 0.001f)
-        {
-            // Note: transform.eulerAngles will always lerp closer to the endRotation, but never equal it
+        {       
             transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, endRotation, cameraSpeed * Time.deltaTime);
             yield return null;
         }
 
         transform.eulerAngles = endRotation;
         //Debug.Log("The camera has lerped to the next rotation");
-    }
-
-    // Creates a puzzle view for every puzzle within the zone
-    private void SetPuzzleViews()
-    {
-        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
-
-        for (int i = 0; i < checkpoints.Count; i++)
-        {
-            GameObject checkpoint = checkpoints[i];
-            puzzleViews.Add(FindPuzzleView(checkpoint));
-        }
     }
 
     // Sets the scripts to use
@@ -294,36 +281,50 @@ public class CameraController : MonoBehaviour
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
     }
 
-    // Sets the puzzle views array and camera transition speed
+    // Sets the puzzle views - creates a puzzle view for each puzzle in the zone
+    private void SetPuzzleViews()
+    {
+        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
+
+        foreach (GameObject checkpoint in checkpoints)
+            puzzleViews.Add(FindPuzzleView(checkpoint));
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "NorthDV":
+                    northDialogueView = child.gameObject;
+                    break;
+                case "EastDV":
+                    eastDialogueView = child.gameObject;
+                    break;
+                case "SouthDV":
+                    southDialogueView = child.gameObject;
+                    break;
+                case "WestDV":
+                    westDialogueView = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            SetVariables(child);
+        }
+    }
+
+    // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.parent.childCount; i++)
-        {
-            GameObject child = transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "DialogueViewsHolder")
-            {
-                GameObject dialogueViewsHolder = child;
-
-                for (int j = 0; j < dialogueViewsHolder.transform.childCount; j++)
-                {
-                    GameObject child02 = dialogueViewsHolder.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "NorthDV")
-                        northDialogueView = child02;
-                    if (child02.name == "EastDV")
-                        eastDialogueView = child02;
-                    if (child02.name == "SouthDV")
-                        southDialogueView = child02;
-                    if (child02.name == "WestDV")
-                        westDialogueView = child02;
-                }
-            }
-        }
-
-        cameraSpeed = gameManagerScript.cameraSpeed;
         SetPuzzleViews();
+        SetVariables(transform.parent);
+        cameraSpeed = gameManagerScript.cameraSpeed;
     }
 
     // Lerps the camera to the current/next/previous puzzle view - For Debugging Purposes Only
@@ -342,7 +343,7 @@ public class CameraController : MonoBehaviour
         Debug.Log($"Debugging: moved camera to puzzle {puzzleViewIndex + 1}");
     }
 
-    // Enables debugging for the puzzle views - For Debugging Purposes ONLY
+    // Checks to lerp the camera to the next/previous puzzle view - For Debugging Purposes ONLY
     public void DebuggingCheck(GameManager gameManager)
     {
         if (!gameManager.isDebugging) return;

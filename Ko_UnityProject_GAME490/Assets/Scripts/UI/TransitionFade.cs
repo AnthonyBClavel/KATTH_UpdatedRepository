@@ -29,6 +29,7 @@ public class TransitionFade : MonoBehaviour
     private Color32 halfAlpha = new Color(0, 0, 0, 0.5f);
     private Color32 fullAlpha = new Color(0, 0, 0, 1);
 
+    public static TransitionFade instance;
     private PauseMenu pauseMenuScript;
     private IntroManager introManagerScript;
     private TileMovementController playerScript;
@@ -201,6 +202,7 @@ public class TransitionFade : MonoBehaviour
         gameHUDScript = FindObjectOfType<GameHUD>();
         gameManagerScript = FindObjectOfType<GameManager>();
         endCreditsScript = FindObjectOfType<EndCredits>();
+        instance = this;
     }
 
     // Sets private variables, objects, and components
@@ -222,7 +224,7 @@ public class TransitionFade : MonoBehaviour
                 {
                     GameObject child02 = zoneIntro.transform.GetChild(j).gameObject;
 
-                    if (child02.name == "BlackOverlay")
+                    if (child02.name == "ZI_BlackOverlay")
                         zoneIntroBlackOverlay = child02.GetComponent<Image>();
                 }
             }

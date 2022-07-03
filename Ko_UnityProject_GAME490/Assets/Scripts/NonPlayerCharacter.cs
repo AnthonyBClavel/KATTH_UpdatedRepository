@@ -7,7 +7,7 @@ public class NonPlayerCharacter : MonoBehaviour
     public NonPlayerCharacter_SO nonPlayerCharacter;
 
     private bool hasPlayedInitialDialogue = false;
-    private bool[] dialogueOptionBools;
+    private bool[] dialogueOptionBools = new bool[0];
 
     private GameObject characterHolder;
     private GameObject nPCDialogueCheck;
@@ -78,17 +78,17 @@ public class NonPlayerCharacter : MonoBehaviour
         }
     }
 
-    // Creates a new array of bools - for determining whether a dialogue option has already been played or not
+    // Creates a new array of dialogue option bools
+    // Note: the bools are used to determine if a dialogue option has been played or not
     public void SetDialogueOptionBools(int arraySize)
     {
-        if (dialogueOptionBools == null || dialogueOptionBools.Length != arraySize)
-        {
-            dialogueOptionBools = new bool[arraySize];
+        if (dialogueOptionBools.Length != 0 || dialogueOptionBools.Length == arraySize) return;
 
-            for (int i = 0; i < dialogueOptionBools.Length; i++)
-            {
-                dialogueOptionBools[i] = false;
-            }
+        dialogueOptionBools = new bool[arraySize];
+
+        for (int i = 0; i < dialogueOptionBools.Length; i++)
+        {
+            dialogueOptionBools[i] = false;
         }
     }
 
@@ -99,51 +99,35 @@ public class NonPlayerCharacter : MonoBehaviour
         nPCFidgetScript = GetComponentInChildren<FidgetController>();
     }
 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "CharacterHolder":
+                    characterHolder = child.gameObject;
+                    break;
+                case "DialogueCheck":
+                    nPCDialogueCheck = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.parent.name == "CharacterHolder") continue;
+            SetVariables(child);
+        }
+    }
+
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            if (child.name == "CharacterHolder")
-                characterHolder = child;
-
-            if (child.name == "DialogueCheck")
-                nPCDialogueCheck = child;
-        }
-
+        SetVariables(transform);
         originalRotation = characterHolder.transform.eulerAngles;
     }
-
-    // Sets text color to use for the NPC's dialogue bubble - For Reference (shows the original text colors for each npc)
-    /*private void SetDialogueTextColor()
-    {
-        switch (nonPlayerCharacter.nPCName)
-        {
-            case ("BabyMammoth"):
-                nPCTextColor = new Color32(196, 146, 102, 255);
-                break;
-            case ("FirstVillageExplorer"):
-                nPCTextColor = new Color32(115, 106, 142, 255);
-                break;
-            case ("Fisherman"):
-                nPCTextColor = new Color32(194, 130, 104, 255);
-                break;
-            case ("FriendlyGhost"):
-                nPCTextColor = new Color32(96, 182, 124, 255);
-                break;
-            case ("SecondVillageExplorer"):
-                nPCTextColor = new Color32(155, 162, 125, 255);
-                break;
-            case ("VillageElder"):
-                nPCTextColor = new Color32(58, 78, 112, 255);
-                break;
-            default:
-                nPCTextColor = Color.black;
-                break;
-        }
-    }*/
 
 }

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class TileMovementController : MonoBehaviour
 {
     private int bridgeTileCount;
+    private string sceneName;
 
     private float lerpDuration = 0.2f; // Original Value = 0.2f
     private float resetPuzzleDelay = 1.5f; // Orginal Value = 1.5f
@@ -99,6 +100,8 @@ public class TileMovementController : MonoBehaviour
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
     }
@@ -319,7 +322,8 @@ public class TileMovementController : MonoBehaviour
         Generator generatorScript = collider.gameObject.GetComponent<Generator>();
         if (generatorScript.IsGenActive) return;
 
-        audioManagerScript.SetGeneratorScript(generatorScript);
+        audioManagerScript.PlayTurnOnGeneratorSFX();
+        audioManagerScript.FadeInGeneratorSFX();
         generatorScript.TurnOnGenerator();
         SubractFromTorchMeter();
 
@@ -532,12 +536,12 @@ public class TileMovementController : MonoBehaviour
 
         if (onBridge && !hasPopedOutTM)
         {
-            torchMeterScript.TorchMeterPopOut();
+            torchMeterScript.ChangeAnimationState("PopOut");
             hasPopedOutTM = true;
         }
         else if (!onBridge && hasPopedOutTM)
         {
-            torchMeterScript.TorchMeterPopIn();
+            torchMeterScript.ChangeAnimationState("PopIn");
             hasPopedOutTM = false;
         }
     }
@@ -563,11 +567,12 @@ public class TileMovementController : MonoBehaviour
 
         gameManagerScript.ResetCollectedArtifactsCheck();
         transitionFadeScript.GameFadeOut();
+        audioManagerScript.FadeOutGeneratorSFX();
         audioManagerScript.PlayChimeSFX();
         hasFinishedZone = true;
 
         // Plays the end credits after completing the fifth/last zone
-        if (SceneManager.GetActiveScene().name != "FifthMap") return;
+        if (sceneName != "FifthMap") return;
         endCreditsScript.StartEndCredits();
     }
 
@@ -767,6 +772,7 @@ public class TileMovementController : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
+        tutorialDialogueScript = (sceneName  == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
         torchMeterScript = FindObjectOfType<TorchMeter>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         cameraScript = FindObjectOfType<CameraController>();
@@ -778,32 +784,44 @@ public class TileMovementController : MonoBehaviour
         transitionFadeScript = FindObjectOfType<TransitionFade>();
         endCreditsScript = FindObjectOfType<EndCredits>();
         playerFidgetScript = GetComponentInChildren<FidgetController>();
-        tutorialDialogueScript = (SceneManager.GetActiveScene().name == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "DialogueViewsHolder":
+                    dialogueViewsHolder = child.gameObject;
+                    break;
+                case "CharacterHolder":
+                    playerAnimator = child.GetComponent<Animator>();
+                    break;
+                case "TileCheck":
+                    tileCheck = child.gameObject;
+                    break;
+                case "BridgeTileCheck":
+                    bridgeTileCheck = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+  
+            if (child.name == "Bip001") continue;
+            //Debug.Log(child.name);
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets them by looking at the names of children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject child = transform.GetChild(i).gameObject;
-
-            if (child.name == "PlayerModel")
-                playerAnimator = child.GetComponent<Animator>();
-            if (child.name == "TileCheck")
-                tileCheck = child;
-            if (child.name == "BridgeTileCheck")
-                bridgeTileCheck = child;
-        }
-
-        for (int i = 0; i < cameraScript.transform.parent.childCount; i++)
-        {
-            GameObject child = cameraScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "DialogueViewsHolder")
-                dialogueViewsHolder = child;
-        }
+        SetVariables(transform);
+        SetVariables(cameraScript.transform.parent);
 
         lerpDuration = gameManagerScript.playerLerpDuration;
         resetPuzzleDelay = gameManagerScript.resetPuzzleDelay;
