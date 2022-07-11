@@ -17,15 +17,14 @@ public class CheckpointManager : MonoBehaviour
     private Vector3 checkpointPosition;
     private IEnumerator resetPlayerCoroutine;
 
-    private GameHUD gameHUDScript;
-    private PauseMenu pauseMenuScript;
-    private TorchMeter torchMeterScript;
-    private SaveManager saveManagerScript;
-    private GameManager gameManagerScript;
-    private FreezeEffect freezeEffectScript;
-    private AudioManager audioManagerScript;
-    private TileMovementController playerScript;
     private TutorialDialogue tutorialDialogueScript;
+    private TileMovementController playerScript;
+    private AudioManager audioManagerScript;
+    private FreezeEffect freezeEffectScript;
+    private SaveManager saveManagerScript;
+    private DeathScreen deathScreenScript;
+    private TorchMeter torchMeterScript;
+    private PauseMenu pauseMenuScript;
 
     public int MaxTileMoves
     {
@@ -126,23 +125,21 @@ public class CheckpointManager : MonoBehaviour
         playerAnimator.enabled = false;
         
         yield return new WaitForSeconds(duration);
-        bool canDeathScreen = gameManagerScript.canDeathScreen;
-        if (!canDeathScreen) ResetPlayerElements();
-        else gameHUDScript.SetDeathScreenActive();
+        if (!deathScreenScript.CanDeathScreen()) ResetPlayerElements();
+        else deathScreenScript.SetDeathScreenActive();
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
         tutorialDialogueScript = (sceneName == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
-        freezeEffectScript = FindObjectOfType<FreezeEffect>();
         playerScript = FindObjectOfType<TileMovementController>();
-        saveManagerScript = FindObjectOfType<SaveManager>();
-        pauseMenuScript = FindObjectOfType<PauseMenu>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
+        freezeEffectScript = FindObjectOfType<FreezeEffect>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        deathScreenScript = FindObjectOfType<DeathScreen>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
+        pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object

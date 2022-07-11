@@ -46,16 +46,16 @@ public class TileMovementController : MonoBehaviour
     private TorchMeter torchMeterScript;
     private SaveManager saveManagerScript;
 
-    private EndCredits endCreditsScript;
+    private CharacterDialogue characterDialogueScript;
+    private TutorialDialogue tutorialDialogueScript;
+    private ObjectShakeController objectShakeScript;
+    private FidgetController playerFidgetScript;
+    private PuzzleManager puzzleManagerScript;
+    private AudioManager audioManagerScript;
+    private BlackOverlay blackOverlayScript;
     private CameraController cameraScript;
     private GameManager gameManagerScript;
-    private AudioManager audioManagerScript;
-    private PuzzleManager puzzleManagerScript;
-    private TransitionFade transitionFadeScript;
-    private FidgetController playerFidgetScript;
-    private ObjectShakeController objectShakeScript;
-    private TutorialDialogue tutorialDialogueScript;
-    private CharacterDialogue characterDialogueScript;
+    private EndCredits endCreditsScript;
 
     public GameObject AlertBubble
     {
@@ -141,7 +141,7 @@ public class TileMovementController : MonoBehaviour
     private void PlayerInput()
     {
         // No input is recieved while the player is on a bridge or while exiting a scene
-        if (OnBridge() || FreezePlayer() || transitionFadeScript.IsChangingScenes) return;
+        if (OnBridge() || FreezePlayer() || blackOverlayScript.IsChangingScenes) return;
 
         else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             Interact();
@@ -566,7 +566,7 @@ public class TileMovementController : MonoBehaviour
         if (bridge.name != "EndBridge" || hasFinishedZone) return;
 
         gameManagerScript.ResetCollectedArtifactsCheck();
-        transitionFadeScript.GameFadeOut();
+        blackOverlayScript.GameFadeOut();
         audioManagerScript.FadeOutGeneratorSFX();
         audioManagerScript.PlayChimeSFX();
         hasFinishedZone = true;
@@ -581,7 +581,7 @@ public class TileMovementController : MonoBehaviour
     {
         // Returns if the player is not within the tutorial zone, or if the player is frozen
         if (tutorialDialogueScript == null || tutorialDialogueScript.tutorialDialogue.Count == 0 ||
-            torchMeterScript.CurrentVal <= 0 || transitionFadeScript.IsChangingScenes) return;
+            torchMeterScript.CurrentVal <= 0 || blackOverlayScript.IsChangingScenes) return;
 
         switch (puzzleManagerScript.PuzzleNumber)
         {
@@ -773,17 +773,17 @@ public class TileMovementController : MonoBehaviour
     private void SetScripts()
     {
         tutorialDialogueScript = (sceneName  == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
-        torchMeterScript = FindObjectOfType<TorchMeter>();
+        playerFidgetScript = GetComponentInChildren<FidgetController>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        cameraScript = FindObjectOfType<CameraController>();
-        saveManagerScript = FindObjectOfType<SaveManager>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
         objectShakeScript = FindObjectOfType<ObjectShakeController>();
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        blackOverlayScript = FindObjectOfType<BlackOverlay>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        cameraScript = FindObjectOfType<CameraController>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
         endCreditsScript = FindObjectOfType<EndCredits>();
-        playerFidgetScript = GetComponentInChildren<FidgetController>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -820,8 +820,8 @@ public class TileMovementController : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        SetVariables(transform);
         SetVariables(cameraScript.transform.parent);
+        SetVariables(transform);      
 
         lerpDuration = gameManagerScript.playerLerpDuration;
         resetPuzzleDelay = gameManagerScript.resetPuzzleDelay;

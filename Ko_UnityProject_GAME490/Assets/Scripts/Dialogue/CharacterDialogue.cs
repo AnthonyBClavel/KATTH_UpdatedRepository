@@ -110,8 +110,8 @@ public class CharacterDialogue : MonoBehaviour
     private IEnumerator dialogueOptionsCoroutine;
     private IEnumerator dialogueArrowCoroutine;
 
-    private GameHUD gameHUDScript;
     private Artifact artifactScript;
+    private HUD headsUpDisplayScript;
     private BlackBars blackBarsScript;
     private NonPlayerCharacter nPCScript;
     private CameraController cameraScript;
@@ -119,7 +119,7 @@ public class CharacterDialogue : MonoBehaviour
     private AudioManager audioManagerScript;
     private TileMovementController playerScript;
     private FidgetController playerFidgetScript;
-    private TransitionFade transitionFadeScript;
+    private BlackOverlay blackOverlayScript;
 
     public bool InDialogue
     {
@@ -704,8 +704,8 @@ public class CharacterDialogue : MonoBehaviour
         audioManagerScript.CrossFadeInDialogueMusic();
         playerScript.SetPlayerBoolsFalse();
         cameraScript.LerpToDialogueView();
+        headsUpDisplayScript.TurnOffHUD();
         blackBarsScript.MoveBarsIn();
-        gameHUDScript.TurnOffHUD();
  
         SetSpeechBubblePivots();
         SetInitialDialogue();
@@ -728,10 +728,10 @@ public class CharacterDialogue : MonoBehaviour
         playerFidgetScript.HasPlayedInitialFidget = false;
 
         audioManagerScript.CrossFadeOutDialogueMusic();
+        headsUpDisplayScript.TurnOnHUD();
         cameraScript.LerpToPuzzleView();
-        nPCScript.ResetRotation();
         blackBarsScript.MoveBarsOut();
-        gameHUDScript.TurnOnHUD();
+        nPCScript.ResetRotation();
 
         playerDialogueBubble.SetActive(false);
         nPCDialogueBubble.SetActive(false);
@@ -814,7 +814,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         yield return new WaitForSeconds(0.01f);
 
-        while (inDialogue && !inDialogueOptions && !transitionFadeScript.IsChangingScenes)
+        while (inDialogue && !inDialogueOptions && !blackOverlayScript.IsChangingScenes)
         {
             if (Time.deltaTime > 0) ContinueInputCheck();
             yield return null;
@@ -825,7 +825,7 @@ public class CharacterDialogue : MonoBehaviour
     // Checks for the dialogue options input
     private IEnumerator DialogueOptionsInputCheck()
     {
-        while (dialogueArrow.activeInHierarchy && !transitionFadeScript.IsChangingScenes)
+        while (dialogueArrow.activeInHierarchy && !blackOverlayScript.IsChangingScenes)
         {
             if (Time.deltaTime > 0)
             {
@@ -898,12 +898,12 @@ public class CharacterDialogue : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         nPCScript = FindObjectOfType<NonPlayerCharacter>();
 
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        blackOverlayScript = FindObjectOfType<BlackOverlay>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         cameraScript = FindObjectOfType<CameraController>();
         blackBarsScript = FindObjectOfType<BlackBars>();
         artifactScript = FindObjectOfType<Artifact>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
+        headsUpDisplayScript = FindObjectOfType<HUD>();
 
         playerFidgetScript = playerScript.GetComponentInChildren<FidgetController>();
         nPCFidgetScript = nPCScript.GetComponentInChildren<FidgetController>();
@@ -1005,8 +1005,9 @@ public class CharacterDialogue : MonoBehaviour
                     break;
             }
 
-            if (child.name == "HUD" || child.name == "ArtifactButtons") continue;
-            if (child.parent.name == "DialogueOptionButtons") continue;
+            if (child.name == "ArtifactButtons" || child.name == "DialogueOptionButtons") continue;
+            if (child.name == "TorchMeter" || child.name == "NotificationBubbles") continue;
+
             SetVariables(child);
         }
     }
@@ -1028,7 +1029,7 @@ public class CharacterDialogue : MonoBehaviour
             break;
         }
     
-        SetVariables(gameHUDScript.transform.parent);
+        SetVariables(headsUpDisplayScript.transform);
         SetVariables(cameraScript.transform);
         SetVectors();
         originalTypingSpeed = typingSpeed;

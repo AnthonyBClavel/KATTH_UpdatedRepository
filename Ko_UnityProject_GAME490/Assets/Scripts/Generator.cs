@@ -143,6 +143,7 @@ public class Generator : MonoBehaviour
                     break;
             }
 
+            if (child.name == "Pipes"|| child.name == "FuelContainers") continue;
             SetVariables(child);
         }
     }

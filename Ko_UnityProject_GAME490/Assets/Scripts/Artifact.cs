@@ -40,15 +40,15 @@ public class Artifact : MonoBehaviour
     private IEnumerator closeChestCoroutine;
     private IEnumerator inputCoroutine;
 
-    private CameraController cameraScript;
-    private CharacterDialogue characterDialogueScript;
-    private TileMovementController playerScript;
-    private GameHUD gameHUDScript;
-    private SaveManager saveManagerScript;
-    private TutorialDialogue tutorialDialogueScript;
-    private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
-    private TransitionFade transitionFadeScript;
+    private CharacterDialogue characterDialogueScript;
+    private TutorialDialogue tutorialDialogueScript;
+    private TileMovementController playerScript;
+    private AudioManager audioManagerScript;
+    private BlackOverlay blackOverlayScript;
+    private CameraController cameraScript;
+    private SaveManager saveManagerScript;
+    private HUD headsUpDisplayScript;
 
     public bool HasInspectedArtifact
     {
@@ -79,9 +79,7 @@ public class Artifact : MonoBehaviour
         if (artifactCount >= 15 || hasCollectedArtifact || !enabled) return;
 
         int totalArtifacts = (sceneName != "TutorialMap") ? 15 : 1;
-        gameHUDScript.UpdateArtifactBubbleText($"{artifactCount + 1}/{totalArtifacts}");
-        notificationBubblesScript.PlayArtifactNotificationCheck();
-
+        notificationBubblesScript.SetsArtifactNotificationText($"{artifactCount + 1}/{totalArtifacts}");
         saveManagerScript.SaveCollectedArtifact(artifactsCollected + artifactName);
         saveManagerScript.SaveNumberOfArtifactsCollected(artifactCount + 1);
         SetArtifactInactive();
@@ -187,8 +185,8 @@ public class Artifact : MonoBehaviour
     // Transitions to the camera's artifact view
     private IEnumerator TransitionToArtifactView()
     {
-        float duration = transitionFadeScript.fadeOutAndIn * 0.5f;
-        transitionFadeScript.PlayTransitionFade();
+        blackOverlayScript.StartTransitionFadeCoroutine();
+        float duration = blackOverlayScript.TransitionFadeDuration;   
         bool inTutorialDialogue = false;
 
         yield return new WaitForSeconds(duration);
@@ -206,8 +204,8 @@ public class Artifact : MonoBehaviour
     // Transitions to the camera's previous view
     private IEnumerator TransitionToPreviousView()
     {
-        float duration = transitionFadeScript.fadeOutAndIn * 0.5f;
-        transitionFadeScript.PlayTransitionFade();
+        float duration = blackOverlayScript.TransitionFadeDuration;
+        blackOverlayScript.StartTransitionFadeCoroutine();
 
         yield return new WaitForSeconds(duration);
         SetPreviousView();
@@ -221,7 +219,7 @@ public class Artifact : MonoBehaviour
     {
         yield return new WaitForSeconds(0.01f);
 
-        while (artifactButtons.activeSelf && !transitionFadeScript.IsChangingScenes)
+        while (artifactButtons.activeSelf && !blackOverlayScript.IsChangingScenes)
         {
             if (Time.deltaTime > 0)
             {
@@ -313,14 +311,14 @@ public class Artifact : MonoBehaviour
     private void SetScripts()
     {
         tutorialDialogueScript = (sceneName == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
-        cameraScript = FindObjectOfType<CameraController>();
+        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        saveManagerScript = FindObjectOfType<SaveManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
+        blackOverlayScript = FindObjectOfType<BlackOverlay>();
+        cameraScript = FindObjectOfType<CameraController>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
+        headsUpDisplayScript = FindObjectOfType<HUD>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -347,8 +345,10 @@ public class Artifact : MonoBehaviour
                     break;
             }
 
-            if (child.name == "HUD" || child.name == "CharacterDialogue") continue;
-            if (child.name == "DialogueOptionButtons" || child.name == "BabyMammoth") continue;
+            if (child.parent.name == "WoodenChestHolder" || child.parent.name == "ArtifactHolder") continue;
+            if (child.name == "NotificationBubbles" || child.parent.name == "ArtifactButtons") continue;
+            if (child.name == "DialogueOptionButtons" || child.name == "CharacterDialogue") continue;
+
             SetVariables(child);
         }
     }
@@ -356,8 +356,8 @@ public class Artifact : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
+        SetVariables(headsUpDisplayScript.transform);
         SetVariables(transform);
-        SetVariables(gameHUDScript.transform.parent);
 
         artifactName = artifact.artifactName;
         mainCamera = cameraScript.gameObject;

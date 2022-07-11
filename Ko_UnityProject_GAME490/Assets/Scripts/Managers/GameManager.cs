@@ -41,21 +41,19 @@ public class GameManager : MonoBehaviour
     private Image loadingScreenImage;
     private IEnumerator loadingIconCoroutine;
 
-    private TileMovementController playerScript;
-    private OptionsMenu optionsMenuScript;
-    private TransitionFade transitionFadeScript;
-    private BlackBars blackBarsScript;
-    private SaveManager saveManagerScript;
-    private BlockMovementController blockMovementScript;
-    private CameraController cameraScript;
-    private IntroManager introManagerScript;
-    private TorchMeter torchMeterScript;
-    private AudioManager audioManagerScript;
-    private CharacterDialogue characterDialogueScript;
     private NotificationBubbles notificationBubblesScript;
+    private BlockMovementController blockMovementScript;
+    private CharacterDialogue characterDialogueScript;
+    private TileMovementController playerScript;
+    private AudioManager audioManagerScript;
+    private BlackOverlay blackOverlayScript;
+    private SaveManager saveManagerScript;
+    private CameraController cameraScript;
+    private TorchMeter torchMeterScript;
+    private BlackBars blackBarsScript;
 
     [Header("Debugging Elements")]
-    public bool canDeathScreen = false;
+    //public bool canDeathScreen = false;
     public bool isDebugging;
     public int puzzleNumber;
 
@@ -73,7 +71,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        canDeathScreen = false;
+        //canDeathScreen = false;
     }
 
     void LateUpdate()
@@ -88,7 +86,7 @@ public class GameManager : MonoBehaviour
         {
             // Debugging checks for UI animations
             blackBarsScript.DebuggingCheck(this);
-            transitionFadeScript.DebuggingCheck(this);
+            blackOverlayScript.DebuggingCheck(this);
             notificationBubblesScript.DebuggingCheck(this);
             // Other debugging checks
             cameraScript.DebuggingCheck(this);
@@ -306,53 +304,63 @@ public class GameManager : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        playerScript = FindObjectOfType<TileMovementController>();
-        optionsMenuScript = FindObjectOfType<OptionsMenu>();
-        transitionFadeScript = FindObjectOfType<TransitionFade>();
-        saveManagerScript = FindObjectOfType<SaveManager>();
-        blockMovementScript = FindObjectOfType<BlockMovementController>();
-        cameraScript = FindObjectOfType<CameraController>();
-        introManagerScript = FindObjectOfType<IntroManager>();
-        torchMeterScript = FindObjectOfType<TorchMeter>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        blackBarsScript = FindObjectOfType<BlackBars>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
+        blockMovementScript = FindObjectOfType<BlockMovementController>();
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        blackOverlayScript = FindObjectOfType<BlackOverlay>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        cameraScript = FindObjectOfType<CameraController>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
+        blackBarsScript = FindObjectOfType<BlackBars>();
+    }
+ 
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "BlackLoadingScreen":
+                    blackLoadingScreen = child.gameObject;
+                    break;
+                case "LoadingScreen":
+                    loadingScreen = child.gameObject;
+                    loadingScreenImage = loadingScreen.GetComponent<Image>();
+                    break;
+                case "LS_Text":
+                    loadingScreenText = child.GetComponent<TextMeshProUGUI>();
+                    break;
+                case "LS_Icon":
+                    loadingScreenIcon = child.gameObject;
+                    break;
+                case "LS_Bar":
+                    loadingScreenBar = child.GetComponent<Slider>();
+                    break;
+                case "Tips":
+                    loadingScreenTips = child.gameObject;
+                    break;
+                case "SavedInvisibleBlock":
+                    savedInvisibleBlock = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            if (child.name == "ZoneIntroHolder" || child.name == "EndCreditsHolder") continue;
+            SetVariables(child);
+        }
     }
 
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        // Sets the game objects by looking at names of children
-        for (int i = 0; i < optionsMenuScript.transform.parent.childCount; i++)
-        {
-            GameObject child = optionsMenuScript.transform.parent.GetChild(i).gameObject;
-
-            if (child.name == "BlackLoadingScreen")
-                blackLoadingScreen = child;
-
-            if (child.name == "LoadingScreen")
-            {
-                loadingScreen = child;
-
-                for (int j = 0; j < loadingScreen.transform.childCount; j++)
-                {
-                    GameObject child02 = loadingScreen.transform.GetChild(j).gameObject;
-
-                    if (child02.name == "LoadingIcon")
-                        loadingScreenIcon = child02;
-                    if (child02.name == "LoadingText")
-                        loadingScreenText = child02.GetComponent<TextMeshProUGUI>();
-                    if (child02.name == "LoadingBar")
-                        loadingScreenBar = child02.GetComponent<Slider>();
-                    if (child02.name == "Tips")
-                        loadingScreenTips = child02;
-                }
-            }
-        }
-
-        loadingScreenImage = loadingScreen.GetComponent<Image>();
-        savedInvisibleBlock = saveManagerScript.transform.GetChild(0).gameObject;
+        SetVariables(blackOverlayScript.transform.parent);
+        SetVariables(saveManagerScript.transform);
     }
 
     // Creates a new save file

@@ -7,18 +7,19 @@ using TMPro;
 
 public static class ExtensionMethods
 {
+    // Returns the color of the text 
+    // Note: the default alpha to return will always be 1 if the parameter is not set
+    public static Color ReturnTextColor(this TextMeshProUGUI text, float alpha = 1)
+    {
+        Color color = text.color;
+        return new Color(color.r, color.g, color.b, alpha);
+    }
+
     // Sets the alpha of the text
     public static void SetTextAlpha(this TextMeshProUGUI text, float alpha)
     {
         Color color = text.color;
         text.color = new Color(color.r, color.g, color.b, alpha);
-    }
-
-    // Sets the alpha of the image
-    public static void SetImageAlpha(this Image image, float alpha)
-    {
-        Color color = image.color;
-        image.color = new Color(color.r, color.g, color.b, alpha);
     }
 
     // Returns the color of the image
@@ -29,19 +30,11 @@ public static class ExtensionMethods
         return new Color(color.r, color.g, color.b, alpha);
     }
 
-    // Returns the color of the text 
-    // Note: the default alpha to return will always be 1 if the parameter is not set
-    public static Color ReturnTextColor(this TextMeshProUGUI text, float alpha = 1)
+    // Sets the alpha of the image
+    public static void SetImageAlpha(this Image image, float alpha)
     {
-        Color color = text.color;
-        return new Color(color.r, color.g, color.b, alpha);
-    }
-
-    // Returns an array of strings/sentences
-    public static string[] ReturnSentences(this TextAsset textFile)
-    {
-        if (textFile == null) return null;
-        return textFile.text.Split("\n"[0]);
+        Color color = image.color;
+        image.color = new Color(color.r, color.g, color.b, alpha);
     }
 
     // Returns the hexadecimal string for the color
@@ -50,10 +43,11 @@ public static class ExtensionMethods
         return ColorUtility.ToHtmlStringRGB(color);
     }
 
-    // Returns the name of the current unity scene
-    public static string SceneName()
+    // Returns as an array of strings/sentences for the text file
+    public static string[] ReturnSentences(this TextAsset textFile)
     {
-        return SceneManager.GetActiveScene().name;
+        if (textFile == null) return null;
+        return textFile.text.Split("\n"[0]);
     }
 
     // Return the length of a clip within an animator
@@ -63,10 +57,9 @@ public static class ExtensionMethods
 
         foreach (AnimationClip clip in clips)
         {
-            if (clip.name == nameOfClip)
-                return clip.length;
+            if (clip.name != nameOfClip) continue;
+            return clip.length;
         }
-
         return 0;
     }
 

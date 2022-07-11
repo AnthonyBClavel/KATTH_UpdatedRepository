@@ -25,7 +25,7 @@ public class PuzzleManager : MonoBehaviour
 
     private TorchMeter torchMeterScript;
     private CameraController cameraScript;
-    private GameManager gameManagerScript;
+    private DeathScreen deathScreenScript;
     private AudioManager audioManagerScript;
     private TileMovementController playerScript;
     private CheckpointManager checkpointManagerScript;
@@ -57,7 +57,7 @@ public class PuzzleManager : MonoBehaviour
         DestroyAllPuzzleParticles(duration);
 
         // The puzzle blocks don't reset during the death screen
-        if (gameManagerScript.canDeathScreen && !playerScript.CanRestartPuzzle) return;
+        if (deathScreenScript.CanDeathScreen() && !playerScript.CanRestartPuzzle) return;
         ResetPuzzleBlocks(duration);
     }
 
@@ -271,11 +271,11 @@ public class PuzzleManager : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        cameraScript = FindObjectOfType<CameraController>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-        torchMeterScript = FindObjectOfType<TorchMeter>();
         playerScript = FindObjectOfType<TileMovementController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        cameraScript = FindObjectOfType<CameraController>();
+        deathScreenScript = FindObjectOfType<DeathScreen>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
         checkpointManagerScript = null;
     }
 

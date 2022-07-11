@@ -27,13 +27,12 @@ public class CameraController : MonoBehaviour
     List<float> zPositions = new List<float>();
     List<int> neighboringTiles = new List<int>();
 
-    private GameHUD gameHUDScript;
-    private TileMovementController playerScript;
-    private GameManager gameManagerScript;
-    private AudioManager audioManagerScript;
     private NotificationBubbles notificationBubblesScript;
-    private PuzzleManager puzzleManagerScript;
     private CharacterDialogue characterDialogueScript;
+    private TileMovementController playerScript;
+    private PuzzleManager puzzleManagerScript;
+    private AudioManager audioManagerScript;
+    private GameManager gameManagerScript;
 
     public float CameraSpeed
     {
@@ -66,6 +65,12 @@ public class CameraController : MonoBehaviour
         SetToPuzzleView();
     }
 
+    // Returns the text to be displayed within the puzzle notification
+    public string ReturnTextForPN()
+    {
+        return $"{puzzleViewIndex + 1}/{checkpoints.Count}";
+    }
+
     // Checks to move the camera to the next/previous puzzle view (move to next if true, move to previous otherwise)
     public void NextPuzzleViewCheck()
     {
@@ -78,9 +83,7 @@ public class CameraController : MonoBehaviour
         puzzleViewIndex = (int)(bridgeNumber == puzzleNumber ? puzzleNumber : puzzleNumber - 2);
         // Note: the camera doesn't lerp if its already at the intended next/previous puzzle view
         if (currentPuzzleView != puzzleViews[puzzleViewIndex]) LerpToPuzzleView();
-
-        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
-        notificationBubblesScript.PlayPuzzleNotificationCheck();
+        notificationBubblesScript.SetsPuzzleNotificationText(ReturnTextForPN());
         audioManagerScript.FadeOutGeneratorSFX();
         hasMovedPuzzleView = true;
         //Debug.Log($"Moved camera to puzzle {puzzleViewIndex + 1}");
@@ -138,7 +141,6 @@ public class CameraController : MonoBehaviour
     {
         transform.position = puzzleViews[puzzleViewIndex];
         transform.eulerAngles = puzzleAngles[puzzleViewIndex];
-        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
     }
 
     // Sets the camera's position to the current dialogue view
@@ -272,13 +274,12 @@ public class CameraController : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        playerScript = FindObjectOfType<TileMovementController>();
-        gameManagerScript = FindObjectOfType<GameManager>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        playerScript = FindObjectOfType<TileMovementController>();
+        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        gameManagerScript = FindObjectOfType<GameManager>();
     }
 
     // Sets the puzzle views - creates a puzzle view for each puzzle in the zone
@@ -339,7 +340,7 @@ public class CameraController : MonoBehaviour
         else puzzleViewIndex = nextPVI;
 
         LerpToPuzzleView();
-        gameHUDScript.UpdatePuzzleBubbleText($"{puzzleViewIndex + 1}/{checkpoints.Count}");
+        notificationBubblesScript.SetsPuzzleNotificationText(ReturnTextForPN(), false);
         Debug.Log($"Debugging: moved camera to puzzle {puzzleViewIndex + 1}");
     }
 

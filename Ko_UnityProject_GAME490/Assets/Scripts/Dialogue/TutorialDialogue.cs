@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class TutorialDialogue : MonoBehaviour
 {
     private int sentenceIndex;
     private string[] sentences;
+    private string sceneName;
 
     [Header("Tutorial Dialogue Variables")]
     [SerializeField] [Range(0.005f, 0.1f)]
@@ -36,15 +38,32 @@ public class TutorialDialogue : MonoBehaviour
     private PauseMenu pauseMenuScript;
     private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
-    private GameHUD gameHUDScript;
+    private HUD headsUpDisplayScript;
     private AudioManager audioManagerScript;
     private SkipSceneButton skipSceneButtonScript;
 
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        SetTutorialDialogueInactive();
+    }
+
+    // Checks to set the tutorial dialogue game object and script inactive
+    private void SetTutorialDialogueInactive()
+    {
+        if (sceneName == "TutorialMap") return;
+
+        gameObject.SetActive(false);
+        enabled = false;
     }
 
     // Starts the tutorial dialogue
@@ -236,13 +255,13 @@ public class TutorialDialogue : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
+        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
+        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
         playerScript = FindObjectOfType<TileMovementController>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
         artifactScript = FindObjectOfType<Artifact>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        gameHUDScript = FindObjectOfType<GameHUD>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
-        skipSceneButtonScript = FindObjectOfType<SkipSceneButton>();
+        headsUpDisplayScript = FindObjectOfType<HUD>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -273,7 +292,9 @@ public class TutorialDialogue : MonoBehaviour
                     break;
             }
 
-            if (child.name == "HUD" || child.name == "CharacterDialogue") continue;
+            if (child.parent.name == "DialogueOptionButtons" || child.parent.name == "ArtifactButtons") continue;
+            if (child.name == "NotificationBubbles" || child.name == "CharacterDialogue") continue;
+
             SetVariables(child);
         }
     }
@@ -291,7 +312,7 @@ public class TutorialDialogue : MonoBehaviour
             break;
         }
 
-        SetVariables(gameHUDScript.transform.parent);
+        SetVariables(headsUpDisplayScript.transform);
         originalTypingSpeed = typingSpeed;
     }
 

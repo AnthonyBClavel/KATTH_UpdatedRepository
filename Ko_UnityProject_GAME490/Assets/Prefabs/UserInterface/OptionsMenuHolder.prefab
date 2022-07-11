@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 3075950350503273366}
   - component: {fileID: 8757701736539067560}
   m_Layer: 5
-  m_Name: CloseOptionsButton
+  m_Name: OM_CloseOptionsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -372,7 +372,7 @@ GameObject:
   - component: {fileID: 3075950350483152142}
   - component: {fileID: 8757701736418683440}
   m_Layer: 5
-  m_Name: PreviousRes
+  m_Name: RES_PreviousResButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -503,7 +503,7 @@ GameObject:
   - component: {fileID: 4289938149874823984}
   - component: {fileID: 3075950349296998256}
   m_Layer: 5
-  m_Name: CurrentResolution
+  m_Name: RES_TextBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 3075950349188756603}
   - component: {fileID: 8757701737313567557}
   m_Layer: 5
-  m_Name: NextRes
+  m_Name: RES_NextResButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -712,7 +712,7 @@ GameObject:
   - component: {fileID: 3075950349097382676}
   - component: {fileID: 8757701737289597994}
   m_Layer: 5
-  m_Name: ApplyGraphicsButton
+  m_Name: OM_ApplyGraphicsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -731,7 +731,7 @@ RectTransform:
   m_Children:
   - {fileID: 6162717243653587532}
   m_Father: {fileID: 8439219158191557147}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -843,7 +843,7 @@ GameObject:
   - component: {fileID: 7279000370418450683}
   - component: {fileID: 6253684433708477703}
   m_Layer: 5
-  m_Name: Text
+  m_Name: COB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -977,7 +977,7 @@ GameObject:
   - component: {fileID: 7279000370331762275}
   - component: {fileID: 6253684434039129990}
   m_Layer: 5
-  m_Name: Text
+  m_Name: PRB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1111,7 +1111,7 @@ GameObject:
   - component: {fileID: 7279000369582348054}
   - component: {fileID: 6253684433255579638}
   m_Layer: 5
-  m_Name: Text
+  m_Name: NRB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1245,7 +1245,7 @@ GameObject:
   - component: {fileID: 7279000369541599353}
   - component: {fileID: 6253684432893218904}
   m_Layer: 5
-  m_Name: Text
+  m_Name: AGB_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1379,7 +1379,7 @@ GameObject:
   - component: {fileID: 7279000369740444701}
   - component: {fileID: 6253684432837749381}
   m_Layer: 5
-  m_Name: CurrentResText
+  m_Name: RES_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1513,7 +1513,7 @@ GameObject:
   - component: {fileID: 2633446535997880714}
   - component: {fileID: 6253684432026505366}
   m_Layer: 5
-  m_Name: SliderValueText
+  m_Name: SFXVolumeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1847,7 +1847,7 @@ GameObject:
   - component: {fileID: 2633446536137173680}
   - component: {fileID: 6253684433893631743}
   m_Layer: 5
-  m_Name: SliderValueText
+  m_Name: MasterVolumeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2017,7 +2017,7 @@ GameObject:
   - component: {fileID: 2633446536178933741}
   - component: {fileID: 6253684432231205294}
   m_Layer: 5
-  m_Name: GraphicsLabel
+  m_Name: OM_GraphicsLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2186,7 +2186,7 @@ GameObject:
   - component: {fileID: 2633446536270188978}
   - component: {fileID: 2633446536270188977}
   m_Layer: 5
-  m_Name: VSyncToggle
+  m_Name: VS_Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2270,7 +2270,7 @@ GameObject:
   - component: {fileID: 2633446536347254776}
   - component: {fileID: 2633446536347254775}
   m_Layer: 5
-  m_Name: GraphicsLayout
+  m_Name: OM_GraphicsLayout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2485,7 +2485,7 @@ GameObject:
   - component: {fileID: 2633446536616288240}
   - component: {fileID: 2633446536616288015}
   m_Layer: 5
-  m_Name: AudioLayout
+  m_Name: OM_AudioLayout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2506,7 +2506,7 @@ RectTransform:
   - {fileID: 1573016030431118594}
   - {fileID: 1573016029355016231}
   m_Father: {fileID: 8439219158191557147}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2551,7 +2551,7 @@ GameObject:
   - component: {fileID: 2633446536636283800}
   - component: {fileID: 6253684433135262411}
   m_Layer: 5
-  m_Name: SFXVolText
+  m_Name: SFXVolumeLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2795,7 +2795,7 @@ GameObject:
   - component: {fileID: 2633446536801062968}
   - component: {fileID: 2633446536801062967}
   m_Layer: 5
-  m_Name: SFXSlider
+  m_Name: SFXVolumeSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2875,7 +2875,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5245114509266384882}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: SetSFXVol
+        m_MethodName: SetSFXVolume
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2972,7 +2972,7 @@ GameObject:
   - component: {fileID: 2633446536891908614}
   - component: {fileID: 6253684433928119166}
   m_Layer: 5
-  m_Name: RelosutionText
+  m_Name: RES_Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3181,7 +3181,7 @@ GameObject:
   - component: {fileID: 2633446537070747185}
   - component: {fileID: 6253684433940838726}
   m_Layer: 5
-  m_Name: FullScreenText
+  m_Name: FS_Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3315,7 +3315,7 @@ GameObject:
   - component: {fileID: 2633446537129651787}
   - component: {fileID: 2633446537129651788}
   m_Layer: 5
-  m_Name: Background
+  m_Name: VS_ToggleBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3391,7 +3391,7 @@ GameObject:
   - component: {fileID: 2633446537261799513}
   - component: {fileID: 6253684432647634304}
   m_Layer: 5
-  m_Name: AudioLabel
+  m_Name: OM_AudioLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3409,7 +3409,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8439219158191557147}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3636,7 +3636,7 @@ GameObject:
   - component: {fileID: 2633446537308503273}
   - component: {fileID: 6253684432037539641}
   m_Layer: 5
-  m_Name: SliderValueText
+  m_Name: MusicVolumeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3844,7 +3844,7 @@ GameObject:
   - component: {fileID: 2633446537397527383}
   - component: {fileID: 2633446537397527382}
   m_Layer: 5
-  m_Name: MusicSlider
+  m_Name: MusicVolumeSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3924,7 +3924,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5245114509266384882}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: SetMusicVol
+        m_MethodName: SetMusicVolume
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3945,7 +3945,7 @@ GameObject:
   - component: {fileID: 2633446537494514799}
   - component: {fileID: 2633446537494514798}
   m_Layer: 5
-  m_Name: MasterSlider
+  m_Name: MasterVolumeSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4025,7 +4025,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5245114509266384882}
         m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
-        m_MethodName: SetMasterVol
+        m_MethodName: SetMasterVolume
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4194,7 +4194,7 @@ GameObject:
   - component: {fileID: 2633446537613659408}
   - component: {fileID: 6253684434090975655}
   m_Layer: 5
-  m_Name: MasterVolText
+  m_Name: MasterVolumeLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4328,7 +4328,7 @@ GameObject:
   - component: {fileID: 2633446537671813671}
   - component: {fileID: 6253684431982344309}
   m_Layer: 5
-  m_Name: OptionsLabel
+  m_Name: OM_Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4462,7 +4462,7 @@ GameObject:
   - component: {fileID: 2633446537748377965}
   - component: {fileID: 6253684432107086587}
   m_Layer: 5
-  m_Name: MusicVolText
+  m_Name: MusicVolumeLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4595,7 +4595,7 @@ GameObject:
   - component: {fileID: 2633446537849516134}
   - component: {fileID: 2633446537849516133}
   m_Layer: 5
-  m_Name: FullScreenToggle
+  m_Name: FS_Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4680,7 +4680,7 @@ GameObject:
   - component: {fileID: 2633446537966830006}
   - component: {fileID: 2633446537966830007}
   m_Layer: 5
-  m_Name: Background
+  m_Name: FS_ToggleBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4756,7 +4756,7 @@ GameObject:
   - component: {fileID: 2633446538018745004}
   - component: {fileID: 6253684432566155857}
   m_Layer: 5
-  m_Name: VSyncText
+  m_Name: VS_Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4965,7 +4965,7 @@ GameObject:
   - component: {fileID: 971726784488796331}
   - component: {fileID: 3239259681949279116}
   m_Layer: 5
-  m_Name: Background
+  m_Name: OM_Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5061,9 +5061,9 @@ RectTransform:
   - {fileID: 2633446537671813673}
   - {fileID: 2633446536178933743}
   - {fileID: 2633446536347254776}
-  - {fileID: 2028450178478583846}
   - {fileID: 2633446537261799515}
   - {fileID: 2633446536616288240}
+  - {fileID: 2028450178478583846}
   - {fileID: 2028450179740819620}
   m_Father: {fileID: 2633446536035661592}
   m_RootOrder: 0

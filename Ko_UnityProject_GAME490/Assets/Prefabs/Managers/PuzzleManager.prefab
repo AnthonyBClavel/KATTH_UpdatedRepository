@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2235144171607484551}
   - component: {fileID: 2235144171607484550}
+  - component: {fileID: 1689027917416003056}
   m_Layer: 0
   m_Name: PuzzleManager
   m_TagString: Untagged
@@ -47,3 +48,18 @@ MonoBehaviour:
   - {fileID: 5374438051850771180, guid: 323a072f44d51414eafa37f3b2e197a0, type: 3}
   - {fileID: 5374438051850771180, guid: 523900af17d53304aac669c17daebb66, type: 3}
   - {fileID: 2907980637653063471, guid: fa0f88c460bd5aa47bba237ececefc16, type: 3}
+--- !u!114 &1689027917416003056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2235144171607484548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eef9fe4675277dc4e87e6db61fc0fa06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationMultiplier: 7.5
+  shakeDuration: 0.25
+  shakePower: 0.25

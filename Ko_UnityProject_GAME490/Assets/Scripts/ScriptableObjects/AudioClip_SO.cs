@@ -112,7 +112,7 @@ public class AudioClip_SO : ScriptableObject
 
         float startVolume = sv ?? 0f;
         float endVolume = ev ?? volume;
-        float duration = d ?? TransitionFade.instance.gameFadeIn;
+        float duration = d ?? BlackOverlay.instance.GameFadeDuration;
 
         AudioManager.instance.StartLerpAudioCoroutine(audioSource, startVolume, endVolume, duration);
     }
@@ -125,7 +125,7 @@ public class AudioClip_SO : ScriptableObject
 
         float startVolume = sv ?? volume;
         float endVolume = ev ?? 0f;
-        float duration = d ?? TransitionFade.instance.gameFadeOut;
+        float duration = d ?? BlackOverlay.instance.GameFadeDuration;
 
         AudioManager.instance.StartLerpAudioCoroutine(audioSource, startVolume, endVolume, duration);
     }
