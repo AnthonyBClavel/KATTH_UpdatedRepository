@@ -5,24 +5,26 @@ using UnityEngine.SceneManagement;
 
 public class TileMovementController : MonoBehaviour
 {
+    private float resetPuzzleDelay = 1.5f; // Orginal Value = 1.5f
+    private float lerpDuration = 0.2f; // Original Value = 0.2f
+    private float rayLength = 1f;
+
     private int bridgeTileCount;
     private string sceneName;
 
-    private float lerpDuration = 0.2f; // Original Value = 0.2f
-    private float resetPuzzleDelay = 1.5f; // Orginal Value = 1.5f
-    private float rayLength = 1f;
-
-    private bool canMove = true;
-    private bool canInteract = true;
     private bool canRestartPuzzle = true;
-    private bool hasFinishedZone = false;
+    private bool canInteract = true;
+    private bool canMove = true;
+
     private bool hasSetCheckpoint = false;
+    private bool hasFinishedZone = false;
     private bool hasPopedOutTM = false;
+    private bool isCrossingBridge = false;
 
     private GameObject checkpoint; // Current checkpoint
     private GameObject bridge; // Current bridge
-    private GameObject currentTile;
     private GameObject previousTile;
+    private GameObject currentTile;
     private GameObject bridgeTileCheck;
     private GameObject tileCheck;
     private GameObject dialogueViewsHolder;
@@ -57,28 +59,10 @@ public class TileMovementController : MonoBehaviour
     private GameManager gameManagerScript;
     private EndCredits endCreditsScript;
 
-    public GameObject AlertBubble
-    {
-        get { return alertBubble; }
-        set { alertBubble = value; }
-    }
-
     public Vector3 Destination
     {
         get { return destination; }
         set { destination = value; }
-    }
-
-    public float LerpDuration
-    {
-        get { return lerpDuration; }
-        set { lerpDuration = value; }
-    }
-
-    public float ResetPuzzleDelay
-    {
-        get { return resetPuzzleDelay; }
-        set { resetPuzzleDelay = value; }
     }
 
     public bool HasFinishedZone
@@ -87,14 +71,19 @@ public class TileMovementController : MonoBehaviour
         set { hasFinishedZone = value; }
     }
 
-    public bool CanMove
+    public bool IsCrossingBridge
     {
-        get { return canMove; }
+        get { return isCrossingBridge; }
     }
 
     public bool CanRestartPuzzle
     {
         get { return canRestartPuzzle; }
+    }
+
+    public bool CanMove
+    {
+        get { return canMove; }
     }
 
     // Awake is called before Start()
@@ -141,7 +130,7 @@ public class TileMovementController : MonoBehaviour
     private void PlayerInput()
     {
         // No input is recieved while the player is on a bridge or while exiting a scene
-        if (OnBridge() || FreezePlayer() || blackOverlayScript.IsChangingScenes) return;
+        if (OnBridge() || IsFrozen() || blackOverlayScript.IsChangingScenes) return;
 
         else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
             Interact();
@@ -153,7 +142,25 @@ public class TileMovementController : MonoBehaviour
             MovePlayer();
     }
 
-    // Checks for the input to move the player
+    // Checks if the player is frozen - returns true if so, false otherwise
+    // Note: the player bools are set to false within the ResetPuzzle() method
+    private bool IsFrozen()
+    {
+        // Returns false if the the player is NOT within 0.0001f units of its destination
+        if (Vector3.Distance(destination, transform.position) > 0.0001f || torchMeterScript.CurrentVal > 0) return false;
+
+        // Checks to freeze the player and reset the puzzle
+        if (canRestartPuzzle)
+        {
+            puzzleManagerScript.ResetPuzzle(ResetPuzzleDelay());
+            audioManagerScript.PlayExtinguishFireSFX();
+            audioManagerScript.PlayFreezeingSFX();
+        }
+
+        return true;
+    }
+
+    // Checks if there was input to move the player - returns true if so, false otherwise
     private bool MovementInput()
     {
         if (!canMove) return false;
@@ -197,7 +204,7 @@ public class TileMovementController : MonoBehaviour
     // Checks to restart the current puzzle
     private void ResetPuzzle()
     {
-        if (!canRestartPuzzle) return;
+        if (!canRestartPuzzle || isCrossingBridge) return;
 
         puzzleManagerScript.ResetPuzzle();
         playerFidgetScript.SetIdleCountToZero();
@@ -244,26 +251,11 @@ public class TileMovementController : MonoBehaviour
 
         canMove = false;
         canInteract = false;
-
-        gameManagerScript.CheckForPlayerScriptDebug();
         SubractFromTorchMeter();
   
         destination = transform.position + nextPos;
         previousTile = currentTile;
         StartPlayerCoroutines();
-    }
-
-    // Checks to freeze the player - to restart the puzzle after a delay
-    private bool FreezePlayer()
-    {
-        // Returns false if the the player is NOT within 0.00001f units of its destination
-        if (Vector3.Distance(destination, transform.position) > 0.00001f || torchMeterScript.CurrentVal > 0 || !canMove) return false;
-
-        // Note: the player bools are set to false within the method below
-        puzzleManagerScript.ResetPuzzle(resetPuzzleDelay);
-        audioManagerScript.PlayExtinguishFireSFX();
-        audioManagerScript.PlayFreezeingSFX();
-        return true;
     }
 
     // Checks to shake the object
@@ -281,7 +273,6 @@ public class TileMovementController : MonoBehaviour
         if (!collider.CompareTag("PushableBlock")) return;
 
         BlockMovementController blockMovementScript = collider.GetComponent<BlockMovementController>();
-        gameManagerScript.CheckForBlockMovementDebug(blockMovementScript);
         if (blockMovementScript.MoveBlock()) SubractFromTorchMeter();
 
         ChangeAnimationState("Pushing");
@@ -387,6 +378,7 @@ public class TileMovementController : MonoBehaviour
     }
 
     // Checks if there's an edge at the next position - returns true if so, false otherwise
+    // Note: must call ColliderCheck() before EdgeCheck() in MovePlayer() because of IsCrossingBridgeCheck()
     private bool EdgeCheck()
     {
         Ray myRay = new Ray(transform.position + new Vector3(0, -0.1f, 0), transform.TransformDirection(Vector3.forward));
@@ -394,8 +386,11 @@ public class TileMovementController : MonoBehaviour
         //Debug.DrawRay(myRay.origin, myRay.direction, Color.red);
 
         // If the ray hits anything and it's not an empty block, then there's NO edge
-        if (Physics.Raycast(myRay, out hit, rayLength) && !hit.collider.CompareTag("EmptyBlock")) return false;
-
+        if (Physics.Raycast(myRay, out hit, rayLength) && !hit.collider.CompareTag("EmptyBlock"))
+        {
+            IsCrossingBridgeCheck(hit.collider.gameObject);
+            return false;
+        }
         return true;
     }
 
@@ -485,6 +480,12 @@ public class TileMovementController : MonoBehaviour
         return null;
     }
 
+    // Checks if the player is about to cross a bridge - if the next tile to move to is a bridge tile
+    private void IsCrossingBridgeCheck(GameObject nextTile)
+    {
+        isCrossingBridge = nextTile.CompareTag("BridgeTile") || nextTile.name.Contains("BridgeTile");
+    }
+
     // Checks to enable the player input
     public void EnablePlayerInputCheck()
     {
@@ -515,7 +516,7 @@ public class TileMovementController : MonoBehaviour
         bool canSetActive = false;
         Collider collider = GetCollider();
 
-        if (collider == null || torchMeterScript.CurrentVal == 0f)
+        if (collider == null || torchMeterScript.CurrentVal <= 0f)
             canSetActive = false;
 
         else if (collider.CompareTag("NPC"))
@@ -531,17 +532,17 @@ public class TileMovementController : MonoBehaviour
     // Checks when the torch meter can pop in/out
     public void TorchMeterAnimationCheck()
     {
-        if (lerpDuration == 0f) return;
+        if (LerpDuration() == 0f) return;
         bool onBridge = OnBridge();
 
         if (onBridge && !hasPopedOutTM)
         {
-            torchMeterScript.ChangeAnimationState("PopOut");
+            torchMeterScript.PopOutTorchMeter();
             hasPopedOutTM = true;
         }
         else if (!onBridge && hasPopedOutTM)
         {
-            torchMeterScript.ChangeAnimationState("PopIn");
+            torchMeterScript.PopOutTorchMeter();
             hasPopedOutTM = false;
         }
     }
@@ -557,6 +558,7 @@ public class TileMovementController : MonoBehaviour
         saveManagerScript.SaveCameraPosition();
 
         bridgeTileCount = 0;
+        isCrossingBridge = false;
         hasSetCheckpoint = true;
     }
 
@@ -564,8 +566,7 @@ public class TileMovementController : MonoBehaviour
     private void FinishedZoneCheck()
     {
         if (bridge.name != "EndBridge" || hasFinishedZone) return;
-
-        gameManagerScript.ResetCollectedArtifactsCheck();
+        
         blackOverlayScript.GameFadeOut();
         audioManagerScript.FadeOutGeneratorSFX();
         audioManagerScript.PlayChimeSFX();
@@ -701,15 +702,6 @@ public class TileMovementController : MonoBehaviour
             audioManagerScript.PlayCrateFootstepSFX();
     }
 
-    // Sets the player's position to the grass material's vector position
-    public void WriteToGrassMaterial()
-    {
-        if (grassMatPosition == transform.position) return;
-
-        grassMatPosition = transform.position;
-        grassMat.SetVector("_position", grassMatPosition);
-    }
-
     // Stops the player's movement and footstep coroutine
     public void StopPlayerCoroutines()
     {
@@ -725,10 +717,10 @@ public class TileMovementController : MonoBehaviour
     {
         StopPlayerCoroutines();
 
-        playerMovementCoroutine = LerpPlayerPosition(destination, lerpDuration);
+        playerMovementCoroutine = LerpPlayerPosition(destination, LerpDuration());
         StartCoroutine(playerMovementCoroutine);
 
-        playerFootstepsCoroutine = PlayerFootsteps(lerpDuration);
+        playerFootstepsCoroutine = PlayerFootsteps(LerpDuration());
         StartCoroutine(playerFootstepsCoroutine);
     }
 
@@ -739,7 +731,7 @@ public class TileMovementController : MonoBehaviour
         float time = 0f;
 
         while (time < duration)
-        {
+        {       
             ChangeAnimationState("Walking");
             WriteToGrassMaterial();
 
@@ -767,6 +759,34 @@ public class TileMovementController : MonoBehaviour
         // Note: doesn't play the second footstep while on the first/last bridge
         if (OnBridge() && puzzleManagerScript.BridgeNumber == null) yield break;
         PlayFootstepSFX();
+    }
+    
+    // Sets the player's position to the grass material's vector position
+    public void WriteToGrassMaterial()
+    {
+        if (grassMat == null || grassMatPosition == transform.position) return;
+
+        grassMatPosition = transform.position;
+        grassMat.SetVector("_position", grassMatPosition);
+    }
+
+    // Set the grass material
+    private void SetGrassMaterial(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            if (child.name.Contains("GrassPlane"))
+            {
+                grassMat = child.GetComponent<MeshRenderer>().sharedMaterial;
+                Invoke("WriteToGrassMaterial", 0.01f);
+                break;
+            }
+
+            if (!child.name.Contains("Grass")) continue;
+            SetGrassMaterial(child);
+        }
     }
 
     // Sets the scripts to use
@@ -798,6 +818,9 @@ public class TileMovementController : MonoBehaviour
                 case "DialogueViewsHolder":
                     dialogueViewsHolder = child.gameObject;
                     break;
+                case "AlertBubble":
+                    alertBubble = child.gameObject;
+                    break;
                 case "CharacterHolder":
                     playerAnimator = child.GetComponent<Animator>();
                     break;
@@ -811,7 +834,7 @@ public class TileMovementController : MonoBehaviour
                     break;
             }
   
-            if (child.name == "Bip001") continue;
+            if (child.name.Contains("Dialogue") || child.name == "Bip001") continue;
             //Debug.Log(child.name);
             SetVariables(child);
         }
@@ -820,13 +843,38 @@ public class TileMovementController : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        SetVariables(cameraScript.transform.parent);
-        SetVariables(transform);      
+        GameObject[] checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
 
-        lerpDuration = gameManagerScript.playerLerpDuration;
-        resetPuzzleDelay = gameManagerScript.resetPuzzleDelay;
-        grassMat = gameManagerScript.grassMaterial;
-        WriteToGrassMaterial();
+        foreach (GameObject checkpoint in checkpoints)
+        {
+            if (!checkpoint.name.Contains("GrassTile")) continue;
+
+            SetGrassMaterial(checkpoint.transform);
+            break;
+        }
+
+        SetVariables(characterDialogueScript.transform);
+        SetVariables(cameraScript.transform.parent);
+        SetVariables(transform);
+
+        resetPuzzleDelay = ResetPuzzleDelay();
+        lerpDuration = LerpDuration();
+    }
+
+    // Checks to return the debug value for reset puzzle delay - For Debugging Purposes ONLY
+    public float ResetPuzzleDelay()
+    {
+        if (!gameManagerScript.isDebugging) return resetPuzzleDelay;
+
+        return gameManagerScript.ResetPuzzleDelay;
+    }
+
+    // Checks to return the debug value for lerp duration - For Debugging Purposes ONLY
+    private float LerpDuration()
+    {
+        if (!gameManagerScript.isDebugging) return lerpDuration;
+
+        return gameManagerScript.PlayerLerpDuration;
     }
 
 }

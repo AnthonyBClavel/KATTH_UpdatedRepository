@@ -7,40 +7,41 @@ using UnityEngine.SceneManagement;
 
 public class TutorialDialogue : MonoBehaviour
 {
-    private int sentenceIndex;
-    private string[] sentences;
-    private string sceneName;
-
-    [Header("Tutorial Dialogue Variables")]
     [SerializeField] [Range(0.005f, 0.1f)]
     private float typingSpeed = 0.03f; // Original Value = 0.03f
     [SerializeField] [Range(0, 3f)]
     private float fadeDuration = 1f; // Original Value = 1f
     private float originalTypingSpeed;
 
+    static readonly string tutorialZone = "TutorialMap";
+    private string sceneName;
+    private string[] sentences;
+    private int sentenceIndex;
+
     private bool hasPlayedWelcome = false;
-    private bool hasPlayedPush = false;
     private bool hasPassedBridge = false;
+    private bool hasPlayedPush = false;
 
     private GameObject tutorialDialogueHolder;
     private GameObject artifactButtons;
     private GameObject continueButton;
 
+    public List<TextAsset> tutorialDialogue = new List<TextAsset>();
+    private TextAsset deathDialogue;
+
     private TextMeshProUGUI tutorialDialogueText;
     private Image blackOverlay;
-    private TextAsset deathDialogue;
-    public List<TextAsset> tutorialDialogue = new List<TextAsset>();
 
-    private IEnumerator fadeOverlayCorouitne;
     private IEnumerator dialogueInputCoroutine;
+    private IEnumerator fadeOverlayCorouitne;
 
-    private TileMovementController playerScript;
-    private PauseMenu pauseMenuScript;
-    private Artifact artifactScript;
     private CharacterDialogue characterDialogueScript;
-    private HUD headsUpDisplayScript;
-    private AudioManager audioManagerScript;
     private SkipSceneButton skipSceneButtonScript;
+    private TileMovementController playerScript;
+    private AudioManager audioManagerScript;
+    private PauseMenu pauseMenuScript;
+    private HUD headsUpDisplayScript;
+    private Artifact artifactScript;
 
     // Awake is called before Start()
     void Awake()
@@ -60,7 +61,7 @@ public class TutorialDialogue : MonoBehaviour
     // Checks to set the tutorial dialogue game object and script inactive
     private void SetTutorialDialogueInactive()
     {
-        if (sceneName == "TutorialMap") return;
+        if (sceneName == tutorialZone) return;
 
         gameObject.SetActive(false);
         enabled = false;

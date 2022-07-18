@@ -36,7 +36,7 @@ public class DeathScreen : MonoBehaviour
     // Plays the pop out animation for the death screen
     public void PopOutDeathScreen() => ChangeAnimationState("DS_PopOut");
 
-    // Checks to set the death screen game object and script active - For Debugging Purposes ONLY
+    // Sets the death screen game object and script active - For Debugging Purposes ONLY
     [ContextMenu("Enable Death Screen")]
     private void EnableDeathScreen()
     {
@@ -45,7 +45,7 @@ public class DeathScreen : MonoBehaviour
         enabled = true;
     }
 
-    // Checks to set the death screen game object and script inactive - For Debugging Purposes ONLY
+    // Sets the death screen game object and script inactive - For Debugging Purposes ONLY
     [ContextMenu("Disable Death Screen")]
     private void DisableDeathScreen()
     {

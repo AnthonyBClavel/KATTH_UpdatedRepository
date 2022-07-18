@@ -7,6 +7,8 @@ public class AudioManager : MonoBehaviour
 {
     private List<(AudioSource, IEnumerator)> audioCoroutines = new List<(AudioSource, IEnumerator)>();
     private List<AudioSource> audioSources = new List<AudioSource>();
+    private string tutorialZone = "TutorialMap";
+    private string mainMenu = "MainMenu";
     private string sceneName;
 
     [Header("Audio Loops")]
@@ -172,6 +174,7 @@ public class AudioManager : MonoBehaviour
     public void PlayTipButtonClickSFX() => PlaySFX(userInterfaceSFX, "TipButtonClickSFX");
     public void PlayArrowSelectSFX() => PlaySFX(userInterfaceSFX, "ArrowSelectSFX");
     public void PlayDeathScreenSFX() => PlaySFX(userInterfaceSFX, "DeathScreenSFX");
+    public void PlayPressEnterSFX() => PlaySFX(userInterfaceSFX, "PressEnterSFX");
     public void PlayPopUpSFX() => PlaySFX(userInterfaceSFX, "PopUpSFX");
 
     // SFX for the player's footsteps
@@ -205,12 +208,14 @@ public class AudioManager : MonoBehaviour
 
     // SFX for other elements/events
     public void PlayTurnOnGeneratorSFX() => PlaySFX(otherSFX, "TurnOnGeneratorSFX");
+    public void PlayShortWindGushSFX() => PlaySFX(otherSFX, "ShortWindGushSFX");
+    public void PlayLongWindGushSFX() => PlaySFX(otherSFX, "LongWindGushSFX");
     public void PlaySkippedSceneSFX() => PlaySFX(otherSFX, "SkippedSceneSFX");
     public void PlayBreakRockSFX() => PlaySFX(otherSFX, "BreakRockSFX");
-    public void PlayWindGushSFX() => PlaySFX(otherSFX, "WindGushSFX");
     public void PlayFreezeingSFX() => PlaySFX(otherSFX, "FreezeSFX");
     public void PlaySwooshSFX() => PlaySFX(otherSFX, "SwooshSFX");
     public void PlayChimeSFX() => PlaySFX(otherSFX, "ChimeSFX");
+
 
     // SFX that loop
     public void PlayAmbientWindSFX() => ambientWindSFX.Play();
@@ -263,7 +268,7 @@ public class AudioManager : MonoBehaviour
     // Checks which audio loops to play at the begining of the scene
     private void SetAudioLoopsActiveCheck()
     {
-        if (sceneName == "MainMenu" || sceneName != "TutorialMap" && !playerScript.OnCheckpoint()) return;
+        if (sceneName == mainMenu || sceneName != tutorialZone && !playerScript.OnCheckpoint()) return;
 
         backgroundMusic.FadeInAudio();
         ambientWindSFX.FadeInAudio();
@@ -273,9 +278,33 @@ public class AudioManager : MonoBehaviour
     // Checks to play the main menu music
     private void PlayMainMenuMusicCheck()
     {
-        if (sceneName != "MainMenu") return;
+        if (sceneName != mainMenu) return;
 
         backgroundMusic.FadeInAudio();
+    }
+
+    // Checks to play or resume the audio
+    private void PlayAudioCheck(AudioSource audioSource)
+    {
+        if (audioSource.isPlaying) return;
+        string name = audioSource.name;
+
+        if (name.Contains("MapMusic") || name.Contains("MenuMusic"))
+            audioSource.UnPause();
+        else
+            audioSource.Play();
+    }
+
+    // Checks to stop or pause the audio
+    private void StopAudioCheck(AudioSource audioSource)
+    {
+        if (!audioSource.isPlaying || audioSource.volume != 0) return;
+        string name = audioSource.name;
+
+        if (name.Contains("MapMusic") || name.Contains("MenuMusic"))
+            audioSource.Pause();
+        else
+            audioSource.Stop();
     }
 
     // Checks to stop the appropiate coroutine - stops the coroutine and removes the tuple from the list
@@ -314,7 +343,7 @@ public class AudioManager : MonoBehaviour
     // Lerps the volume of an audio source to another over a duration (duration = seconds)
     private IEnumerator LerpAudio(AudioSource audioSource, float startVolume, float endVolume, float duration)
     {
-        if (!audioSource.isPlaying) audioSource.Play();
+        PlayAudioCheck(audioSource);
         audioSource.volume = startVolume;
         float time = 0;
 
@@ -326,7 +355,7 @@ public class AudioManager : MonoBehaviour
         }
 
         audioSource.volume = endVolume;
-        if (endVolume == 0f) audioSource.Stop();
+        StopAudioCheck(audioSource);
         StopCorouitne(audioSource);
     }
 
@@ -366,7 +395,7 @@ public class AudioManager : MonoBehaviour
     // Sets the music to use
     private void SetMusic()
     {
-        backgroundMusic = (sceneName == "MainMenu") ? ReturnAudioSO(otherMusic, sceneName) :
+        backgroundMusic = (sceneName == mainMenu) ? ReturnAudioSO(otherMusic, sceneName) :
         ReturnAudioSO(zoneMusic, sceneName) ?? ReturnAudioSO(zoneMusic, "FirstMapMusic");
 
         foreach (AudioClip_SO music in otherMusic)
@@ -388,8 +417,8 @@ public class AudioManager : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        playerScript = (sceneName != "MainMenu") ? FindObjectOfType<TileMovementController>() : null;
-        torchMeterScript = (sceneName != "MainMenu") ? FindObjectOfType<TorchMeter>() : null;
+        playerScript = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>() : null;
+        torchMeterScript = (sceneName != mainMenu) ? FindObjectOfType<TorchMeter>() : null;
         instance = this;
     }
 

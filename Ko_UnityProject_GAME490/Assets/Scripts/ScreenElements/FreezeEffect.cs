@@ -14,9 +14,7 @@ public class FreezeEffect : MonoBehaviour
 
     private IEnumerator iceMatCoroutine;
     private IEnumerator frostedBorderCoroutine;
-
     private TileMovementController playerScript;
-    private GameManager gameManagerScript;
 
     // Awake is called before Start()
     void Awake()
@@ -61,7 +59,7 @@ public class FreezeEffect : MonoBehaviour
     // Lerps the alpha of the ice material to another over a duration
     private IEnumerator LerpIceMatAlpha()
     {
-        float duration = gameManagerScript.resetPuzzleDelay - 0.5f;
+        float duration = playerScript.ResetPuzzleDelay() - 0.5f;
         float time = 0;
 
         while (time < duration)
@@ -79,7 +77,7 @@ public class FreezeEffect : MonoBehaviour
     { 
         Color startColor = frostedBorder.ReturnImageColor(minAlpha);
         Color endColor = frostedBorder.ReturnImageColor(maxAlpha);
-        float duration = gameManagerScript.resetPuzzleDelay - 0.5f;
+        float duration = playerScript.ResetPuzzleDelay() - 0.5f;
         float time = 0;
 
         while (time < duration)
@@ -96,7 +94,6 @@ public class FreezeEffect : MonoBehaviour
     private void SetScripts()
     {
         playerScript = FindObjectOfType<TileMovementController>();
-        gameManagerScript = FindObjectOfType<GameManager>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object

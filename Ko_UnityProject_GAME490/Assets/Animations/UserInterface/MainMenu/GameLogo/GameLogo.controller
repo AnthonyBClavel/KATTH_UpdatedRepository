@@ -11,16 +11,16 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 4511723020842614681}
-    m_Position: {x: 250, y: 110, z: 0}
+    m_Position: {x: 250, y: 70, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -8034788929149535396}
-    m_Position: {x: 250, y: 20, z: 0}
+    m_Position: {x: 250, y: 10, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -9104292967787865672}
     m_Position: {x: 250, y: -50, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5900699859215074493}
-    m_Position: {x: 250, y: -120, z: 0}
+    m_Position: {x: 250, y: -110, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 5142199068398451289}
@@ -30,8 +30,8 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
-  m_EntryPosition: {x: 50, y: 120, z: 0}
-  m_ExitPosition: {x: 800, y: 120, z: 0}
+  m_EntryPosition: {x: 50, y: 80, z: 0}
+  m_ExitPosition: {x: 50, y: -40, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 4511723020842614681}
 --- !u!1102 &-9104292967787865672
@@ -41,8 +41,8 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TitleCard_FadeOut
-  m_Speed: 1
+  m_Name: FadeOut
+  m_Speed: -1
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -54,7 +54,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c176e1c6093391443a1a64c43152d217, type: 2}
+  m_Motion: {fileID: 7400000, guid: c0025448c6133b94a9108f15727894f2, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -67,7 +67,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TitleCard_MoveUp
+  m_Name: MoveUp
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -95,7 +95,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: TC_FadeIn
+    m_ConditionEvent: GL_FadeIn
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5900699859215074493}
@@ -120,7 +120,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: TC_FadeOut
+    m_ConditionEvent: GL_FadeOut
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -9104292967787865672}
@@ -145,24 +145,24 @@ AnimatorController:
   m_Name: GameLogo
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: MoveUp
+  - m_Name: GL_MoveUp
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: TC_FadeIn
+    m_Controller: {fileID: 0}
+  - m_Name: GL_FadeIn
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: TC_FadeOut
+    m_Controller: {fileID: 0}
+  - m_Name: GL_FadeOut
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer
@@ -183,7 +183,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TitleCard_PopIn
+  m_Name: ScaleFadeIn
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -211,7 +211,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: MoveUp
+    m_ConditionEvent: GL_MoveUp
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8034788929149535396}
@@ -234,7 +234,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TitleCard_FadeIn
+  m_Name: FadeIn
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []

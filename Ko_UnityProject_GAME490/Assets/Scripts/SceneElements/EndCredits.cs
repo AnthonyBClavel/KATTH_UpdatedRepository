@@ -16,6 +16,7 @@ public class EndCredits : MonoBehaviour
     private float typingSpeed = 0.03f; // Original Value = 0.03f
 
     private string messageToPlay = "Thanks for playing";
+    private string mainMenu = "MainMenu";
     private string sceneName;
 
     private bool hasMovedGameLogo = false;
@@ -44,13 +45,13 @@ public class EndCredits : MonoBehaviour
     private IEnumerator endMessageCoroutine;
     private IEnumerator lerpOverlayCoroutine;
 
-    private MainMenuMusicScript mainMenuMusicScript;
     private AudioManager audioManagerScript;
     private BlackOverlay blackOverlayScript;
-    private GameManager gameManagerScript;
+    private LevelManager levelManagerScript;
 
     private TileMovementController playerScript;
     private PauseMenu pauseMenuScript;
+    private MainMenu mainMenuScript;
 
     public bool HasStartedCredits
     {
@@ -75,7 +76,7 @@ public class EndCredits : MonoBehaviour
     // Checks to set the end credits game object and script inactive
     private void SetEndCreditsInactive()
     {
-        if (sceneName == "MainMenu" || sceneName == "FifthMap") return;
+        if (sceneName == mainMenu || sceneName == "FifthMap") return;
 
         endCredits.SetActive(false);
         gameObject.SetActive(false);
@@ -114,6 +115,7 @@ public class EndCredits : MonoBehaviour
         if (endMessageCoroutine != null) 
             StopCoroutine(endMessageCoroutine);
 
+        blackOverlayScript.IsChangingScenes = false;
         blackOverlayScript.GameFadeIn();
         FadeInAudioCheck();
 
@@ -156,7 +158,7 @@ public class EndCredits : MonoBehaviour
     private void FadeOutAudioCheck()
     {
         audioManagerScript.FadeOutBackgroundMusic();
-        if (sceneName == "MainMenu") return;
+        if (sceneName == mainMenu) return;
 
         audioManagerScript.FadeOutAmbientWindSFX();
         audioManagerScript.SetTorchFireVolume(0f);
@@ -166,7 +168,7 @@ public class EndCredits : MonoBehaviour
     private void FadeInAudioCheck()
     {
         audioManagerScript.FadeInBackgroundMusic();
-        if (sceneName == "MainMenu") return;
+        if (sceneName == mainMenu) return;
 
         audioManagerScript.FadeInAmbientWindSFX();
         audioManagerScript.ResetTorchFireVolume();
@@ -317,30 +319,36 @@ public class EndCredits : MonoBehaviour
     {
         if (ResetEndCreditsDebug()) yield break;
 
-        if (sceneName == "MainMenu") ResetEndCredits();
+        if (sceneName == mainMenu)
+        {
+            ResetEndCredits();
+
+            yield return new WaitForSeconds(blackOverlayScript.GameFadeDuration * 0.2f);
+            mainMenuScript.PopInMainMenu();
+        }
         else
         {
-            if (endCreditsCoroutine != null) 
+            if (endCreditsCoroutine != null)
                 StopCoroutine(endCreditsCoroutine);
 
-            if (endMessageCoroutine != null) 
+            if (endMessageCoroutine != null)
                 StopCoroutine(endMessageCoroutine);
 
             yield return new WaitForSeconds(1.5f);
-            gameManagerScript.LoadMainMenu();
+            levelManagerScript.LoadNextScene();
         }
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
-        mainMenuMusicScript = (sceneName == "MainMenu") ? FindObjectOfType<MainMenuMusicScript>() : null;
-        playerScript = (sceneName != "MainMenu") ? FindObjectOfType<TileMovementController>() : null;
-        pauseMenuScript = (sceneName != "MainMenu") ? FindObjectOfType<PauseMenu>() : null;
+        playerScript = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>() : null;
+        pauseMenuScript = (sceneName != mainMenu) ? FindObjectOfType<PauseMenu>() : null;
+        mainMenuScript = (sceneName == mainMenu) ? FindObjectOfType<MainMenu>() : null;
 
         blackOverlayScript = FindObjectOfType<BlackOverlay>();
         audioManagerScript = FindObjectOfType<AudioManager>();
-        gameManagerScript = FindObjectOfType<GameManager>();
+        levelManagerScript = FindObjectOfType<LevelManager>();
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -395,8 +403,6 @@ public class EndCredits : MonoBehaviour
     [ContextMenu("Start End Credits")]
     private void StartEndCreditsDebug()
     {
-        if (!gameManagerScript.isDebugging) return;
-
         if (pauseMenuScript != null) pauseMenuScript.CanPause = false;
         if (playerScript != null) playerScript.SetPlayerBoolsFalse();
         isDebugging = true;
@@ -415,7 +421,6 @@ public class EndCredits : MonoBehaviour
         if (playerScript != null) playerScript.SetPlayerBoolsTrue();
         isDebugging = false;
 
-        blackOverlayScript.IsChangingScenes = false;
         ResetEndCredits();
         return true;
     }

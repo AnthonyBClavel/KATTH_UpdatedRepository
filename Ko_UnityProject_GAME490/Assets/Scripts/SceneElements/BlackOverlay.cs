@@ -20,6 +20,7 @@ public class BlackOverlay : MonoBehaviour
 
     private bool isChangingScenes = false;
     private bool isDebugging = false;
+    private string mainMenu = "MainMenu";
     private string sceneName;
 
     private Image mainBlackOverlay;
@@ -28,9 +29,10 @@ public class BlackOverlay : MonoBehaviour
 
     public static BlackOverlay instance;
     private TileMovementController playerScript;
-    private GameManager gameManagerScript;
+    private LevelManager levelManagerScript;
     private EndCredits endCreditsScript;
     private PauseMenu pauseMenuScript;
+    private MainMenu mainMenuScript;
 
     public float GameFadeDuration
     {
@@ -71,8 +73,7 @@ public class BlackOverlay : MonoBehaviour
     // Fades into the game
     public void GameFadeIn()
     {
-        introBlackOverlay.gameObject.SetActive(false);
-        introBlackOverlay.SetImageAlpha(0f);
+        SetIntroOverlayInactiveCheck();
         isDebugging = false;
 
         StartLerpAlphaCoroutine(mainBlackOverlay, fullAlpha, zeroAlpha, gameFadeDuration);
@@ -102,13 +103,26 @@ public class BlackOverlay : MonoBehaviour
         GameFadeIn();
     }
 
+    // Checks to set the zone intro's black overlay inactive
+    private void SetIntroOverlayInactiveCheck()
+    {
+        if (sceneName == mainMenu || introBlackOverlay == null) return;
+
+        introBlackOverlay.gameObject.SetActive(false);
+        introBlackOverlay.SetImageAlpha(0f);
+    }
+
     // Checks which methods to call if the overlay's alpha is equal to fullAlpha (1f)
     private void FullAlphaCheck(Image overlay)
     {
         if (overlay.color.a != fullAlpha) return;
 
-        if (isChangingScenes && !endCreditsScript.HasStartedCredits)
-            gameManagerScript.LoadNextSceneCheck();
+        if (!isChangingScenes || endCreditsScript.HasStartedCredits) return;
+
+        if (sceneName == mainMenu)
+            mainMenuScript.LoadNextScene();
+        else
+            levelManagerScript.LoadNextScene();
     }
 
     // Checks which methods to call if the overlay's alpha is equal to zeroAlpha (0f)
@@ -190,10 +204,11 @@ public class BlackOverlay : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        playerScript = (sceneName != "MainMenu") ? FindObjectOfType<TileMovementController>() : null;
-        pauseMenuScript = (sceneName != "MainMenu") ? FindObjectOfType<PauseMenu>() : null;
+        playerScript = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>() : null;
+        pauseMenuScript = (sceneName != mainMenu) ? FindObjectOfType<PauseMenu>() : null;
+        mainMenuScript = (sceneName == mainMenu) ? FindObjectOfType<MainMenu>() : null;
 
-        gameManagerScript = FindObjectOfType<GameManager>();
+        levelManagerScript = FindObjectOfType<LevelManager>();
         endCreditsScript = FindObjectOfType<EndCredits>();
         instance = this;
     }
@@ -211,7 +226,7 @@ public class BlackOverlay : MonoBehaviour
                     introBlackOverlay = child.GetComponent<Image>();
                     break;
                 case "BlackOverlay":
-                    if (introBlackOverlay == null) mainBlackOverlay = child.GetComponent<Image>();
+                    mainBlackOverlay = child.GetComponent<Image>();
                     break;
                 default:
                     break;
@@ -229,10 +244,8 @@ public class BlackOverlay : MonoBehaviour
     }
 
     // Checks to fade the game in/out - For Debugging Purposes ONLY
-    public void DebuggingCheck(GameManager gameManager)
+    public void DebuggingCheck()
     {
-        if (!gameManager.isDebugging) return;
-
         if (mainBlackOverlay.color.a == fullAlpha && Input.GetKeyDown(KeyCode.Semicolon)) // Debug key is ";" (semicolon)
         {
             isDebugging = true;

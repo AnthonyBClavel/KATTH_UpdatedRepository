@@ -6,9 +6,9 @@ using System.Linq;
 
 public class PuzzleManager : MonoBehaviour
 {
+    private bool hasLitAllCrystals = false;
     private int? puzzleNumber;
     private int? bridgeNumber;
-    private bool hasLitAllCrystals = false;
 
     private GameObject currentPuzzle;
     private GameObject currentBridge;

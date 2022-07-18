@@ -5,12 +5,16 @@ using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
+    static readonly string tutorialZone = "TutorialMap";
+    static readonly string finalZone = "FifthMap";
+    static readonly string mainMenu = "MainMenu";
     private string sceneName;
 
     private GameObject savedInvisibleBlock;
-    private GameObject player;
     private GameObject[] checkpoints;
+    private GameObject player;
 
+    private TileMovementController playerScript;
     private CameraController cameraScript;
     private GameManager gameManagerScript;
 
@@ -18,17 +22,66 @@ public class SaveManager : MonoBehaviour
     void Awake()
     {
         sceneName = SceneManager.GetActiveScene().name;
-
         SetScripts();
         SetElements();
-        LoadPuzzleCheck();
+
+        UpdateCurrentSaveFile();
         LoadPuzzleDebugCheck();
+        LoadPuzzleCheck();
+        SaveSceneName();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        if (sceneName != mainMenu) SetHasOpenedGame();
+    }
+
+    // OnApplicationQuit is called before the application quits
+    void OnApplicationQuit()
+    {
+        PlayerPrefs.DeleteKey("hasOpenedGame");
+    }
+
+    // Checks to update the current save file
+    private void UpdateCurrentSaveFile()
+    {
+        string savedScene = PlayerPrefs.GetString("savedScene");
+        if (sceneName == tutorialZone)
+        {
+            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+            PlayerPrefs.DeleteKey("listOfArtifacts");
+        }
+
+        if (sceneName == mainMenu || sceneName == savedScene || gameManagerScript.isDebugging) return;
+        PlayerPrefs.DeleteKey("cameraIndex");
+        PlayerPrefs.DeleteKey("savedScene");
+        PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_z");
+        PlayerPrefs.DeleteKey("r_y");
+        PlayerPrefs.Save();
+    }
+
+    // Deletes all of the player pref keys
+    [ContextMenu("Delete All Player Prefs")]
+    public void DeleteAllPlayerPrefs()
+    {
+        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+        PlayerPrefs.DeleteKey("listOfArtifacts");
+
+        PlayerPrefs.DeleteKey("hasOpenedGame");
+        PlayerPrefs.DeleteKey("cameraIndex");
+        PlayerPrefs.DeleteKey("savedScene");
+        PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_z");
+        PlayerPrefs.DeleteKey("r_y");
+        PlayerPrefs.Save();
     }
 
     // Saves the player position
     public void SavePlayerPosition(GameObject checkpoint)
     {
-        if (sceneName == "TutorialMap") return;
+        if (sceneName == tutorialZone) return;
 
         PlayerPrefs.SetFloat("p_x", checkpoint.transform.position.x);
         PlayerPrefs.SetFloat("p_z", checkpoint.transform.position.z);
@@ -45,7 +98,7 @@ public class SaveManager : MonoBehaviour
     // Saves the camera position
     public void SaveCameraPosition()
     {
-        if (sceneName == "TutorialMap") return;
+        if (sceneName == tutorialZone) return;
 
         PlayerPrefs.SetInt("cameraIndex", cameraScript.PuzzleViewIndex);
         PlayerPrefs.Save();
@@ -66,11 +119,19 @@ public class SaveManager : MonoBehaviour
     }
 
     // Saves the name of the current scene
+    // Note: be sure to call this after UpdateCurrentSaveFile() in Awake()!
     private void SaveSceneName()
     {     
-        if (sceneName == "MainMenu") return;
+        if (sceneName == mainMenu) return;
 
         PlayerPrefs.SetString("savedScene", sceneName);
+        PlayerPrefs.Save();
+    }
+
+    // Checks if the game has been opened
+    public void SetHasOpenedGame()
+    {
+        PlayerPrefs.SetInt("hasOpenedGame", 1);
         PlayerPrefs.Save();
     }
 
@@ -89,32 +150,30 @@ public class SaveManager : MonoBehaviour
         player.transform.position = new Vector3(xPos, 0, zPos);
     }
 
-    // Checks to load the puzzle normally
+    // Checks for the puzzle to load
     // Note: player rotation is set by the checkpoint manager - only load player rotation when restarting a puzzle
     private void LoadPuzzleCheck()
     {
-        if (sceneName == "MainMenu" || sceneName == "TutorialMap" || gameManagerScript.isDebugging) return;
+        if (sceneName == mainMenu || sceneName == tutorialZone || gameManagerScript.isDebugging) return;
 
         int puzzleViewIndex = PlayerPrefs.GetInt("cameraIndex");
         float playerPosX = PlayerPrefs.GetFloat("p_x");
         float playerPosZ = PlayerPrefs.GetFloat("p_z");
 
         Vector3 checkpointPos = checkpoints[puzzleViewIndex].transform.position;
-        Vector3 intendedPlayerPos = new Vector3(checkpointPos.x, 0, checkpointPos.z);
+        Vector3 savedCheckpointPos = new Vector3(checkpointPos.x, 0, checkpointPos.z);
         Vector3 savedPlayerPos = new Vector3(playerPosX, 0, playerPosZ);
 
-        player.transform.position = (savedPlayerPos == intendedPlayerPos) ? savedPlayerPos : Vector3.zero;
-        cameraScript.PuzzleViewIndex = (savedPlayerPos == intendedPlayerPos) ? puzzleViewIndex : 0;
+        player.transform.position = savedPlayerPos == savedCheckpointPos ? savedPlayerPos : savedCheckpointPos;
+        cameraScript.PuzzleViewIndex = puzzleViewIndex;
         OnFirstPuzzleCheck();
-
-        //Debug.Log((savedPlayerPos == intendedPlayerPos) ? "Puzzle loaded successfully" : "Could NOT find puzzle");
     }
 
-    // Checks to load the puzzle via debug - For Debugging Purposes ONLY
+    // Checks for the puzzle to load via debug - For Debugging Purposes ONLY
     // Note: player rotation is set by the checkpoint manager - only load player rotation when restarting a puzzle
     private void LoadPuzzleDebugCheck()
     {
-        if (sceneName == "MainMenu" || !gameManagerScript.isDebugging) return;
+        if (sceneName == mainMenu || !gameManagerScript.isDebugging) return;
 
         int puzzleNumber = gameManagerScript.puzzleNumber;
         int checkpointIndex = (puzzleNumber < 1 || puzzleNumber > checkpoints.Length) ? 0 : puzzleNumber - 1;
@@ -137,11 +196,31 @@ public class SaveManager : MonoBehaviour
         player.transform.position = new Vector3(0, 0, -5);
     }
 
+    // Checks if the player has completed the tutorial - deletes artifact player prefs if so
+    public void HasCompletedTutorialCheck()
+    {
+        if (sceneName != tutorialZone || !playerScript.HasFinishedZone) return;
+
+        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
+        PlayerPrefs.DeleteKey("listOfArtifacts");
+        //Debug.Log("You have completed the tutorial!");
+    }
+
+    // Checks if the player has completed the game - deletes all player prefs if so
+    public void HasCompletedGameCheck()
+    {
+        if (sceneName != finalZone || !playerScript.HasFinishedZone) return;
+
+        DeleteAllPlayerPrefs();
+        //Debug.Log("You have completed the game!");
+    }
+
     // Sets the scripts to use
     private void SetScripts()
     {
+        playerScript = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>() : null;
+        cameraScript = (sceneName != mainMenu) ? FindObjectOfType<CameraController>() : null;
         gameManagerScript = FindObjectOfType<GameManager>();
-        cameraScript = (sceneName != "MainMenu") ? FindObjectOfType<CameraController>() : null;
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -167,12 +246,11 @@ public class SaveManager : MonoBehaviour
     // Sets private variables, objects, and components
     private void SetElements()
     {
-        SetVariables(transform);    
-        SaveSceneName();
+        SetVariables(transform);
 
-        if (sceneName == "MainMenu") savedInvisibleBlock.SetActive(false);
-        player = (sceneName != "MainMenu") ? FindObjectOfType<TileMovementController>().gameObject : null;
-        checkpoints = (sceneName != "MainMenu") ? GameObject.FindGameObjectsWithTag("Checkpoint") : null;
+        if (sceneName == mainMenu) savedInvisibleBlock.SetActive(false);
+        player = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>().gameObject : null;
+        checkpoints = (sceneName != mainMenu) ? GameObject.FindGameObjectsWithTag("Checkpoint") : null;
     }
 
 }

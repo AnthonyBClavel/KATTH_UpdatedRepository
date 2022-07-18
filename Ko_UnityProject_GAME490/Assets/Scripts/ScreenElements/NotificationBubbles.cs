@@ -16,6 +16,8 @@ public class NotificationBubbles : MonoBehaviour
     [SerializeField] [Range(80f, 270f)]
     private float animDistanceKB = 100f; // Original Value = 100f
     private float bubbleScale = 0.8f;
+
+    private string tutorialZone = "TutorialMap";
     private string sceneName;
 
     private bool canMoveInPN = true;
@@ -324,15 +326,11 @@ public class NotificationBubbles : MonoBehaviour
     private void SetNotificationBubbbles()
     {
         int artifactCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
-        string textForAN = (sceneName != "TutorialMap") ? $"{artifactCount}/15" : "0/1";
+        string textForAN = (sceneName != tutorialZone) ? $"{artifactCount}/15" : "0/1";
         string textForPN = cameraScript.ReturnTextForPN();
 
         SetsArtifactNotificationText(textForAN, false);
         SetsPuzzleNotificationText(textForPN, false);
-
-        if (sceneName == "TutorialMap") return;
-        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-        PlayerPrefs.DeleteKey("listOfArtifacts");
     }
 
     // Sets the vectors to use
@@ -408,10 +406,8 @@ public class NotificationBubbles : MonoBehaviour
     }
 
     // Checks to update the destination for the notification bubbles - For Debugging Purposes ONLY
-    public void DebuggingCheck(GameManager gameManager)
+    public void DebuggingCheck()
     {
-        if (!gameManager.isDebugging) return;
-
         if (canMoveOutPN && !isPlayingPN)
         {
             PuzzleNotification_UpdateVectors();

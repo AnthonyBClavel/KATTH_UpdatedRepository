@@ -6,15 +6,15 @@ using UnityEngine.EventSystems;
 
 public class PauseMenu : MonoBehaviour
 {
-    // Note: 0.15f = 9/60 fps = length of "pop out" animation
-    private float lerpDuration = 0.15f;
-    private float finalAlpha = 0.78f;
+    private float finalAlpha = 0.78f; // Orignal Value = 0.78f
     private float zeroAlpha = 0f;
+    private float popInDurationPM;
 
     private bool isChangingMenus = false;
     private bool isPaused = false;
     private bool canPause = true;
 
+    private GameObject previousMenuButton;
     private GameObject lastSelectedObject;
     private GameObject pauseMenuBG;
     private GameObject pauseMenu;
@@ -45,6 +45,11 @@ public class PauseMenu : MonoBehaviour
         set { canPause = value; }
     }
 
+    public float PopInDurationPM
+    {
+        get { return popInDurationPM; }
+    }
+
     // Awake is called before Start()
     void Awake()
     {
@@ -59,11 +64,17 @@ public class PauseMenu : MonoBehaviour
     }
 
     /***************************** Event functions START here *****************************/
-    // Opens the options menu
-    public void OpenOptionsMenu() => optionsMenuScript.OpenOptionsMenu();
+    // Checks to play the sfx for selecting a button
+    public void PlayButtonSelectedSFX()
+    {
+        if (isChangingMenus || lastSelectedObject == eventSystemScript.currentSelectedGameObject) return;
 
-    // Opens the safety menu
-    public void OpenSafetyMenu() => safetyMenuScript.OpenSafetyMenu();
+        lastSelectedObject = eventSystemScript.currentSelectedGameObject;
+        audioManagerScript.PlayMenuButtonSelectSFX();
+    }
+
+    // Plays the sfx for clicking a button
+    public void PlayButtonClickSFX() => audioManagerScript.PlayMenuButtonClickSFX();
 
     // Checks to set the resume button as the current selected game object
     public void SelectResumeButton() => SetCurrentSelected(resumeButton);
@@ -74,27 +85,24 @@ public class PauseMenu : MonoBehaviour
     // Checks to set the quit button as the current selected game object
     public void SelectQuitButton() => SetCurrentSelected(quitButton);
 
-    // Play the sfx for clicking a button
-    public void PlayButtonClickSFX() => audioManagerScript.PlayMenuButtonClickSFX();
+    // Opens the options menu
+    public void OpenOptionsMenu() => optionsMenuScript.OpenOptionsMenu();
 
-    // Checks to play the sfx for selecting a button
-    public void PlayButtonSelectedSFX()
-    {
-        if (isChangingMenus || lastSelectedObject == eventSystemScript.currentSelectedGameObject) return;
-
-        lastSelectedObject = eventSystemScript.currentSelectedGameObject;
-        audioManagerScript.PlayMenuButtonSelectSFX();
-    }
+    // Opens the safety menu
+    public void OpenSafetyMenu() => safetyMenuScript.OpenSafetyMenu();
     /***************************** Event functions END here *****************************/
 
-    // Plays the pop out animation for the pause menu
-    public void PopOutPauseMenu() => pauseMenuAnim.SetTrigger("PM_PopOut");
-
     // Fades in the pause menu background
-    private void FadeInBackground() => StartLerpBackgroundCoroutine(finalAlpha, lerpDuration);
+    private void FadeInBackground() => StartLerpBackgroundCoroutine(finalAlpha);
 
     // Fades out the pause menu background
-    private void FadeOutBackground() => StartLerpBackgroundCoroutine(zeroAlpha, lerpDuration);
+    private void FadeOutBackground() => StartLerpBackgroundCoroutine(zeroAlpha);
+
+    // Pops out the pause menu
+    public void PopOutPauseMenu() => StartCoroutine(PopOutPauseMenuSequence());
+
+    // Pops in the pause menu
+    public void PopInPauseMenu() => StartCoroutine(PopInPauseMenuSequence());
 
     // Plays the sequence for unpausing the game
     private void Resume() => StartCoroutine(ResumeDelay());
@@ -102,7 +110,7 @@ public class PauseMenu : MonoBehaviour
     // Plays the sequence for pausing the game
     private void Pause() => StartCoroutine(PauseDelay());
 
-    // Checks to set the main pause menu elements
+    // Checks to set the main variables for the pause menu
     private void SetIsPaused(bool value)
     {
         isPaused = value;
@@ -115,6 +123,7 @@ public class PauseMenu : MonoBehaviour
     // Checks to set the current selected game object
     private void SetCurrentSelected(GameObject objectToSelect)
     {
+        previousMenuButton = eventSystemScript.currentSelectedGameObject;
         if (lastSelectedObject == objectToSelect) return;
 
         eventSystemScript.SetSelectedGameObject(null);
@@ -126,21 +135,11 @@ public class PauseMenu : MonoBehaviour
     private void PauseMenuInputCheck()
     {
         if (blackOverlayScript.IsChangingScenes || !Input.GetKeyDown(KeyCode.Escape)) return;
-        if (isChangingMenus || optionsMenuScript.IsChangingMenus || safetyMenuScript.IsChangingMenus) return;      
+        if (optionsMenuScript.IsChangingMenus || safetyMenuScript.IsChangingMenus) return;
 
         CloseOptionMenuCheck();
-        CloseSafetyMenuCheck();
+        CloseSafetyMenuCheck();   
         PauseCheck();
-    }
-
-    // Checks to pause/unpause the game
-    private void PauseCheck()
-    {
-        if (!canPause || optionsMenuScript.IsOptionsMenu || safetyMenuScript.IsSafetyMenu) return;
-
-        if (!isPaused) Pause();
-
-        else Resume();
     }
 
     // Checks to close the options menu
@@ -159,6 +158,16 @@ public class PauseMenu : MonoBehaviour
         safetyMenuScript.CloseSafetyMenuNB();
     }
 
+    // Checks to pause/unpause the game
+    private void PauseCheck()
+    {
+        if (isChangingMenus || !canPause || playerScript.IsCrossingBridge) return;
+
+        if (!isPaused) Pause();
+
+        else Resume();
+    }
+
     // Checks to set the player bools true - to enable the player input
     private void SetPlayerBoolTrueCheck()
     {
@@ -169,26 +178,30 @@ public class PauseMenu : MonoBehaviour
     }
 
     // Starts the coroutine that lerps the alpha of the background
-    private void StartLerpBackgroundCoroutine(float endAlpha, float duration)
+    private void StartLerpBackgroundCoroutine(float endAlpha)
     {
         if (lerpBackgroundCoroutine != null) StopCoroutine(lerpBackgroundCoroutine);
 
-        lerpBackgroundCoroutine = LerpBackground(endAlpha, duration);
+        lerpBackgroundCoroutine = LerpBackground(endAlpha);
         StartCoroutine(lerpBackgroundCoroutine);
     }
 
     // Plays the sequence for pausing the game
     private IEnumerator PauseDelay()
     {
-        DisableInput_PM();
+        pauseMenuBG.SetActive(true);
+        isChangingMenus = true;
         SetIsPaused(true);
-        FadeInBackground();
-        playerScript.SetPlayerBoolsFalse();
+
         audioManagerScript.PauseAllAudio();
+        playerScript.SetPlayerBoolsFalse();
+        FadeInBackground();
+
+        // Note: must call this method after pausing all audio!
         audioManagerScript.PlayMenuButtonSelectSFX();
 
         // Note: waits for the pause menu to play its "pop in" animation
-        yield return new WaitForSecondsRealtime(0.15f);
+        yield return new WaitForSecondsRealtime(popInDurationPM);
         EnableInput_PM();
     }
 
@@ -200,24 +213,47 @@ public class PauseMenu : MonoBehaviour
         optionsMenu.SetActive(false);
 
         // Note: waits for the button to play its "clicked" animation
-        yield return new WaitForSecondsRealtime(0.15f);
-        PopOutPauseMenu();
-        FadeOutBackground();
-        SetPlayerBoolTrueCheck();
+        yield return new WaitForSecondsRealtime(popInDurationPM);
         audioManagerScript.UnPauseAllAudio();
+        SetPlayerBoolTrueCheck();
+        FadeOutBackground();
+        PopOutPauseMenu();
 
         // Note: waits for the pause menu to play its "pop out" animation
-        yield return new WaitForSecondsRealtime(0.15f);   
+        yield return new WaitForSecondsRealtime(popInDurationPM);
+        pauseMenuBG.SetActive(false);
         isChangingMenus = false;
         SetIsPaused(false);
     }
 
-    // Lerps the alpha of the background to another over a duration (duration = seconds)
-    private IEnumerator LerpBackground(float endAlpha, float duration)
+    // Plays the sequence for popping in the pause menu
+    private IEnumerator PopInPauseMenuSequence()
     {
-        if (!pauseMenuBG.activeInHierarchy) pauseMenuBG.SetActive(true);
-        Color startColor = background.color;
+        pauseMenu.SetActive(true);
+        SetCurrentSelected(previousMenuButton);
+
+        yield return new WaitForSecondsRealtime(popInDurationPM);
+        EnableInput_PM();
+    }
+
+    // Plays the sequence for popping out the pause menu
+    private IEnumerator PopOutPauseMenuSequence()
+    {
+        DisableInput_PM();
+        pauseMenuAnim.SetTrigger("PM_PopOut");
+
+        yield return new WaitForSecondsRealtime(popInDurationPM);
+        pauseMenu.SetActive(false);
+        SetCurrentSelected(null);
+    }
+
+    // Lerps the alpha of the background to another over a duration (duration = seconds)
+    private IEnumerator LerpBackground(float endAlpha)
+    {
         Color endColor = background.ReturnImageColor(endAlpha);
+        Color startColor = background.color;
+
+        float duration = popInDurationPM;
         float time = 0;
 
         while (time < duration)
@@ -228,7 +264,6 @@ public class PauseMenu : MonoBehaviour
         }
 
         background.color = endColor;
-        if (endColor.a == zeroAlpha) pauseMenuBG.SetActive(false);
     }
 
     // Sets the scripts to use
@@ -294,7 +329,8 @@ public class PauseMenu : MonoBehaviour
         SetVariables(transform);
         SetVariables(transform.parent);
 
-        graphicsRaycaster = transform.parent.GetComponent<GraphicRaycaster>();
+        popInDurationPM = pauseMenuAnim.ReturnClipLength("PauseMenuPopIn");
+        graphicsRaycaster = GetComponentInParent<GraphicRaycaster>();
         eventSystemScript.sendNavigationEvents = false;
         graphicsRaycaster.enabled = false;
     }

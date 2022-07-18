@@ -5,10 +5,11 @@ using System.Linq;
 
 public class CameraController : MonoBehaviour
 {
-    private int puzzleViewIndex;
     private float cameraSpeed = 3f; // Original Value = 3f
     private float rayLength = 1f;
+
     private bool hasMovedPuzzleView = false;
+    private int puzzleViewIndex;
 
     private GameObject northDialogueView;
     private GameObject eastDialogueView;
@@ -33,12 +34,6 @@ public class CameraController : MonoBehaviour
     private PuzzleManager puzzleManagerScript;
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
-
-    public float CameraSpeed
-    {
-        get { return cameraSpeed; }
-        set { cameraSpeed = value; }
-    }
 
     public int PuzzleViewIndex
     {
@@ -95,8 +90,8 @@ public class CameraController : MonoBehaviour
         // Note: the sfx for moving the camera is not played during character dialogue
         if (!characterDialogueScript.InDialogue)
         {
+            audioManagerScript.PlayShortWindGushSFX();
             audioManagerScript.PlayAmbientWindSFX();
-            audioManagerScript.PlayWindGushSFX();
         }
 
         currentPuzzleView = puzzleViews[puzzleViewIndex];
@@ -243,11 +238,11 @@ public class CameraController : MonoBehaviour
     // Note: transform.position will always lerp closer to the endPosition, but never equal it
     private IEnumerator LerpCameraPosition(Vector3 endPosition)
     {
-        gameManagerScript.CheckForCameraScriptDebug();
+        float camSpeed = CameraSpeed();
 
         while (Vector3.Distance(transform.position, endPosition) > 0.001f)
         {           
-            transform.position = Vector3.Lerp(transform.position, endPosition, cameraSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, endPosition, camSpeed * Time.deltaTime);
             yield return null;
         }
 
@@ -259,11 +254,11 @@ public class CameraController : MonoBehaviour
     // Note: transform.eulerAngles will always lerp closer to the endRotation, but never equal it
     private IEnumerator LerpCameraRotation(Vector3 endRotation)
     {
-        gameManagerScript.CheckForCameraScriptDebug();
+        float camSpeed = CameraSpeed();
 
         while (Vector3.Distance(transform.eulerAngles, endRotation) > 0.001f)
         {       
-            transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, endRotation, cameraSpeed * Time.deltaTime);
+            transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, endRotation, camSpeed * Time.deltaTime);
             yield return null;
         }
 
@@ -325,7 +320,8 @@ public class CameraController : MonoBehaviour
     {
         SetPuzzleViews();
         SetVariables(transform.parent);
-        cameraSpeed = gameManagerScript.cameraSpeed;
+
+        cameraSpeed = CameraSpeed();
     }
 
     // Lerps the camera to the current/next/previous puzzle view - For Debugging Purposes Only
@@ -345,15 +341,21 @@ public class CameraController : MonoBehaviour
     }
 
     // Checks to lerp the camera to the next/previous puzzle view - For Debugging Purposes ONLY
-    public void DebuggingCheck(GameManager gameManager)
+    public void DebuggingCheck()
     {
-        if (!gameManager.isDebugging) return;
-
         if (Input.GetKeyDown(KeyCode.Equals)) // Debug key is "=" (equal)
             LerpCameraDebug(1);
 
         if (Input.GetKeyDown(KeyCode.Minus)) // Debug key is "-" (minus)
             LerpCameraDebug(-1);
+    }
+
+    // Checks to return the debug value for camera speed - For Debugging Purposes ONLY
+    private float CameraSpeed()
+    {
+        if (!gameManagerScript.isDebugging) return cameraSpeed;
+
+        return gameManagerScript.CameraSpeed;
     }
 
 }

@@ -1,509 +1,483 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using TMPro;
-using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
-    public string levelToLoad;
-    private float animDurationMMB;
+    public Volume postProcessingVolume;
+    private DepthOfField depthOfField;
 
-    [Header("Game Objects")]
-    public GameObject optionsScreen;
-    public GameObject mainMenuButtons;
-    public GameObject safetyMenu;
-    public GameObject continueFirstButton, optionsFirstButton, optionsClosedButton, newGameButton, creditsButton, quitGameButton, safetyFirstButton, safetySecondButton;
-    public GameObject loadingScreen, loadingIcon, pressEnterText, gameLogo;
-    public GameObject PressEnterSFX;
+    private float scaleFadeInDurationGL; // Original Value = 4f
+    private float moveUpDurationGL; // Original Value = 4f
+    private float popOutDurationPET; // Original Value = 0.6f (0.4f also)
+    private float popInDurationMM; // Original Value = 1.66f
+    private float buttonSpacing = 42.5f; // Original Value = 85f
 
+    private bool hasPressedEnter = false;
+    private bool isChangingMenus = false;
+
+    private bool isContinueGame = false;
+    private bool isNewGame = false;
+
+    private GameObject previousMenuButton;
     private GameObject lastSelectedObject;
-    private EventSystem eventSystem;
+    private GameObject mainMenu;
 
-    [Header("Loading Screen Elements")]
-    public TextMeshProUGUI loadingText;
-    public Slider loadingBar;
-    public Sprite[] loadingScreenSprites;
+    private GameObject firstButton;
+    private GameObject continueButton;
+    private GameObject newGameButton;
+    private GameObject optionsButton;
+    private GameObject creditsButton;
+    private GameObject quitButton;
 
-    [Header("Animators")]
-    public Animator titleScreenLogoAnim;
-    public Animator pressEnterTextAnim;
-    public Animator mainMenuButtonsAnim;
-    public Animator optionsScreenAnim;
-    public Animator safetyMenuAnim;
-    public Animator lowPolySceneAnim;
+    private Animator pressEnterTextAnim;
+    public Animator enviornmentAnim;
+    private Animator mainMenuAnim;
+    private Animator gameLogoAnim;
 
-    [Header("Bools")]
-    public bool isOptionsMenu;
-    public bool canPlayButtonSFX;
-    public bool canFadeLogo;
-    public bool isQuitingGame;
-    public bool isSafetyMenu;
-    public bool canShowContinueButton = true;
-    private bool hasPressedEnter;
-    private bool isChangingMenus;
+    private RectTransform mainMenuRT;
+    private RectTransform gameLogoRT;
 
-    [Header("Audio")]
-    public AudioClip buttonClickSFX;
-    public AudioClip buttonSelectSFX;
+    private GraphicRaycaster graphicsRaycaster;
+    private TextMeshProUGUI pressEnterText;
+    private Image mainMenuBackground;
+    private Image gameLogo;
 
+    private BlackOverlay blackOverlayScript;
+    private LevelManager levelManagerScript;
+    private AudioManager audioManagerScript;
+    private OptionsMenu optionsMenuScript;
+    private SaveManager saveManagerScript;
+    private EventSystem eventSystemScript;
     private EndCredits endCreditsScript;
+    private SafetyMenu safetyMenuScript;
 
+    public float PopInDurationMM
+    {
+        get { return popInDurationMM; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
-        endCreditsScript = FindObjectOfType<EndCredits>();   
+        SetScripts();
+        SetElements();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        eventSystem = FindObjectOfType<EventSystem>();
-
-        StartCoroutine("SetActiveDelay");
-        canPlayButtonSFX = true;
-        canFadeLogo = false;
-        isChangingMenus = false;
-        hasPressedEnter = false;
+        PlayMainMenuIntroCheck();
     }
 
     // Update is called once per frame
     void Update()
     {
-        lastSelectedObject = eventSystem.currentSelectedGameObject;
-
-        // If enter is already pressed once, you cannot call this function again
-        if (!hasPressedEnter && pressEnterText.activeSelf)
-        {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                OpenMainMenu();
-                Instantiate(PressEnterSFX, transform.position, transform.rotation);
-                hasPressedEnter = true;
-            }
-        }
-
-        // Close the options menu by pressing ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && isOptionsMenu && !isChangingMenus)
-        {
-            StartCoroutine("CloseOptionsDelay");
-        }
-        // Close safety menu by pressing ESC
-        if (Input.GetKeyDown(KeyCode.Escape) && isSafetyMenu && !isChangingMenus)
-        {
-            StartCoroutine("CloseSafetyMenuDelay");
-        }
+        MainMenuInputCheck();
     }
 
-    public void OpenMainMenu()
+    /***************************** Event functions START here *****************************/
+    // Checks to play the sfx for selecting a button
+    public void PlayButtonSelectedSFX()
     {
-        StartCoroutine("OpenMainMenuDelay");
+        if (isChangingMenus || lastSelectedObject == eventSystemScript.currentSelectedGameObject) return;
+
+        lastSelectedObject = eventSystemScript.currentSelectedGameObject;
+        audioManagerScript.PlayMenuButtonSelectSFX();
     }
 
+    // Plays the sfx for clicking a button
+    public void PlayButtonClickSFX() => audioManagerScript.PlayMenuButtonClickSFX();
+
+    // Checks to set the continue button as the current selected game object
+    public void SelectContinueButton() => SetCurrentSelected(continueButton);
+
+    // Checks to set the new game button as the current selected game object
+    public void SelectNewGameButton() => SetCurrentSelected(newGameButton);
+
+    // Checks to set the options button as the current selected game object
+    public void SelectOptionsButton() => SetCurrentSelected(optionsButton);
+
+    // Checks to set the credits button as the current selected game object
+    public void SelectCreditsButton() => SetCurrentSelected(creditsButton);
+
+    // Checks to set the quit button as the current selected game object
+    public void SelectQuitButton() => SetCurrentSelected(quitButton);
+
+    // Opens the options menu
+    public void OpenOptionsMenu() => optionsMenuScript.OpenOptionsMenu();
+
+    // Opens the safety menu
+    public void OpenSafetyMenu() => safetyMenuScript.OpenSafetyMenu();
+
+    // Starts the sequence for loading a saved game
     public void ContinueGame()
     {
-        StartCoroutine("LoadLevelAsync"); 
+        isContinueGame = true;
+        isNewGame = false;
+        blackOverlayScript.GameFadeOut();
+        PopOutMainMenu();
     }
 
+    // Starts the sequence for loading a new game
     public void NewGame()
     {
-        CreateNewSaveFile();
-        StartCoroutine("LoadLevelAsync");
+        isNewGame = true;
+        isContinueGame = false;
+        blackOverlayScript.GameFadeOut();
+        PopOutMainMenu();
     }
 
-    // Gets triggered by the options button
-    public void OpenOptions()
-    {
-        StartCoroutine("OpenOptionsDelay");
-    }
-
-    // Gets triggered by the close options button
-    public void CloseOptions()
-    {
-        StartCoroutine("CloseOptionsDelay");
-    }
-
-    // Gets triggered by the quit game button
-    public void QuitGame()
-    {
-        StartCoroutine("QuitGameDelay");
-    }
-
-    // Gets triggered by the credits button
+    // Plays the end credits
     public void PlayCredits()
     {
-        DisableMenuInputMM();
-        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
-        canFadeLogo = false;
-        //endCreditsScript.StartEndCreditsManually();
         endCreditsScript.StartEndCredits();
+        blackOverlayScript.GameFadeOut();
+        PopOutMainMenu();
+    }
+    /***************************** Event functions END here *****************************/
+
+    // Plays the pop out animation for the main menu buttons
+    private void PopOutMainMenuButtons() => mainMenuAnim.SetTrigger("MM_PopOut");
+
+    // Fades out the game logo
+    private void FadeOutGameLogo() => gameLogoAnim.SetTrigger("GL_FadeOut");
+
+    // Fades in the game logo
+    private void FadeInGameLogo() => gameLogoAnim.SetTrigger("GL_FadeIn");
+
+    // Pops the main menu out of the scene
+    public void PopOutMainMenu() => StartCoroutine(PopOutMainMenuSequence());
+
+    // Pops the main menu into the scene
+    public void PopInMainMenu() => StartCoroutine(PopInMainMenuSequence());
+
+    // Removes the blur effect in the scene - sharpens the background
+    private void SharpenBackground(float duration)
+    {
+        StartCoroutine(LerpBackgroundAlpha(0f, duration));
+        StartCoroutine(LerpFocalLength(1f, duration));
     }
 
-    // Gets triggered by the quit game button
-    public void OpenSafetyMenu()
+    // Checks to set the current selected game object
+    private void SetCurrentSelected(GameObject objectToSelect)
     {
-        StartCoroutine("OpenSafetyMenuDelay");
+        previousMenuButton = eventSystemScript.currentSelectedGameObject;
+        if (lastSelectedObject == objectToSelect) return;
+
+        eventSystemScript.SetSelectedGameObject(null);
+        eventSystemScript.SetSelectedGameObject(objectToSelect);
+        lastSelectedObject = objectToSelect; // Call this last!
     }
 
-    // For closing the saftey menu when you press "No"
-    public void CloseSafetyMenu()
+    // Checks to load a saved game, load a new game, or quit the game
+    public void LoadNextScene()
     {
-        StartCoroutine("CloseSafetyMenuDelay");
-    }
-
-    // For closing the saftey menu when you press "Yes"
-    public void CloseSafetyMenu02()
-    {
-        StartCoroutine("CloseSafetyMenuDelay02");
-    }
-
-    // Gets triggered by new game or continue button
-    public void PopOut_MMB()
-    {
-        canFadeLogo = false;
-        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");
-    }
-
-
-    /*** On Pointer Enter functions start here ***/
-    public void SelectContinueButton()
-    {
-        if (lastSelectedObject != continueFirstButton)
+        if (isContinueGame)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(continueFirstButton);
+            string savedScene = PlayerPrefs.GetString("savedScene");
+            levelManagerScript.LoadNextScene(savedScene);
         }
-
-    }
-    public void SelectNewGameButton()
-    {
-        if (lastSelectedObject != newGameButton)
+        else if (isNewGame)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(newGameButton);
+            saveManagerScript.DeleteAllPlayerPrefs();
+            levelManagerScript.LoadNextScene();
         }
-
-    }
-    public void SelectOptionsButton()
-    {
-        if (lastSelectedObject != optionsClosedButton)
+        else if (!isContinueGame && !isNewGame)
         {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(optionsClosedButton);
+            //PlayerPrefs.DeleteKey("hasOpenedGame");
+            StartCoroutine(QuitGameDelay());
         }
-
     }
-    public void SelectCreditsButton()
-    {
-        if (lastSelectedObject != creditsButton)
-        {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(creditsButton);
-        }
 
+    // Checks which main menu intro sequence to play
+    // Note: the inital intro sequence will only play after you open or finish the game
+    private void PlayMainMenuIntroCheck()
+    {
+        if (PlayerPrefs.GetInt("hasOpenedGame") == 1)
+            StartCoroutine(AlternateIntroSequence());
+        else
+            StartCoroutine(InitialIntroSequence());
     }
-    public void SelectQuitGameButton()
-    {
-        if (lastSelectedObject != quitGameButton)
-        {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(quitGameButton);
-        }
 
+    // Checks for the main menu input
+    private void MainMenuInputCheck()
+    {
+        if (blackOverlayScript.IsChangingScenes || !Input.GetKeyDown(KeyCode.Escape)) return;
+
+        CloseOptionMenuCheck();
+        CloseSafetyMenuCheck();
     }
-    public void SelectYesButton()
-    {
-        if (lastSelectedObject != safetyFirstButton)
-        {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(safetyFirstButton);
-        }
 
+    // Checks to close the options menu
+    private void CloseOptionMenuCheck()
+    {
+        if (optionsMenuScript.IsChangingMenus || !optionsMenuScript.IsOptionsMenu) return;
+
+        optionsMenuScript.CloseOptionsMenu();
     }
-    public void SelectNoButton()
-    {
-        if (lastSelectedObject != safetySecondButton)
-        {
-            eventSystem.SetSelectedGameObject(null);
-            eventSystem.SetSelectedGameObject(safetySecondButton);
-        }
 
+    // Checks to close the safety menu
+    private void CloseSafetyMenuCheck()
+    {
+        if (safetyMenuScript.IsChangingMenus || !safetyMenuScript.IsSafetyMenu) return;
+
+        safetyMenuScript.CloseSafetyMenuNB();
     }
-    /*** On Pointer Enter functions end here ***/
 
-    // Loads the next level asynchronously while the loading screen is active
-    public IEnumerator LoadLevelAsync()
+    // Checks for the input that pops out the press enter text
+    private void PopOutTextCheck()
     {
-        DetermineLevelToLoad();
-        loadingScreen.SetActive(true);
-        ChangeLoadingScreenImg();
+        if (!Input.GetKeyDown(KeyCode.Return) && !Input.GetKeyDown(KeyCode.Space) && !Input.GetKeyDown(KeyCode.KeypadEnter)) return;
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelToLoad);
+        audioManagerScript.PlayLongWindGushSFX();
+        audioManagerScript.PlayPressEnterSFX();
+        audioManagerScript.PlayChimeSFX();
+        hasPressedEnter = true;
+    }
 
-        asyncLoad.allowSceneActivation = false;
+    // Plays the sequence for popping into the main menu
+    private IEnumerator PopInMainMenuSequence()
+    {
+        FadeInGameLogo();
+        mainMenu.SetActive(true);
+        SetCurrentSelected(previousMenuButton);
+        yield return new WaitForSecondsRealtime(popInDurationMM);
+        EnableInput_MM();
+    }
 
-        while (!asyncLoad.isDone)
+    // Plays the sequence for popping out of the main menu
+    private IEnumerator PopOutMainMenuSequence()
+    {
+        DisableMenu_MM();
+        FadeOutGameLogo();
+        PopOutMainMenuButtons();
+        yield return new WaitForSecondsRealtime(popInDurationMM);
+        mainMenu.SetActive(false);
+        SetCurrentSelected(null);
+    }
+
+    // Plays the main menu intro sequence - long version
+    private IEnumerator InitialIntroSequence()
+    {
+        DisableMenu_MM();
+        blackOverlayScript.GameFadeIn();
+        gameLogo.gameObject.SetActive(true);
+
+        yield return new WaitForSecondsRealtime(scaleFadeInDurationGL);
+        pressEnterText.gameObject.SetActive(true);
+        while (!hasPressedEnter)
         {
-            loadingBar.value = asyncLoad.progress;
-
-            if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
-            {
-                loadingText.text = "Press SPACE to Continue";
-                loadingIcon.SetActive(false);
-
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    loadingScreen.GetComponent<Image>().color = Color.black;
-                    //loadingScreen.GetComponentInChildren<TipsManager>().gameObject.SetActive(false); // refine this
-                    loadingText.gameObject.SetActive(false);
-                    loadingBar.gameObject.SetActive(false);
-                    loadingIcon.gameObject.SetActive(false);
-                    
-                    asyncLoad.allowSceneActivation = true;
-                    //Time.timeScale = 1f;
-                }
-            }
-
+            PopOutTextCheck();
             yield return null;
         }
-    }
-
-    public void CreateNewSaveFile()
-    {
-        Debug.Log("Updated Save File");
-
-        PlayerPrefs.DeleteKey("p_x");
-        PlayerPrefs.DeleteKey("p_z");
-        PlayerPrefs.DeleteKey("r_y");
-        PlayerPrefs.DeleteKey("cameraIndex");
-
-        PlayerPrefs.DeleteKey("TimeToLoad");
-        PlayerPrefs.DeleteKey("Save");
-        //PlayerPrefs.DeleteKey("savedScene");
-
-        PlayerPrefs.DeleteKey("listOfArtifacts");
-        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-
-        string tutorialScene = "TutorialMap";
-        PlayerPrefs.SetString("savedScene", tutorialScene);
-
-        PlayerPrefs.SetInt("Saved", 1);
-        PlayerPrefs.Save();
-    }
-
-    // Selects the credits button - ONLY used after credits have ended
-    public void SelectCreditsButtonAfterCredits()
-    {
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(creditsButton);
-    }
-
-    // Determines which scene to load - loads the tutorial scene if the save file is deleted/null
-    private void DetermineLevelToLoad()
-    {
-        string savedScene = PlayerPrefs.GetString("savedScene");
-
-        if (savedScene == string.Empty)
-        {
-            levelToLoad = "TutorialMap"; 
-        }
-        else if (savedScene != string.Empty)
-        {
-            levelToLoad = PlayerPrefs.GetString("savedScene");
-        }
-    }
-
-    // Checks if the continue button can be active or not
-    private void SetMainMenuButtonsActive()
-    {
-        string savedScene = PlayerPrefs.GetString("savedScene");
-        Vector3 newMenuButtonPos = new Vector3(0, 92f, 0);
-        mainMenuButtons.SetActive(true);
-
-        if (savedScene == string.Empty)
-        {
-            animDurationMMB = 0.75f;
-            canShowContinueButton = false;        
-            continueFirstButton.SetActive(false);          
-            mainMenuButtons.transform.localPosition = newMenuButtonPos;
-
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(newGameButton);
-            levelToLoad = "TutorialMap";
-        }
-        else if (savedScene != string.Empty)
-        {
-            animDurationMMB = 0.86f;
-            canShowContinueButton = true;
-            continueFirstButton.SetActive(true);
-
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(continueFirstButton);
-            levelToLoad = PlayerPrefs.GetString("savedScene");
-        }
-    }
-
-    // Delays the button input so you can actually see the button press animations
-    private IEnumerator SetActiveDelay()
-    {
-        gameLogo.SetActive(true);
-        yield return new WaitForSecondsRealtime(4f);
-        pressEnterText.SetActive(true);
-    }
-
-    private IEnumerator OpenMainMenuDelay()
-    {
-        DisableMenuInputMM();
+        saveManagerScript.SetHasOpenedGame();
 
         yield return new WaitForSecondsRealtime(0.15f);
-        pressEnterTextAnim.SetTrigger("TextExit");
-        titleScreenLogoAnim.SetTrigger("MoveUp");
+        pressEnterTextAnim.SetTrigger("PET_PopOut");
+        gameLogoAnim.SetTrigger("GL_MoveUp");
 
-        yield return new WaitForSecondsRealtime(0.4f);
-        FindObjectOfType<TitleScreenEffects>().SharpenBG();
-        pressEnterText.SetActive(false);
-        lowPolySceneAnim.SetTrigger("MoveDown");
+        yield return new WaitForSecondsRealtime(popOutDurationPET);
+        enviornmentAnim.SetTrigger("LPS_MoveDown");
+        pressEnterText.gameObject.SetActive(false);
+        SharpenBackground(moveUpDurationGL * 0.5f);
 
-        yield return new WaitForSecondsRealtime(2.4f);
-        SetMainMenuButtonsActive();
+        yield return new WaitForSecondsRealtime(moveUpDurationGL - popInDurationMM);
+        mainMenu.SetActive(true);
+        SetCurrentSelected(firstButton);
+        audioManagerScript.PlayMenuButtonSelectSFX();
 
-        yield return new WaitForSecondsRealtime(1.5f);
-        EnableMenuInputMM();
-        mainMenuButtonsAnim.speed = 2;
+        yield return new WaitForSecondsRealtime(popInDurationMM);
+        mainMenuAnim.speed = 2;
+        popInDurationMM /= 2f;
+        EnableInput_MM();
     }
 
-    private IEnumerator OpenOptionsDelay()
+    // Plays the alternate main menu intro sequence - short version
+    private IEnumerator AlternateIntroSequence()
     {
-        DisableMenuInputMM();
+        DisableMenu_MM();
+        blackOverlayScript.GameFadeIn();
+        SharpenBackground(blackOverlayScript.GameFadeDuration * 0.5f);
 
-        yield return new WaitForSecondsRealtime(0.15f);
-        isOptionsMenu = true;
-        canFadeLogo = false;
-        mainMenuButtonsAnim.SetTrigger("MMB_PopOut"); // The main menu buttons are set inactive and the options menu is set active at the end of the animation via anim event
+        enviornmentAnim.transform.position -= new Vector3(0, 3, 0);
+        gameLogoRT.localScale = new Vector3(1.05f, 1.05f, 1.05f);
+        gameLogoRT.anchoredPosition = new Vector2(0, 240);
 
-        yield return new WaitForSecondsRealtime(animDurationMMB);
-        optionsScreen.SetActive(true);
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(optionsFirstButton);
-        EnableMenuInputMM();
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false; //
+        yield return new WaitForSecondsRealtime(blackOverlayScript.GameFadeDuration * 0.5f);
+        gameLogo.gameObject.SetActive(true);
+        mainMenu.SetActive(true);
+
+        audioManagerScript.PlayMenuButtonSelectSFX();
+        SetCurrentSelected(firstButton);
+        FadeInGameLogo();
+
+        yield return new WaitForSecondsRealtime(popInDurationMM);
+        mainMenuAnim.speed = 2;
+        popInDurationMM /= 2f;
+        EnableInput_MM();
     }
 
-    private IEnumerator CloseOptionsDelay()
-    {
-        DisableMenuInputMM();
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        isOptionsMenu = false;
-        canFadeLogo = true;
-        optionsScreenAnim.SetTrigger("OS_PopOut"); // The options screen is set inactive and the main menu is set active at the end of the animation via anim event
-
-        yield return new WaitForSecondsRealtime(0.2f);
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(optionsClosedButton);
-        //EnableMenuInputMM();   
-        EnableInputDelay();
-    }
-
-    private IEnumerator OpenSafetyMenuDelay()
-    {
-        DisableMenuInputMM();
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        mainMenuButtonsAnim.SetTrigger("MMB_PopOut");  // The main menu is set inactive and the safety menu is set active at the end of the animation via anim event
-        isSafetyMenu = true;
-        canFadeLogo = false;
-
-        yield return new WaitForSecondsRealtime(animDurationMMB);
-        safetyMenu.SetActive(true);
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(safetyFirstButton);
-        EnableMenuInputMM();
-        //EnableInputDelay();
-    }
-
-    // For closing the safety menu when you press "no"
-    private IEnumerator CloseSafetyMenuDelay()
-    {
-        DisableMenuInputMM();
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        safetyMenuAnim.SetTrigger("SM_PopOut"); // The safety menu is set inactive and the main menu is set active at the end of the animation via anim event     
-        isSafetyMenu = false;
-        canFadeLogo = true;
-        isQuitingGame = false;
-
-        yield return new WaitForSecondsRealtime(0.2f);
-        eventSystem.SetSelectedGameObject(null);
-        eventSystem.SetSelectedGameObject(quitGameButton);
-        //EnableMenuInputMM();
-        EnableInputDelay();
-    }
-
-    // For closing the safety menu when you press "yes"
-    private IEnumerator CloseSafetyMenuDelay02()
-    {
-        DisableMenuInputMM();
-
-        yield return new WaitForSecondsRealtime(0.15f);
-        safetyMenuAnim.SetTrigger("SM_PopOut");
-        isSafetyMenu = false;
-        canFadeLogo = true;
-        isQuitingGame = true;
-    }
-
+    // Quits the game after a duration
     private IEnumerator QuitGameDelay()
     {
         yield return new WaitForSecondsRealtime(0.15f);
         Application.Quit();
-        Debug.Log("Quit Successful");
+        //Debug.Log("You have quit the game!");
     }
 
-    private void EnableMenuInputMM()
+    // Lerps the alpha of the background to another over a duration (duration = seconds)
+    private IEnumerator LerpBackgroundAlpha(float endAlpha, float duration)
     {
-        canPlayButtonSFX = true;
+        Color startColor = mainMenuBackground.color;
+        Color endColor = mainMenuBackground.ReturnImageColor(endAlpha);
+        float time = 0f;
+
+        while (time < duration)
+        {
+            mainMenuBackground.color = Color.Lerp(startColor, endColor, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        mainMenuBackground.color = endColor;
+    }
+
+    // Lerps the value of the focal length to another over duration (duration = seconds)
+    private IEnumerator LerpFocalLength(float endValue, float duration)
+    {
+        float startValue = depthOfField.focalLength.value;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            depthOfField.focalLength.value = Mathf.Lerp(startValue, endValue, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        depthOfField.focalLength.value = endValue;
+    }
+
+    // Sets the scripts to use
+    private void SetScripts()
+    {
+        blackOverlayScript = FindObjectOfType<BlackOverlay>();
+        audioManagerScript = FindObjectOfType<AudioManager>();
+        levelManagerScript = FindObjectOfType<LevelManager>();
+        optionsMenuScript = FindObjectOfType<OptionsMenu>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
+        eventSystemScript = FindObjectOfType<EventSystem>();
+        endCreditsScript = FindObjectOfType<EndCredits>();
+        safetyMenuScript = FindObjectOfType<SafetyMenu>();
+    }
+
+    // Sets the first button to select within the main menu
+    private void SetFirstButton()
+    {
+        string savedScene = PlayerPrefs.GetString("savedScene");
+
+        if (savedScene == string.Empty)
+        {
+            mainMenuRT.anchoredPosition += new Vector2(0, buttonSpacing);
+            continueButton.SetActive(false);
+            firstButton = newGameButton;
+            popInDurationMM = 85f/60f;
+        }
+        else if (savedScene != string.Empty)
+        {
+            //popInDurationMM = mainMenuButtonsAnim.ReturnClipLength("MainMenuPopIn");
+            firstButton = continueButton;
+            popInDurationMM = 100f/60f;
+        }
+    }
+
+    // Sets the desired variables - loops through all of the children within a parent object
+    private void SetVariables(Transform parent)
+    {
+        if (parent.childCount == 0) return;
+
+        foreach (Transform child in parent)
+        {
+            switch (child.name)
+            {
+                case "MainMenu":
+                    mainMenuRT = child.GetComponent<RectTransform>();
+                    mainMenuAnim = child.GetComponent<Animator>();
+                    mainMenu = child.gameObject;
+                    break;
+                case "MM_Background":
+                    mainMenuBackground = child.GetComponent<Image>();
+                    break;
+                case "MM_GameLogo":
+                    gameLogoRT = child.GetComponent<RectTransform>();
+                    gameLogoAnim = child.GetComponent<Animator>();
+                    gameLogo = child.GetComponent<Image>();
+                    break;
+                case "MM_PressEnterText":
+                    pressEnterText = child.GetComponent<TextMeshProUGUI>();
+                    pressEnterTextAnim = child.GetComponent<Animator>();
+                    break;
+                case "ContinueButton":
+                    continueButton = child.gameObject;
+                    break;
+                case "NewGameButton":
+                    newGameButton = child.gameObject;
+                    break;
+                case "OptionsButton":
+                    optionsButton = child.gameObject;
+                    break;
+                case "CreditsButton":
+                    creditsButton = child.gameObject;
+                    break;
+                case "QuitButton":
+                    quitButton = child.gameObject;
+                    break;
+                default:
+                    break;
+            }
+
+            SetVariables(child);
+        }
+    }
+
+    // Sets private variables, game objects, and components
+    private void SetElements()
+    {
+        SetVariables(transform);
+        SetFirstButton();
+
+        popOutDurationPET = pressEnterTextAnim.ReturnClipLength("PressEnterTextPopOut");
+        scaleFadeInDurationGL = gameLogoAnim.ReturnClipLength("GameLogoScaleFadeIn");
+        moveUpDurationGL = gameLogoAnim.ReturnClipLength("GameLogoMoveUp");
+
+        mainMenuAnim.keepAnimatorControllerStateOnDisable = false;
+        postProcessingVolume.profile.TryGet(out depthOfField);
+
+        graphicsRaycaster = GetComponentInParent<GraphicRaycaster>();
+        eventSystemScript.sendNavigationEvents = false;
+        graphicsRaycaster.enabled = false;
+    }
+
+    // Enables the input to interact with main menu
+    private void EnableInput_MM()
+    {
+        eventSystemScript.sendNavigationEvents = true;
+        graphicsRaycaster.enabled = true;
         isChangingMenus = false;
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        gameObject.GetComponent<GraphicRaycaster>().enabled = true;
     }
 
-    public void DisableMenuInputMM()
+    // Disables the input to interact with main menu
+    public void DisableMenu_MM()
     {
-        canPlayButtonSFX = false;
+        eventSystemScript.sendNavigationEvents = false;
+        graphicsRaycaster.enabled = false;
         isChangingMenus = true;
-        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = false;
-        gameObject.GetComponent<GraphicRaycaster>().enabled = false;
-    }
-
-    // Enables the input after a delay - ONLY used after credits have ended
-    public void EnableInputDelay()
-    {
-        StartCoroutine("DelayEnableInput");
-    }
-
-    // Enables the input after the specified time - Used by the function above
-    private IEnumerator DelayEnableInput()
-    {
-        yield return new WaitForSecondsRealtime(0.25f);
-        EnableMenuInputMM();
-    }
-
-    // Sets a random image/sprite for the loading screen
-    private void ChangeLoadingScreenImg()
-    {
-        if (loadingScreenSprites != null)
-            SetRandomSprite(loadingScreenSprites[UnityEngine.Random.Range(0, loadingScreenSprites.Length)]);
-    }
-
-    // Gets a random sprite from its respective array
-    private void SetRandomSprite(Sprite newLoadingScreenImg)
-    {
-        if (loadingScreen.GetComponent<Image>().sprite.name == newLoadingScreenImg.name)    
-            return;
-        else
-            loadingScreen.GetComponent<Image>().sprite = newLoadingScreenImg;
     }
 
 }

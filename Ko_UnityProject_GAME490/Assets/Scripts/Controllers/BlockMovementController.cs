@@ -24,13 +24,6 @@ public class BlockMovementController : MonoBehaviour
     private AudioManager audioManagerScript;
     private GameManager gameManagerScript;
 
-    // Returns or sets the value of lerpLength
-    public float LerpDuration
-    {
-        get { return lerpDuration; }
-        set { lerpDuration = value; }
-    }
-
     // Awake is called before Start()
     void Awake()
     {
@@ -171,7 +164,7 @@ public class BlockMovementController : MonoBehaviour
     {
         if (moveBlockCoroutine != null) StopCoroutine(moveBlockCoroutine);
 
-        moveBlockCoroutine = MoveBlockPosition(destination, lerpDuration);
+        moveBlockCoroutine = MoveBlockPosition(destination, LerpDuration());
         StartCoroutine(moveBlockCoroutine);
     }
 
@@ -216,7 +209,15 @@ public class BlockMovementController : MonoBehaviour
         debugStartPosition = startPosition;
         destination = startPosition;
 
-        lerpDuration = gameManagerScript.crateLerpDuration;
+        lerpDuration = LerpDuration();
+    }
+
+    // Checks to return the debug value for lerp duration - For Debugging Purposes ONLY
+    private float LerpDuration()
+    {
+        if (!gameManagerScript.isDebugging) return lerpDuration;
+
+        return gameManagerScript.CrateLerpDuration;
     }
 
 }

@@ -1,51 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     [Header("Gameplay Variables")]
-    [Range(1f, 10f)]
-    public float cameraSpeed = 3f; // Original Value = 3f
-    [Range(0f, 1f)]
-    public float playerLerpDuration = 0.2f; // Original Value = 0.2f
-    [Range(0f, 1f)]
-    public float crateLerpDuration = 0.1f; // Original Value = 0.1f
-    [Range(0.5f, 10f)]
-    public float resetPuzzleDelay = 1.5f; // Original Value = 1.5f
-
-    [Header("Loading Screen Variables")]
-    [Range(0.01f, 1f)]
-    public float loadingIconSpeed = 0.08f; // Original Value = 0.8f
-    public Sprite[] loadingScreenImages;
-    public Sprite[] loadingIconSprites;
-
-    [Header("Materials")]
-    public Material grassMaterial;
-    public Material iceMaterial;
-
-    private string levelToLoad;
-    private int loadingIconIndex;
-    private bool canMoveToPreviousPuzzle = false;
+    [SerializeField] [Range(1f, 10f)]
+    private float cameraSpeed = 3f; // Original Value = 3f
+    [SerializeField] [Range(0f, 1f)]
+    private float playerLerpDuration = 0.2f; // Original Value = 0.2f
+    [SerializeField] [Range(0f, 1f)]
+    private float crateLerpDuration = 0.1f; // Original Value = 0.1f
+    [SerializeField] [Range(0.5f, 10f)]
+    private float resetPuzzleDelay = 1.5f; // Original Value = 1.5f
 
     private GameObject savedInvisibleBlock;
-    private GameObject blackLoadingScreen;
-    private GameObject loadingScreen;
-    private GameObject loadingScreenIcon;
-    private GameObject loadingScreenTips;
-    private TextMeshProUGUI loadingScreenText;
-    private Slider loadingScreenBar;
-    private Image loadingScreenImage;
-    private IEnumerator loadingIconCoroutine;
-
     private NotificationBubbles notificationBubblesScript;
-    private BlockMovementController blockMovementScript;
-    private CharacterDialogue characterDialogueScript;
-    private TileMovementController playerScript;
-    private AudioManager audioManagerScript;
     private BlackOverlay blackOverlayScript;
     private SaveManager saveManagerScript;
     private CameraController cameraScript;
@@ -53,263 +23,65 @@ public class GameManager : MonoBehaviour
     private BlackBars blackBarsScript;
 
     [Header("Debugging Elements")]
-    //public bool canDeathScreen = false;
     public bool isDebugging;
     public int puzzleNumber;
 
-    public bool CanMoveToPreviousPuzzle
+    public float ResetPuzzleDelay
     {
-        get { return canMoveToPreviousPuzzle; }
+        get { return resetPuzzleDelay; }
     }
 
+    public float PlayerLerpDuration
+    {
+        get { return playerLerpDuration; }
+    }
+
+    public float CrateLerpDuration
+    {
+        get { return crateLerpDuration; }
+    }
+
+    public float CameraSpeed
+    {
+        get { return cameraSpeed; }
+    }
+
+    // Awake is called before Start()
     void Awake()
     {
         SetScripts();
         SetElements();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //canDeathScreen = false;
-    }
-
+    
+    // LateUpdate is called once per frame - after Update()
     void LateUpdate()
     {
         ScriptDebuggingCheck();
     }
 
-    // Checks for debugging across various scripts - to prevent commenting out all debugging checks from EVERY script before building game
+    // Checks for debugging methods across various scripts
+    // Note: comment out this method or the update loop before building the game
     private void ScriptDebuggingCheck()
     {
-        if (isDebugging) // Dont need this
-        {
-            // Debugging checks for UI animations
-            blackBarsScript.DebuggingCheck(this);
-            blackOverlayScript.DebuggingCheck(this);
-            notificationBubblesScript.DebuggingCheck(this);
-            // Other debugging checks
-            cameraScript.DebuggingCheck(this);
-            torchMeterScript.DebuggingCheck(this);
-            SavedInvisibleBlockDebuggingCheck();
-            CreateNewSaveFileCheck();
-        }
-    }
+        if (!isDebugging || Time.deltaTime == 0) return;
 
-    /*** Debug functions START here ***/
-    // Updates the lerpLength in playerScript - For Debugging Purposes Only!
-    public void CheckForPlayerScriptDebug()
-    {
-        if (isDebugging)
-        {
-            if (playerScript.LerpDuration != playerLerpDuration)
-                playerScript.LerpDuration = playerLerpDuration;
+        notificationBubblesScript.DebuggingCheck();
+        blackOverlayScript.DebuggingCheck();
+        blackBarsScript.DebuggingCheck();
 
-            if (playerScript.ResetPuzzleDelay != resetPuzzleDelay)
-                playerScript.ResetPuzzleDelay = resetPuzzleDelay;
-        }
-        else
-        {
-            if (playerScript.LerpDuration != 0.2f)
-                playerScript.LerpDuration = 0.2f;
+        torchMeterScript.DebuggingCheck();
+        cameraScript.DebuggingCheck();
 
-            if (playerScript.ResetPuzzleDelay != 1.5f)
-                playerScript.ResetPuzzleDelay = 1.5f;
-        }
-    }
-
-    // Updates the lerpLength in the blockMovementScript - For Debugging Purposes Only!
-    public void CheckForBlockMovementDebug(BlockMovementController script)
-    {
-        blockMovementScript = script;
-        if (isDebugging)
-        {
-            if (blockMovementScript.LerpDuration != crateLerpDuration)
-                blockMovementScript.LerpDuration = crateLerpDuration;
-        }         
-        else
-        {
-            if (blockMovementScript.LerpDuration != 0.1f)
-                blockMovementScript.LerpDuration = 0.1f;
-        }
-    }
-
-    // Updates the cameraSpeed in cameraScript - For Debugging Purposes Only!
-    public void CheckForCameraScriptDebug()
-    {
-        if (isDebugging)
-        {
-            if (cameraScript.CameraSpeed != cameraSpeed)
-                cameraScript.CameraSpeed = cameraSpeed;
-        }
-        else
-        {
-            if (cameraScript.CameraSpeed != 3f)
-                cameraScript.CameraSpeed = 3f;
-        }
-    }
-    /*** Debug functions END here ***/
-
-    // Checks which scene to load next
-    public void LoadNextSceneCheck()
-    {
-        // Returns to the main menu if the player hasn't finished the zone
-        if (playerScript != null && !playerScript.HasFinishedZone)
-            LoadMainMenu();
-        // Loads the next sceen if the player has finsihed the zone
-        else
-            LoadNextScene();
-    }
-
-    // Sets and loads the main menu
-    public void LoadMainMenu()
-    {
-        levelToLoad = "MainMenu";
-        blackLoadingScreen.SetActive(true);
-        PlayLoadingIconAnim(blackLoadingScreen);
-        SceneManager.LoadSceneAsync(levelToLoad);
-    }
-
-    // Sets and loads the next scene
-    public void LoadNextScene()
-    {
-        LevelToLoadCheck();
-        StartCoroutine(LoadNextLevelAsync());
-    }
-
-    // Checks if the saves for the artifacts should be deleted
-    public void ResetCollectedArtifactsCheck()
-    {
-        string currentScene = SceneManager.GetActiveScene().name;
-
-        // Creates new save file - ONLY delete artifact saves here
-        if (currentScene == "FifthMap" || currentScene == "TutorialMap")
-        {
-            PlayerPrefs.DeleteKey("listOfArtifacts");
-            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-            CreateNewSaveFile();
-        }
-    }
-
-    // Sets the levelToLoad string - determined by current scene
-    private void LevelToLoadCheck()
-    {
-        string currentScene = SceneManager.GetActiveScene().name;
-
-        if (currentScene == "TutorialMap")
-            levelToLoad = "FirstMap";
-        else if (currentScene == "FirstMap")
-            levelToLoad = "SecondMap";
-        else if (currentScene == "SecondMap")
-            levelToLoad = "ThirdMap";
-        else if (currentScene == "ThirdMap")
-            levelToLoad = "FourthMap";
-        else if (currentScene == "FourthMap")
-            levelToLoad = "FifthMap";
-        else if (currentScene == "FifthMap")
-            levelToLoad = "MainMenu";
-        else if (currentScene == "MainMenu")
-            levelToLoad = "FirstMap";
-        else
-            levelToLoad = "FirstMap";
-
-    }
-
-    // Sets a random image/sprite for the loading screen
-    private void SetRandomSprite(Sprite newLoadingScreenImg)
-    {
-        if (loadingScreenImage.sprite.name == newLoadingScreenImg.name)
-            return;
-        else
-            loadingScreenImage.sprite = newLoadingScreenImg;
-    }
-
-    // Sets the image/sprite for the loading screen by randomly selecting one from an array
-    private void SetRandomLoadingScreenImage()
-    {
-        if (loadingScreenImages != null)
-            SetRandomSprite(loadingScreenImages[UnityEngine.Random.Range(0, loadingScreenImages.Length)]);
-    }
-
-    // Starts the corouitne to play the loading icon animation
-    private void PlayLoadingIconAnim(GameObject loadingScreenObject)
-    {
-        if (loadingIconCoroutine != null)
-            StopCoroutine(loadingIconCoroutine);
-
-        loadingIconCoroutine = LoadingIconAnimation(loadingScreenObject);
-        StartCoroutine(loadingIconCoroutine);
-    }
-
-    // Sets the next/new sprite for the loading icon at the end of each time interval
-    private IEnumerator LoadingIconAnimation(GameObject loadingScreen)
-    {
-        for (int i = 0; i < loadingScreen.transform.childCount; i++)
-        {
-            GameObject child = loadingScreen.transform.GetChild(i).gameObject;
-            if (child.name == "LoadingIcon")
-            {
-                Image loadingIconImage = child.GetComponent<Image>();
-                loadingIconIndex = 0;
-                loadingIconImage.sprite = loadingIconSprites[loadingIconIndex];
-
-                while (loadingIconImage.isActiveAndEnabled)
-                {
-                    yield return new WaitForSeconds(loadingIconSpeed);
-                    loadingIconIndex++;
-                    if (loadingIconIndex > loadingIconSprites.Length - 1 || loadingIconIndex < 0)
-                        loadingIconIndex = 0;
-                    loadingIconImage.sprite = loadingIconSprites[loadingIconIndex];
-                }
-            }              
-        }
-    }
-
-    // Loads the next level asynchronously as the loading screen is active 
-    private IEnumerator LoadNextLevelAsync()
-    {
-        loadingScreen.SetActive(true);
-        SetRandomLoadingScreenImage();
-        PlayLoadingIconAnim(loadingScreen);
-
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelToLoad);
-        asyncLoad.allowSceneActivation = false;
-
-        while (!asyncLoad.isDone)
-        {
-            loadingScreenBar.value = asyncLoad.progress;
-
-            if (asyncLoad.progress >= 0.9f && !asyncLoad.allowSceneActivation)
-            {
-                loadingScreenText.text = "Press SPACE to Continue";
-                loadingScreenIcon.SetActive(false);
-
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter))
-                {
-                    CreateNewSaveFile();
-
-                    loadingScreenImage.color = Color.black;
-                    loadingScreenText.gameObject.SetActive(false);
-                    loadingScreenBar.gameObject.SetActive(false);
-                    loadingScreenIcon.SetActive(false);
-                    loadingScreenTips.SetActive(false);
-
-                    asyncLoad.allowSceneActivation = true;
-                }
-            }
-            yield return null;
-        }
+        SavedBlockDebuggingCheck();
+        SaveFileDebuggingCheck();
     }
 
     // Sets the scripts to use
     private void SetScripts()
     {
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
-        blockMovementScript = FindObjectOfType<BlockMovementController>();
-        characterDialogueScript = FindObjectOfType<CharacterDialogue>();
-        playerScript = FindObjectOfType<TileMovementController>();
         blackOverlayScript = FindObjectOfType<BlackOverlay>();
-        audioManagerScript = FindObjectOfType<AudioManager>();
         cameraScript = FindObjectOfType<CameraController>();
         saveManagerScript = FindObjectOfType<SaveManager>();
         torchMeterScript = FindObjectOfType<TorchMeter>();
@@ -325,25 +97,6 @@ public class GameManager : MonoBehaviour
         {
             switch (child.name)
             {
-                case "BlackLoadingScreen":
-                    blackLoadingScreen = child.gameObject;
-                    break;
-                case "LoadingScreen":
-                    loadingScreen = child.gameObject;
-                    loadingScreenImage = loadingScreen.GetComponent<Image>();
-                    break;
-                case "LS_Text":
-                    loadingScreenText = child.GetComponent<TextMeshProUGUI>();
-                    break;
-                case "LS_Icon":
-                    loadingScreenIcon = child.gameObject;
-                    break;
-                case "LS_Bar":
-                    loadingScreenBar = child.GetComponent<Slider>();
-                    break;
-                case "Tips":
-                    loadingScreenTips = child.gameObject;
-                    break;
                 case "SavedInvisibleBlock":
                     savedInvisibleBlock = child.gameObject;
                     break;
@@ -351,65 +104,29 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            if (child.name == "ZoneIntroHolder" || child.name == "EndCreditsHolder") continue;
             SetVariables(child);
         }
     }
 
-    // Sets private variables, objects, and components
+    // Sets private variables, game objects, and components
     private void SetElements()
     {
-        SetVariables(blackOverlayScript.transform.parent);
         SetVariables(saveManagerScript.transform);
     }
 
-    // Creates a new save file
-    //[ContextMenu("Create New Save File")]
-    private void CreateNewSaveFile()
+    // Checks to create a new save file - For Debugging Purposes ONLY
+    private void SaveFileDebuggingCheck()
     {
-        Debug.Log("Updated Save File");
+        if (!Input.GetKeyDown(KeyCode.Backslash)) return; // Debug key is "\" (backslash)
 
-        PlayerPrefs.DeleteKey("p_x");
-        PlayerPrefs.DeleteKey("p_z");
-        PlayerPrefs.DeleteKey("r_y");
-        PlayerPrefs.DeleteKey("cameraIndex");
-
-        PlayerPrefs.DeleteKey("TimeToLoad");
-        PlayerPrefs.DeleteKey("Save");
-        PlayerPrefs.DeleteKey("savedScene");
-
-        PlayerPrefs.SetInt("Saved", 1);
-        PlayerPrefs.Save();
-    }
-
-    // Checks if a new save file can be created - For Debugging Purposes ONLY
-    private void CreateNewSaveFileCheck()
-    {
-        if (Input.GetKeyDown(KeyCode.Backslash) && isDebugging) // Debug key is "\" (backslash)
-        {
-            Debug.Log("Debugging: New Game Created");
-
-            PlayerPrefs.DeleteKey("p_x");
-            PlayerPrefs.DeleteKey("p_z");
-            PlayerPrefs.DeleteKey("r_y");
-            PlayerPrefs.DeleteKey("cameraIndex");
-
-            PlayerPrefs.DeleteKey("TimeToLoad");
-            PlayerPrefs.DeleteKey("Save");
-            PlayerPrefs.DeleteKey("savedScene");
-
-            PlayerPrefs.DeleteKey("listOfArtifacts");
-            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-
-            PlayerPrefs.SetInt("Saved", 1);
-            PlayerPrefs.Save();
-        }
+        saveManagerScript.DeleteAllPlayerPrefs();
+        Debug.Log("Debugging: created new save file!");
     }
 
     // Checks to set the saved invisible block active/inactive - For Debugging Purposes ONLY
-    private void SavedInvisibleBlockDebuggingCheck()
+    private void SavedBlockDebuggingCheck()
     {
-        if (!isDebugging || !Input.GetKeyDown(KeyCode.Backspace)) return; // Debug key is "<--" (backspace)
+        if (!Input.GetKeyDown(KeyCode.Backspace)) return; // Debug key is "<--" (backspace)
 
         bool isActive = savedInvisibleBlock.activeInHierarchy ? false : true;
         string activeStatus = isActive ? "active" : "inactive";

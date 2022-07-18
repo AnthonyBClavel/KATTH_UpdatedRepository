@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class SkipSceneButton : MonoBehaviour
@@ -18,29 +19,35 @@ public class SkipSceneButton : MonoBehaviour
     private float maxFillAmount = 1f;
     private float minFillAmount = 0f;
 
+    static readonly string tutorialZone = "TutorialMap";
+    private string sceneName;
+
     private bool canRecieveInput = false;
     private bool hasSkippedScene = false;
 
-    private Image fill;
-    private Image skipSceneFillBG;
     private Animator skipButtonAnimator;
     private TextMeshProUGUI skipSceneText;
 
+    private Image fillBackground;
+    private Image fill;
+    private Image bar;
+
     private KeyCode skipSceneKeyCode = KeyCode.X;
     private IEnumerator lerpTextCoroutine;
-    private IEnumerator resetBarCoroutine;
     private IEnumerator lerpBarCoroutine;
     private IEnumerator inputCoroutine;
 
     private TileMovementController playerScript;
     private AudioManager audioManagerScript;
     private BlackOverlay blackOverlayScript;
-    private GameManager gameManagerScript;
+    private TorchMeter torchMeterScript;
     private PauseMenu pauseMenuScript;
 
     // Awake is called before Start()
     void Awake()
     {
+        sceneName = SceneManager.GetActiveScene().name;
+
         SetScripts();
         SetElements();
     }
@@ -51,83 +58,78 @@ public class SkipSceneButton : MonoBehaviour
         SetSkipSceneButtonInactive();
     }
 
-    [ContextMenu("Set SkipSceenButton Active")]
-    // Sets the skip scene button ACTIVE
+    // Sets the skip scene button active
+    [ContextMenu("Set Skip Scene Button Active")]
     public void SetSkipSceneButtonActive()
     {
         enabled = true;
         canRecieveInput = true;
         gameObject.SetActive(true);
-        
-        StartLerpTextCoroutine(fullAlpha);
+        bar.gameObject.SetActive(true);
+
+        StartLerpTextCoroutine(zeroAlpha, fullAlpha);          
         StartInputCoroutine();
     }
 
-    // Sets the skip scene button INACTIVE
+    // Sets the skip scene button inactive
     public void SetSkipSceneButtonInactive()
-    {
-        if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
-        if (inputCoroutine != null) StopCoroutine(inputCoroutine);
+    {      
+        if (lerpTextCoroutine != null) 
+            StopCoroutine(lerpTextCoroutine);
+
+        if (inputCoroutine != null) 
+            StopCoroutine(inputCoroutine);
 
         skipSceneText.SetTextAlpha(zeroAlpha);
-        gameObject.SetActive(false);
+        bar.gameObject.SetActive(false);    
         canRecieveInput = false;
+
+        if (sceneName == tutorialZone) return;
+        gameObject.SetActive(false);
         enabled = false;
     }
 
-    // Checks to loop the text alpha coroutine
-    private void LoopTextAlphaCheck()
+    // Checks for the input that lerps the bar's fill amount
+    private void LerpBarCheck()
     {
-        if (hasSkippedScene) return;
+        if (!Input.GetKey(skipSceneKeyCode) || !canRecieveInput) return;
+        if (!playerScript.CanMove || torchMeterScript.CurrentVal <= 0) return;
 
-        bool atZeroAlpha = skipSceneText.color.a == zeroAlpha;
-        float endAlpha = atZeroAlpha ? fullAlpha : zeroAlpha;
+        if (lerpTextCoroutine != null)
+            StopCoroutine(lerpTextCoroutine);
 
-        if (atZeroAlpha) canRecieveInput = true;
-        StartLerpTextCoroutine(endAlpha);
+        playerScript.SetPlayerBoolsFalse();
+        audioManagerScript.PlayPopUpSFX();
+
+        skipSceneText.SetTextAlpha(fullAlpha);
+        pauseMenuScript.CanPause = false;
+        canRecieveInput = false;
+
+        PopInSkipSceneButton();
+        StartLerpBarCoroutine();
     }
 
-    // Plays a new animation state for the skip scene button
-    private void ChangeAnimationState(string newState)
-    {
-        switch (newState)
-        {
-            case ("PopOut"):
-                skipButtonAnimator.Play(newState);
-                break;
-            case ("PopIn"):
-                skipButtonAnimator.Play(newState);
-                break;
-            default:
-                //Debug.Log("Animation state does not exist");
-                break;
-        }
-    }
+    // Play the pop out animation for the skip scene button
+    private void PopOutSkipSceneButton() => skipButtonAnimator.Play("PopOut");
 
-    // Starts the coroutine that lerps the bar's fill amount to its max
+    // Play the pop in animation for the skip scene button
+    private void PopInSkipSceneButton() => skipButtonAnimator.Play("PopIn");
+
+    // Starts the coroutine that lerps the bar's fill amount
     private void StartLerpBarCoroutine()
     {
         if (lerpBarCoroutine != null) StopCoroutine(lerpBarCoroutine);
 
-        lerpBarCoroutine = LerpToMaxFillAmount(lerpDuration);
+        lerpBarCoroutine = LerpFillAmount(lerpDuration);
         StartCoroutine(lerpBarCoroutine);
     }
 
-    // Starts the coroutine that lerps the bar's fill amount to its min
-    private void StartResetBarCoroutine()
-    {
-        if (resetBarCoroutine != null) StopCoroutine(resetBarCoroutine);
-
-        resetBarCoroutine = LerpToMinFillAmount();
-        StartCoroutine(resetBarCoroutine);
-    }
-
-    // Starts the coroutine that lerps the text alpha
-    private void StartLerpTextCoroutine(float endAlpha)
+    // Starts the coroutine that lerps the text's alpha - fades the text
+    private void StartLerpTextCoroutine(float startAlpha, float endAlpha)
     {
         if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
 
-        lerpTextCoroutine = LerpTextAlpha(endAlpha, textFadeDuration);
+        lerpTextCoroutine = LerpTextAlpha(startAlpha, endAlpha);
         StartCoroutine(lerpTextCoroutine);
     }
 
@@ -140,87 +142,56 @@ public class SkipSceneButton : MonoBehaviour
         StartCoroutine(inputCoroutine);
     }
 
-    // Checks when the the bar can lerp to its max fill amount
-    private void LerpToMaxCheck()
+    // Checks if the bar has lerped to its max fill amount - returns true if so, false otherwise
+    private bool HasLerpedToMax(bool hasLepredToMax)
     {
-        if (!canRecieveInput || !playerScript.CanMove || !Input.GetKey(skipSceneKeyCode)) return;
+        StartLerpTextCoroutine(fullAlpha, zeroAlpha);
+        PopOutSkipSceneButton();
 
-        if (lerpTextCoroutine != null) StopCoroutine(lerpTextCoroutine);
-        pauseMenuScript.CanPause = false;
-        canRecieveInput = false;
-
-        skipSceneText.SetTextAlpha(fullAlpha);
-        playerScript.SetPlayerBoolsFalse();
-        audioManagerScript.PlayPopUpSFX();      
-
-        ChangeAnimationState("PopIn");
-        StartLerpBarCoroutine();
-    }
-
-    // Checks if the the bar has lerped to its max fill amount
-    private void MaxFillAmountCheck()
-    {
-        ChangeAnimationState("PopOut");
-        StartLerpTextCoroutine(zeroAlpha);
-
-        // Skips the scene if the bar was filled
-        if (fill.fillAmount == maxFillAmount)
-        {
-            gameManagerScript.ResetCollectedArtifactsCheck();
-            audioManagerScript.PlaySkippedSceneSFX();
-            blackOverlayScript.GameFadeOut();
-            playerScript.SetPlayerBoolsFalse();
-            playerScript.HasFinishedZone = true;
-            hasSkippedScene = true;
-        }
-        // Lerps the bar to its min fill amount otherwise
-        else
+        if (!hasLepredToMax)
         {
             playerScript.SetPlayerBoolsTrue();
             pauseMenuScript.CanPause = true;
-            StartResetBarCoroutine();
+            return false;
         }
+
+        audioManagerScript.PlaySkippedSceneSFX();
+        playerScript.SetPlayerBoolsFalse();
+        blackOverlayScript.GameFadeOut();
+        playerScript.HasFinishedZone = true;
+        hasSkippedScene = true;
+
+        fill.fillAmount = maxFillAmount;
+        return true;
     }
 
-    // Lerps the alpha of the text over a specific duration (alpha = alpha to lerp to, duration = seconds)
-    private IEnumerator LerpTextAlpha(float endAlpha, float duration)
+    // Checks if the text can lerp its alpha again - return true if so, false otherwise
+    private bool CanLoopTextAlpha()
     {
-        Color startColor = skipSceneText.color;
-        Color endColor = skipSceneText.ReturnTextColor(endAlpha);
-        float time = 0f;
+        if (hasSkippedScene) return false;
 
-        while (time < duration)
-        {
-            skipSceneText.color = Color.Lerp(startColor, endColor, time / duration);
-            time += Time.deltaTime;
-            yield return null;
-        }
+        if (skipSceneText.color.a == zeroAlpha)
+            canRecieveInput = true;
 
-        skipSceneText.color = endColor;
-        LoopTextAlphaCheck();
+        return true;
     }
 
-    // Lerps the bar's fill amount to its max over a duration (duration = seconds)
-    private IEnumerator LerpToMaxFillAmount(float duration)
+    // Lerps the bar's fill amount to its max/min over a duration (duration = seconds)
+    private IEnumerator LerpFillAmount(float duration)
     {
         float startFillAmount = fill.fillAmount;
         float time = 0f;
 
+        // Checks to lerp the bar to its max fill amount
         while (time < duration && Input.GetKey(skipSceneKeyCode))
         {
             fill.fillAmount = Mathf.Lerp(startFillAmount, maxFillAmount, time / duration);
             time += Time.deltaTime;
             yield return null;
-        }
+        }     
+        if (HasLerpedToMax(time >= duration)) yield break;
 
-        if (time >= duration) fill.fillAmount = maxFillAmount;
-        MaxFillAmountCheck();
-    }
-
-    // Lerps the bar's fillAmount to its min
-    // Note: content.fillAmount will always get closer to zero, but never equal it
-    private IEnumerator LerpToMinFillAmount()
-    {
+        // Lerps to bar to its min fill amount
         while (fill.fillAmount > minFillAmount + 0.01f)
         {
             fill.fillAmount = Mathf.Lerp(fill.fillAmount, minFillAmount, lerpSpeed * Time.deltaTime);
@@ -230,15 +201,36 @@ public class SkipSceneButton : MonoBehaviour
         fill.fillAmount = minFillAmount;
     }
 
-    // Checks for the input that lerps the skip scene button
+    // Lerps the alpha of the text to another over a duration (duration = seconds)
+    private IEnumerator LerpTextAlpha(float startAlpha, float endAlpha)
+    {
+        Color startColor = skipSceneText.ReturnTextColor(startAlpha);
+        Color endColor = skipSceneText.ReturnTextColor(endAlpha);
+
+        float duration = textFadeDuration;
+        float time = 0f;
+
+        while (time < duration)
+        {
+            skipSceneText.color = Color.Lerp(startColor, endColor, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        skipSceneText.color = endColor;
+
+        if (!CanLoopTextAlpha()) yield break;
+        StartLerpTextCoroutine(endAlpha, startAlpha);
+    }
+
+    // Checks for the input that activates the skip scene button
     private IEnumerator SkipSceneInputCheck()
     {
         while (gameObject.activeInHierarchy && !blackOverlayScript.IsChangingScenes)
         {
-            if (Time.deltaTime > 0) LerpToMaxCheck();
+            if (Time.deltaTime > 0) LerpBarCheck();
             yield return null;
         }
-        //Debug.Log("Stopped looking for skip scene input check");
+        //Debug.Log("Stopped looking for the skip scene input check");
     }
 
     // Sets the scripts to use
@@ -247,7 +239,7 @@ public class SkipSceneButton : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         blackOverlayScript = FindObjectOfType<BlackOverlay>();
-        gameManagerScript = FindObjectOfType<GameManager>();
+        torchMeterScript = FindObjectOfType<TorchMeter>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
@@ -261,11 +253,12 @@ public class SkipSceneButton : MonoBehaviour
             switch (child.name)
             {
                 case "SSB_Bar":
+                    bar = child.GetComponent<Image>();
                     skipButtonAnimator = child.GetComponent<Animator>();
                     skipButtonAnimator.keepAnimatorControllerStateOnDisable = false;
                     break;
                 case "SSB_FillBG":
-                    skipSceneFillBG = child.GetComponent<Image>();
+                    fillBackground = child.GetComponent<Image>();
                     break;
                 case "SSB_Fill":
                     fill = child.GetComponent<Image>();
@@ -286,7 +279,7 @@ public class SkipSceneButton : MonoBehaviour
     {
         SetVariables(transform);
 
-        skipSceneFillBG.SetImageAlpha(0f);
+        fillBackground.SetImageAlpha(0f);
         skipSceneText.SetTextAlpha(0f);
     }
 }

@@ -17,8 +17,10 @@ public class Artifact : MonoBehaviour
     private float verticalAxis;
     private float closeAnimLength;
 
+    private string tutorialZone = "TutorialMap";
     private string sceneName;
     private string artifactName;
+
     private bool hasInspectedArtifact = false;
     private bool hasCollectedArtifact = false;
 
@@ -70,19 +72,26 @@ public class Artifact : MonoBehaviour
         SetElements();
     }
 
+    // Start is called before the first frame update
+    void Start()
+    {
+        SetArtifactInactive(); // Must be called in Start()!
+    }
+
     // Saves the name of the collected artifact via PlayerPrefs and updates the artifact notification bubble
     public void CollectArtifact()
     {
         int artifactCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
         string artifactsCollected = PlayerPrefs.GetString("listOfArtifacts");
 
-        if (artifactCount >= 15 || hasCollectedArtifact || !enabled) return;
+        if (hasCollectedArtifact || !enabled) return;
 
-        int totalArtifacts = (sceneName != "TutorialMap") ? 15 : 1;
+        int totalArtifacts = (sceneName != tutorialZone) ? 15 : 1;
         notificationBubblesScript.SetsArtifactNotificationText($"{artifactCount + 1}/{totalArtifacts}");
-        saveManagerScript.SaveCollectedArtifact(artifactsCollected + artifactName);
+        saveManagerScript.SaveCollectedArtifact(artifactsCollected + $"{artifactName}, ");
         saveManagerScript.SaveNumberOfArtifactsCollected(artifactCount + 1);
         SetArtifactInactive();
+
         //Debug.Log("Collected artifact");
     }
 
@@ -121,9 +130,9 @@ public class Artifact : MonoBehaviour
     {
         cameraScript.SetToDialogueView();
 
-        artifactHolder.transform.position = ahOriginalPosition;
-        artifactHolder.transform.eulerAngles = ahOriginalRotation;
         woodenChestHolder.transform.eulerAngles = wchOriginalRotation;
+        artifactHolder.transform.eulerAngles = ahOriginalRotation;
+        artifactHolder.transform.position = ahOriginalPosition;
     }
 
     // Opens the artifact chest
@@ -131,7 +140,9 @@ public class Artifact : MonoBehaviour
     {
         if (!enabled) return;
     
+        wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalPosition = artifactHolder.transform.position;
+
         audioManagerScript.PlayOpenChestSFX();
         woodenChestAnim.Play("Open");
     }
@@ -310,7 +321,7 @@ public class Artifact : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        tutorialDialogueScript = (sceneName == "TutorialMap") ? FindObjectOfType<TutorialDialogue>() : null;
+        tutorialDialogueScript = (sceneName == tutorialZone) ? FindObjectOfType<TutorialDialogue>() : null;
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
@@ -366,7 +377,6 @@ public class Artifact : MonoBehaviour
         wchOriginalRotation = woodenChestHolder.transform.eulerAngles;
         ahOriginalRotation = artifactHolder.transform.eulerAngles;
         ahOriginalPosition = artifactHolder.transform.position;
-        SetArtifactInactive();
     }
 
 }

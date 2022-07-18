@@ -124,10 +124,8 @@ public class BlackBars : MonoBehaviour
     }
 
     // Check to toggle the black bars and to update their height - For Debugging Purposes ONLY
-    public void DebuggingCheck(GameManager gameManager)
+    public void DebuggingCheck()
     {
-        if (!gameManager.isDebugging) return;
-
         if (Input.GetKeyDown(KeyCode.P)) // Debug key is "P"
             ToggleBarsDebug();
 

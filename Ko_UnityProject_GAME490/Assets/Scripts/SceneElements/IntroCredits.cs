@@ -119,7 +119,7 @@ public class IntroCredits : MonoBehaviour
         FadeOutOverlay();
     }
 
-    // Deletes all of the appropriate player pref keys - creates a new save file
+    // Creates a new save file - deletes all of the appropriate player pref keys
     private void CreateNewSaveFile()
     {
         PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
@@ -131,13 +131,7 @@ public class IntroCredits : MonoBehaviour
         PlayerPrefs.DeleteKey("p_z");
         PlayerPrefs.DeleteKey("r_y");
 
-        PlayerPrefs.DeleteKey("TimeToLoad");
-        PlayerPrefs.DeleteKey("Save");
-
-        PlayerPrefs.SetInt("Saved", 1);
-        PlayerPrefs.Save();
-
-        //Debug.Log("Created new save file!");
+        //Debug.Log("Created a new save file!");
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -158,8 +152,7 @@ public class IntroCredits : MonoBehaviour
                 default:
                     break;
             }
-
-            Debug.Log(child.name);
+            
             SetVariables(child);
         }
     }

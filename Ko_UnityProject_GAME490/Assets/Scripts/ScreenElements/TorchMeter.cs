@@ -6,10 +6,10 @@ using TMPro;
 
 public class TorchMeter : MonoBehaviour  
 {
-    [Range(1f, 10f)]
-    public float lerpSpeed = 2f; // Original Value = 2f
-    [Range(0.01f, 1f)]
-    public float flameIconSpeed = 0.08f; // Original Value = 0.8f
+    [SerializeField] [Range(1f, 10f)]
+    private float lerpSpeed = 2f; // Original Value = 2f
+    [SerializeField] [Range(0.01f, 1f)]
+    private float flameIconSpeed = 0.08f; // Original Value = 0.8f
 
     private float currentValue = 1f;
     private float maxValue = 1f;
@@ -118,22 +118,11 @@ public class TorchMeter : MonoBehaviour
         else TurnOnTorchMeter();
     }
 
-    // Plays a new animation state for the torch meter
-    public void ChangeAnimationState(string newState)
-    {
-        switch (newState)
-        {
-            case ("PopIn"): // Pop in animation
-                animator.Play("PopIn");
-                break;
-            case ("PopOut"): // Pop out animation
-                animator.Play("PopOut");
-                break;
-            default:
-                //Debug.Log("Animation state does NOT exist"); 
-                break;
-        }
-    }
+    // Plays the pop out animation for the torch meter
+    public void PopOutTorchMeter() => animator.Play("PopOut");
+
+    // Plays the pop in animation for the torch meter
+    public void PopInTorchMeter() => animator.Play("PopIn");
 
     // Starts the coroutine for the torch meter
     private void StartLerpFillAmountCoroutine()
@@ -245,10 +234,8 @@ public class TorchMeter : MonoBehaviour
     }
 
     // Checks to increase/decrease the torch meter's current value - For Debugging Purposes ONLY
-    public void DebuggingCheck(GameManager gameManager)
+    public void DebuggingCheck()
     {
-        if (!gameManager.isDebugging) return;
-
         if (CurrentVal < MaxVal && Input.GetKeyDown(KeyCode.RightBracket)) // Debug key is "]" (right bracket)
         {
             CurrentVal++;

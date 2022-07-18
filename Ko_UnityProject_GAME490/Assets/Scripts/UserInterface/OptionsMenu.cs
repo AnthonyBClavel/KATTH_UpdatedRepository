@@ -19,18 +19,17 @@ public class OptionsMenu : MonoBehaviour
 
     private string mainMenu = "MainMenu";
     private string sceneName;
+
     private int selectedResolution;
+    private float popInDurationOM;
+
     private bool isChangingMenus = false;
     private bool isOptionsMenu = false;
 
     private GraphicRaycaster graphicsRaycaster;
     private Animator optionMenuAnim;
-    private ResItem[] resolutions;
-
-    private GameObject previousMenuButton;
-    private GameObject lastSlectedObject;
     private GameObject optionsMenu;
-    private GameObject mainCanvas;
+    private ResItem[] resolutions;
 
     private Toggle fullScreenToggle;
     private Toggle vSyncToggle;
@@ -74,11 +73,11 @@ public class OptionsMenu : MonoBehaviour
     }
 
     /***************************** Event functions START here *****************************/
-    // Opens the options menu
-    public void OpenOptionsMenu() => StartCoroutine(OpenOptionsDelay());
-
     // Closes the options menu
-    public void CloseOptionsMenu() => StartCoroutine(CloseOptionsDelay());
+    public void CloseOptionsMenu() => StartCoroutine(CloseOptionsMenuDelay());
+
+    // Opens the options menu
+    public void OpenOptionsMenu() => StartCoroutine(OpenOptionsMenuDelay());
 
     // Apllies the changes made in the graphics settings
     public void ApplyGraphics()
@@ -105,7 +104,7 @@ public class OptionsMenu : MonoBehaviour
         SetResolutionText(++selectedResolution);
     }
 
-    // Sets the text and value for the master volume slider
+    // Sets the value and text for the master volume slider
     public void SetMasterVolume()
     {
         float masterSliderValue = masterSlider.value;
@@ -116,7 +115,7 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("MasterVol", masterSliderValue);       
     }
 
-    // Sets the text and value for the music volume slider
+    // Sets the value and text for the music volume slider
     public void SetMusicVolume()
     {
         float musicSliderValue = musicSlider.value;
@@ -127,7 +126,7 @@ public class OptionsMenu : MonoBehaviour
         PlayerPrefs.SetFloat("MusicVol", musicSliderValue);
     }
 
-    // Sets the text and value for the sfx volume slider
+    // Sets the value and text for the sfx volume slider
     public void SetSFXVolume()
     {
         float sFXSliderValue = sFXSlider.value;
@@ -142,25 +141,29 @@ public class OptionsMenu : MonoBehaviour
     // Plays the pop out animation for the options menu
     private void PopOutOptionsMenu() => optionMenuAnim.SetTrigger("OM_PopOut");
 
-    // Checks to set the current selected game object
-    private void SetCurrentSelected(GameObject objectToSelect)
-    {
-        if (lastSlectedObject == objectToSelect) return;
-
-        eventSystemScript.SetSelectedGameObject(null);
-        eventSystemScript.SetSelectedGameObject(objectToSelect);
-        lastSlectedObject = objectToSelect; // Call this last!
-    }
-
-    // Checks to pop out of the current menu
-    private void PopOutOfCurrentMenu()
+    // Checks which menu to pop out before opening the options menu
+    private void PopOutOfPreviousMenu()
     {
         if (sceneName == mainMenu)
-        {
-            // Pop out of main menu here...
-        }
+            mainMenuScript.PopOutMainMenu();
         else
             pauseMenuScript.PopOutPauseMenu();
+    }
+
+    // Checks which menu to pop in after closing the options menu
+    private void PopIntoPreviousMenu()
+    {
+        if (sceneName == mainMenu)
+            mainMenuScript.PopInMainMenu();
+        else 
+            pauseMenuScript.PopInPauseMenu();
+    }
+
+    // Returns the pop in animation duration for the previous menu
+    // Note: a menu's pop in animation is the same as its pop out - its pop in animation is played in reverse
+    private float PreviousMenuPopInDuration()
+    {
+        return (sceneName == mainMenu) ? mainMenuScript.PopInDurationMM : pauseMenuScript.PopInDurationPM;
     }
 
     // Checks to set/update the resolution text
@@ -184,53 +187,50 @@ public class OptionsMenu : MonoBehaviour
     }
 
     // Checks to set vsync on/off
+    // Note: vsync on = 1, vsync off = 0
     private void VsyncCheck()
     {
         int vSyncCount = vSyncToggle.isOn ? 1 : 0;
         QualitySettings.vSyncCount = vSyncCount;
     }
 
-    // Plays the sequence for opening the safety menu
-    private IEnumerator OpenOptionsDelay()
+    // Plays the sequence for opening the options menu
+    private IEnumerator OpenOptionsMenuDelay()
     {
-        previousMenuButton = eventSystemScript.currentSelectedGameObject;
         DisableInput_OM();
 
         // Note: waits for the button to play its "clicked" animation
-        yield return new WaitForSecondsRealtime(0.15f);
-        PopOutOfCurrentMenu();
+        yield return new WaitForSecondsRealtime(popInDurationOM);
+        PopOutOfPreviousMenu();
         isOptionsMenu = true;
 
-        // Note: waits for the current menu to play its "pop out" animation
-        yield return new WaitForSecondsRealtime(0.15f);
-        mainCanvas.SetActive(false);
+        // Note: waits for the previous menu to play its "pop out" animation
+        yield return new WaitForSecondsRealtime(PreviousMenuPopInDuration());
         optionsMenu.SetActive(true);
-        SetCurrentSelected(null);
 
         // Note: waits for the options menu to play its "pop in" animation
-        yield return new WaitForSecondsRealtime(0.1f);
+        yield return new WaitForSecondsRealtime(popInDurationOM);
         EnableInput_OM();
         eventSystemScript.sendNavigationEvents = false;
     }
 
-    // Plays the sequence for closing the safety menu
-    private IEnumerator CloseOptionsDelay()
+    // Plays the sequence for closing the options menu
+    private IEnumerator CloseOptionsMenuDelay()
     {
         DisableInput_OM();
 
         // Note: waits for the button to play its "clicked" animation
-        yield return new WaitForSecondsRealtime(0.15f);
+        yield return new WaitForSecondsRealtime(popInDurationOM);
         PopOutOptionsMenu();
         isOptionsMenu = false;
 
         // Note: waits for the options menu to play its "pop out" animation
-        yield return new WaitForSecondsRealtime(0.15f);
+        yield return new WaitForSecondsRealtime(popInDurationOM);
         optionsMenu.SetActive(false);
-        mainCanvas.SetActive(true);
-        SetCurrentSelected(previousMenuButton);
+        PopIntoPreviousMenu();
 
         // Note: waits for the previous menu to play its "pop in" animation
-        yield return new WaitForSecondsRealtime(0.1f);
+        yield return new WaitForSecondsRealtime(PreviousMenuPopInDuration());
         EnableInput_OM();
     }
 
@@ -288,27 +288,6 @@ public class OptionsMenu : MonoBehaviour
             sFXSlider.value = PlayerPrefs.GetFloat("SFXVol");
     }
 
-    // Sets the main UI canvas to use
-    private void SetMainCanvas()
-    {
-        Transform menu = (sceneName != mainMenu) ? pauseMenuScript.transform : mainMenuScript.transform;
-
-        foreach (Transform child in menu)
-        {
-            switch (child.name)
-            {
-                case "PauseMenu":
-                    mainCanvas = child.gameObject;
-                    break;
-                case "MainMenu":
-                    mainCanvas = child.gameObject;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     // Sets the desired variables - loops through all of the children within a parent object
     private void SetVariables(Transform parent)
     {
@@ -363,13 +342,13 @@ public class OptionsMenu : MonoBehaviour
     {
         SetVariables(transform);
         SetResolutions();
-        SetMainCanvas();
 
         // Checks to toggle the buttons on/off...
         vSyncToggle.isOn = QualitySettings.vSyncCount == 1;
         fullScreenToggle.isOn = Screen.fullScreen;
 
-        graphicsRaycaster = transform.parent.GetComponent<GraphicRaycaster>();
+        popInDurationOM = optionMenuAnim.ReturnClipLength("OptionsMenuPopIn");
+        graphicsRaycaster = GetComponentInParent<GraphicRaycaster>();
         eventSystemScript.sendNavigationEvents = false;
         graphicsRaycaster.enabled = false;
     }

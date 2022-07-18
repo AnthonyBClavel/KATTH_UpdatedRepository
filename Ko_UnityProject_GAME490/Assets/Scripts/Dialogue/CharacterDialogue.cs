@@ -66,7 +66,7 @@ public class CharacterDialogue : MonoBehaviour
     private VerticalLayoutGroup playerSpeechBubbleVLG;
     private Animator playerBubbleAnim;
     private Animator nPCBubbleAnim;
-    private Camera dialogueCamera;
+    private Camera userInterfaceCamera;
 
     private Vector2 bubbleHolderMidPos;
     private Vector2 bubbleHolderRightPos;
@@ -590,7 +590,7 @@ public class CharacterDialogue : MonoBehaviour
         if (!dailogueBubble.gameObject.activeInHierarchy) return;
 
         float maxPosY = maxScreenPosY - speechBubbleHolder.rect.height - sbhOffsetPositionY;
-        Vector2 dcScreenPoint = dialogueCamera.WorldToScreenPoint(dialogueCheck.transform.position);
+        Vector2 dcScreenPoint = userInterfaceCamera.WorldToScreenPoint(dialogueCheck.transform.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(characterDialogueRT, dcScreenPoint, null, out dcAnchorPos);
 
         if (dcAnchorPos.y > maxPosY)
@@ -604,7 +604,7 @@ public class CharacterDialogue : MonoBehaviour
     {
         if (!alertBubble.activeInHierarchy) return;
 
-        Vector2 dcScreenPoint = dialogueCamera.WorldToScreenPoint(playerDialogueCheck.transform.position);
+        Vector2 dcScreenPoint = userInterfaceCamera.WorldToScreenPoint(playerDialogueCheck.transform.position);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(characterDialogueRT, dcScreenPoint, null, out pdcAnchorPos);
 
         if (alertBubbleRT.anchoredPosition != pdcAnchorPos) alertBubbleRT.anchoredPosition = pdcAnchorPos;
@@ -924,8 +924,8 @@ public class CharacterDialogue : MonoBehaviour
 
             switch (child.name)
             {
-                case "DialogueCamera":
-                    dialogueCamera = child.GetComponent<Camera>();
+                case "UI_Camera":
+                    userInterfaceCamera = child.GetComponent<Camera>();
                     break;
                 case "CharacterDialogue":
                     characterDialogueRT = child.GetComponent<RectTransform>();
@@ -991,8 +991,7 @@ public class CharacterDialogue : MonoBehaviour
                 /** Alert bubble variables START here **/
                 case "AlertBubble":
                     alertBubbleRT = child.GetComponent<RectTransform>();
-                    alertBubble = child.gameObject;       
-                    playerScript.AlertBubble = alertBubble;
+                    alertBubble = child.gameObject;
                     break;
                 case "AB_SpeechBubble":
                     alertBubbleSprite = child.GetComponent<Image>();

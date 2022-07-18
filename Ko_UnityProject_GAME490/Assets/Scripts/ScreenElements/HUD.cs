@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class HUD : MonoBehaviour
 {
+    static readonly string tutorialZone = "TutorialMap";
     private string sceneName;
 
     private GameObject notificationBubblesHolder;
@@ -40,7 +41,7 @@ public class HUD : MonoBehaviour
         torchMeter.SetActive(true);
         notificationBubblesHolder.SetActive(true);
 
-        if (sceneName != "TutorialMap") return;
+        if (sceneName != tutorialZone) return;
         skipSceneButtonScript.SetSkipSceneButtonActive();
     }
 
@@ -51,15 +52,15 @@ public class HUD : MonoBehaviour
         torchMeter.SetActive(false);
         notificationBubblesHolder.SetActive(false);
 
-        if (sceneName != "TutorialMap") return;
+        if (sceneName != tutorialZone) return;
         skipSceneButtonScript.SetSkipSceneButtonInactive();
     }
 
     // Checks if the HUD can be toggled
     private bool CanToggleHUD()
     {
-        if (!playerScript.CanRestartPuzzle || blackOverlayScript.IsChangingScenes) return false;
-        if (Time.deltaTime == 0f || !pauseMenuScript.CanPause) return false;
+        if (Time.deltaTime == 0f || !playerScript.CanRestartPuzzle || playerScript.IsCrossingBridge) return false;
+        if (!pauseMenuScript.CanPause || blackOverlayScript.IsChangingScenes) return false;
 
         return true;
     }
