@@ -33,6 +33,7 @@ public class CameraController : MonoBehaviour
     private TileMovementController playerScript;
     private PuzzleManager puzzleManagerScript;
     private AudioManager audioManagerScript;
+    private SaveManager saveManagerScript;
     private GameManager gameManagerScript;
 
     public int PuzzleViewIndex
@@ -60,12 +61,6 @@ public class CameraController : MonoBehaviour
         SetToPuzzleView();
     }
 
-    // Returns the text to be displayed within the puzzle notification
-    public string ReturnTextForPN()
-    {
-        return $"{puzzleViewIndex + 1}/{checkpoints.Count}";
-    }
-
     // Checks to move the camera to the next/previous puzzle view (move to next if true, move to previous otherwise)
     public void NextPuzzleViewCheck()
     {
@@ -76,18 +71,20 @@ public class CameraController : MonoBehaviour
 
         // Note: puzzleNumber is the NEXT puzzleViewIndex, puzzleNumber - 2 is the PREVIOUS puzzleViewIndex
         puzzleViewIndex = (int)(bridgeNumber == puzzleNumber ? puzzleNumber : puzzleNumber - 2);
+        notificationBubblesScript.SetsPuzzleNotificationText(puzzleViewIndex + 1);
+        saveManagerScript.CameraIndex = puzzleViewIndex;
+
         // Note: the camera doesn't lerp if its already at the intended next/previous puzzle view
         if (currentPuzzleView != puzzleViews[puzzleViewIndex]) LerpToPuzzleView();
-        notificationBubblesScript.SetsPuzzleNotificationText(ReturnTextForPN());
         audioManagerScript.FadeOutGeneratorSFX();
         hasMovedPuzzleView = true;
+
         //Debug.Log($"Moved camera to puzzle {puzzleViewIndex + 1}");
     }
 
     // Lerps the camera's position to the current puzzle view
     public void LerpToPuzzleView()
     {
-        // Note: the sfx for moving the camera is not played during character dialogue
         if (!characterDialogueScript.InDialogue)
         {
             audioManagerScript.PlayShortWindGushSFX();
@@ -274,6 +271,7 @@ public class CameraController : MonoBehaviour
         playerScript = FindObjectOfType<TileMovementController>();
         puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
     }
 
@@ -336,7 +334,7 @@ public class CameraController : MonoBehaviour
         else puzzleViewIndex = nextPVI;
 
         LerpToPuzzleView();
-        notificationBubblesScript.SetsPuzzleNotificationText(ReturnTextForPN(), false);
+        notificationBubblesScript.SetsPuzzleNotificationText(puzzleViewIndex + 1, false);
         Debug.Log($"Debugging: moved camera to puzzle {puzzleViewIndex + 1}");
     }
 

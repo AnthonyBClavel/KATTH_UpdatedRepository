@@ -18,6 +18,45 @@ public class SaveManager : MonoBehaviour
     private CameraController cameraScript;
     private GameManager gameManagerScript;
 
+    public Vector3 SavedPlayerPosition
+    {
+        get { return ReturnSavedPlayerPosition(); }
+        set { SetSavedPlayerPosition(value); }
+    }
+
+    public Vector3 SavedPlayerRotation
+    {
+        get { return ReturnSavedPlayerRotation(); }
+        set { SetSavedPlayerRotation(value); }
+    }
+
+    public int CameraIndex
+    {
+        get { return PlayerPrefs.GetInt("cameraIndex"); }
+        set { SetCameraIndex(value); }
+    }
+
+    public string ArtifactsCollected
+    {
+        get { return PlayerPrefs.GetString("artifactsCollected"); }
+        set { SetArtifactsCollected(value); }
+    }
+
+    public int ArtifactCount
+    {
+        get { return PlayerPrefs.GetInt("artifactCount"); }
+        set { SetArtifactCount(value); }
+    }
+    public string SavedScene
+    {
+        get { return PlayerPrefs.GetString("savedScene"); }
+    }
+
+    public int HasOpenedGame
+    {
+        get { return PlayerPrefs.GetInt("hasOpenedGame"); }
+    }
+
     // Awake is called before Start()
     void Awake()
     {
@@ -26,15 +65,14 @@ public class SaveManager : MonoBehaviour
         SetElements();
 
         UpdateCurrentSaveFile();
-        LoadPuzzleDebugCheck();
         LoadPuzzleCheck();
-        SaveSceneName();
+        SetSavedScene();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        if (sceneName != mainMenu) SetHasOpenedGame();
+        SetHasOpenedGame();
     }
 
     // OnApplicationQuit is called before the application quits
@@ -43,20 +81,26 @@ public class SaveManager : MonoBehaviour
         PlayerPrefs.DeleteKey("hasOpenedGame");
     }
 
+    // Loads the player rotation
+    public void LoadPlayerRotation() => player.transform.eulerAngles = SavedPlayerRotation;
+
+    // Loads the player position
+    public void LoadPlayerPosition() => player.transform.position = SavedPlayerPosition;
+
     // Checks to update the current save file
     private void UpdateCurrentSaveFile()
     {
-        string savedScene = PlayerPrefs.GetString("savedScene");
         if (sceneName == tutorialZone)
         {
-            PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-            PlayerPrefs.DeleteKey("listOfArtifacts");
+            PlayerPrefs.DeleteKey("artifactsCollected");
+            PlayerPrefs.DeleteKey("artifactCount");
         }
 
-        if (sceneName == mainMenu || sceneName == savedScene || gameManagerScript.isDebugging) return;
+        if (sceneName == mainMenu || sceneName == SavedScene || gameManagerScript.isDebugging) return;
         PlayerPrefs.DeleteKey("cameraIndex");
         PlayerPrefs.DeleteKey("savedScene");
         PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_y");
         PlayerPrefs.DeleteKey("p_z");
         PlayerPrefs.DeleteKey("r_y");
         PlayerPrefs.Save();
@@ -66,124 +110,123 @@ public class SaveManager : MonoBehaviour
     [ContextMenu("Delete All Player Prefs")]
     public void DeleteAllPlayerPrefs()
     {
-        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-        PlayerPrefs.DeleteKey("listOfArtifacts");
+        PlayerPrefs.DeleteKey("artifactsCollected");
+        PlayerPrefs.DeleteKey("artifactCount");
 
         PlayerPrefs.DeleteKey("hasOpenedGame");
         PlayerPrefs.DeleteKey("cameraIndex");
         PlayerPrefs.DeleteKey("savedScene");
         PlayerPrefs.DeleteKey("p_x");
+        PlayerPrefs.DeleteKey("p_y");
         PlayerPrefs.DeleteKey("p_z");
         PlayerPrefs.DeleteKey("r_y");
         PlayerPrefs.Save();
     }
 
-    // Saves the player position
-    public void SavePlayerPosition(GameObject checkpoint)
+    // Sets the artifcatsCollected PlayerPref
+    private void SetArtifactsCollected(string value)
+    {
+        PlayerPrefs.SetString("artifactsCollected", value);
+        PlayerPrefs.Save();
+    }
+
+    // Sets the artifcatCount PlayerPref
+    private void SetArtifactCount(int value)
+    {
+        PlayerPrefs.SetInt("artifactCount", value);
+        PlayerPrefs.Save();
+    }
+
+    // Checks to set the cameraIndex PlayerPref
+    private void SetCameraIndex(int value)
     {
         if (sceneName == tutorialZone) return;
 
-        PlayerPrefs.SetFloat("p_x", checkpoint.transform.position.x);
-        PlayerPrefs.SetFloat("p_z", checkpoint.transform.position.z);
+        PlayerPrefs.SetInt("cameraIndex", value);
         PlayerPrefs.Save();
     }
 
-    // Saves the player rotation
-    public void SavePlayerRotation(float playerRotation)
-    {
-        PlayerPrefs.SetFloat("r_y", playerRotation);
-        PlayerPrefs.Save();
-    }
-
-    // Saves the camera position
-    public void SaveCameraPosition()
-    {
-        if (sceneName == tutorialZone) return;
-
-        PlayerPrefs.SetInt("cameraIndex", cameraScript.PuzzleViewIndex);
-        PlayerPrefs.Save();
-    }
-
-    // Saves the name of the collected artifact
-    public void SaveCollectedArtifact(string collectedArtifacts)
-    {
-        PlayerPrefs.SetString("listOfArtifacts", collectedArtifacts);
-        PlayerPrefs.Save();
-    }
-
-    // Saves the number of collected artifacts 
-    public void SaveNumberOfArtifactsCollected(int numberOfArtifactsCollected)
-    {
-        PlayerPrefs.SetInt("numberOfArtifactsCollected", numberOfArtifactsCollected);
-        PlayerPrefs.Save();
-    }
-
-    // Saves the name of the current scene
+    // Checks to set the savedScene PlayerPref
     // Note: be sure to call this after UpdateCurrentSaveFile() in Awake()!
-    private void SaveSceneName()
-    {     
+    private void SetSavedScene()
+    {
         if (sceneName == mainMenu) return;
 
         PlayerPrefs.SetString("savedScene", sceneName);
         PlayerPrefs.Save();
     }
 
-    // Checks if the game has been opened
-    public void SetHasOpenedGame()
+    // Checks to set the hasOpenedGame PlayerPref
+    private void SetHasOpenedGame()
     {
+        if (sceneName == mainMenu) return;
+
         PlayerPrefs.SetInt("hasOpenedGame", 1);
         PlayerPrefs.Save();
     }
 
-    // Loads the player rotation
-    public void LoadPlayerRotation()
+    // Sets the player's saved rotation
+    private void SetSavedPlayerRotation(Vector3 value)
     {
-        float yRot = PlayerPrefs.GetFloat("r_y");
-        player.transform.eulerAngles = new Vector3(0, yRot, 0);
+        PlayerPrefs.SetFloat("r_y", value.y);
+        PlayerPrefs.Save();
     }
 
-    // Loads the player position
-    private void LoadPlayerPosition()
+    // Checks to set the player's saved position
+    private void SetSavedPlayerPosition(Vector3 value)
     {
-        float xPos = PlayerPrefs.GetFloat("p_x");
-        float zPos = PlayerPrefs.GetFloat("p_z");
-        player.transform.position = new Vector3(xPos, 0, zPos);
+        if (sceneName == tutorialZone) return;
+
+        PlayerPrefs.SetFloat("p_x", value.x);
+        PlayerPrefs.SetFloat("p_y", value.y);
+        PlayerPrefs.SetFloat("p_z", value.z);
+        PlayerPrefs.Save();
     }
 
-    // Checks for the puzzle to load
-    // Note: player rotation is set by the checkpoint manager - only load player rotation when restarting a puzzle
-    private void LoadPuzzleCheck()
+    // Returns the player's saved position
+    private Vector3 ReturnSavedPlayerPosition()
     {
-        if (sceneName == mainMenu || sceneName == tutorialZone || gameManagerScript.isDebugging) return;
-
-        int puzzleViewIndex = PlayerPrefs.GetInt("cameraIndex");
         float playerPosX = PlayerPrefs.GetFloat("p_x");
+        float playerPosY = PlayerPrefs.GetFloat("p_y");
         float playerPosZ = PlayerPrefs.GetFloat("p_z");
 
-        Vector3 checkpointPos = checkpoints[puzzleViewIndex].transform.position;
-        Vector3 savedCheckpointPos = new Vector3(checkpointPos.x, 0, checkpointPos.z);
-        Vector3 savedPlayerPos = new Vector3(playerPosX, 0, playerPosZ);
-
-        player.transform.position = savedPlayerPos == savedCheckpointPos ? savedPlayerPos : savedCheckpointPos;
-        cameraScript.PuzzleViewIndex = puzzleViewIndex;
-        OnFirstPuzzleCheck();
+        return new Vector3(playerPosX, playerPosY, playerPosZ);
     }
 
-    // Checks for the puzzle to load via debug - For Debugging Purposes ONLY
-    // Note: player rotation is set by the checkpoint manager - only load player rotation when restarting a puzzle
-    private void LoadPuzzleDebugCheck()
+    // Returns the player's saved rotation
+    private Vector3 ReturnSavedPlayerRotation()
     {
-        if (sceneName == mainMenu || !gameManagerScript.isDebugging) return;
+        float playerRotY = PlayerPrefs.GetFloat("r_y");
+        return new Vector3(0, playerRotY, 0);
+    }
 
-        int puzzleNumber = gameManagerScript.puzzleNumber;
-        int checkpointIndex = (puzzleNumber < 1 || puzzleNumber > checkpoints.Length) ? 0 : puzzleNumber - 1;
-        Vector3 checkpointPos = checkpoints[checkpointIndex].transform.position;
+    // Returns the intended camera index - For Debugging Purposes ONLY
+    private int CameraIndexDebug()
+    {
+        int cameraIndex = gameManagerScript.puzzleNumber - 1;
 
-        player.transform.position = new Vector3(checkpointPos.x, 0, checkpointPos.z);
-        cameraScript.PuzzleViewIndex = checkpointIndex;
+        if (cameraIndex < 0 || cameraIndex > checkpoints.Length - 1) 
+            return 0;
+
+        return cameraIndex;
+    }
+
+    // Checks to load the appropriate puzzle
+    // Note: the player rotation is set by the checkpoint manager
+    private void LoadPuzzleCheck()
+    {
+        if (sceneName == mainMenu || sceneName == tutorialZone) return;
+
+        int puzzleViewIndex = gameManagerScript.isDebugging ? CameraIndexDebug() : CameraIndex;
+        Vector3 checkpointPos = checkpoints[puzzleViewIndex].transform.position;
+
+        cameraScript.PuzzleViewIndex = puzzleViewIndex;
+        player.transform.position = checkpointPos;
+
+        SavedPlayerPosition = checkpointPos;
+        CameraIndex = puzzleViewIndex;
+
         OnFirstPuzzleCheck();
-
-        Debug.Log($"Debugging: loaded puzzle {puzzleNumber}");
     }
 
     // Checks if the player is on the first puzzle - if the player position is zero/null
@@ -192,7 +235,7 @@ public class SaveManager : MonoBehaviour
     {
         if (player.transform.position != Vector3.zero) return;
 
-        savedInvisibleBlock.transform.position = new Vector3(0, 1, -1);
+        savedInvisibleBlock.transform.position = new Vector3(0, 0, -1);
         player.transform.position = new Vector3(0, 0, -5);
     }
 
@@ -201,8 +244,8 @@ public class SaveManager : MonoBehaviour
     {
         if (sceneName != tutorialZone || !playerScript.HasFinishedZone) return;
 
-        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-        PlayerPrefs.DeleteKey("listOfArtifacts");
+        PlayerPrefs.DeleteKey("artifactsCollected");
+        PlayerPrefs.DeleteKey("artifactCount");
         //Debug.Log("You have completed the tutorial!");
     }
 

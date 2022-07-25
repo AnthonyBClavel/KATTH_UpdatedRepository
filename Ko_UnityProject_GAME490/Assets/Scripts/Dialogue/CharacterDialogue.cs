@@ -110,16 +110,17 @@ public class CharacterDialogue : MonoBehaviour
     private IEnumerator dialogueOptionsCoroutine;
     private IEnumerator dialogueArrowCoroutine;
 
-    private Artifact artifactScript;
-    private HUD headsUpDisplayScript;
-    private BlackBars blackBarsScript;
-    private NonPlayerCharacter nPCScript;
-    private CameraController cameraScript;
-    private FidgetController nPCFidgetScript;
-    private AudioManager audioManagerScript;
     private TileMovementController playerScript;
     private FidgetController playerFidgetScript;
+    private FidgetController nPCFidgetScript;
     private BlackOverlay blackOverlayScript;
+    private AudioManager audioManagerScript;
+    private SaveManager saveManagerScript;
+    private CameraController cameraScript;
+    private NonPlayerCharacter nPCScript;
+    private BlackBars blackBarsScript;
+    private HUD headsUpDisplayScript;
+    private Artifact artifactScript;
 
     public bool InDialogue
     {
@@ -180,7 +181,7 @@ public class CharacterDialogue : MonoBehaviour
             artifactScript = newScript;      
         }
 
-        bool hasCollectedArtifact = PlayerPrefs.GetString("listOfArtifacts").Contains(artifact.name);
+        bool hasCollectedArtifact = saveManagerScript.ArtifactsCollected.Contains(artifact.name);
         TextAsset dialogueOptions = hasCollectedArtifact ? null : artifact.dialogueOptions;
         artifactDialogue = hasCollectedArtifact ? emptyChestDialogue : artifact.artifactDialogue;
         artifactScript.ArtifactHolder.SetActive(hasCollectedArtifact ? false : true);
@@ -900,10 +901,11 @@ public class CharacterDialogue : MonoBehaviour
 
         blackOverlayScript = FindObjectOfType<BlackOverlay>();
         audioManagerScript = FindObjectOfType<AudioManager>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
         cameraScript = FindObjectOfType<CameraController>();
         blackBarsScript = FindObjectOfType<BlackBars>();
-        artifactScript = FindObjectOfType<Artifact>();
         headsUpDisplayScript = FindObjectOfType<HUD>();
+        artifactScript = FindObjectOfType<Artifact>();
 
         playerFidgetScript = playerScript.GetComponentInChildren<FidgetController>();
         nPCFidgetScript = nPCScript.GetComponentInChildren<FidgetController>();

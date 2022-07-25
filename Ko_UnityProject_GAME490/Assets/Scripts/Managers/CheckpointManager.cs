@@ -40,7 +40,7 @@ public class CheckpointManager : MonoBehaviour
         SetElements();
     }
 
-    // Checks for the last/closest bridge tile - sets the savedInvisibleBlock's position and sets/saves the player's rotation
+    // Sets the savedInvisibleBlock's position to the closest bridge tile position - also sets/saves the player's rotation
     public void SetSavedBlockPosition()
     {
         for (int i = 0; i < 360; i += 90)
@@ -54,12 +54,10 @@ public class CheckpointManager : MonoBehaviour
             // If the ray doesn't hit anything or if it doesn't hit a bridge tile, then CONTINUE the loop
             if (!Physics.Raycast(myRay, out hit, rayLength) || !hit.collider.CompareTag("BridgeTile") && !hit.collider.name.Contains("BridgeTile")) continue;
 
-            float newPlayerRotY = bridgeTileCheck.transform.eulerAngles.y - 180;
-            Vector3 bridgeTilePos = hit.collider.transform.position;
-
-            if (playerScript.OnCheckpoint()) player.transform.eulerAngles = new Vector3(0, newPlayerRotY, 0);
-            savedInvisibleBlock.transform.position = new Vector3(bridgeTilePos.x, 1, bridgeTilePos.z);
-            saveManagerScript.SavePlayerRotation(newPlayerRotY);
+            Vector3 newPlayerRotation = new Vector3(0, bridgeTileCheck.transform.eulerAngles.y - 180, 0);
+            if (playerScript.OnCheckpoint()) player.transform.eulerAngles = newPlayerRotation;
+            savedInvisibleBlock.transform.position = hit.transform.position;
+            saveManagerScript.SavedPlayerRotation = newPlayerRotation;
 
             //Debug.Log("The SavedInvisibleBlock's position has been set");
             break;
@@ -80,8 +78,8 @@ public class CheckpointManager : MonoBehaviour
     // Resets the player's coroutines, position, rotation, and torch meter
     private void ResetPlayerElements()
     {
-        playerScript.StopPlayerCoroutines();
         audioManagerScript.StopAllPuzzleAudio();
+        playerScript.StopPlayerCoroutines();
         freezeEffectScript.ResetAlphas();
 
         player.transform.position = checkpointPosition;

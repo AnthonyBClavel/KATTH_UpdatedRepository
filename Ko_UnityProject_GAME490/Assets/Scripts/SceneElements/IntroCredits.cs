@@ -12,8 +12,9 @@ public class IntroCredits : MonoBehaviour
     private float zeroAlpha = 0f;
     private float fullAlpha = 1f;
 
+    static readonly string introScene = "IntroCredits";
+    static readonly string levelToLoad = "TestMap";
     private bool hasFinishIntroCredits = false;
-    private string levelToLoad = "TestMap";
     private string sceneName;
 
     private Transform introCredits;
@@ -37,7 +38,7 @@ public class IntroCredits : MonoBehaviour
     // Checks to start the intro credits
     private void StartIntroCredits()
     {
-        if (sceneName != "IntroCredits") return;
+        if (sceneName != introScene) return;
 
         // Note: syncs framerate to monitor's refresh rate
         QualitySettings.vSyncCount = 1;
@@ -61,7 +62,6 @@ public class IntroCredits : MonoBehaviour
     {
         if (asyncLoad.progress < 0.9f || asyncLoad.allowSceneActivation) return;
 
-        CreateNewSaveFile();
         asyncLoad.allowSceneActivation = true;
     }
 
@@ -117,21 +117,6 @@ public class IntroCredits : MonoBehaviour
         }
 
         FadeOutOverlay();
-    }
-
-    // Creates a new save file - deletes all of the appropriate player pref keys
-    private void CreateNewSaveFile()
-    {
-        PlayerPrefs.DeleteKey("numberOfArtifactsCollected");
-        PlayerPrefs.DeleteKey("listOfArtifacts");
-
-        PlayerPrefs.DeleteKey("cameraIndex");
-        PlayerPrefs.DeleteKey("savedScene");
-        PlayerPrefs.DeleteKey("p_x");
-        PlayerPrefs.DeleteKey("p_z");
-        PlayerPrefs.DeleteKey("r_y");
-
-        //Debug.Log("Created a new save file!");
     }
 
     // Sets the desired variables - loops through all of the children within a parent object

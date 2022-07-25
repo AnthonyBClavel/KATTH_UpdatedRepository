@@ -542,7 +542,7 @@ public class TileMovementController : MonoBehaviour
         }
         else if (!onBridge && hasPopedOutTM)
         {
-            torchMeterScript.PopOutTorchMeter();
+            torchMeterScript.PopInTorchMeter();
             hasPopedOutTM = false;
         }
     }
@@ -554,8 +554,7 @@ public class TileMovementController : MonoBehaviour
 
         checkpoint = FindTile("Checkpoint");
         puzzleManagerScript.SetCurrentCheckpoint(checkpoint);
-        saveManagerScript.SavePlayerPosition(checkpoint);
-        saveManagerScript.SaveCameraPosition();
+        saveManagerScript.SavedPlayerPosition = checkpoint.transform.position;
 
         bridgeTileCount = 0;
         isCrossingBridge = false;

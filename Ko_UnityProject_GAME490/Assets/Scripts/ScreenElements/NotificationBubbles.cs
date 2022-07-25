@@ -16,8 +16,10 @@ public class NotificationBubbles : MonoBehaviour
     [SerializeField] [Range(80f, 270f)]
     private float animDistanceKB = 100f; // Original Value = 100f
     private float bubbleScale = 0.8f;
+    private float totalArtifacts;
+    private float totalPuzzles;
 
-    private string tutorialZone = "TutorialMap";
+    static readonly string tutorialZone = "TutorialMap";
     private string sceneName;
 
     private bool canMoveInPN = true;
@@ -54,7 +56,7 @@ public class NotificationBubbles : MonoBehaviour
     private TextMeshProUGUI puzzleNotificaionText;
     private TextMeshProUGUI artifactNotificationText;
 
-    private CameraController cameraScript;
+    private SaveManager saveManagerScript;
     private PauseMenu pauseMenuScript;
 
     // Awake is called before Start()
@@ -83,9 +85,9 @@ public class NotificationBubbles : MonoBehaviour
 
     // Sets the text for the puzzle notification bubble 
     // Note: the default value for checkToPlay will always be true if the parameter is not set
-    public void SetsPuzzleNotificationText(string newText, bool checkToPlayPN = true)
+    public void SetsPuzzleNotificationText(int puzzleNumber, bool checkToPlayPN = true)
     {
-        puzzleNotificaionText.text = newText;
+        puzzleNotificaionText.text = $"{puzzleNumber}/{totalPuzzles}";
 
         if (!checkToPlayPN) return;
         PlayPuzzleNotificationCheck();
@@ -93,9 +95,9 @@ public class NotificationBubbles : MonoBehaviour
 
     // Sets the text for the artifact notification bubble
     // Note: the default value for checkToPlay will always be true if the parameter is not set
-    public void SetsArtifactNotificationText(string newText, bool checkToPlayAN = true)
+    public void SetsArtifactNotificationText(int artifactCount, bool checkToPlayAN = true)
     {
-        artifactNotificationText.text = newText;
+        artifactNotificationText.text = $"{artifactCount}/{totalArtifacts}";
 
         if (!checkToPlayAN) return;
         PlayArtifactNotificationCheck();
@@ -322,15 +324,11 @@ public class NotificationBubbles : MonoBehaviour
         isPlayingAN = false;
     }
 
-    // Updates the artifact notification bubble with the current amount of artifacts collected
+    // Sets the initial value for each notification bubble
     private void SetNotificationBubbbles()
     {
-        int artifactCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
-        string textForAN = (sceneName != tutorialZone) ? $"{artifactCount}/15" : "0/1";
-        string textForPN = cameraScript.ReturnTextForPN();
-
-        SetsArtifactNotificationText(textForAN, false);
-        SetsPuzzleNotificationText(textForPN, false);
+        SetsArtifactNotificationText(saveManagerScript.ArtifactCount, false);
+        SetsPuzzleNotificationText(saveManagerScript.CameraIndex + 1, false);
     }
 
     // Sets the vectors to use
@@ -352,7 +350,7 @@ public class NotificationBubbles : MonoBehaviour
     // Sets the scripts to use
     private void SetScripts()
     {
-        cameraScript = FindObjectOfType<CameraController>();
+        saveManagerScript = FindObjectOfType<SaveManager>();
         pauseMenuScript = FindObjectOfType<PauseMenu>();
     }
 
@@ -403,6 +401,9 @@ public class NotificationBubbles : MonoBehaviour
     {
         SetVariables(transform);
         SetVectors();
+
+        totalPuzzles = GameObject.FindGameObjectsWithTag("Checkpoint").Length;
+        totalArtifacts = (sceneName != tutorialZone) ? 15 : 1;
     }
 
     // Checks to update the destination for the notification bubbles - For Debugging Purposes ONLY

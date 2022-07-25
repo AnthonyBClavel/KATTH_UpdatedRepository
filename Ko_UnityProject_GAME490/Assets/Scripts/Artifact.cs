@@ -17,7 +17,7 @@ public class Artifact : MonoBehaviour
     private float verticalAxis;
     private float closeAnimLength;
 
-    private string tutorialZone = "TutorialMap";
+    static readonly string tutorialZone = "TutorialMap";
     private string sceneName;
     private string artifactName;
 
@@ -78,18 +78,14 @@ public class Artifact : MonoBehaviour
         SetArtifactInactive(); // Must be called in Start()!
     }
 
-    // Saves the name of the collected artifact via PlayerPrefs and updates the artifact notification bubble
+    // Saves the name of the collected artifact and updates the artifact notification bubble
     public void CollectArtifact()
     {
-        int artifactCount = PlayerPrefs.GetInt("numberOfArtifactsCollected");
-        string artifactsCollected = PlayerPrefs.GetString("listOfArtifacts");
-
         if (hasCollectedArtifact || !enabled) return;
 
-        int totalArtifacts = (sceneName != tutorialZone) ? 15 : 1;
-        notificationBubblesScript.SetsArtifactNotificationText($"{artifactCount + 1}/{totalArtifacts}");
-        saveManagerScript.SaveCollectedArtifact(artifactsCollected + $"{artifactName}, ");
-        saveManagerScript.SaveNumberOfArtifactsCollected(artifactCount + 1);
+        int artifactCount = saveManagerScript.ArtifactCount += 1;
+        saveManagerScript.ArtifactsCollected += $"{artifactName}, ";
+        notificationBubblesScript.SetsArtifactNotificationText(artifactCount);
         SetArtifactInactive();
 
         //Debug.Log("Collected artifact");
@@ -98,7 +94,7 @@ public class Artifact : MonoBehaviour
     // Checks to set the artifact/script inactive - if the artifact was collected
     private void SetArtifactInactive()
     {
-        if (!PlayerPrefs.GetString("listOfArtifacts").Contains(artifactName)) return;
+        if (!saveManagerScript.ArtifactsCollected.Contains(artifactName)) return;
 
         artifactHolder.SetActive(false);
         hasCollectedArtifact = true;

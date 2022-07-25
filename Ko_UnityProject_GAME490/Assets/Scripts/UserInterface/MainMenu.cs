@@ -180,8 +180,7 @@ public class MainMenu : MonoBehaviour
     {
         if (isContinueGame)
         {
-            string savedScene = PlayerPrefs.GetString("savedScene");
-            levelManagerScript.LoadNextScene(savedScene);
+            levelManagerScript.LoadNextScene(saveManagerScript.SavedScene);
         }
         else if (isNewGame)
         {
@@ -190,7 +189,6 @@ public class MainMenu : MonoBehaviour
         }
         else if (!isContinueGame && !isNewGame)
         {
-            //PlayerPrefs.DeleteKey("hasOpenedGame");
             StartCoroutine(QuitGameDelay());
         }
     }
@@ -199,7 +197,7 @@ public class MainMenu : MonoBehaviour
     // Note: the inital intro sequence will only play after you open or finish the game
     private void PlayMainMenuIntroCheck()
     {
-        if (PlayerPrefs.GetInt("hasOpenedGame") == 1)
+        if (saveManagerScript.HasOpenedGame == 1)
             StartCoroutine(AlternateIntroSequence());
         else
             StartCoroutine(InitialIntroSequence());
@@ -276,7 +274,6 @@ public class MainMenu : MonoBehaviour
             PopOutTextCheck();
             yield return null;
         }
-        saveManagerScript.SetHasOpenedGame();
 
         yield return new WaitForSecondsRealtime(0.15f);
         pressEnterTextAnim.SetTrigger("PET_PopOut");
@@ -380,7 +377,7 @@ public class MainMenu : MonoBehaviour
     // Sets the first button to select within the main menu
     private void SetFirstButton()
     {
-        string savedScene = PlayerPrefs.GetString("savedScene");
+        string savedScene = saveManagerScript.SavedScene;
 
         if (savedScene == string.Empty)
         {
