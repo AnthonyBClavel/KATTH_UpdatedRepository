@@ -1,19 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Text.RegularExpressions;
-using System.Linq;
 
 public class PuzzleManager : MonoBehaviour
 {
+    static readonly string treeHitParticle = "TreeHitParticle";
+    static readonly string treeShaderColor = "Color_6566A18B";
     private bool hasLitAllCrystals = false;
-    private int? puzzleNumber;
-    private int? bridgeNumber;
 
-    private GameObject currentPuzzle;
-    private GameObject currentBridge;
-    private GameObject currentCheckpoint;
-
+    private Transform currentPuzzle;
     private Transform staticBlocks;
     private Transform pushableBlocks;
     private Transform breakableBlocks;
@@ -29,18 +24,6 @@ public class PuzzleManager : MonoBehaviour
     private AudioManager audioManagerScript;
     private TileMovementController playerScript;
     private CheckpointManager checkpointManagerScript;
-
-    public int? PuzzleNumber
-    {
-        get { return puzzleNumber; }
-        set { puzzleNumber = value; }
-    }
-
-    public int? BridgeNumber
-    {
-        get { return bridgeNumber; }
-        set { bridgeNumber = value; }
-    }
 
     // Awake is called before Start()
     void Awake()
@@ -84,10 +67,10 @@ public class PuzzleManager : MonoBehaviour
 
     // Updates the parent objects that hold the puzzle blocks (trees, rocks, crates, crystals, etc.)
     public void UpdateParentObjects()
-    {
+    {     
         ResetParentObjects();
 
-        foreach (Transform child in currentPuzzle.transform)
+        foreach (Transform child in currentPuzzle)
         {
             if (!child.gameObject.activeInHierarchy) continue;
 
@@ -119,26 +102,17 @@ public class PuzzleManager : MonoBehaviour
     // Sets the current checkpoint
     public void SetCurrentCheckpoint(GameObject checkpoint)
     {
-        currentCheckpoint = checkpoint;
-        currentPuzzle = currentCheckpoint.transform.parent.parent.gameObject;
-        puzzleNumber = ConvertObjectNameToNumber(currentPuzzle);
-
-        checkpointManagerScript = currentCheckpoint.GetComponent<CheckpointManager>();
+        checkpointManagerScript = checkpoint.GetComponent<CheckpointManager>();
         checkpointManagerScript.SetSavedBlockPosition(); // The player rotation is saved in this method
 
         torchMeterScript.MaxVal = checkpointManagerScript.MaxTileMoves; // Sets the max tile moves for the puzzle
         torchMeterScript.ResetTorchMeter();
 
+        currentPuzzle = checkpoint.transform.parent.parent;
         cameraScript.HasMovedPuzzleView = false;
+
         StartCoroutine(ResetGenerator(0f)); // Resets the generator from the previous puzzle if applicable
         UpdateParentObjects();
-    }
-
-    // Sets the current bridge
-    public void SetCurrentBridge(GameObject bridge)
-    {
-        currentBridge = bridge;
-        bridgeNumber = ConvertObjectNameToNumber(currentBridge);
     }
 
     // Instantiates a particle effect on an object
@@ -149,10 +123,10 @@ public class PuzzleManager : MonoBehaviour
         GameObject particle = ParticleEffect(particleName);
 
         // Sets the particle's color to the tree shader's color if applicable
-        if (particle.name == "TreeHitParticle")
+        if (particle.name == treeHitParticle)
         {          
             Material treeShader = theObject.transform.GetChild(0).GetComponent<MeshRenderer>().material;
-            treeHitparticleSystem.startColor = treeShader.GetColor("Color_6566A18B"); // The color component's reference name in shader
+            treeHitparticleSystem.startColor = treeShader.GetColor(treeShaderColor); // The color component's reference name in shader
         }
 
         GameObject particleEffect = Instantiate(particle, theObject.transform.position + offsetPos, theObject.transform.rotation);
@@ -177,16 +151,6 @@ public class PuzzleManager : MonoBehaviour
     {
         foreach (Transform child in transform)
             Destroy(child.gameObject, duration);
-    }
-
-    // Converts the name of an object to an integer - removes all letters in the name
-    private int? ConvertObjectNameToNumber(GameObject theObject)
-    {
-        // If the object doesn NOT have number in its name
-        if (!theObject.name.Any(char.IsDigit)) return null;
-
-        string newObjectName = Regex.Replace(theObject.name, "[A-Za-z ]", "");
-        return int.Parse(newObjectName);
     }
 
     // Checks if all crystals within a puzzle are lit - play the chime sfx if so

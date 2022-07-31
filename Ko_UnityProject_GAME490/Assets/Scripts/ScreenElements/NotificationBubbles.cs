@@ -85,7 +85,7 @@ public class NotificationBubbles : MonoBehaviour
 
     // Sets the text for the puzzle notification bubble 
     // Note: the default value for checkToPlay will always be true if the parameter is not set
-    public void SetsPuzzleNotificationText(int puzzleNumber, bool checkToPlayPN = true)
+    public void SetPuzzleNotificationText(int puzzleNumber, bool checkToPlayPN = true)
     {
         puzzleNotificaionText.text = $"{puzzleNumber}/{totalPuzzles}";
 
@@ -95,7 +95,7 @@ public class NotificationBubbles : MonoBehaviour
 
     // Sets the text for the artifact notification bubble
     // Note: the default value for checkToPlay will always be true if the parameter is not set
-    public void SetsArtifactNotificationText(int artifactCount, bool checkToPlayAN = true)
+    public void SetArtifactNotificationText(int artifactCount, bool checkToPlayAN = true)
     {
         artifactNotificationText.text = $"{artifactCount}/{totalArtifacts}";
 
@@ -327,8 +327,8 @@ public class NotificationBubbles : MonoBehaviour
     // Sets the initial value for each notification bubble
     private void SetNotificationBubbbles()
     {
-        SetsArtifactNotificationText(saveManagerScript.ArtifactCount, false);
-        SetsPuzzleNotificationText(saveManagerScript.CameraIndex + 1, false);
+        SetArtifactNotificationText(saveManagerScript.ArtifactCount, false);
+        SetPuzzleNotificationText(saveManagerScript.CameraIndex + 1, false);
     }
 
     // Sets the vectors to use

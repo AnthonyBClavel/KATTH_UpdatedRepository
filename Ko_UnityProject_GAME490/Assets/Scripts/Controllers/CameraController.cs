@@ -31,7 +31,6 @@ public class CameraController : MonoBehaviour
     private NotificationBubbles notificationBubblesScript;
     private CharacterDialogue characterDialogueScript;
     private TileMovementController playerScript;
-    private PuzzleManager puzzleManagerScript;
     private AudioManager audioManagerScript;
     private SaveManager saveManagerScript;
     private GameManager gameManagerScript;
@@ -39,7 +38,7 @@ public class CameraController : MonoBehaviour
     public int PuzzleViewIndex
     {
         get { return puzzleViewIndex; }
-        set { puzzleViewIndex = value; }
+        set { SetPuzzleViewIndex(value); }
     }
     
     public bool HasMovedPuzzleView
@@ -61,21 +60,17 @@ public class CameraController : MonoBehaviour
         SetToPuzzleView();
     }
 
-    // Checks to move the camera to the next/previous puzzle view (move to next if true, move to previous otherwise)
-    public void NextPuzzleViewCheck()
+    // Checks to move the camera to the next/previous puzzle view
+    public void LerpToNextPuzzleVew()
     {
-        // Note: the bridge number for the first/last bridge will be NULL - there are no numbers in their name
-        int? puzzleNumber = puzzleManagerScript.PuzzleNumber;
-        int? bridgeNumber = puzzleManagerScript.BridgeNumber;
-        if (hasMovedPuzzleView || puzzleNumber == null || bridgeNumber == null) return;
+        if (hasMovedPuzzleView || playerScript.OnFirstOrlastBridge()) return;
 
-        // Note: puzzleNumber is the NEXT puzzleViewIndex, puzzleNumber - 2 is the PREVIOUS puzzleViewIndex
-        puzzleViewIndex = (int)(bridgeNumber == puzzleNumber ? puzzleNumber : puzzleNumber - 2);
-        notificationBubblesScript.SetsPuzzleNotificationText(puzzleViewIndex + 1);
+        puzzleViewIndex += playerScript.HasFinishedPuzzle ? 1 : -1;
         saveManagerScript.CameraIndex = puzzleViewIndex;
 
         // Note: the camera doesn't lerp if its already at the intended next/previous puzzle view
         if (currentPuzzleView != puzzleViews[puzzleViewIndex]) LerpToPuzzleView();
+        notificationBubblesScript.SetPuzzleNotificationText(puzzleViewIndex + 1);
         audioManagerScript.FadeOutGeneratorSFX();
         hasMovedPuzzleView = true;
 
@@ -269,7 +264,6 @@ public class CameraController : MonoBehaviour
         notificationBubblesScript = FindObjectOfType<NotificationBubbles>();
         characterDialogueScript = FindObjectOfType<CharacterDialogue>();
         playerScript = FindObjectOfType<TileMovementController>();
-        puzzleManagerScript = FindObjectOfType<PuzzleManager>();
         audioManagerScript = FindObjectOfType<AudioManager>();
         saveManagerScript = FindObjectOfType<SaveManager>();
         gameManagerScript = FindObjectOfType<GameManager>();
@@ -282,6 +276,20 @@ public class CameraController : MonoBehaviour
 
         foreach (GameObject checkpoint in checkpoints)
             puzzleViews.Add(FindPuzzleView(checkpoint));
+    }
+
+    // Checks to set the value of puzzleViewIndex
+    private void SetPuzzleViewIndex(int value)
+    {
+        int maxPVI = puzzleViews.Count - 1;
+        int minPVI = 0;
+
+        if (value > maxPVI)
+            puzzleViewIndex = minPVI;
+        else if (value < minPVI)
+            puzzleViewIndex = maxPVI;
+        else
+            puzzleViewIndex = value;
     }
 
     // Sets the desired variables - loops through all of the children within a parent object
@@ -324,17 +332,12 @@ public class CameraController : MonoBehaviour
 
     // Lerps the camera to the current/next/previous puzzle view - For Debugging Purposes Only
     // Note: no value will be added to the puzzleViewIndex if the int parameter is not set
-    private void LerpCameraDebug(int addToIndex = 0)
+    private void LerpCameraDebug(int addToIndex)
     {
-        int nextPVI = puzzleViewIndex + addToIndex;
-        int maxPVI = puzzleViews.Count - 1;
-
-        if (nextPVI > maxPVI) puzzleViewIndex = 0;
-        else if (nextPVI < 0) puzzleViewIndex = maxPVI;
-        else puzzleViewIndex = nextPVI;
-
+        PuzzleViewIndex += addToIndex;
         LerpToPuzzleView();
-        notificationBubblesScript.SetsPuzzleNotificationText(puzzleViewIndex + 1, false);
+
+        notificationBubblesScript.SetPuzzleNotificationText(puzzleViewIndex + 1, false);
         Debug.Log($"Debugging: moved camera to puzzle {puzzleViewIndex + 1}");
     }
 

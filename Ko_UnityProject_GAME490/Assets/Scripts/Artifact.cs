@@ -85,7 +85,7 @@ public class Artifact : MonoBehaviour
 
         int artifactCount = saveManagerScript.ArtifactCount += 1;
         saveManagerScript.ArtifactsCollected += $"{artifactName}, ";
-        notificationBubblesScript.SetsArtifactNotificationText(artifactCount);
+        notificationBubblesScript.SetArtifactNotificationText(artifactCount);
         SetArtifactInactive();
 
         //Debug.Log("Collected artifact");
