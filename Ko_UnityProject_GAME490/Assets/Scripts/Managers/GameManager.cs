@@ -53,7 +53,6 @@ public class GameManager : MonoBehaviour
         SetElements();
     }
 
-    
     // LateUpdate is called once per frame - after Update()
     void LateUpdate()
     {
@@ -67,14 +66,14 @@ public class GameManager : MonoBehaviour
         if (!isDebugging || Time.deltaTime == 0) return;
 
         notificationBubblesScript.DebuggingCheck();
-        blackOverlayScript.DebuggingCheck();
-        blackBarsScript.DebuggingCheck();
+        blackOverlayScript.DebuggingCheck();    // "Semicolon" to fade out, "Quote" to fade in
+        blackBarsScript.DebuggingCheck();       // "P" to toggle the bars in/out
 
-        torchMeterScript.DebuggingCheck();
-        cameraScript.DebuggingCheck();
+        torchMeterScript.DebuggingCheck();      // "RightBracket" to increase torch meter, "LeftBracket" to decrease it
+        cameraScript.DebuggingCheck();          // "Equals" for next puzzle view, "Minus" for previous puzzle view
 
-        SavedBlockDebuggingCheck();
-        SaveFileDebuggingCheck();
+        SavedBlockDebuggingCheck();             // "Backspace" to toggle the invisible block on previous bridge active/inactive
+        SaveFileDebuggingCheck();               // "Backslash" to create a new/empty save file
     }
 
     // Sets the scripts to use
@@ -128,11 +127,21 @@ public class GameManager : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Backspace)) return; // Debug key is "<--" (backspace)
 
-        bool isActive = savedInvisibleBlock.activeInHierarchy ? false : true;
-        string activeStatus = isActive ? "active" : "inactive";
+        bool isActive = savedInvisibleBlock.activeInHierarchy ? true : false;
+        string activeStatus = isActive ? "inactive" : "active";
 
-        savedInvisibleBlock.SetActive(isActive);
+        savedInvisibleBlock.SetActive(!isActive);
         Debug.Log($"Debugging: saved invisible block is now {activeStatus}");
     }
+
+    /*
+    // Checks to enable the debug console in development build - For Debugging Purposes ONLY
+    private void DebugConsoleDebuggingCheck()
+    {
+        if (!Debug.isDebugBuild || Debug.developerConsoleVisible || !Input.GetKeyDown(KeyCode.O)) return; // Debug key is "O"
+
+        Debug.LogError($"Debugging: the debug console has been enabled");
+    }
+    */
 
 }

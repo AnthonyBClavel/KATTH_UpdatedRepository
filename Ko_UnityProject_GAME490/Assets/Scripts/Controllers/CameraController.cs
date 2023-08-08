@@ -10,6 +10,7 @@ public class CameraController : MonoBehaviour
 
     private bool hasMovedPuzzleView = false;
     private int puzzleViewIndex;
+    private int currentPuzzleIndex;
 
     private GameObject northDialogueView;
     private GameObject eastDialogueView;
@@ -65,7 +66,8 @@ public class CameraController : MonoBehaviour
     {
         if (hasMovedPuzzleView || playerScript.OnFirstOrlastBridge()) return;
 
-        puzzleViewIndex += playerScript.HasFinishedPuzzle ? 1 : -1;
+        // Note: the value of currentPuzzleIndex is changed due to the "+=" operator
+        puzzleViewIndex = currentPuzzleIndex += playerScript.HasFinishedPuzzle ? 1 : -1;
         saveManagerScript.CameraIndex = puzzleViewIndex;
 
         // Note: the camera doesn't lerp if its already at the intended next/previous puzzle view
@@ -128,6 +130,8 @@ public class CameraController : MonoBehaviour
     {
         transform.position = puzzleViews[puzzleViewIndex];
         transform.eulerAngles = puzzleAngles[puzzleViewIndex];
+
+        currentPuzzleIndex = puzzleViewIndex;
     }
 
     // Sets the camera's position to the current dialogue view
@@ -272,7 +276,8 @@ public class CameraController : MonoBehaviour
     // Sets the puzzle views - creates a puzzle view for each puzzle in the zone
     private void SetPuzzleViews()
     {
-        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
+        checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint").OrderBy(x => x.transform.parent.parent.name).ToList();
+        //Debug.Log($"Camera Controller: order of the checkpoints/puzzles found: {checkpoints.ConvertGameObjectListToString()}");
 
         foreach (GameObject checkpoint in checkpoints)
             puzzleViews.Add(FindPuzzleView(checkpoint));
@@ -281,13 +286,19 @@ public class CameraController : MonoBehaviour
     // Checks to set the value of puzzleViewIndex
     private void SetPuzzleViewIndex(int value)
     {
+        // Note: "maxPVI > minPVI" checks if the puzzle count is greater than zero
+        // Note: the saveManagerScript gets called before this script, so when it calls this function, puzzleViews.count will be zero
+        // Note: changing the "script execution order" settings can solve this, but it's best to avoid changing this setting
+
         int maxPVI = puzzleViews.Count - 1;
         int minPVI = 0;
 
-        if (value > maxPVI)
+        if (maxPVI > minPVI && value > maxPVI)
             puzzleViewIndex = minPVI;
-        else if (value < minPVI)
+
+        else if (maxPVI > minPVI && value < minPVI)
             puzzleViewIndex = maxPVI;
+
         else
             puzzleViewIndex = value;
     }
@@ -334,6 +345,7 @@ public class CameraController : MonoBehaviour
     // Note: no value will be added to the puzzleViewIndex if the int parameter is not set
     private void LerpCameraDebug(int addToIndex)
     {
+        // Note: must use "PuzzleViewIndex" (the one with a capital "P"), not puzzleViewIndex
         PuzzleViewIndex += addToIndex;
         LerpToPuzzleView();
 

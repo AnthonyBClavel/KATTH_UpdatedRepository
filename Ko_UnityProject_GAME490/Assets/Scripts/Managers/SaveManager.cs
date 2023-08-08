@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
+using System.Linq;
 
 public class SaveManager : MonoBehaviour
 {
@@ -97,6 +98,7 @@ public class SaveManager : MonoBehaviour
         }
 
         if (sceneName == mainMenu || sceneName == SavedScene || gameManagerScript.isDebugging) return;
+
         PlayerPrefs.DeleteKey("cameraIndex");
         PlayerPrefs.DeleteKey("savedScene");
         PlayerPrefs.DeleteKey("p_x");
@@ -293,7 +295,9 @@ public class SaveManager : MonoBehaviour
 
         if (sceneName == mainMenu) savedInvisibleBlock.SetActive(false);
         player = (sceneName != mainMenu) ? FindObjectOfType<TileMovementController>().gameObject : null;
-        checkpoints = (sceneName != mainMenu) ? GameObject.FindGameObjectsWithTag("Checkpoint") : null;
+        checkpoints = (sceneName != mainMenu) ? GameObject.FindGameObjectsWithTag("Checkpoint").OrderBy(x => x.transform.parent.parent.name).ToArray() : null;
+
+        //if (sceneName != mainMenu) Debug.Log($"Save Manager: order of the checkpoints/puzzles found: {checkpoints.ConvertGameObjectArrayToString()}");
     }
 
 }
